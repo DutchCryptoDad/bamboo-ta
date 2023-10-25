@@ -35,9 +35,9 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 # # VOLATILITY CALCULATIONS
 # bb_result = bta.BollingerBands(df, "close", 21, 2, 0)
-# df['BB_upper'] = bb_result['BB_upper']
-# df['BB_middle'] = bb_result['BB_middle']
-# df['BB_lower'] = bb_result['BB_lower']
+# df['bb_upper'] = bb_result['BB_upper']
+# df['bb_middle'] = bb_result['BB_middle']
+# df['bb_lower'] = bb_result['BB_lower']
 
 
 # # Based on Pandas TA
@@ -77,7 +77,7 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # 1971 2023-01-09  17127.83  17398.80  17104.66  17178.26  266211.52723  59.060593  59.060593
 
 # MACD
-# macd_result = bta.MACD(df, 12, 26, 9)
+# macd_result = bta.MACD(df, "close", 12, 26, 9)
 # df['macd'] = macd_result['MACD']
 # df['macd_signal'] = macd_result['MACD_signal']
 # df['macd_histogram'] = macd_result['MACD_histogram']
@@ -100,6 +100,28 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # 1969 2023-01-07  16950.31  16981.91  16908.00  16943.57  104526.56880 -41.791848   -89.271757       47.479908 -41.791848  -89.271757  47.479908
 # 1970 2023-01-08  16943.83  17176.99  16911.00  17127.83  135155.89695 -12.294984   -73.876402       61.581418 -12.294984  -73.876402  61.581418
 # 1971 2023-01-09  17127.83  17398.80  17104.66  17178.26  266211.52723  14.978115   -56.105499       71.083614  14.978115  -56.105499  71.083614
+
+# supertrend_result = bta.SuperTrend(df, "close", 7, 3.0, 0)
+# df['supertrend'] = supertrend_result['ST_trend']
+# df['supertrend_d'] = supertrend_result['ST_direction']
+# df['supertrend_l'] = supertrend_result['ST_long']
+# df['supertrend_s'] = supertrend_result['ST_short']
+
+# # Using Pandas TA
+# # Supertrend is 1 where close is above supertrend (bullish), and -1 if close is below supertrend (bearish).
+
+# st_length = 7
+# st_mult = 3.0
+
+# df['st'] = pta.supertrend(high=df['high'], low=df['low'], close=df['close'],
+#                           length=st_length, multiplier=st_mult)[f'SUPERT_{st_length}_{st_mult}']
+# df['std'] = pta.supertrend(high=df['high'], low=df['low'], close=df['close'],
+#                            length=st_length, multiplier=st_mult)[f'SUPERTd_{st_length}_{st_mult}']
+# df['stl'] = pta.supertrend(high=df['high'], low=df['low'], close=df['close'],
+#                            length=st_length, multiplier=st_mult)[f'SUPERTl_{st_length}_{st_mult}']
+# df['sts'] = pta.supertrend(high=df['high'], low=df['low'], close=df['close'],
+#                            length=st_length, multiplier=st_mult)[f'SUPERTs_{st_length}_{st_mult}']
+
 
 # Print stuff
 print(df.tail(5))

@@ -82,3 +82,76 @@ def LSMA(df, column="close", period=21):
     lsma_series = pd.Series(lsma_values, index=df.index[period - 1:])
 
     return lsma_series
+
+
+def SuperTrend(df, column="close", length=7, multiplier=3.0, offset=0):
+    """
+    Supertrend Indicator
+
+    Call with:
+        supertrend_result = bta.SuperTrend(df, "close", 7, 3.0, 0)
+        df['supertrend'] = supertrend_result['ST_trend']
+        df['supertrend_d'] = supertrend_result['ST_direction']
+        df['supertrend_l'] = supertrend_result['ST_long']
+        df['supertrend_s'] = supertrend_result['ST_short']
+
+
+    Args:
+    - df (pd.DataFrame): DataFrame containing the data.
+    - column (str): The column name on which the Supertrend is to be applied. Default is "close".
+    - length (int): The period over which the indicator is to be calculated.
+    - multiplier (float): Multiplier for ATR value.
+    - offset (int): How many periods to offset the result. Default: 0.
+
+    Returns:
+    - Dict[str, pd.Series]: A dictionary with 'ST_trend', 'ST_direction', 'ST_long', and 'ST_short' as keys.
+    """
+
+    # Calculate ATR
+    atr = multiplier * (df['high'] - df['low']).ewm(span=length).mean()
+
+    # Calculate Supertrend
+    hl2 = (df['high'] + df['low']) / 2
+    upperband = hl2 + atr
+    lowerband = hl2 - atr
+
+    direction = [0]  # Initialize direction to 0
+    trend = [np.nan]  # Initial trend value
+    long_signal = [np.nan]  # Initial long signal
+    short_signal = [np.nan]  # Initial short signal
+
+    for i in range(1, len(df)):
+        if df[column][i] > upperband[i - 1]:
+            direction.append(1)  # Bullish direction
+        elif df[column][i] < lowerband[i - 1]:
+            direction.append(-1)  # Bearish direction
+        else:
+            direction.append(direction[-1])
+            if direction[-1] > 0 and lowerband[i] < lowerband[i - 1]:
+                lowerband[i] = lowerband[i - 1]
+            if direction[-1] < 0 and upperband[i] > upperband[i - 1]:
+                upperband[i] = upperband[i - 1]
+
+        if direction[-1] > 0:
+            trend.append(lowerband[i])
+            long_signal.append(lowerband[i])
+            short_signal.append(np.nan)
+        else:
+            trend.append(upperband[i])
+            long_signal.append(np.nan)
+            short_signal.append(upperband[i])
+
+    # Apply offset if needed
+    if offset != 0:
+        trend = pd.Series(trend).shift(offset).tolist()
+        direction = pd.Series(direction).shift(offset).tolist()
+        long_signal = pd.Series(long_signal).shift(offset).tolist()
+        short_signal = pd.Series(short_signal).shift(offset).tolist()
+
+    # Return the values as a dictionary
+    return {
+        f"ST_trend": pd.Series(trend, index=df.index),
+        f"ST_direction": pd.Series(direction, index=df.index),
+        f"ST_long": pd.Series(long_signal, index=df.index),
+        f"ST_short": pd.Series(short_signal, index=df.index)
+    }
