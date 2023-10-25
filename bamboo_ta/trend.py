@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from pandas import DataFrame
+import math
 import numpy as np
 import pandas as pd
 from .bamboo_ta import *
@@ -84,74 +86,88 @@ def LSMA(df, column="close", period=21):
     return lsma_series
 
 
-def SuperTrend(df, column="close", length=7, multiplier=3.0, offset=0):
+def WMA(df, column="close", period=9):
     """
-    Supertrend Indicator
+    TradingView-Style Weighted Moving Average (WMA)
 
     Call with:
-        supertrend_result = bta.SuperTrend(df, "close", 7, 3.0, 0)
-        df['supertrend'] = supertrend_result['ST_trend']
-        df['supertrend_d'] = supertrend_result['ST_direction']
-        df['supertrend_l'] = supertrend_result['ST_long']
-        df['supertrend_s'] = supertrend_result['ST_short']
+        df['wma'] = bta.WMA(df, "close", 9)
 
-
-    Args:
-    - df (pd.DataFrame): DataFrame containing the data.
-    - column (str): The column name on which the Supertrend is to be applied. Default is "close".
-    - length (int): The period over which the indicator is to be calculated.
-    - multiplier (float): Multiplier for ATR value.
-    - offset (int): How many periods to offset the result. Default: 0.
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which WMA is to be calculated. Default is "close".
+    - period (int): The period over which WMA is to be calculated. Default is 9.
 
     Returns:
-    - Dict[str, pd.Series]: A dictionary with 'ST_trend', 'ST_direction', 'ST_long', and 'ST_short' as keys.
+    - pandas.Series: A series of WMA values.
+
+    Description:
+    The Weighted Moving Average assigns weights linearly. The most recent data gets the highest weight.
+    """
+    weights = range(1, period + 1)
+    numerator = df[column].rolling(window=period).apply(
+        lambda x: sum(weights * x), raw=True)
+    denominator = sum(weights)
+    return numerator / denominator
+
+
+def HMA(df, column="close", period=9):
+    """
+    Hull Moving Average (HMA)
+
+    Call with:
+        df['hma'] = bta.HMA(df, "close", 9)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which HMA is to be calculated. Default is "close".
+    - period (int): The period over which HMA is to be calculated. Default is 9.
+
+    Returns:
+    - pandas.Series: A series of HMA values.
+
+    Description:
+    Hull Moving Average (HMA) is an improved moving average, responsive and with minimal lag. It involves the combination of WMA (Weighted Moving Average) with different periods.
     """
 
-    # Calculate ATR
-    atr = multiplier * (df['high'] - df['low']).ewm(span=length).mean()
+    # We're assuming that WMA is defined in the same file and thus is accessible here.
+    half_length = math.floor(period / 2)
+    sqrt_length = math.floor(math.sqrt(period))
 
-    # Calculate Supertrend
-    hl2 = (df['high'] + df['low']) / 2
-    upperband = hl2 + atr
-    lowerband = hl2 - atr
+    wma_half = WMA(df, column=column, period=half_length)
+    wma_full = WMA(df, column=column, period=period)
 
-    direction = [0]  # Initialize direction to 0
-    trend = [np.nan]  # Initial trend value
-    long_signal = [np.nan]  # Initial long signal
-    short_signal = [np.nan]  # Initial short signal
+    h = 2 * wma_half - wma_full
+    h_df = DataFrame(h, columns=[column])
+    hma = WMA(h_df, column=column, period=sqrt_length)
 
-    for i in range(1, len(df)):
-        if df[column][i] > upperband[i - 1]:
-            direction.append(1)  # Bullish direction
-        elif df[column][i] < lowerband[i - 1]:
-            direction.append(-1)  # Bearish direction
-        else:
-            direction.append(direction[-1])
-            if direction[-1] > 0 and lowerband[i] < lowerband[i - 1]:
-                lowerband[i] = lowerband[i - 1]
-            if direction[-1] < 0 and upperband[i] > upperband[i - 1]:
-                upperband[i] = upperband[i - 1]
+    return hma
 
-        if direction[-1] > 0:
-            trend.append(lowerband[i])
-            long_signal.append(lowerband[i])
-            short_signal.append(np.nan)
-        else:
-            trend.append(upperband[i])
-            long_signal.append(np.nan)
-            short_signal.append(upperband[i])
 
-    # Apply offset if needed
-    if offset != 0:
-        trend = pd.Series(trend).shift(offset).tolist()
-        direction = pd.Series(direction).shift(offset).tolist()
-        long_signal = pd.Series(long_signal).shift(offset).tolist()
-        short_signal = pd.Series(short_signal).shift(offset).tolist()
+def ZLEMA(df, column="close", period=21):
+    """
+    Zero Lag Exponential Moving Average (ZLEMA)
 
-    # Return the values as a dictionary
-    return {
-        f"ST_trend": pd.Series(trend, index=df.index),
-        f"ST_direction": pd.Series(direction, index=df.index),
-        f"ST_long": pd.Series(long_signal, index=df.index),
-        f"ST_short": pd.Series(short_signal, index=df.index)
-    }
+    Call with:
+        df['zlema'] = bta.ZLEMA(df, "close", 21)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which ZLEMA is to be calculated. Default is "close".
+    - period (int): The period over which ZLEMA is to be calculated. Default is 21.
+
+    Returns:
+    - pandas.Series: A series of ZLEMA values.
+
+    Description:
+    Zero Lag Exponential Moving Average (ZLEMA) is an EMA that adjusts for lag, making it more responsive to recent price changes. It uses lagged data differences to adjust the EMA calculation, thereby supposedly removing the inherent lag of EMA.
+    """
+    lag = int((period - 1) / 2)
+
+    # Calculating the adjusted data series
+    ema_data = df[column] + (df[column] - df[column].shift(lag))
+
+    # Computing the EMA of the adjusted data series
+    zlema = ema_data.ewm(span=period, adjust=False).mean()
+
+    return zlema

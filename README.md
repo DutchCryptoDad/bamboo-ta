@@ -175,3 +175,7 @@ Add the given token to the file like this:
 Save the file and reload environment if necessary.
 
 Now you an upload libraries without having to use the password.
+
+## Other sources
+
+* [ThinkOrSwim Tech indicators](https://tlc.thinkorswim.com/center/reference/Tech-Indicators)

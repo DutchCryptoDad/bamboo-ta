@@ -74,3 +74,29 @@ def MACD(df, column="close", short_window=12, long_window=26, signal_window=9):
         'MACD_signal': signal,
         'MACD_histogram': histogram
     })
+
+
+def EWO(df, column="close", sma1_period=5, sma2_period=35):
+    """
+    Elliott Wave Oscillator (EWO)
+
+    Call with:
+        df['ewo'] = bta.EWO(df, "close", 5, 35)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which EWO is to be calculated. Default is "close".
+    - sma1_period (int): The period for the shorter SMA used in EWO calculation. Default is 5.
+    - sma2_period (int): The period for the longer SMA used in EWO calculation. Default is 35.
+
+    Returns:
+    - pandas.Series: A series of EWO values.
+
+    Description:
+    The Elliott Wave Oscillator (EWO) is a specific tool to help you identify the trend and the overall market pattern to assist in finding future trading opportunities. It is derived by calculating the difference between a short and long period simple moving average, then normalizing the result with the close price.
+    """
+    sma1 = df[column].rolling(window=sma1_period).mean()
+    sma2 = df[column].rolling(window=sma2_period).mean()
+    ewo = (sma1 - sma2) / df[column] * 100
+
+    return ewo
