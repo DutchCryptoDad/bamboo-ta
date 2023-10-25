@@ -157,6 +157,15 @@ Description: # bamboo-ta
         twine upload dist/*
         ```
         
+        Note: uploading new versions requires to delete the older versions from the /dist folder.
+        
+        Another option is to use the ``--skip-existing`` option like this:
+        
+        ```
+        twine upload -r --skip-existing testpypi dist/*
+        twine upload --skip-existing dist/*
+        ```
+        
         ### Uploading with 2FA enabled
         
         First create an API token (at https://test.pypi.org/manage/account/token/).
@@ -174,6 +183,11 @@ Description: # bamboo-ta
         Save the file and reload environment if necessary.
         
         Now you an upload libraries without having to use the password.
+        
+        ## Other sources
+        
+        * [ThinkOrSwim Tech indicators](https://tlc.thinkorswim.com/center/reference/Tech-Indicators)
+        
 Keywords: python,pandas,numpy,trading,indicator,technical analysis
 Platform: UNKNOWN
 Classifier: Development Status :: 1 - Planning

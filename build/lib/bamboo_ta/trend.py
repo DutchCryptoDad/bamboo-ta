@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from pandas import DataFrame
+import math
 import numpy as np
 import pandas as pd
 from .bamboo_ta import *
@@ -82,3 +84,90 @@ def LSMA(df, column="close", period=21):
     lsma_series = pd.Series(lsma_values, index=df.index[period - 1:])
 
     return lsma_series
+
+
+def WMA(df, column="close", period=9):
+    """
+    TradingView-Style Weighted Moving Average (WMA)
+
+    Call with:
+        df['wma'] = bta.WMA(df, "close", 9)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which WMA is to be calculated. Default is "close".
+    - period (int): The period over which WMA is to be calculated. Default is 9.
+
+    Returns:
+    - pandas.Series: A series of WMA values.
+
+    Description:
+    The Weighted Moving Average assigns weights linearly. The most recent data gets the highest weight.
+    """
+    weights = range(1, period + 1)
+    numerator = df[column].rolling(window=period).apply(
+        lambda x: sum(weights * x), raw=True)
+    denominator = sum(weights)
+    return numerator / denominator
+
+
+def HMA(df, column="close", period=9):
+    """
+    Hull Moving Average (HMA)
+
+    Call with:
+        df['hma'] = bta.HMA(df, "close", 9)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which HMA is to be calculated. Default is "close".
+    - period (int): The period over which HMA is to be calculated. Default is 9.
+
+    Returns:
+    - pandas.Series: A series of HMA values.
+
+    Description:
+    Hull Moving Average (HMA) is an improved moving average, responsive and with minimal lag. It involves the combination of WMA (Weighted Moving Average) with different periods.
+    """
+
+    # We're assuming that WMA is defined in the same file and thus is accessible here.
+    half_length = math.floor(period / 2)
+    sqrt_length = math.floor(math.sqrt(period))
+
+    wma_half = WMA(df, column=column, period=half_length)
+    wma_full = WMA(df, column=column, period=period)
+
+    h = 2 * wma_half - wma_full
+    h_df = DataFrame(h, columns=[column])
+    hma = WMA(h_df, column=column, period=sqrt_length)
+
+    return hma
+
+
+def ZLEMA(df, column="close", period=21):
+    """
+    Zero Lag Exponential Moving Average (ZLEMA)
+
+    Call with:
+        df['zlema'] = bta.ZLEMA(df, "close", 21)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which ZLEMA is to be calculated. Default is "close".
+    - period (int): The period over which ZLEMA is to be calculated. Default is 21.
+
+    Returns:
+    - pandas.Series: A series of ZLEMA values.
+
+    Description:
+    Zero Lag Exponential Moving Average (ZLEMA) is an EMA that adjusts for lag, making it more responsive to recent price changes. It uses lagged data differences to adjust the EMA calculation, thereby supposedly removing the inherent lag of EMA.
+    """
+    lag = int((period - 1) / 2)
+
+    # Calculating the adjusted data series
+    ema_data = df[column] + (df[column] - df[column].shift(lag))
+
+    # Computing the EMA of the adjusted data series
+    zlema = ema_data.ewm(span=period, adjust=False).mean()
+
+    return zlema

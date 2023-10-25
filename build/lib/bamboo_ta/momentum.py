@@ -40,12 +40,12 @@ def RSI(df, column="close", period=14):
     return rsi
 
 
-def MACD(df, short_window=12, long_window=26, signal_window=9):
+def MACD(df, column="close", short_window=12, long_window=26, signal_window=9):
     """
     Moving Average Convergence Divergence (MACD)
 
     Call with:
-        macd_result = bta.MACD(df, 12, 26, 9)
+        macd_result = bta.MACD(df, "close", 12, 26, 9)
         df['macd'] = macd_result['MACD']
         df['macd_signal'] = macd_result['MACD_signal']
         df['macd_histogram'] = macd_result['MACD_histogram']
@@ -62,8 +62,8 @@ def MACD(df, short_window=12, long_window=26, signal_window=9):
     Description:
     MACD is a trend-following momentum indicator that shows the relationship between two moving averages of a security’s price.
     """
-    short_ema = EMA(df, period=short_window)
-    long_ema = EMA(df, period=long_window)
+    short_ema = EMA(df, column=column, period=short_window)
+    long_ema = EMA(df, column=column, period=long_window)
     macd = short_ema - long_ema
     signal = macd.ewm(span=signal_window, adjust=False).mean()
     histogram = macd - signal
@@ -74,3 +74,29 @@ def MACD(df, short_window=12, long_window=26, signal_window=9):
         'MACD_signal': signal,
         'MACD_histogram': histogram
     })
+
+
+def EWO(df, column="close", sma1_period=5, sma2_period=35):
+    """
+    Elliott Wave Oscillator (EWO)
+
+    Call with:
+        df['ewo'] = bta.EWO(df, "close", 5, 35)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which EWO is to be calculated. Default is "close".
+    - sma1_period (int): The period for the shorter SMA used in EWO calculation. Default is 5.
+    - sma2_period (int): The period for the longer SMA used in EWO calculation. Default is 35.
+
+    Returns:
+    - pandas.Series: A series of EWO values.
+
+    Description:
+    The Elliott Wave Oscillator (EWO) is a specific tool to help you identify the trend and the overall market pattern to assist in finding future trading opportunities. It is derived by calculating the difference between a short and long period simple moving average, then normalizing the result with the close price.
+    """
+    sma1 = df[column].rolling(window=sma1_period).mean()
+    sma2 = df[column].rolling(window=sma2_period).mean()
+    ewo = (sma1 - sma2) / df[column] * 100
+
+    return ewo
