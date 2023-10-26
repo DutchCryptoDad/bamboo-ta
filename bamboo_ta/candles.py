@@ -11,13 +11,13 @@ def HeikinAshi(df, pre_smoothing_period=None, post_smoothing_period=None):
 
     Call with:
     - Regular Heiken Ashi:
-        ha_df = HeikinAshi(df)
+        ha_df = bta.HeikinAshi(df)
 
     - With pre-smoothing of the original data:
-        ha_df = HeikinAshi(df, pre_smoothing_period=14)
+        ha_df = bta.HeikinAshi(df, pre_smoothing_period=14)
 
     - With both pre and post smoothing:
-        ha_df = HeikinAshi(df, pre_smoothing_period=14, post_smoothing_period=14)
+        ha_df = bta.HeikinAshi(df, pre_smoothing_period=14, post_smoothing_period=14)
 
     After calling, the following columns can be extracted:
         df['HA_Close'] = ha_df['HA_Close']
@@ -65,3 +65,74 @@ def HeikinAshi(df, pre_smoothing_period=None, post_smoothing_period=None):
         df_copy['HA_Close'] = EMA(df_copy, 'HA_Close', post_smoothing_period)
 
     return df_copy[['HA_Open', 'HA_High', 'HA_Low', 'HA_Close']]
+
+
+def LinRegCandles(df, linreg_length=11, sma_signal=True, signal_length=11):
+    """
+    Linear Regression Candles with Optional Signal Line
+
+    Call with:
+    - Regular Linear Regression Candles with SMA signal line:
+        lr_df = bta.LinRegCandles(df)
+
+    - With EMA signal line:
+        lr_df = bta.LinRegCandles(df, sma_signal=False)
+
+    - With SMA signal line:
+        lr_df = bta.LinRegCandles(df, sma_signal=True)
+
+    After calling, the following columns can be extracted:
+        df['LRC_Open'] = lr_df['bopen']
+        df['LRC_High'] = lr_df['bhigh']
+        df['LRC_Low'] = lr_df['blow']
+        df['LRC_Close'] = lr_df['bclose']
+        df['LRC_Signal'] = lr_df['signal']
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'open', 'high', 'low', and 'close'.
+    - linreg_length (int, optional): Period for linear regression calculation. Default is 11.
+    - sma_signal (bool, optional): If True, uses SMA for the signal line. If False, uses EMA. Default is True.
+    - signal_length (int, optional): Period for the moving average signal line. Default is 11.
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'bopen', 'bhigh', 'blow', 'bclose' as the Linear Regression Candles, and 'signal' as the signal line.
+
+    Description:
+    The Linear Regression Candles transform the traditional OHLC bars using a linear regression algorithm, providing a smoothed representation of price action. The function also provides an optional signal line, which can be either an SMA or an EMA of the Linear Regression Candle close. This signal line can help to identify trends and potential trading signals.
+    """
+    df_copy = df.copy()
+
+    # Calculate linear regression coefficients for open, high, low, and close
+    df_copy['bopen'] = df_copy['open'].rolling(window=linreg_length).apply(
+        lambda x: np.polyfit(np.arange(len(x)), x, 1)[
+            1] + np.polyfit(np.arange(len(x)), x, 1)[0] * (len(x) - 1),
+        raw=True
+    )
+
+    df_copy['bhigh'] = df_copy['high'].rolling(window=linreg_length).apply(
+        lambda x: np.polyfit(np.arange(len(x)), x, 1)[
+            1] + np.polyfit(np.arange(len(x)), x, 1)[0] * (len(x) - 1),
+        raw=True
+    )
+
+    df_copy['blow'] = df_copy['low'].rolling(window=linreg_length).apply(
+        lambda x: np.polyfit(np.arange(len(x)), x, 1)[
+            1] + np.polyfit(np.arange(len(x)), x, 1)[0] * (len(x) - 1),
+        raw=True
+    )
+
+    df_copy['bclose'] = df_copy['close'].rolling(window=linreg_length).apply(
+        lambda x: np.polyfit(np.arange(len(x)), x, 1)[
+            1] + np.polyfit(np.arange(len(x)), x, 1)[0] * (len(x) - 1),
+        raw=True
+    )
+
+    # Calculate the signal line using SMA or EMA
+    if sma_signal:
+        df_copy['signal'] = df_copy['bclose'].rolling(
+            window=signal_length).mean()
+    else:
+        df_copy['signal'] = df_copy['bclose'].ewm(
+            span=signal_length, adjust=False).mean()
+
+    return df_copy
