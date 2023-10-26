@@ -171,3 +171,29 @@ def ZLEMA(df, column="close", period=21):
     zlema = ema_data.ewm(span=period, adjust=False).mean()
 
     return zlema
+
+
+def Alligator(df, jaw_period=13, teeth_period=8, lips_period=5):
+    """
+    Bill Williams Alligator Indicator
+
+    Call with:
+        df = Alligator(df, jaw_period=13, teeth_period=8, lips_period=5)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the 'high' and 'low' columns.
+    - jaw_period (int): The period for the Alligator's Jaw (blue line). Default is 13.
+    - teeth_period (int): The period for the Alligator's Teeth (red line). Default is 8.
+    - lips_period (int): The period for the Alligator's Lips (green line). Default is 5.
+
+    Returns:
+    - pandas.DataFrame: A DataFrame with columns 'jaw', 'teeth', and 'lips' representing the Alligator's lines.
+
+    Description:
+    The Bill Williams Alligator Indicator consists of three lines: Jaw, Teeth, and Lips. These lines are used to identify trends and their strengths in the market.
+    """
+    df['jaw'] = df['high'].rolling(window=jaw_period).mean().shift(-jaw_period + 1)
+    df['teeth'] = df['high'].rolling(window=teeth_period).mean().shift(-teeth_period + 1)
+    df['lips'] = df['high'].rolling(window=lips_period).mean().shift(-lips_period + 1)
+    
+    return df[['jaw', 'teeth', 'lips']]
