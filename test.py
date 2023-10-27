@@ -187,5 +187,14 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # 1970 2023-01-08  16943.83  17176.99  16911.00  17127.83  135155.89695  16924.666364  17099.740455  16879.386818  17025.155455  16707.076570
 # 1971 2023-01-09  17127.83  17398.80  17104.66  17178.26  266211.52723  17025.216364  17244.566364  17008.464091  17131.032273  16744.021033
 
+# alligator_result = bta.AlligatorBands(df, "close", 13, 8, 5)
+# df['jaw'] = alligator_result['jaw']
+# df['teeth'] = alligator_result['teeth']
+# df['lips'] = alligator_result['lips']
+alligator_result = bta.AlligatorBands(
+    df, "close", 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
+df['jaw'] = alligator_result['jaw']
+df['teeth'] = alligator_result['teeth']
+df['lips'] = alligator_result['lips']
 # Print stuff
-print(df.tail(5))
+print(df.tail(7))
