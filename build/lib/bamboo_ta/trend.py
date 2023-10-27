@@ -171,3 +171,36 @@ def ZLEMA(df, column="close", period=21):
     zlema = ema_data.ewm(span=period, adjust=False).mean()
 
     return zlema
+
+
+def AlligatorBands(df, column="close", jaw_period=13, teeth_period=8, lips_period=5, jaw_shift=8, teeth_shift=5, lips_shift=3):
+    """
+    Bill Williams Alligator Indicator
+
+    Call with:
+        alligator_result = bta.AlligatorBands(df, "high", 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
+        df['jaw'] = alligator_result['jaw']
+        df['teeth'] = alligator_result['teeth']
+        df['lips'] = alligator_result['lips']
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    column (str): The column name on which the Alligator is to be applied. Default is "close".
+    jaw_period (int): Period for the Alligator's Jaw (blue line). Default is 13.
+    teeth_period (int): Period for the Alligator's Teeth (red line). Default is 8.
+    lips_period (int): Period for the Alligator's Lips (green line). Default is 5.
+    jaw_shift (int): Number of periods to shift the Jaw line into the future. Default is 8.
+    teeth_shift (int): Number of periods to shift the Teeth line into the future. Default is 5.
+    lips_shift (int): Number of periods to shift the Lips line into the future. Default is 3.
+
+    Returns:
+    pd.DataFrame: DataFrame with 'jaw', 'teeth', and 'lips' columns added, optionally shifted into the future.
+    """
+
+    df['jaw'] = df[column].rolling(window=jaw_period).mean().shift(jaw_shift)
+    df['teeth'] = df[column].rolling(
+        window=teeth_period).mean().shift(teeth_shift)
+    df['lips'] = df[column].rolling(
+        window=lips_period).mean().shift(lips_shift)
+
+    return df[['jaw', 'teeth', 'lips']]
