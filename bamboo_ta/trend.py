@@ -7,53 +7,6 @@ import pandas as pd
 from .volatility import BollingerBands
 
 
-
-def BollingerTrend(df, column="close", short_length=20, long_length=50, std_dev=2.0):
-    """
-    Bollinger Trend Indicator
-
-    Call with:
-        df['BBTrend'] = bta.BollingerTrend(df, "close", 20, 50, 2.0)
-
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
-    - column (str): The column on which BBTrend is to be calculated. Default is "close".
-    - short_length (int): The period for the short Bollinger Bands. Default is 20.
-    - long_length (int): The period for the long Bollinger Bands. Default is 50.
-    - stddev (float): The standard deviation multiplier for the Bollinger Bands. Default is 2.0.
-
-    Returns:
-    - pandas.Series: A series of BBTrend values.
-    """
-    # Calculate short Bollinger Bands
-    short_bb = BollingerBands(df, column=column, period=short_length, std_dev=std_dev)
-    short_middle = short_bb['BB_middle']
-    short_upper = short_bb['BB_upper']
-    short_lower = short_bb['BB_lower']
-
-    # short_bb = ta.volatility.BollingerBands(close=df[column], window=short_length, window_dev=stddev)
-    # short_middle = short_bb.bollinger_mavg()
-    # short_upper = short_bb.bollinger_hband()
-    # short_lower = short_bb.bollinger_lband()
-
-    # Calculate long Bollinger Bands
-    long_bb = BollingerBands(df, column=column, period=long_length, std_dev=std_dev)
-    long_middle = long_bb['BB_middle']
-    long_upper = long_bb['BB_upper']
-    long_lower = long_bb['BB_lower']
-
-    # long_bb = ta.volatility.BollingerBands(close=df[column], window=long_length, window_dev=stddev)
-    # long_middle = long_bb.bollinger_mavg()
-    # long_upper = long_bb.bollinger_hband()
-    # long_lower = long_bb.bollinger_lband()
-
-    # Calculate BBTrend
-    bbtrend = (np.abs(short_lower - long_lower) - np.abs(short_upper - long_upper)) / short_middle * 100
-    bbtrend = bbtrend.round(2)
-    
-    return bbtrend
-
-
 def AlligatorBands(df, column="close", jaw_period=13, teeth_period=8, lips_period=5, jaw_shift=8, teeth_shift=5, lips_shift=3):
     """
     Bill Williams Alligator Indicator
@@ -86,6 +39,41 @@ def AlligatorBands(df, column="close", jaw_period=13, teeth_period=8, lips_perio
 
     return df[['jaw', 'teeth', 'lips']]
 
+
+def BollingerTrend(df, column="close", short_length=20, long_length=50, std_dev=2.0):
+    """
+    Bollinger Trend Indicator
+
+    Call with:
+        df['BBTrend'] = bta.BollingerTrend(df, "close", 20, 50, 2.0)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which BBTrend is to be calculated. Default is "close".
+    - short_length (int): The period for the short Bollinger Bands. Default is 20.
+    - long_length (int): The period for the long Bollinger Bands. Default is 50.
+    - stddev (float): The standard deviation multiplier for the Bollinger Bands. Default is 2.0.
+
+    Returns:
+    - pandas.Series: A series of BBTrend values.
+    """
+    # Calculate short Bollinger Bands
+    short_bb = BollingerBands(df, column=column, period=short_length, std_dev=std_dev)
+    short_middle = short_bb['BB_middle']
+    short_upper = short_bb['BB_upper']
+    short_lower = short_bb['BB_lower']
+
+    # Calculate long Bollinger Bands
+    long_bb = BollingerBands(df, column=column, period=long_length, std_dev=std_dev)
+    long_middle = long_bb['BB_middle']
+    long_upper = long_bb['BB_upper']
+    long_lower = long_bb['BB_lower']
+
+    # Calculate BBTrend
+    bbtrend = (np.abs(short_lower - long_lower) - np.abs(short_upper - long_upper)) / short_middle * 100
+    bbtrend = bbtrend.round(2)
+    
+    return bbtrend
 
 
 def EMA(df, column="close", period=21):
