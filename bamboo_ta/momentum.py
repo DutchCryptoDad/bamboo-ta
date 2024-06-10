@@ -5,39 +5,30 @@ from .bamboo_ta import *
 from .trend import *
 
 
-def RSI(df, column="close", period=14):
+def EWO(df, column="close", sma1_period=5, sma2_period=35):
     """
-    Relative Strength Index (RSI)
+    Elliott Wave Oscillator (EWO)
 
     Call with:
-        df['rsi'] = bta.RSI(df, "close", 14)
+        df['ewo'] = bta.EWO(df, "close", 5, 35)
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
-    - column (str): The column on which RSI is to be calculated. Default is "close".
-    - period (int): The period over which RSI is to be calculated. Default is 14.
+    - column (str): The column on which EWO is to be calculated. Default is "close".
+    - sma1_period (int): The period for the shorter SMA used in EWO calculation. Default is 5.
+    - sma2_period (int): The period for the longer SMA used in EWO calculation. Default is 35.
 
     Returns:
-    - pandas.Series: A series of RSI values.
+    - pandas.Series: A series of EWO values.
 
     Description:
-    RSI measures the magnitude of recent price changes to evaluate overbought or oversold conditions in the price of a stock or other asset.
+    The Elliott Wave Oscillator (EWO) is a specific tool to help you identify the trend and the overall market pattern to assist in finding future trading opportunities. It is derived by calculating the difference between a short and long period simple moving average, then normalizing the result with the close price.
     """
-    delta = df[column].diff(1)
-    gain = delta.where(delta > 0, 0)
-    loss = -delta.where(delta < 0, 0)
+    sma1 = df[column].rolling(window=sma1_period).mean()
+    sma2 = df[column].rolling(window=sma2_period).mean()
+    ewo = (sma1 - sma2) / df[column] * 100
 
-    avg_gain = gain.rolling(window=period, min_periods=1).mean()
-    avg_loss = loss.rolling(window=period, min_periods=1).mean()
-
-    for i in range(period, len(df)):
-        avg_gain[i] = (avg_gain[i-1] * (period - 1) + gain[i]) / period
-        avg_loss[i] = (avg_loss[i-1] * (period - 1) + loss[i]) / period
-
-    rs = avg_gain / avg_loss
-    rsi = 100 - (100 / (1 + rs))
-
-    return rsi
+    return ewo
 
 
 def MACD(df, column="close", short_window=12, long_window=26, signal_window=9):
@@ -76,27 +67,36 @@ def MACD(df, column="close", short_window=12, long_window=26, signal_window=9):
     })
 
 
-def EWO(df, column="close", sma1_period=5, sma2_period=35):
+def RSI(df, column="close", period=14):
     """
-    Elliott Wave Oscillator (EWO)
+    Relative Strength Index (RSI)
 
     Call with:
-        df['ewo'] = bta.EWO(df, "close", 5, 35)
+        df['rsi'] = bta.RSI(df, "close", 14)
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
-    - column (str): The column on which EWO is to be calculated. Default is "close".
-    - sma1_period (int): The period for the shorter SMA used in EWO calculation. Default is 5.
-    - sma2_period (int): The period for the longer SMA used in EWO calculation. Default is 35.
+    - column (str): The column on which RSI is to be calculated. Default is "close".
+    - period (int): The period over which RSI is to be calculated. Default is 14.
 
     Returns:
-    - pandas.Series: A series of EWO values.
+    - pandas.Series: A series of RSI values.
 
     Description:
-    The Elliott Wave Oscillator (EWO) is a specific tool to help you identify the trend and the overall market pattern to assist in finding future trading opportunities. It is derived by calculating the difference between a short and long period simple moving average, then normalizing the result with the close price.
+    RSI measures the magnitude of recent price changes to evaluate overbought or oversold conditions in the price of a stock or other asset.
     """
-    sma1 = df[column].rolling(window=sma1_period).mean()
-    sma2 = df[column].rolling(window=sma2_period).mean()
-    ewo = (sma1 - sma2) / df[column] * 100
+    delta = df[column].diff(1)
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
 
-    return ewo
+    avg_gain = gain.rolling(window=period, min_periods=1).mean()
+    avg_loss = loss.rolling(window=period, min_periods=1).mean()
+
+    for i in range(period, len(df)):
+        avg_gain[i] = (avg_gain[i-1] * (period - 1) + gain[i]) / period
+        avg_loss[i] = (avg_loss[i-1] * (period - 1) + loss[i]) / period
+
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+
+    return rsi

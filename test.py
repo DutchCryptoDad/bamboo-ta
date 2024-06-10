@@ -2,7 +2,7 @@
 # Import necessary libraries
 # Importeer necessary libraries
 import bamboo_ta.bamboo_ta as bta
-import pandas_ta as pta
+#import pandas_ta as pta
 import pandas as pd
 from pandas import DataFrame
 import numpy as np
@@ -191,10 +191,14 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['jaw'] = alligator_result['jaw']
 # df['teeth'] = alligator_result['teeth']
 # df['lips'] = alligator_result['lips']
-alligator_result = bta.AlligatorBands(
-    df, "close", 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
-df['jaw'] = alligator_result['jaw']
-df['teeth'] = alligator_result['teeth']
-df['lips'] = alligator_result['lips']
-# Print stuff
-print(df.tail(7))
+# alligator_result = bta.AlligatorBands(
+#     df, "close", 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
+# df['jaw'] = alligator_result['jaw']
+# df['teeth'] = alligator_result['teeth']
+# df['lips'] = alligator_result['lips']
+# # Print stuff
+# print(df.tail(7))
+
+
+df['BBTrend'] = bta.BollingerTrend(df, "close", 20, 50, 2.0)
+print(df.tail(20))

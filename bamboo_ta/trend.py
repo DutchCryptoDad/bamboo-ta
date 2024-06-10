@@ -3,28 +3,89 @@ from pandas import DataFrame
 import math
 import numpy as np
 import pandas as pd
-from .bamboo_ta import *
+# from .bamboo_ta import *
+from .volatility import BollingerBands
 
 
-def SMA(df, column="close", period=21):
+
+def BollingerTrend(df, column="close", short_length=20, long_length=50, std_dev=2.0):
     """
-    Simple Moving Average (SMA)
+    Bollinger Trend Indicator
 
     Call with:
-        df['sma'] = bta.SMA(df, "close", 50)
+        df['BBTrend'] = bta.BollingerTrend(df, "close", 20, 50, 2.0)
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
-    - column (str): The column on which SMA is to be calculated. Default is "close".
-    - period (int): The period over which SMA is to be calculated. Default is 30.
+    - column (str): The column on which BBTrend is to be calculated. Default is "close".
+    - short_length (int): The period for the short Bollinger Bands. Default is 20.
+    - long_length (int): The period for the long Bollinger Bands. Default is 50.
+    - stddev (float): The standard deviation multiplier for the Bollinger Bands. Default is 2.0.
 
     Returns:
-    - pandas.Series: A series of SMA values.
-
-    Description:
-    The Simple Moving Average is the unweighted mean of the previous 'period' data points.
+    - pandas.Series: A series of BBTrend values.
     """
-    return df[column].rolling(window=period).mean()
+    # Calculate short Bollinger Bands
+    short_bb = BollingerBands(df, column=column, period=short_length, std_dev=std_dev)
+    short_middle = short_bb['BB_middle']
+    short_upper = short_bb['BB_upper']
+    short_lower = short_bb['BB_lower']
+
+    # short_bb = ta.volatility.BollingerBands(close=df[column], window=short_length, window_dev=stddev)
+    # short_middle = short_bb.bollinger_mavg()
+    # short_upper = short_bb.bollinger_hband()
+    # short_lower = short_bb.bollinger_lband()
+
+    # Calculate long Bollinger Bands
+    long_bb = BollingerBands(df, column=column, period=long_length, std_dev=std_dev)
+    long_middle = long_bb['BB_middle']
+    long_upper = long_bb['BB_upper']
+    long_lower = long_bb['BB_lower']
+
+    # long_bb = ta.volatility.BollingerBands(close=df[column], window=long_length, window_dev=stddev)
+    # long_middle = long_bb.bollinger_mavg()
+    # long_upper = long_bb.bollinger_hband()
+    # long_lower = long_bb.bollinger_lband()
+
+    # Calculate BBTrend
+    bbtrend = (np.abs(short_lower - long_lower) - np.abs(short_upper - long_upper)) / short_middle * 100
+    bbtrend = bbtrend.round(2)
+    
+    return bbtrend
+
+
+def AlligatorBands(df, column="close", jaw_period=13, teeth_period=8, lips_period=5, jaw_shift=8, teeth_shift=5, lips_shift=3):
+    """
+    Bill Williams Alligator Indicator
+
+    Call with:
+        alligator_result = bta.AlligatorBands(df, "high", 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
+        df['jaw'] = alligator_result['jaw']
+        df['teeth'] = alligator_result['teeth']
+        df['lips'] = alligator_result['lips']
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    column (str): The column name on which the Alligator is to be applied. Default is "close".
+    jaw_period (int): Period for the Alligator's Jaw (blue line). Default is 13.
+    teeth_period (int): Period for the Alligator's Teeth (red line). Default is 8.
+    lips_period (int): Period for the Alligator's Lips (green line). Default is 5.
+    jaw_shift (int): Number of periods to shift the Jaw line into the future. Default is 8.
+    teeth_shift (int): Number of periods to shift the Teeth line into the future. Default is 5.
+    lips_shift (int): Number of periods to shift the Lips line into the future. Default is 3.
+
+    Returns:
+    pd.DataFrame: DataFrame with 'jaw', 'teeth', and 'lips' columns added, optionally shifted into the future.
+    """
+
+    df['jaw'] = df[column].rolling(window=jaw_period).mean().shift(jaw_shift)
+    df['teeth'] = df[column].rolling(
+        window=teeth_period).mean().shift(teeth_shift)
+    df['lips'] = df[column].rolling(
+        window=lips_period).mean().shift(lips_shift)
+
+    return df[['jaw', 'teeth', 'lips']]
+
 
 
 def EMA(df, column="close", period=21):
@@ -45,70 +106,10 @@ def EMA(df, column="close", period=21):
     Description:
     The Exponential Moving Average gives more weight to recent prices and thus reacts more quickly to price changes than the Simple Moving Average.
     """
-    return df[column].ewm(span=period, adjust=False).mean()
 
-
-def LSMA(df, column="close", period=21):
-    """
-    Least Squares Moving Average (LSMA)
-
-    Call with:
-        df['lsma'] = bta.LSMA(df, "close", 50)
-
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
-    - column (str): The column on which LSMA is to be calculated. Default is "close".
-    - period (int): The period over which LSMA is to be calculated. Default is 21.
-
-    Returns:
-    - pandas.Series: A series of LSMA values.
-
-    Description:
-    LSMA uses linear regression to compute the trend of the data over a specified period. It fits a straight line to the data points using the method of least squares to depict the direction of movement.
-    """
-    lsma_values = []
-
-    for i in range(period - 1, len(df)):
-        # Extract the most recent N df points
-        subset = df.iloc[i + 1 - period:i + 1]
-
-        # Perform linear regression to fit a line
-        x = np.arange(len(subset))
-        y = subset[column].values
-        slope, intercept = np.polyfit(x, y, 1)
-
-        # Calculate the LSMA value using the linear equation
-        lsma = intercept + slope * (period - 1)
-        lsma_values.append(lsma)
-
-    lsma_series = pd.Series(lsma_values, index=df.index[period - 1:])
-
-    return lsma_series
-
-
-def WMA(df, column="close", period=9):
-    """
-    TradingView-Style Weighted Moving Average (WMA)
-
-    Call with:
-        df['wma'] = bta.WMA(df, "close", 9)
-
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
-    - column (str): The column on which WMA is to be calculated. Default is "close".
-    - period (int): The period over which WMA is to be calculated. Default is 9.
-
-    Returns:
-    - pandas.Series: A series of WMA values.
-
-    Description:
-    The Weighted Moving Average assigns weights linearly. The most recent data gets the highest weight.
-    """
-    weights = range(1, period + 1)
-    numerator = df[column].rolling(window=period).apply(
-        lambda x: sum(weights * x), raw=True)
-    denominator = sum(weights)
-    return numerator / denominator
+    ema = df[column].ewm(span=period, adjust=False).mean()
+    
+    return ema
 
 
 def HMA(df, column="close", period=9):
@@ -144,6 +145,96 @@ def HMA(df, column="close", period=9):
     return hma
 
 
+def LSMA(df, column="close", period=21):
+    """
+    Least Squares Moving Average (LSMA)
+
+    Call with:
+        df['lsma'] = bta.LSMA(df, "close", 50)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which LSMA is to be calculated. Default is "close".
+    - period (int): The period over which LSMA is to be calculated. Default is 21.
+
+    Returns:
+    - pandas.Series: A series of LSMA values.
+
+    Description:
+    LSMA uses linear regression to compute the trend of the data over a specified period. It fits a straight line to the data points using the method of least squares to depict the direction of movement.
+    """
+    lsma_values = []
+
+    for i in range(period - 1, len(df)):
+        # Extract the most recent N df points
+        subset = df.iloc[i + 1 - period:i + 1]
+
+        # Perform linear regression to fit a line
+        x = np.arange(len(subset))
+        y = subset[column].values
+        slope, intercept = np.polyfit(x, y, 1)
+
+        # Calculate the LSMA value using the linear equation
+        lsma = intercept + slope * (period - 1)
+        lsma_values.append(lsma)
+
+    lsma = pd.Series(lsma_values, index=df.index[period - 1:])
+
+    return lsma
+
+
+def SMA(df, column="close", period=21):
+    """
+    Simple Moving Average (SMA)
+
+    Call with:
+        df['sma'] = bta.SMA(df, "close", 50)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which SMA is to be calculated. Default is "close".
+    - period (int): The period over which SMA is to be calculated. Default is 30.
+
+    Returns:
+    - pandas.Series: A series of SMA values.
+
+    Description:
+    The Simple Moving Average is the unweighted mean of the previous 'period' data points.
+    """
+
+    sma = df[column].rolling(window=period).mean()
+    
+    return sma
+
+
+def WMA(df, column="close", period=9):
+    """
+    TradingView-Style Weighted Moving Average (WMA)
+
+    Call with:
+        df['wma'] = bta.WMA(df, "close", 9)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which WMA is to be calculated. Default is "close".
+    - period (int): The period over which WMA is to be calculated. Default is 9.
+
+    Returns:
+    - pandas.Series: A series of WMA values.
+
+    Description:
+    The Weighted Moving Average assigns weights linearly. The most recent data gets the highest weight.
+    """
+    weights = range(1, period + 1)
+    numerator = df[column].rolling(window=period).apply(
+        lambda x: sum(weights * x), raw=True)
+    denominator = sum(weights)
+
+    wma = numerator / denominator
+    
+    return wma
+
+
 def ZLEMA(df, column="close", period=21):
     """
     Zero Lag Exponential Moving Average (ZLEMA)
@@ -173,34 +264,3 @@ def ZLEMA(df, column="close", period=21):
     return zlema
 
 
-def AlligatorBands(df, column="close", jaw_period=13, teeth_period=8, lips_period=5, jaw_shift=8, teeth_shift=5, lips_shift=3):
-    """
-    Bill Williams Alligator Indicator
-
-    Call with:
-        alligator_result = bta.AlligatorBands(df, "high", 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
-        df['jaw'] = alligator_result['jaw']
-        df['teeth'] = alligator_result['teeth']
-        df['lips'] = alligator_result['lips']
-
-    Args:
-    df (pd.DataFrame): DataFrame containing the data.
-    column (str): The column name on which the Alligator is to be applied. Default is "close".
-    jaw_period (int): Period for the Alligator's Jaw (blue line). Default is 13.
-    teeth_period (int): Period for the Alligator's Teeth (red line). Default is 8.
-    lips_period (int): Period for the Alligator's Lips (green line). Default is 5.
-    jaw_shift (int): Number of periods to shift the Jaw line into the future. Default is 8.
-    teeth_shift (int): Number of periods to shift the Teeth line into the future. Default is 5.
-    lips_shift (int): Number of periods to shift the Lips line into the future. Default is 3.
-
-    Returns:
-    pd.DataFrame: DataFrame with 'jaw', 'teeth', and 'lips' columns added, optionally shifted into the future.
-    """
-
-    df['jaw'] = df[column].rolling(window=jaw_period).mean().shift(jaw_shift)
-    df['teeth'] = df[column].rolling(
-        window=teeth_period).mean().shift(teeth_shift)
-    df['lips'] = df[column].rolling(
-        window=lips_period).mean().shift(lips_shift)
-
-    return df[['jaw', 'teeth', 'lips']]
