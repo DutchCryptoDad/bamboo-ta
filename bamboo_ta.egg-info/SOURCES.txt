@@ -1,3 +1,4 @@
+LICENSE
 README.md
 setup.py
 bamboo_ta/__init__.py
