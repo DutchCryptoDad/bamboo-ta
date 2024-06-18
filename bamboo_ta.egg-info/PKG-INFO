@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: bamboo-ta
-Version: 0.0.4
+Version: 0.0.5
 Summary: TA library for Pandas
 Home-page: https://github.com/DutchCryptoDad/bamboo-ta
 Author: DutchCryptoDad (DCD)
@@ -104,12 +104,51 @@ Or individual indicators.
 
 1. **candles**
    - **Description**: Contains indicators related to candlestick patterns.
+   - **Indicators**:
+     - **HeikinAshi**: Heikin Ashi candlesticks with optional pre and post smoothing.
+       - **Usage**: 
+         ```python
+         ha_df = HeikinAshi(df, pre_smoothing_period=14, post_smoothing_period=14)
+         df['HA_Close'] = ha_df['HA_Close']
+         df['HA_Open'] = ha_df['HA_Open']
+         df['HA_High'] = ha_df['HA_High']
+         df['HA_Low'] = ha_df['HA_Low']
+         ```
+     - **LinRegCandles**: Linear Regression Candles with optional signal line.
+       - **Usage**: 
+         ```python
+         lr_df = LinRegCandles(df, linreg_length=11, sma_signal=True, signal_length=11)
+         df['LRC_Open'] = lr_df['bopen']
+         df['LRC_High'] = lr_df['bhigh']
+         df['LRC_Low'] = lr_df['blow']
+         df['LRC_Close'] = lr_df['bclose']
+         df['LRC_Signal'] = lr_df['signal']
+         ```
 
 2. **cycles**
    - **Description**: Includes indicators for cycle analysis.
 
 3. **momentum**
    - **Description**: Provides momentum-based indicators.
+   - **Indicators**:
+     - **EWO**: Elliott Wave Oscillator.
+       - **Usage**: 
+         ```python
+         df['ewo'] = EWO(df, "close", 5, 35)
+         ```
+     - **MACD**: Moving Average Convergence Divergence.
+       - **Usage**: 
+         ```python
+         macd_result = MACD(df, "close", 12, 26, 9)
+         df['macd'] = macd_result['MACD']
+         df['macd_signal'] = macd_result['MACD_signal']
+         df['macd_histogram'] = macd_result['MACD_histogram']
+         ```
+     - **RSI**: Relative Strength Index.
+       - **Usage**: 
+         ```python
+         df['rsi'] = RSI(df, "close", 14)
+         ```
 
 4. **performance**
    - **Description**: Contains performance-related indicators.
@@ -121,91 +160,73 @@ Or individual indicators.
    - **Description**: Includes trend-based indicators.
    - **Indicators**:
      - **AlligatorBands**: Bill Williams Alligator Indicator.
+       - **Usage**: 
+         ```python
+         alligator_result = AlligatorBands(df, "high", 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
+         df['jaw'] = alligator_result['jaw']
+         df['teeth'] = alligator_result['teeth']
+         df['lips'] = alligator_result['lips']
+         ```
      - **BollingerTrend**: Bollinger Trend Indicator.
+       - **Usage**: 
+         ```python
+         df['BBTrend'] = BollingerTrend(df, "close", 20, 50, 2.0)
+         ```
+     - **BollingerTrendFastWithMA**: Bollinger Trend Indicator with selectable Moving Average.
+       - **Usage**: 
+         ```python
+         result = BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14)
+         df['BBTrend'] = result['BBTrend']
+         df['BBTrendMA'] = result['BBTrendMA']
+         ```
      - **EMA**: Exponential Moving Average.
+       - **Usage**: 
+         ```python
+         df['ema'] = EMA(df, "close", 21)
+         ```
      - **HMA**: Hull Moving Average.
+       - **Usage**: 
+         ```python
+         df['hma'] = HMA(df, "close", 9)
+         ```
      - **LSMA**: Least Squares Moving Average.
+       - **Usage**: 
+         ```python
+         df['lsma'] = LSMA(df, "close", 50)
+         ```
      - **SMA**: Simple Moving Average.
+       - **Usage**: 
+         ```python
+         df['sma'] = SMA(df, "close", 50)
+         ```
      - **WMA**: Weighted Moving Average.
+       - **Usage**: 
+         ```python
+         df['wma'] = WMA(df, "close", 9)
+         ```
      - **ZLEMA**: Zero Lag Exponential Moving Average.
+       - **Usage**: 
+         ```python
+         df['zlema'] = ZLEMA(df, "close", 21)
+         ```
 
 7. **utility**
    - **Description**: Utility functions and helper methods for technical analysis.
 
 8. **volatility**
    - **Description**: Volatility indicators.
+   - **Indicators**:
+     - **BollingerBands**: Calculates Bollinger Bands (upper, middle, lower bands).
+       - **Usage**: 
+         ```python
+         bb_result = BollingerBands(df, "close", 21, 2, 0)
+         df['bb_upper'] = bb_result['BB_upper']
+         df['bb_middle'] = bb_result['BB_middle']
+         df['bb_lower'] = bb_result['BB_lower']
+         ```
 
 9. **volume**
    - **Description**: Indicators related to trading volume.
-
-### Trend Indicators
-
-#### AlligatorBands
-
-- **Description**: Calculates Bill Williams Alligator Indicator which consists of three smoothed moving averages (jaw, teeth, lips) shifted into the future.
-- **Usage**: 
-  ```python
-  alligator_result = AlligatorBands(df, "high", 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
-  df['jaw'] = alligator_result['jaw']
-  df['teeth'] = alligator_result['teeth']
-  df['lips'] = alligator_result['lips']
-  ```
-
-#### BollingerTrend
-
-- **Description**: Determines the trend based on the distance between short and long Bollinger Bands.
-- **Usage**: 
-  ```python
-  df['BBTrend'] = BollingerTrend(df, "close", 20, 50, 2.0)
-  ```
-
-#### EMA (Exponential Moving Average)
-
-- **Description**: Calculates the Exponential Moving Average, which gives more weight to recent prices.
-- **Usage**: 
-  ```python
-  df['ema'] = EMA(df, "close", 21)
-  ```
-
-#### HMA (Hull Moving Average)
-
-- **Description**: Computes the Hull Moving Average, a smoother moving average with reduced lag.
-- **Usage**: 
-  ```python
-  df['hma'] = HMA(df, "close", 9)
-  ```
-
-#### LSMA (Least Squares Moving Average)
-
-- **Description**: Uses linear regression to determine the least squares moving average.
-- **Usage**: 
-  ```python
-  df['lsma'] = LSMA(df, "close", 50)
-  ```
-
-#### SMA (Simple Moving Average)
-
-- **Description**: Computes the Simple Moving Average, which is the unweighted mean of the previous data points.
-- **Usage**: 
-  ```python
-  df['sma'] = SMA(df, "close", 50)
-  ```
-
-#### WMA (Weighted Moving Average)
-
-- **Description**: Calculates the Weighted Moving Average with linear weights.
-- **Usage**: 
-  ```python
-  df['wma'] = WMA(df, "close", 9)
-  ```
-
-#### ZLEMA (Zero Lag Exponential Moving Average)
-
-- **Description**: Calculates an Exponential Moving Average adjusted for lag.
-- **Usage**: 
-  ```python
-  df['zlema'] = ZLEMA(df, "close", 21)
-  ```
 
 #### Practical example
 
@@ -275,6 +296,8 @@ Output:
 ## Creating the Python pip package (personal notes)
 
 After creating and testing the code, make a Python pip package as follows:
+
+Update the file ``setup.py`` and update version number.
 
 In the library folder, create the package
 
