@@ -201,4 +201,9 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 
 df['BBTrend'] = bta.BollingerTrend(df, "close", 20, 50, 2.0)
+
+BollingerTrendFast = bta.BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14)
+df['BollingerTrendFast'] = BollingerTrendFast['BBTrend']
+df['BollingerTrendFastMA'] = BollingerTrendFast['BBTrendMA']
+
 print(df.tail(20))

@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 # from .bamboo_ta import *
 from .volatility import BollingerBands
+# from .trend import SMA, EMA, LSMA, HMA, WMA
 
 
 def AlligatorBands(df, column="close", jaw_period=13, teeth_period=8, lips_period=5, jaw_shift=8, teeth_shift=5, lips_shift=3):
@@ -74,6 +75,75 @@ def BollingerTrend(df, column="close", short_length=20, long_length=50, std_dev=
     bbtrend = bbtrend.round(2)
     
     return bbtrend
+
+
+def BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14):
+    """
+    Bollinger Trend Indicator with selectable Moving Average
+
+    This function calculates the Bollinger Trend (BBTrend) and applies a selected moving average to the BBTrend.
+
+    Usage:
+        BollingerTrendFast = bta.BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14)
+        
+        df['BollingerTrendFast'] = BollingerTrendFast['BBTrend']
+        df['BollingerTrendFastMA'] = BollingerTrendFast['BBTrendMA']
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which BBTrend is to be calculated. Default is "close".
+    - short_length (int): The period for the short Bollinger Bands. Default is 10.
+    - long_length (int): The period for the long Bollinger Bands. Default is 50.
+    - short_stddev (float): The standard deviation multiplier for the short Bollinger Bands. Default is 1.0.
+    - long_stddev (float): The standard deviation multiplier for the long Bollinger Bands. Default is 2.0.
+    - ma_type (str): The type of moving average to use ("SMA", "EMA", "LSMA", "HMA", "WMA"). Default is "SMA".
+    - ma_length (int): The period for the moving average. Default is 14.
+
+    Returns:
+    - pandas.DataFrame: DataFrame with 'BBTrend' and 'MA' columns.
+    
+    Example:
+        result = BollingerTrendWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14)
+        df['BBTrend'] = result['BBTrend']
+        df['MA'] = result['MA']
+    """
+
+    # Calculate short Bollinger Bands
+    short_bb = BollingerBands(df, column=column, period=short_length, std_dev=short_stddev)
+    short_middle = short_bb['BB_middle']
+    short_upper = short_bb['BB_upper']
+    short_lower = short_bb['BB_lower']
+
+    # Calculate long Bollinger Bands
+    long_bb = BollingerBands(df, column=column, period=long_length, std_dev=long_stddev)
+    long_middle = long_bb['BB_middle']
+    long_upper = long_bb['BB_upper']
+    long_lower = long_bb['BB_lower']
+
+    # Calculate BBTrend
+    bbtrend = (np.abs(short_lower - long_lower) - np.abs(short_upper - long_upper)) / short_middle * 100
+    bbtrend = bbtrend.round(2)
+
+    # Select and calculate the moving average
+    if ma_type == "SMA":
+        ma = SMA(df.assign(BBTrend=bbtrend), column="BBTrend", period=ma_length)
+    elif ma_type == "EMA":
+        ma = EMA(df.assign(BBTrend=bbtrend), column="BBTrend", period=ma_length)
+    elif ma_type == "LSMA":
+        ma = LSMA(df.assign(BBTrend=bbtrend), column="BBTrend", period=ma_length)
+    elif ma_type == "HMA":
+        ma = HMA(df.assign(BBTrend=bbtrend), column="BBTrend", period=ma_length)
+    elif ma_type == "WMA":
+        ma = WMA(df.assign(BBTrend=bbtrend), column="BBTrend", period=ma_length)
+    else:
+        raise ValueError("Unsupported moving average type")
+
+    # Returning as DataFrame
+    result = df.copy()
+    result['BBTrend'] = bbtrend
+    result['BBTrendMA'] = ma
+
+    return result[['BBTrend', 'BBTrendMA']]
 
 
 def EMA(df, column="close", period=21):
