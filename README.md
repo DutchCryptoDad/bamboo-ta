@@ -288,7 +288,17 @@ Load the package to the system with:
 ``pip install .``
 
 After you've checked that everything is worknig correctly, then use the following command to upload to Pypi.
-You'll have to install twine for this (``pip install twine`` or ``sudo apt install twine``).
+You'll have to install twine for this (``pip install twine`` or ``sudo apt install twine``)
+
+When you get the error:
+
+```
+ImportError: cannot import name 'appengine' from 'requests.packages.urllib3.contrib' (/home/user/.local/lib/python3.10/site-packages/urllib3/contrib/__init__.py)
+```
+
+You should do a ``pip install --upgrade twine requests-toolbelt``.
+
+### Before uploading
 
 ```
 # Check first
@@ -309,8 +319,11 @@ Note: uploading new versions requires to delete the older versions from the /dis
 Another option is to use the ``--skip-existing`` option like this:
 
 ```
-twine upload -r --skip-existing testpypi dist/*
-twine upload --skip-existing dist/*
+# Testpypi
+twine upload -r testpypi dist/* --skip-existing 
+
+# ProductionPypi
+twine upload -r pypi dist/* --skip-existing
 ```
 
 ### Uploading with 2FA enabled
@@ -324,7 +337,7 @@ Add the given token to the file like this:
 ```
 [testpypi]
   username = __token__
-  password = pypi-AgENdalaljdljhdalkHTaddsdSQtMjBjOS00ZjgxLWIyZDMtYWViMDAwOTk3MWZmAAIqWzMsImU3YjkzMGVmLWQzMFmZkZCJdAAAGIB6NZ-rSrzc8UXj38ijwCRmZwkFLnhhNP
+  password = pypi-AgENdalaljdljhdalkHTaddsdSQtMjBjOS00ZjgxLWIyZDMtYWViMDAwOTk3MWZmAAIqWzMsILWQzMFmZkZCJdAAAGIB6NZ-rSrzc8UXj38ijwCRmZwkFLnhhNP
 ```
 
 Save the file and reload environment if necessary.
