@@ -337,7 +337,14 @@ Add the given token to the file like this:
 ```
 [testpypi]
   username = __token__
-  password = pypi-AgENdalaljdljhdalkHTaddsdSQtMjBjOS00ZjgxLWIyZDMtYWViMDAwOTk3MWZmAAIqWzMsILWQzMFmZkZCJdAAAGIB6NZ-rSrzc8UXj38ijwCRmZwkFLnhhNP
+  password =
+pypi-AgENdGVzdC5weXtMjBjOS00ZjgxLWIyZDMtYWViMDAwOTk3MWZmAAIqWzMsImU3YjkzMGVmLWQzMGItNGFhYi1iNB6NZ-rSrzc8UXHRmWp5fzZwP
+
+
+[pypi]
+  username = __token__
+  password =
+pypi-AgEIcHlwaS5vcmcCJDgxYWFiYjYwLTMxYmUtNDczZC1hNjBhLTU0MDJhNmQ2NmZhMgAQ3NTAtOGVkNy0xN2U0NmU0MjEzMQFAYWNj0FcsP-Slnj9-wkEWWwQXkaw
 ```
 
 Save the file and reload environment if necessary.
