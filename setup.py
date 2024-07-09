@@ -3,7 +3,7 @@ import os
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-VERSION = '0.0.5'
+VERSION = '0.0.6'
 DESCRIPTION = 'TA library for Pandas'
 
 with open("README.md", "r") as f:
