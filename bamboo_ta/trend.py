@@ -279,6 +279,20 @@ def SMA(df, column="close", period=21):
     return sma
 
 
+def stdev(series, period):
+    """
+    Calculate the standard deviation over a specified period.
+
+    Parameters:
+    - series (pd.Series): The data series to calculate the standard deviation for.
+    - period (int): The period over which to calculate the standard deviation.
+
+    Returns:
+    - pd.Series: The standard deviation of the series.
+    """
+    return series.rolling(window=period).std()
+
+
 def WMA(df, column="close", period=9):
     """
     TradingView-Style Weighted Moving Average (WMA)

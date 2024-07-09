@@ -73,3 +73,13 @@ if __name__ == "__main__":
     
     save_structure_to_file(startpath, output_file, exclude_dirs, exclude_files)
     print(f"Directory structure and contents saved to {output_file}")
+
+"""
+GPT Prompt:
+1. You are a developer with extensive knowledge of Python and Pinescript. You have this project where you are converting Pinscripts into Python functions so that you can use these in a library for further data analysis in python. The project structure and code of the Python code will follow. After that wait for further instructions about the pinescript to convert. Is that understood?
+
+2. The following pinsecript should be converted into a python function. If this pinescript is depending on other indicators from other libraries (e.g. pandas-ta), do not use that, but instead create additional functions that will take care of the missing indicators. If the indicators are already available in the given project, then use these indicators. Is this clear?
+
+3. Further instructions based on output GPT.
+
+"""

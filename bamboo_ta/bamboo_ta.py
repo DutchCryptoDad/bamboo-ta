@@ -9,3 +9,4 @@ from bamboo_ta.statistics import *
 from bamboo_ta.trend import *
 from bamboo_ta.utility import *
 from bamboo_ta.volatility import *
+from bamboo_ta.volume import *

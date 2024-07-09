@@ -7,64 +7,36 @@ from .volatility import *
 # from .utility import *
 
 
-def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0):
+def CMO(df, length=14):
     """
-    Waddah Attar Explosion Indicator
+    Chande Momentum Oscillator (CMO)
 
     Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'open', 'high', 'low', and 'close'.
-    - sensitivity (int): Sensitivity factor for the indicator. Default is 150.
-    - fast_length (int): Length for the fast EMA. Default is 20.
-    - slow_length (int): Length for the slow EMA. Default is 40.
-    - channel_length (int): Length for the Bollinger Bands. Default is 20.
-    - mult (float): Standard deviation multiplier for the Bollinger Bands. Default is 2.0.
+    - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
+    - length (int): Length for the CMO calculation. Default is 14.
 
     Call with:
-        WAE = bta.Waddah_Attar_Explosion(df)
-        df['trend_up'] = WAE['trend_up']
-        df['trend_down'] = WAE['trend_down']
-        df['explosion_line'] = WAE['explosion_line']
-        df['dead_zone_line'] = WAE['dead_zone_line']
+        cmo = CMO(df)
+        df['cmo'] = cmo['cmo']
+
+    For Signal line:
+        df['CMO_Signal'] = df['CMO'].rolling(window=10).mean().round(2)  # Using SMA for signal
 
     Returns:
-    - pd.DataFrame: DataFrame with 'trend_up', 'trend_down', 'explosion_line', and 'dead_zone_line' columns.
+    - pd.DataFrame: DataFrame with 'cmo' column.
     """
     df_copy = df.copy()
 
-    # Ensure the DataFrame contains the required columns
-    required_columns = ['open', 'high', 'low', 'close']
-    for col in required_columns:
-        if col not in df.columns:
-            raise KeyError(f"DataFrame must contain '{col}' column")
+    mom = df['close'].diff()
+    pos_mom = mom.where(mom > 0, 0)
+    neg_mom = -mom.where(mom < 0, 0)
+    sm1 = pos_mom.rolling(window=length).sum()
+    sm2 = neg_mom.rolling(window=length).sum()
+    cmo = 100 * (sm1 - sm2) / (sm1 + sm2)
 
-    print("DataFrame columns:", df.columns)  # Debug print
-    print("First few rows of the DataFrame:\n", df.head())  # Debug print
-
-    # Calculate DEAD_ZONE
-    dead_zone = RMA(TR(df), 100) * 3.7
-    print("DEAD_ZONE calculated")  # Debug print
-
-    # Calculate MACD
-    macd_fast = EMA(df, 'close', fast_length)
-    macd_slow = EMA(df, 'close', slow_length)
-    macd_diff = macd_fast - macd_slow
-    t1 = (macd_diff - macd_diff.shift(1)) * sensitivity
-    print("MACD and t1 calculated")  # Debug print
-
-    # Calculate Bollinger Bands
-    bb = BollingerBands(df, column='close', period=channel_length, std_dev=mult)
-    e1 = bb['BB_upper'] - bb['BB_lower']
-    print("Bollinger Bands calculated")  # Debug print
-
-    trend_up = np.where(t1 >= 0, t1, 0)
-    trend_down = np.where(t1 < 0, -t1, 0)
-
-    df_copy['trend_up'] = trend_up.round(2)
-    df_copy['trend_down'] = trend_down.round(2)
-    df_copy['explosion_line'] = e1.round(2)
-    df_copy['dead_zone_line'] = dead_zone.round(2)
-
-    return df_copy[['trend_up', 'trend_down', 'explosion_line', 'dead_zone_line']]
+    df_copy['cmo'] = cmo.round(2)
+    
+    return df_copy[['cmo']]
 
 
 def EWO(df, column="close", sma1_period=5, sma2_period=35):
@@ -129,6 +101,156 @@ def MACD(df, column="close", short_window=12, long_window=26, signal_window=9):
     })
 
 
+def MACD_Leader(df, src, fast_length=12, slow_length=26, signal_length=9):
+    """
+    MACD Leader
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the source column.
+    - src (str): The column to use for calculations.
+    - fast_length (int): Length for the fast EMA. Default is 12.
+    - slow_length (int): Length for the slow EMA. Default is 26.
+    - signal_length (int): Length for the signal EMA. Default is 9.
+
+    Call with:
+        macd_leader = MACD_Leader(df, 'close')
+        df['macd_leader'] = macd_leader['macd_leader']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'macd_leader' column.
+    """
+    df_copy = df.copy()
+
+    src_series = df[src]
+    sema = EMA(df.assign(src_series=src_series), 'src_series', fast_length)
+    lema = EMA(df.assign(src_series=src_series), 'src_series', slow_length)
+    i1 = sema + EMA(df.assign(diff=src_series - sema), 'diff', fast_length)
+    i2 = lema + EMA(df.assign(diff=src_series - lema), 'diff', slow_length)
+    macd_leader = ((i1 - i2) / 10) * 100
+
+    df_copy['macd_leader'] = macd_leader.round(2)
+    
+    return df_copy[['macd_leader']]
+
+def Inverse_Fisher_Transform(df, rsi_length=14, wma_length=9):
+    """
+    Inverse Fisher Transform
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
+    - rsi_length (int): Length for the RSI calculation. Default is 14.
+    - wma_length (int): Length for the WMA calculation. Default is 9.
+
+    Call with:
+        ift = Inverse_Fisher_Transform(df)
+        df['ift'] = ift['ift']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'ift' column.
+    """
+    df_copy = df.copy()
+
+    rsi_val = RSI(df, column='close', period=rsi_length)
+    v1 = 0.1 * (rsi_val - 50)
+    v2 = v1.rolling(window=wma_length).mean()
+    inv = ((np.exp(2 * v2) - 1) / (np.exp(2 * v2) + 1)) * 100
+
+    df_copy['ift'] = inv.round(2)
+    
+    return df_copy[['ift']]
+
+
+def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0):
+    """
+    Waddah Attar Explosion Indicator
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'open', 'high', 'low', and 'close'.
+    - sensitivity (int): Sensitivity factor for the indicator. Default is 150.
+    - fast_length (int): Length for the fast EMA. Default is 20.
+    - slow_length (int): Length for the slow EMA. Default is 40.
+    - channel_length (int): Length for the Bollinger Bands. Default is 20.
+    - mult (float): Standard deviation multiplier for the Bollinger Bands. Default is 2.0.
+
+    Call with:
+        WAE = bta.Waddah_Attar_Explosion(df)
+        df['trend_up'] = WAE['trend_up']
+        df['trend_down'] = WAE['trend_down']
+        df['explosion_line'] = WAE['explosion_line']
+        df['dead_zone_line'] = WAE['dead_zone_line']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'trend_up', 'trend_down', 'explosion_line', and 'dead_zone_line' columns.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['open', 'high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    print("DataFrame columns:", df.columns)  # Debug print
+    print("First few rows of the DataFrame:\n", df.head())  # Debug print
+
+    # Calculate DEAD_ZONE
+    dead_zone = RMA(TR(df), 100) * 3.7
+    print("DEAD_ZONE calculated")  # Debug print
+
+    # Calculate MACD
+    macd_fast = EMA(df, 'close', fast_length)
+    macd_slow = EMA(df, 'close', slow_length)
+    macd_diff = macd_fast - macd_slow
+    t1 = (macd_diff - macd_diff.shift(1)) * sensitivity
+    print("MACD and t1 calculated")  # Debug print
+
+    # Calculate Bollinger Bands
+    bb = BollingerBands(df, column='close', period=channel_length, std_dev=mult)
+    e1 = bb['BB_upper'] - bb['BB_lower']
+    print("Bollinger Bands calculated")  # Debug print
+
+    trend_up = np.where(t1 >= 0, t1, 0)
+    trend_down = np.where(t1 < 0, -t1, 0)
+
+    df_copy['trend_up'] = trend_up.round(2)
+    df_copy['trend_down'] = trend_down.round(2)
+    df_copy['explosion_line'] = e1.round(2)
+    df_copy['dead_zone_line'] = dead_zone.round(2)
+
+    return df_copy[['trend_up', 'trend_down', 'explosion_line', 'dead_zone_line']]
+
+
+def WaveTrend_Oscillator(df, src, n1=8, n2=12):
+    """
+    WaveTrend Oscillator
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the source column.
+    - src (str): The column to use for calculations.
+    - n1 (int): Length for the first EMA. Default is 8.
+    - n2 (int): Length for the second EMA. Default is 12.
+
+    Call with:
+        wt = WaveTrend_Oscillator(df, 'close')
+        df['wavetrend'] = wt['wavetrend']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'wavetrend' column.
+    """
+    df_copy = df.copy()
+
+    src_series = df[src]
+    ema_src = EMA(df.assign(src_series=src_series), 'src_series', n1)
+    d = EMA(df.assign(diff=np.abs(src_series - ema_src)), 'diff', n1)
+    ci = (src_series - ema_src) / (0.015 * d)
+    tci = EMA(df.assign(ci=ci), 'ci', n2)
+    wavetrend = tci - SMA(df.assign(tci=tci), 'tci', 4)
+
+    df_copy['wavetrend'] = wavetrend.round(2)
+    
+    return df_copy[['wavetrend']]
+
+
 def RSI(df, column="close", period=14):
     """
     Relative Strength Index (RSI)
@@ -162,3 +284,59 @@ def RSI(df, column="close", period=14):
     rsi = 100 - (100 / (1 + rs))
 
     return rsi
+
+
+def QQE_Mod(df, rsi_period=6, sf=5, qqe_factor=3, thresh=3, length=50, mult=0.35):
+    """
+    QQE Mod Indicator
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'close'.
+    - rsi_period (int): Period for the RSI calculation. Default is 6.
+    - sf (int): Smoothing factor for the RSI. Default is 5.
+    - qqe_factor (float): QQE factor. Default is 3.
+    - thresh (int): Threshold value. Default is 3.
+    - length (int): Length for the Bollinger Bands. Default is 50.
+    - mult (float): Multiplier for the Bollinger Bands. Default is 0.35.
+
+    Call with:
+        qqe = QQE_Mod(df)
+        df['qqe_rsi_ma'] = qqe['rsi_ma']
+        df['qqe_upper'] = qqe['upper']
+        df['qqe_lower'] = qqe['lower']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'rsi_ma', 'upper', and 'lower' columns.
+    """
+    df_copy = df.copy()
+
+    wilders_period = rsi_period * 2 - 1
+    rsi_val = RSI(df, column='close', period=rsi_period)
+    rsi_ma = EMA(df.assign(rsi_val=rsi_val), 'rsi_val', sf)
+    atr_rsi = np.abs(rsi_ma.diff())
+    ma_atr_rsi = EMA(df.assign(atr_rsi=atr_rsi), 'atr_rsi', wilders_period)
+    dar = EMA(df.assign(ma_atr_rsi=ma_atr_rsi), 'ma_atr_rsi', wilders_period) * qqe_factor
+
+    longband = np.zeros(len(df))
+    shortband = np.zeros(len(df))
+    trend = np.zeros(len(df))
+
+    for i in range(1, len(df)):
+        new_longband = rsi_ma[i] - dar[i]
+        new_shortband = rsi_ma[i] + dar[i]
+        longband[i] = max(longband[i - 1], new_longband) if rsi_ma[i - 1] > longband[i - 1] and rsi_ma[i] > longband[i - 1] else new_longband
+        shortband[i] = min(shortband[i - 1], new_shortband) if rsi_ma[i - 1] < shortband[i - 1] and rsi_ma[i] < shortband[i - 1] else new_shortband
+        trend[i] = 1 if rsi_ma[i] > shortband[i - 1] else -1 if rsi_ma[i] < longband[i - 1] else trend[i - 1]
+
+    fast_atr_rsi_tl = np.where(trend == 1, longband, shortband)
+    fast_atr_rsi_tl_series = pd.Series(fast_atr_rsi_tl, index=df.index) - 50
+    basis = SMA(df.assign(fast_atr_rsi_tl=fast_atr_rsi_tl_series), 'fast_atr_rsi_tl', length)
+    dev = mult * stdev(fast_atr_rsi_tl_series, length)
+    upper = basis + dev
+    lower = basis - dev
+
+    df_copy['rsi_ma'] = rsi_ma.round(2)
+    df_copy['upper'] = upper.round(2)
+    df_copy['lower'] = lower.round(2)
+
+    return df_copy[['rsi_ma', 'upper', 'lower']]

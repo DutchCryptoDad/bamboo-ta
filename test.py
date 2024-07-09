@@ -200,18 +200,29 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # print(df.tail(7))
 
 
-df['BBTrend'] = bta.BollingerTrend(df, "close", 20, 50, 2.0)
+# df['BBTrend'] = bta.BollingerTrend(df, "close", 20, 50, 2.0)
 
-BollingerTrendFast = bta.BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14)
-df['BollingerTrendFast'] = BollingerTrendFast['BBTrend']
-df['BollingerTrendFastMA'] = BollingerTrendFast['BBTrendMA']
+# BollingerTrendFast = bta.BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14)
+# df['BollingerTrendFast'] = BollingerTrendFast['BBTrend']
+# df['BollingerTrendFastMA'] = BollingerTrendFast['BBTrendMA']
 
 
-WAE = bta.Waddah_Attar_Explosion(df)
-print(WAE)
-df['trend_up'] = WAE['trend_up']
-df['trend_down'] = WAE['trend_down']
-df['explosion_line'] = WAE['explosion_line']
-df['dead_zone_line'] = WAE['dead_zone_line']
+# WAE = bta.Waddah_Attar_Explosion(df)
+# print(WAE)
+# df['trend_up'] = WAE['trend_up']
+# df['trend_down'] = WAE['trend_down']
+# df['explosion_line'] = WAE['explosion_line']
+# df['dead_zone_line'] = WAE['dead_zone_line']
 
+# AKA the Pathways to Profit Indicator
+df['OBV_Oscillator'] = bta.OBV_Oscillator(df)
+# df['MACD_Leader'] = bta.MACD_Leader(df, 'close')
+# df['CMO'] = bta.CMO(df)['cmo']
+# df['CMO_Signal'] = df['CMO'].rolling(window=10).mean().round(2)  # Using SMA for signal
+qqe = bta.QQE_Mod(df)
+df['QQE_RSI_MA'] = qqe['rsi_ma']
+df['QQE_Upper'] = qqe['upper']
+df['QQE_Lower'] = qqe['lower']
+df['IFT'] = bta.Inverse_Fisher_Transform(df, rsi_length=5, wma_length=9)
+# df['Wavetrend'] = bta.WaveTrend_Oscillator(df, 'close')
 print(df.tail(50))
