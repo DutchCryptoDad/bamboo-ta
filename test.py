@@ -215,14 +215,13 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['dead_zone_line'] = WAE['dead_zone_line']
 
 # AKA the Pathways to Profit Indicator
-df['OBV_Oscillator'] = bta.OBV_Oscillator(df)
+
 # df['MACD_Leader'] = bta.MACD_Leader(df, 'close')
 # df['CMO'] = bta.CMO(df)['cmo']
 # df['CMO_Signal'] = df['CMO'].rolling(window=10).mean().round(2)  # Using SMA for signal
-qqe = bta.QQE_Mod(df)
-df['QQE_RSI_MA'] = qqe['rsi_ma']
-df['QQE_Upper'] = qqe['upper']
-df['QQE_Lower'] = qqe['lower']
-df['IFT'] = bta.Inverse_Fisher_Transform(df, rsi_length=5, wma_length=9)
 # df['Wavetrend'] = bta.WaveTrend_Oscillator(df, 'close')
-print(df.tail(50))
+
+# df['OBV_Oscillator'] = bta.OBV_Oscillator(df)
+
+# df['IFT'] = bta.Inverse_Fisher_Transform(df, rsi_length=5, rsi_smoothing=9)
+

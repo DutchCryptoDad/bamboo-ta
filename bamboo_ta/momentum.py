@@ -132,33 +132,46 @@ def MACD_Leader(df, src, fast_length=12, slow_length=26, signal_length=9):
     
     return df_copy[['macd_leader']]
 
-def Inverse_Fisher_Transform(df, rsi_length=14, wma_length=9):
+def Inverse_Fisher_Transform(df, src='close', rsi_length=10, rsi_smoothing=5, e_value=2.71):
     """
     Inverse Fisher Transform
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
-    - rsi_length (int): Length for the RSI calculation. Default is 14.
-    - wma_length (int): Length for the WMA calculation. Default is 9.
+    - src (str): Source column to calculate the indicator.
+    - rsi_length (int): Length for the RSI calculation. Default is 10.
+    - rsi_smoothing (int): Length for the RSI smoothing (EMA). Default is 5.
+    - e_value (float): E value for the inverse fisher transform. Default is 2.71.
 
     Call with:
         ift = Inverse_Fisher_Transform(df)
         df['ift'] = ift['ift']
+
+    Use additional levels in your dataframe for 
+        # Add horizontal levels
+        df['level_1_35'] = 1.35
+        df['level_0_5'] = 0.5
+        df['level_0'] = 0
+        df['level_minus_0_5'] = -0.5
+        df['level_minus_1'] = -1
 
     Returns:
     - pd.DataFrame: DataFrame with 'ift' column.
     """
     df_copy = df.copy()
 
-    rsi_val = RSI(df, column='close', period=rsi_length)
-    v1 = 0.1 * (rsi_val - 50)
-    v2 = v1.rolling(window=wma_length).mean()
-    inv = ((np.exp(2 * v2) - 1) / (np.exp(2 * v2) + 1)) * 100
+    # Calculate RSI values
+    rsi_values = RSI(df, column=src, period=rsi_length)
+    
+    # Smooth RSI values with EMA
+    rsi_ema_values = EMA(df.assign(rsi_values=rsi_values), 'rsi_values', rsi_smoothing)
+    
+    # Apply Inverse Fisher Transform
+    inv_fisher = (np.exp(2.0 * (rsi_ema_values - 50) * 0.1) - 1) / (np.exp(2.0 * (rsi_ema_values - 50) * 0.1) + 1)
 
-    df_copy['ift'] = inv.round(2)
+    df_copy['ift'] = inv_fisher.round(2)
     
     return df_copy[['ift']]
-
 
 def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0):
     """
@@ -286,57 +299,3 @@ def RSI(df, column="close", period=14):
     return rsi
 
 
-def QQE_Mod(df, rsi_period=6, sf=5, qqe_factor=3, thresh=3, length=50, mult=0.35):
-    """
-    QQE Mod Indicator
-
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'close'.
-    - rsi_period (int): Period for the RSI calculation. Default is 6.
-    - sf (int): Smoothing factor for the RSI. Default is 5.
-    - qqe_factor (float): QQE factor. Default is 3.
-    - thresh (int): Threshold value. Default is 3.
-    - length (int): Length for the Bollinger Bands. Default is 50.
-    - mult (float): Multiplier for the Bollinger Bands. Default is 0.35.
-
-    Call with:
-        qqe = QQE_Mod(df)
-        df['qqe_rsi_ma'] = qqe['rsi_ma']
-        df['qqe_upper'] = qqe['upper']
-        df['qqe_lower'] = qqe['lower']
-
-    Returns:
-    - pd.DataFrame: DataFrame with 'rsi_ma', 'upper', and 'lower' columns.
-    """
-    df_copy = df.copy()
-
-    wilders_period = rsi_period * 2 - 1
-    rsi_val = RSI(df, column='close', period=rsi_period)
-    rsi_ma = EMA(df.assign(rsi_val=rsi_val), 'rsi_val', sf)
-    atr_rsi = np.abs(rsi_ma.diff())
-    ma_atr_rsi = EMA(df.assign(atr_rsi=atr_rsi), 'atr_rsi', wilders_period)
-    dar = EMA(df.assign(ma_atr_rsi=ma_atr_rsi), 'ma_atr_rsi', wilders_period) * qqe_factor
-
-    longband = np.zeros(len(df))
-    shortband = np.zeros(len(df))
-    trend = np.zeros(len(df))
-
-    for i in range(1, len(df)):
-        new_longband = rsi_ma[i] - dar[i]
-        new_shortband = rsi_ma[i] + dar[i]
-        longband[i] = max(longband[i - 1], new_longband) if rsi_ma[i - 1] > longband[i - 1] and rsi_ma[i] > longband[i - 1] else new_longband
-        shortband[i] = min(shortband[i - 1], new_shortband) if rsi_ma[i - 1] < shortband[i - 1] and rsi_ma[i] < shortband[i - 1] else new_shortband
-        trend[i] = 1 if rsi_ma[i] > shortband[i - 1] else -1 if rsi_ma[i] < longband[i - 1] else trend[i - 1]
-
-    fast_atr_rsi_tl = np.where(trend == 1, longband, shortband)
-    fast_atr_rsi_tl_series = pd.Series(fast_atr_rsi_tl, index=df.index) - 50
-    basis = SMA(df.assign(fast_atr_rsi_tl=fast_atr_rsi_tl_series), 'fast_atr_rsi_tl', length)
-    dev = mult * stdev(fast_atr_rsi_tl_series, length)
-    upper = basis + dev
-    lower = basis - dev
-
-    df_copy['rsi_ma'] = rsi_ma.round(2)
-    df_copy['upper'] = upper.round(2)
-    df_copy['lower'] = lower.round(2)
-
-    return df_copy[['rsi_ma', 'upper', 'lower']]
