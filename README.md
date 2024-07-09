@@ -109,6 +109,12 @@ Or individual indicators.
 3. **momentum**
    - **Description**: Provides momentum-based indicators.
    - **Indicators**:
+     - **CMO**: Chande Momentum Oscillator.
+       - **Usage**: 
+         ```python
+         cmo = CMO(df, length=14)
+         df['cmo'] = cmo['cmo']
+         ```
      - **EWO**: Elliott Wave Oscillator.
        - **Usage**: 
          ```python
@@ -122,21 +128,54 @@ Or individual indicators.
          df['macd_signal'] = macd_result['MACD_signal']
          df['macd_histogram'] = macd_result['MACD_histogram']
          ```
-     - **WAE**: Waddah Attar Explosion.
+     - **MACD_Leader**: MACD Leader.
        - **Usage**: 
          ```python
-         WAE = waddah_attar_explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0)
-        df['trend_up'] = WAE['trend_up']
-        df['trend_down'] = WAE['trend_down']
-        df['explosion_line'] = WAE['explosion_line']
-        df['dead_zone_line'] = WAE['dead_zone_line']
+         macd_leader = MACD_Leader(df, 'close')
+         df['macd_leader'] = macd_leader['macd_leader']
+         ```
+     - **Inverse_Fisher_Transform**: Inverse Fisher Transform.
+       - **Usage**: 
+         ```python
+         ift = Inverse_Fisher_Transform(df)
+         df['ift'] = ift['ift']
+         # Optional levels
+         df['level_1_35'] = 1.35
+         df['level_0_5'] = 0.5
+         df['level_0'] = 0
+         df['level_minus_0_5'] = -0.5
+         df['level_minus_1'] = -1
+         ```
+     - **Waddah_Attar_Explosion**: Waddah Attar Explosion Indicator.
+       - **Usage**: 
+         ```python
+         WAE = Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0)
+         df['trend_up'] = WAE['trend_up']
+         df['trend_down'] = WAE['trend_down']
+         df['explosion_line'] = WAE['explosion_line']
+         df['dead_zone_line'] = WAE['dead_zone_line']
+         ```
+     - **WaveTrend_Oscillator**: WaveTrend Oscillator.
+       - **Usage**: 
+         ```python
+         wt = WaveTrend_Oscillator(df, 'close', n1=8, n2=12)
+         df['wavetrend'] = wt['wavetrend']
          ```
      - **RSI**: Relative Strength Index.
        - **Usage**: 
          ```python
          df['rsi'] = RSI(df, "close", 14)
          ```
-
+     - **QQE_Mod**: QQE Mod Indicator.
+       - **Usage**: 
+         ```python
+         qqe_mod = QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollinger_length=50, bb_multiplier=0.35,
+                           rsi_period2=6, rsi_smoothing2=5, qqe_factor2=1.61, threshold2=3)
+         df['QQE_Line'] = qqe_mod['QQE_Line']
+         df['Histo2'] = qqe_mod['Histo2']
+         df['QQE_Up'] = qqe_mod['QQE_Up']
+         df['QQE_Down'] = qqe_mod['QQE_Down']
+         ```
 4. **performance**
    - **Description**: Contains performance-related indicators.
 
@@ -213,7 +252,14 @@ Or individual indicators.
          ```
 
 9. **volume**
-   - **Description**: Indicators related to trading volume.
+   - **Description**: Provides volume-based indicators.
+   - **Indicators**:
+     - **OBV_Oscillator**: On Balance Volume Oscillator.
+       - **Usage**:
+         ```python
+         obv_osc = OBV_Oscillator(df, n1=10, n2=21)
+         df['OBV_Oscillator'] = obv_osc['OBV_Oscillator']
+         ```
 
 #### Practical example
 
