@@ -3,6 +3,68 @@ import numpy as np
 import pandas as pd
 from .bamboo_ta import *
 from .trend import *
+from .volatility import *
+# from .utility import *
+
+
+def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0):
+    """
+    Waddah Attar Explosion Indicator
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'open', 'high', 'low', and 'close'.
+    - sensitivity (int): Sensitivity factor for the indicator. Default is 150.
+    - fast_length (int): Length for the fast EMA. Default is 20.
+    - slow_length (int): Length for the slow EMA. Default is 40.
+    - channel_length (int): Length for the Bollinger Bands. Default is 20.
+    - mult (float): Standard deviation multiplier for the Bollinger Bands. Default is 2.0.
+
+    Call with:
+        WAE = bta.Waddah_Attar_Explosion(df)
+        df['trend_up'] = WAE['trend_up']
+        df['trend_down'] = WAE['trend_down']
+        df['explosion_line'] = WAE['explosion_line']
+        df['dead_zone_line'] = WAE['dead_zone_line']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'trend_up', 'trend_down', 'explosion_line', and 'dead_zone_line' columns.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['open', 'high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    print("DataFrame columns:", df.columns)  # Debug print
+    print("First few rows of the DataFrame:\n", df.head())  # Debug print
+
+    # Calculate DEAD_ZONE
+    dead_zone = RMA(TR(df), 100) * 3.7
+    print("DEAD_ZONE calculated")  # Debug print
+
+    # Calculate MACD
+    macd_fast = EMA(df, 'close', fast_length)
+    macd_slow = EMA(df, 'close', slow_length)
+    macd_diff = macd_fast - macd_slow
+    t1 = (macd_diff - macd_diff.shift(1)) * sensitivity
+    print("MACD and t1 calculated")  # Debug print
+
+    # Calculate Bollinger Bands
+    bb = BollingerBands(df, column='close', period=channel_length, std_dev=mult)
+    e1 = bb['BB_upper'] - bb['BB_lower']
+    print("Bollinger Bands calculated")  # Debug print
+
+    trend_up = np.where(t1 >= 0, t1, 0)
+    trend_down = np.where(t1 < 0, -t1, 0)
+
+    df_copy['trend_up'] = trend_up.round(2)
+    df_copy['trend_down'] = trend_down.round(2)
+    df_copy['explosion_line'] = e1.round(2)
+    df_copy['dead_zone_line'] = dead_zone.round(2)
+
+    return df_copy[['trend_up', 'trend_down', 'explosion_line', 'dead_zone_line']]
 
 
 def EWO(df, column="close", sma1_period=5, sma2_period=35):

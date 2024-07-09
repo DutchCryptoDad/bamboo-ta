@@ -140,8 +140,8 @@ def BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50
 
     # Returning as DataFrame
     result = df.copy()
-    result['BBTrend'] = bbtrend
-    result['BBTrendMA'] = ma
+    result['BBTrend'] = bbtrend.round(2)
+    result['BBTrendMA'] = ma.round(2)
 
     return result[['BBTrend', 'BBTrendMA']]
 
@@ -239,6 +239,20 @@ def LSMA(df, column="close", period=21):
     lsma = pd.Series(lsma_values, index=df.index[period - 1:])
 
     return lsma
+
+
+def RMA(series, period):
+    """
+    Relative Moving Average (RMA) calculation.
+    
+    Parameters:
+    - series (pandas.Series): Input series on which RMA is to be calculated.
+    - period (int): The period over which RMA is to be calculated.
+    
+    Returns:
+    - pandas.Series: A series of RMA values.
+    """
+    return series.ewm(alpha=1/period, adjust=False).mean()
 
 
 def SMA(df, column="close", period=21):

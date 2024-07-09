@@ -45,3 +45,21 @@ def BollingerBands(df, column="close", period=20, std_dev=2, ddof=0):
         'BB_middle': sma,
         'BB_lower': lower_band
     })
+
+
+def TR(df):
+    """
+    True Range (TR) calculation.
+    
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'high', 'low', and 'close'.
+    
+    Returns:
+    - pandas.Series: A series of True Range values.
+    """
+    high_low = df['high'] - df['low']
+    high_close = np.abs(df['high'] - df['close'].shift())
+    low_close = np.abs(df['low'] - df['close'].shift())
+
+    tr = high_low.combine(high_close, max).combine(low_close, max)
+    return tr

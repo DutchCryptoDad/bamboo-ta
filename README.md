@@ -122,6 +122,15 @@ Or individual indicators.
          df['macd_signal'] = macd_result['MACD_signal']
          df['macd_histogram'] = macd_result['MACD_histogram']
          ```
+     - **WAE**: Waddah Attar Explosion.
+       - **Usage**: 
+         ```python
+         WAE = waddah_attar_explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0)
+        df['trend_up'] = WAE['trend_up']
+        df['trend_down'] = WAE['trend_down']
+        df['explosion_line'] = WAE['explosion_line']
+        df['dead_zone_line'] = WAE['dead_zone_line']
+         ```
      - **RSI**: Relative Strength Index.
        - **Usage**: 
          ```python
