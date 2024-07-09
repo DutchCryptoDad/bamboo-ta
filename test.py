@@ -221,7 +221,14 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['CMO_Signal'] = df['CMO'].rolling(window=10).mean().round(2)  # Using SMA for signal
 # df['Wavetrend'] = bta.WaveTrend_Oscillator(df, 'close')
 
-# df['OBV_Oscillator'] = bta.OBV_Oscillator(df)
-
 # df['IFT'] = bta.Inverse_Fisher_Transform(df, rsi_length=5, rsi_smoothing=9)
 
+# qqe_mod = bta.QQE_Mod(df)
+# df['QQE_Line'] = qqe_mod['QQE_Line']
+# df['Histo2'] = qqe_mod['Histo2']
+# df['QQE_Up'] = qqe_mod['QQE_Up']
+# df['QQE_Down'] = qqe_mod['QQE_Down']
+
+df['OBV_Oscillator'] = bta.OBV_Oscillator(df)
+
+print(df.tail(50))
