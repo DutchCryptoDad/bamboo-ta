@@ -200,10 +200,18 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # print(df.tail(7))
 
 
-df['BBTrend'] = bta.BollingerTrend(df, "close", 20, 50, 2.0)
+# df['BBTrend'] = bta.BollingerTrend(df, "close", 20, 50, 2.0)
 
-BollingerTrendFast = bta.BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14)
-df['BollingerTrendFast'] = BollingerTrendFast['BBTrend']
-df['BollingerTrendFastMA'] = BollingerTrendFast['BBTrendMA']
+# BollingerTrendFast = bta.BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14)
+# df['BollingerTrendFast'] = BollingerTrendFast['BBTrend']
+# df['BollingerTrendFastMA'] = BollingerTrendFast['BBTrendMA']
 
-print(df.tail(20))
+
+# WAE = bta.Waddah_Attar_Explosion(df)
+# print(WAE)
+# df['trend_up'] = WAE['trend_up']
+# df['trend_down'] = WAE['trend_down']
+# df['explosion_line'] = WAE['explosion_line']
+# df['dead_zone_line'] = WAE['dead_zone_line']
+
+# print(df.tail(20))

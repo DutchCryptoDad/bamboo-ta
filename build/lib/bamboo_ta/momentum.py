@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 from .bamboo_ta import *
 from .trend import *
+from .volatility import *
+from .utility import *
 
 
 def EWO(df, column="close", sma1_period=5, sma2_period=35):
@@ -65,6 +67,52 @@ def MACD(df, column="close", short_window=12, long_window=26, signal_window=9):
         'MACD_signal': signal,
         'MACD_histogram': histogram
     })
+
+
+def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0):
+    """
+    Waddah Attar Explosion Indicator
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'open', 'high', 'low', and 'close'.
+    - sensitivity (int): Sensitivity factor for the indicator. Default is 150.
+    - fast_length (int): Length for the fast EMA. Default is 20.
+    - slow_length (int): Length for the slow EMA. Default is 40.
+    - channel_length (int): Length for the Bollinger Bands. Default is 20.
+    - mult (float): Standard deviation multiplier for the Bollinger Bands. Default is 2.0.
+
+    Call with:
+        result = waddah_attar_explosion(df)
+        df['trend_up'] = result['trend_up']
+        df['trend_down'] = result['trend_down']
+        df['explosion_line'] = result['explosion_line']
+        df['dead_zone_line'] = result['dead_zone_line']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'trend_up', 'trend_down', 'explosion_line', and 'dead_zone_line' columns.
+    """
+    df_copy = df.copy()
+
+    # Calculate DEAD_ZONE
+    dead_zone = RMA(TR(df), 100) * 3.7
+
+    # Calculate MACD
+    macd_diff = EMA(df['close'], period=fast_length) - EMA(df['close'], period=slow_length)
+    t1 = (macd_diff - macd_diff.shift(1)) * sensitivity
+
+    # Calculate Bollinger Bands
+    bb = BollingerBands(df, column='close', period=channel_length, std_dev=mult)
+    e1 = bb['BB_upper'] - bb['BB_lower']
+
+    trend_up = np.where(t1 >= 0, t1, 0)
+    trend_down = np.where(t1 < 0, -t1, 0)
+
+    df_copy['trend_up'] = trend_up
+    df_copy['trend_down'] = trend_down
+    df_copy['explosion_line'] = e1
+    df_copy['dead_zone_line'] = dead_zone
+
+    return df_copy[['trend_up', 'trend_down', 'explosion_line', 'dead_zone_line']]
 
 
 def RSI(df, column="close", period=14):

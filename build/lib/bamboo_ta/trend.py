@@ -241,6 +241,20 @@ def LSMA(df, column="close", period=21):
     return lsma
 
 
+def RMA(series, period):
+    """
+    Relative Moving Average (RMA) calculation.
+    
+    Parameters:
+    - series (pandas.Series): Input series on which RMA is to be calculated.
+    - period (int): The period over which RMA is to be calculated.
+    
+    Returns:
+    - pandas.Series: A series of RMA values.
+    """
+    return series.ewm(alpha=1/period, adjust=False).mean()
+
+
 def SMA(df, column="close", period=21):
     """
     Simple Moving Average (SMA)
