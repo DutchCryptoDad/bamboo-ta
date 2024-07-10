@@ -25,6 +25,28 @@ The Bamboo TA Indicators module provides a comprehensive suite of technical anal
 ](https://www.youtube.com/@dutchalgotrading)
 [![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UC-AOcefy1x7lTc17JiqaxqA)](https://www.youtube.com/@dutchalgotrading)
 
+## Social
+
+See my [Youtube channel](youtube.com/channel/UC-AOcefy1x7lTc17JiqaxqA?sub_confirmation=1) for [Freqtrade tutorials](https://www.youtube.com/watch?v=VHvikJmQrVM&list=PL8gq8aFDPpbNEx4lUvpmRjxtCkjvX-Jpg), [Tradingview knowledge](https://www.youtube.com/watch?v=aQSC-W8oYdw&list=PL8gq8aFDPpbNyIFWaQMovp9dSjDhAQcsd) and [video's about trading strategies and algorithms I tested](https://www.youtube.com/watch?v=Jj9MSzHwa44&list=PL8gq8aFDPpbNthwcFtdTjt6i9zoLmq6zO).
+
+See my [Patreon page](https://www.patreon.com/dutchalgotrading) for all the algorithmic strategies code (trading algorithms and automated backtests). These are all based on the [Freqtrade](https://github.com/freqtrade) trading bot btw.
+
+For the Strategy League (an overview of all the trading strategies/algorithms I tested) go to [dutchalgotrading.com](https://www.dutchalgotrading.com/). Ths league contains a ranked list with all the tested strategies I present on my [Youtube channel](youtube.com/channel/UC-AOcefy1x7lTc17JiqaxqA?sub_confirmation=1) and [Patreon page](https://www.patreon.com/dutchalgotrading)
+
+## Support and donations
+
+You can support my work by becoming a Patron on [Patreon](https://www.patreon.com/dutchalgotrading). 
+
+For one-time donations you can visit [Ko-fi.com](https://ko-fi.com/dutchcryptodad)
+
+Or send some crypto to the following addresses:
+* BTC : bc1qrtmdycvzc2vntx5jmg86qysnsm6h3xa9valu0e
+* ETH : 0xa27966A67F8B1225116509f6503EDf0534DE2927
+* DOGE: DEPuQLhViQDtZcyXtaqqLSPQWmMs5cckht
+* SOL : FDiyWgFRsLAMCuzAiuDe9yZ8BYsVnn244zYfqEz7bWom
+* ADA : addr1qxyr5xxvp52vf9zmpt8gtxfnkfjs5gzxh0sm2j504wgsr2vg8gvvcrg5cj29kzkwskvn8vn9pgsydwlpk49gl2u3qx5spl8gf4
+* PEPE: 0xa27966A67F8B1225116509f6503EDf0534DE2927
+* SHIB: 0xa27966A67F8B1225116509f6503EDf0534DE2927
 
 ## Installation
 
@@ -102,6 +124,27 @@ Or individual indicators.
          df['LRC_Close'] = lr_df['bclose']
          df['LRC_Signal'] = lr_df['signal']
          ```
+     - **Exhaustion_Bars**: Leledc Exhaustion Bars - Extended.
+       - **Usage**: 
+         ```python
+         exhaustion = Exhaustion_Bars(df)
+         df['leledc_major'] = exhaustion['leledc_major']
+         df['leledc_minor'] = exhaustion['leledc_minor']
+         ```
+     - **Dynamic_Exhaustion_Bars**: Dynamic Leledc Exhaustion Bars.
+       - **Usage**: 
+         ```python
+         dynamic_exhaustion = Dynamic_Exhaustion_Bars(df)
+         df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
+         df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
+         ```
+     - **Pinbar**: Price Action Indicator.
+       - **Usage**: 
+         ```python
+         pin = Pinbar(df)
+         df['pinbar_sell'] = pin['pinbar_sell']
+         df['pinbar_buy'] = pin['pinbar_buy']
+         ```
 
 2. **cycles**
    - **Description**: Includes indicators for cycle analysis.
@@ -166,6 +209,13 @@ Or individual indicators.
          ```python
          df['rsi'] = RSI(df, "close", 14)
          ```
+     - **Fisher_cg**: Fisher Stochastic Center of Gravity.
+       - **Usage**: 
+         ```python
+         fisher = Fisher_cg(df)
+         df['fisher_cg'] = fisher['fisher_cg']
+         df['fisher_sig'] = fisher['fisher_sig']
+         ```
      - **QQE_Mod**: QQE Mod Indicator.
        - **Usage**: 
          ```python
@@ -176,6 +226,7 @@ Or individual indicators.
          df['QQE_Up'] = qqe_mod['QQE_Up']
          df['QQE_Down'] = qqe_mod['QQE_Down']
          ```
+
 4. **performance**
    - **Description**: Contains performance-related indicators.
 
@@ -235,9 +286,63 @@ Or individual indicators.
          ```python
          df['zlema'] = ZLEMA(df, "close", 21)
          ```
+     - **Breakouts**: S/R Breakouts and Retests.
+       - **Usage**: 
+         ```python
+         breakout = Breakouts(df)
+         df['support_level'] = breakout['support_level']
+         df['resistance_level'] = breakout['resistance_level']
+         df['support_breakout'] = breakout['support_breakout']
+         df['resistance_breakout'] = breakout['resistance_breakout']
+         df['support_retest'] = breakout['support_retest']
+         df['potential_support_retest'] = breakout['potential_support_retest']
+         df['resistance_retest'] = breakout['resistance_retest']
+         df['potential_resistance_retest'] = breakout['potential_resistance_retest']
+         ```
 
 7. **utility**
    - **Description**: Utility functions and helper methods for technical analysis.
+   - **Functions**:
+     - **Calculate_Exhaustion_Candles**: Calculate the average consecutive length of ups and downs.
+       - **Usage**:
+         ```python
+         maj_qual, min_qual = Calculate_Exhaustion_Candles(df, window, zscore_multi)
+         ```
+     - **Calculate_Exhaustion_Lengths**: Calculate the average length of peaks and valleys.
+       - **Usage**:
+         ```python
+         maj_len, min_len = Calculate_Exhaustion_Lengths(df)
+         ```
+     - **Consecutive_Count**: Calculate the average consecutive count of non-zero differences.
+       - **Usage**:
+         ```python
+         avg_consecutive = Consecutive_Count(consecutive_diff)
+         ```
+     - **Linear_Growth**: Simple linear growth function.
+       - **Usage**:
+         ```python
+         growth_value = Linear_Growth(start, end, start_time, end_time, trade_time)
+         ```
+     - **Linear_Decay**: Simple linear decay function.
+       - **Usage**:
+         ```python
+         decay_value = Linear_Decay(start, end, start_time, end_time, trade_time)
+         ```
+     - **populate_leledc_major_minor**: Populate Leledc Major and Minor columns.
+       - **Usage**:
+         ```python
+         df = populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len)
+         ```
+     - **True_Range**: Calculate True Range (TR).
+       - **Usage**:
+         ```python
+         tr = True_Range(df)
+         ```
+     - **ZScore**: Calculate the z-score of a series.
+       - **Usage**:
+         ```python
+         zscore = ZScore(series, window=500)
+         ```
 
 8. **volatility**
    - **Description**: Volatility indicators.
@@ -249,6 +354,11 @@ Or individual indicators.
          df['bb_upper'] = bb_result['BB_upper']
          df['bb_middle'] = bb_result['BB_middle']
          df['bb_lower'] = bb_result['BB_lower']
+         ```
+     - **TR**: True Range (TR) calculation.
+       - **Usage**: 
+         ```python
+         tr = TR(df)
          ```
 
 9. **volume**
@@ -406,6 +516,7 @@ Save the file and reload environment if necessary.
 
 Now you an upload libraries without having to use the password.
 
-## Other sources
+## Other sources on which some indicators are based on
 
 * [ThinkOrSwim Tech indicators](https://tlc.thinkorswim.com/center/reference/Tech-Indicators)
+* [Legendary TA](https://github.com/just-nilux/legendary_ta)

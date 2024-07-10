@@ -4,7 +4,7 @@ import pandas as pd
 from .bamboo_ta import *
 from .trend import *
 from .volatility import *
-# from .utility import *
+from .utility import *
 
 
 def CMO(df, length=14):
@@ -63,6 +63,98 @@ def EWO(df, column="close", sma1_period=5, sma2_period=35):
     ewo = (sma1 - sma2) / df[column] * 100
 
     return ewo
+
+
+def Fisher_cg(df, length=20, min_period=10):
+    """ 
+    Fisher Stochastic Center of Gravity
+    
+    Original Pinescript by dasanc
+    https://tradingview.com/script/5BT3a9mJ-Fisher-Stochastic-Center-of-Gravity/
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'high' and 'low' columns.
+    - length (int): Lookback period.
+    - min_period (int): Minimum lookback period.
+
+    Call with:
+        fisher = bta.Fisher_cg(df)
+        df['fisher_cg'] = fisher['fisher_cg']
+        df['fisher_sig'] = fisher['fisher_sig']
+
+    Returns:
+    - pd.DataFrame: DataFrame with fisher_cg and fisher_sig columns populated.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['high', 'low']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    df_copy['hl2'] = (df_copy['high'] + df_copy['low']) / 2
+
+    if length < min_period:
+        length = min_period
+
+    num = sum((1 + i) * df_copy['hl2'].shift(i) for i in range(length))
+    denom = sum(df_copy['hl2'].shift(i) for i in range(length))
+
+    CG = -num / denom + (length + 1) / 2
+    MaxCG = CG.rolling(window=length).max()
+    MinCG = CG.rolling(window=length).min()
+
+    Value1 = np.where(MaxCG != MinCG, (CG - MinCG) / (MaxCG - MinCG), 0)
+    Value2 = (4 * Value1 + 3 * np.roll(Value1, 1) + 2 * np.roll(Value1, 2) + np.roll(Value1, 3)) / 10
+    Value3 = 0.5 * np.log((1 + 1.98 * (Value2 - 0.5)) / (1 - 1.98 * (Value2 - 0.5)))
+
+    df_copy['fisher_cg'] = pd.Series(Value3, index=df_copy.index)  # Center of Gravity
+    df_copy['fisher_sig'] = df_copy['fisher_cg'].shift(1)  # Signal / Trigger
+
+    return df_copy[['fisher_cg', 'fisher_sig']]
+
+
+def Inverse_Fisher_Transform(df, src='close', rsi_length=10, rsi_smoothing=5, e_value=2.71):
+    """
+    Inverse Fisher Transform
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
+    - src (str): Source column to calculate the indicator.
+    - rsi_length (int): Length for the RSI calculation. Default is 10.
+    - rsi_smoothing (int): Length for the RSI smoothing (EMA). Default is 5.
+    - e_value (float): E value for the inverse fisher transform. Default is 2.71.
+
+    Call with:
+        ift = Inverse_Fisher_Transform(df)
+        df['ift'] = ift['ift']
+
+    Use additional levels in your dataframe for 
+        # Add horizontal levels
+        df['level_1_35'] = 1.35
+        df['level_0_5'] = 0.5
+        df['level_0'] = 0
+        df['level_minus_0_5'] = -0.5
+        df['level_minus_1'] = -1
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'ift' column.
+    """
+    df_copy = df.copy()
+
+    # Calculate RSI values
+    rsi_values = RSI(df, column=src, period=rsi_length)
+    
+    # Smooth RSI values with EMA
+    rsi_ema_values = EMA(df.assign(rsi_values=rsi_values), 'rsi_values', rsi_smoothing)
+    
+    # Apply Inverse Fisher Transform
+    inv_fisher = (np.exp(2.0 * (rsi_ema_values - 50) * 0.1) - 1) / (np.exp(2.0 * (rsi_ema_values - 50) * 0.1) + 1)
+
+    df_copy['ift'] = inv_fisher.round(2)
+    
+    return df_copy[['ift']]
 
 
 def MACD(df, column="close", short_window=12, long_window=26, signal_window=9):
@@ -132,46 +224,6 @@ def MACD_Leader(df, src, fast_length=12, slow_length=26, signal_length=9):
     
     return df_copy[['macd_leader']]
 
-def Inverse_Fisher_Transform(df, src='close', rsi_length=10, rsi_smoothing=5, e_value=2.71):
-    """
-    Inverse Fisher Transform
-
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
-    - src (str): Source column to calculate the indicator.
-    - rsi_length (int): Length for the RSI calculation. Default is 10.
-    - rsi_smoothing (int): Length for the RSI smoothing (EMA). Default is 5.
-    - e_value (float): E value for the inverse fisher transform. Default is 2.71.
-
-    Call with:
-        ift = Inverse_Fisher_Transform(df)
-        df['ift'] = ift['ift']
-
-    Use additional levels in your dataframe for 
-        # Add horizontal levels
-        df['level_1_35'] = 1.35
-        df['level_0_5'] = 0.5
-        df['level_0'] = 0
-        df['level_minus_0_5'] = -0.5
-        df['level_minus_1'] = -1
-
-    Returns:
-    - pd.DataFrame: DataFrame with 'ift' column.
-    """
-    df_copy = df.copy()
-
-    # Calculate RSI values
-    rsi_values = RSI(df, column=src, period=rsi_length)
-    
-    # Smooth RSI values with EMA
-    rsi_ema_values = EMA(df.assign(rsi_values=rsi_values), 'rsi_values', rsi_smoothing)
-    
-    # Apply Inverse Fisher Transform
-    inv_fisher = (np.exp(2.0 * (rsi_ema_values - 50) * 0.1) - 1) / (np.exp(2.0 * (rsi_ema_values - 50) * 0.1) + 1)
-
-    df_copy['ift'] = inv_fisher.round(2)
-    
-    return df_copy[['ift']]
 
 def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0):
     """
@@ -203,24 +255,24 @@ def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, 
         if col not in df.columns:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
-    print("DataFrame columns:", df.columns)  # Debug print
-    print("First few rows of the DataFrame:\n", df.head())  # Debug print
+    # print("DataFrame columns:", df.columns)  # Debug print
+    # print("First few rows of the DataFrame:\n", df.head())  # Debug print
 
     # Calculate DEAD_ZONE
     dead_zone = RMA(TR(df), 100) * 3.7
-    print("DEAD_ZONE calculated")  # Debug print
+    # print("DEAD_ZONE calculated")  # Debug print
 
     # Calculate MACD
     macd_fast = EMA(df, 'close', fast_length)
     macd_slow = EMA(df, 'close', slow_length)
     macd_diff = macd_fast - macd_slow
     t1 = (macd_diff - macd_diff.shift(1)) * sensitivity
-    print("MACD and t1 calculated")  # Debug print
+    # print("MACD and t1 calculated")  # Debug print
 
     # Calculate Bollinger Bands
     bb = BollingerBands(df, column='close', period=channel_length, std_dev=mult)
     e1 = bb['BB_upper'] - bb['BB_lower']
-    print("Bollinger Bands calculated")  # Debug print
+    # print("Bollinger Bands calculated")  # Debug print
 
     trend_up = np.where(t1 >= 0, t1, 0)
     trend_down = np.where(t1 < 0, -t1, 0)
@@ -299,138 +351,46 @@ def RSI(df, column="close", period=14):
     return rsi
 
 
-# def QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollinger_length=50, bb_multiplier=0.35):
-#     """
-#     QQE Mod Indicator
+def SMI_Momentum(df, k_length=9, d_length=3):
+    """ 
+    The Stochastic Momentum Index (SMI) Indicator
+    
+    The Stochastic Momentum Index (SMI) Indicator was developed by 
+    William Blau in 1993 and is considered to be a momentum indicator 
+    that can help identify trend reversal points
 
-#     Parameters:
-#     - df (pandas.DataFrame): Input DataFrame which should contain a 'close' column.
-#     - rsi_period (int): Period for RSI calculation. Default is 6.
-#     - rsi_smoothing (int): Smoothing period for RSI. Default is 5.
-#     - qqe_factor (int): Fast QQE Factor. Default is 3.
-#     - threshold (int): Thresh-hold value. Default is 3.
-#     - bollinger_length (int): Length for Bollinger Bands calculation. Default is 50.
-#     - bb_multiplier (float): Multiplier for Bollinger Bands. Default is 0.35.
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'close' columns.
+    - k_length (int): Period for %K.
+    - d_length (int): Period for %D.
 
-#     Call with:
-#         qqe_mod = QQE_Mod(df)
-#         df['QQE_Line'] = qqe_mod['QQE_Line']
-#         df['Histo2'] = qqe_mod['Histo2']
-#         df['QQE_Up'] = qqe_mod['QQE_Up']
-#         df['QQE_Down'] = qqe_mod['QQE_Down']
+    Call with:
+        smi = bta.SMI_Momentum(df)
+        df['smi'] = smi['smi']
 
-#     Returns:
-#     - pd.DataFrame: DataFrame with 'QQE_Line', 'Histo2', 'QQE_Up', and 'QQE_Down' columns.
-#     """
-#     def wilders_ema(series, period):
-#         return series.ewm(alpha=1/period, adjust=False).mean()
+    Returns:
+    - pd.DataFrame: DataFrame with smi column populated.
+    """
+    df_copy = df.copy()
 
-#     df_copy = df.copy()
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
 
-#     # First QQE Calculation
-#     src = df_copy['close']
-#     wilders_period = rsi_period * 2 - 1
+    ll = df_copy['low'].rolling(window=k_length).min()
+    hh = df_copy['high'].rolling(window=k_length).max()
 
-#     rsi = RSI(df_copy, column='close', period=rsi_period)
-#     rsi_ma = EMA(df_copy.assign(rsi=rsi), column='rsi', period=rsi_smoothing)
-#     atr_rsi = abs(rsi_ma.shift(1) - rsi_ma)
-#     ma_atr_rsi = wilders_ema(atr_rsi, wilders_period)
-#     dar = wilders_ema(ma_atr_rsi, wilders_period) * qqe_factor
+    diff = hh - ll
+    rdiff = df_copy['close'] - (hh + ll) / 2
 
-#     longband = np.zeros(len(df_copy))
-#     shortband = np.zeros(len(df_copy))
-#     trend = np.zeros(len(df_copy))
+    avgrel = rdiff.ewm(span=d_length).mean().ewm(span=d_length).mean()
+    avgdiff = diff.ewm(span=d_length).mean().ewm(span=d_length).mean()
 
-#     delta_fast_atr_rsi = dar
-#     rsindex = rsi_ma
-#     newshortband = rsindex + delta_fast_atr_rsi
-#     newlongband = rsindex - delta_fast_atr_rsi
-
-#     for i in range(1, len(df_copy)):
-#         if rsindex.iloc[i - 1] > longband[i - 1] and rsindex.iloc[i] > longband[i - 1]:
-#             longband[i] = max(longband[i - 1], newlongband.iloc[i])
-#         else:
-#             longband[i] = newlongband.iloc[i]
-
-#         if rsindex.iloc[i - 1] < shortband[i - 1] and rsindex.iloc[i] < shortband[i - 1]:
-#             shortband[i] = min(shortband[i - 1], newshortband.iloc[i])
-#         else:
-#             shortband[i] = newshortband.iloc[i]
-
-#         cross_1 = (longband[i - 1] > rsindex.iloc[i]) and (longband[i - 1] <= rsindex.iloc[i - 1])
-#         if (rsindex.iloc[i] > shortband[i - 1]):
-#             trend[i] = 1
-#         elif cross_1:
-#             trend[i] = -1
-#         else:
-#             trend[i] = trend[i - 1]
-
-#     fast_atr_rsi_tl = np.where(trend == 1, longband, shortband)
-
-#     # Bollinger Bands on FastATRRSI TL
-#     basis = SMA(pd.DataFrame(fast_atr_rsi_tl - 50), column=0, period=bollinger_length)
-#     dev = bb_multiplier * stdev(pd.Series(fast_atr_rsi_tl - 50), bollinger_length)
-#     upper = basis + dev
-#     lower = basis - dev
-
-#     # Second QQE Calculation
-#     rsi_period2 = 6
-#     rsi_smoothing2 = 5
-#     qqe_factor2 = 1.61
-#     threshold2 = 3
-#     wilders_period2 = rsi_period2 * 2 - 1
-
-#     rsi2 = RSI(df_copy, column='close', period=rsi_period2)
-#     rsi_ma2 = EMA(df_copy.assign(rsi2=rsi2), column='rsi2', period=rsi_smoothing2)
-#     atr_rsi2 = abs(rsi_ma2.shift(1) - rsi_ma2)
-#     ma_atr_rsi2 = wilders_ema(atr_rsi2, wilders_period2)
-#     dar2 = wilders_ema(ma_atr_rsi2, wilders_period2) * qqe_factor2
-
-#     longband2 = np.zeros(len(df_copy))
-#     shortband2 = np.zeros(len(df_copy))
-#     trend2 = np.zeros(len(df_copy))
-
-#     delta_fast_atr_rsi2 = dar2
-#     rsindex2 = rsi_ma2
-#     newshortband2 = rsindex2 + delta_fast_atr_rsi2
-#     newlongband2 = rsindex2 - delta_fast_atr_rsi2
-
-#     for i in range(1, len(df_copy)):
-#         if rsindex2.iloc[i - 1] > longband2[i - 1] and rsindex2.iloc[i] > longband2[i - 1]:
-#             longband2[i] = max(longband2[i - 1], newlongband2.iloc[i])
-#         else:
-#             longband2[i] = newlongband2.iloc[i]
-
-#         if rsindex2.iloc[i - 1] < shortband2[i - 1] and rsindex2.iloc[i] < shortband2[i - 1]:
-#             shortband2[i] = min(shortband2[i - 1], newshortband2.iloc[i])
-#         else:
-#             shortband2[i] = newshortband2.iloc[i]
-
-#         cross_2 = (longband2[i - 1] > rsindex2.iloc[i]) and (longband2[i - 1] <= rsindex2.iloc[i - 1])
-#         if (rsindex2.iloc[i] > shortband2[i - 1]):
-#             trend2[i] = 1
-#         elif cross_2:
-#             trend2[i] = -1
-#         else:
-#             trend2[i] = trend2[i - 1]
-
-#     fast_atr_rsi2_tl = np.where(trend2 == 1, longband2, shortband2)
-
-#     hcolor2 = np.where(rsi_ma2 - 50 > threshold2, 'silver', np.where(rsi_ma2 - 50 < -threshold2, 'silver', np.nan))
-
-#     df_copy['QQE_Line'] = (fast_atr_rsi2_tl - 50).round(2)
-#     df_copy['Histo2'] = (rsi_ma2 - 50).round(2)
-
-#     greenbar1 = rsi_ma2 - 50 > threshold2
-#     greenbar2 = rsi_ma - 50 > upper
-
-#     redbar1 = rsi_ma2 - 50 < -threshold2
-#     redbar2 = rsi_ma - 50 < lower
-
-#     df_copy['QQE_Up'] = np.where(greenbar1 & greenbar2, rsi_ma2 - 50, np.nan).round(2)
-#     df_copy['QQE_Down'] = np.where(redbar1 & redbar2, rsi_ma2 - 50, np.nan).round(2)
-
-#     return df_copy[['QQE_Line', 'Histo2', 'QQE_Up', 'QQE_Down']]
+    df_copy['smi'] = np.where(avgdiff != 0, (avgrel / (avgdiff / 2) * 100), 0)
+    
+    return df_copy[['smi']]
 
 
 def QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollinger_length=50, bb_multiplier=0.35,
@@ -508,7 +468,7 @@ def QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollin
 
     # Bollinger Bands on FastATRRSI TL
     basis = SMA(pd.DataFrame(fast_atr_rsi_tl - 50), column=0, period=bollinger_length)
-    dev = bb_multiplier * stdev(pd.Series(fast_atr_rsi_tl - 50), bollinger_length)
+    dev = bb_multiplier * STDEV(pd.Series(fast_atr_rsi_tl - 50), bollinger_length)
     upper = basis + dev
     lower = basis - dev
 

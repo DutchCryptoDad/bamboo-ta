@@ -1,0 +1,1883 @@
+## Project Structure
+The project is organized into the following directories:
+```
+./
+│   ├── bamboo_ta/
+│   └── requirements.txt
+│   └── setup.py
+│   └── fetchproject.py
+│   ├── bamboo_ta/
+│   │   └── __init__.py
+│   │   └── statistics.py
+│   │   └── performance.py
+│   │   └── candles.py
+│   │   └── volume.py
+│   │   └── trend.py
+│   │   └── utility.py
+│   │   └── momentum.py
+│   │   └── cycles.py
+│   │   └── bamboo_ta.py
+│   │   └── volatility.py
+```
+
+Detailed File Contents:
+
+./
+    requirements.txt
+
+    ----- Start of requirements.txt -----
+
+ta
+numpy
+pandas
+pandas_ta
+
+    ----- End of requirements.txt -----
+
+    setup.py
+
+    ----- Start of setup.py -----
+
+from setuptools import setup, find_packages
+import os
+
+here = os.path.abspath(os.path.dirname(__file__))
+
+VERSION = '0.0.6'
+DESCRIPTION = 'TA library for Pandas'
+
+with open("README.md", "r") as f:
+    LONG_DESCRIPTION = f.read()
+
+# Setting up
+setup(
+    name="bamboo-ta",
+    version=VERSION,
+    author="DutchCryptoDad (DCD)",
+    author_email="<dutchcryptodad@gmail.com>",
+    url="https://github.com/DutchCryptoDad/bamboo-ta",
+    description=DESCRIPTION,
+    long_description_content_type="text/markdown",
+    long_description=LONG_DESCRIPTION,
+    packages=find_packages(),
+    keywords=['python', 'pandas', 'numpy',
+              'trading', 'indicator', 'technical analysis'],
+    classifiers=[
+        "Development Status :: 1 - Planning",
+        "Intended Audience :: Developers",
+        "Programming Language :: Python :: 3",
+        "Operating System :: Unix",
+        "Operating System :: MacOS :: MacOS X",
+        "Operating System :: Microsoft :: Windows",
+    ],
+    install_requires=['pandas', 'numpy'],
+    extras_require={
+        "def": ["pytest", "twine"],
+    },
+    python_requres=">=3.10",
+)
+
+    ----- End of setup.py -----
+
+    fetchproject.py
+
+    ----- Start of fetchproject.py -----
+
+import os
+import fnmatch
+
+def list_files(startpath, exclude_dirs=None, exclude_files=None):
+    if exclude_dirs is None:
+        exclude_dirs = []
+    if exclude_files is None:
+        exclude_files = []
+
+    structure = []
+    for root, dirs, files in os.walk(startpath):
+        # Exclude directories
+        dirs[:] = [d for d in dirs if not any(fnmatch.fnmatch(os.path.join(root, d), pattern) for pattern in exclude_dirs)]
+        level = root.replace(startpath, '').count(os.sep)
+        indent = ' ' * 4 * (level)
+        structure.append(f"{indent}{os.path.basename(root)}/")
+        subindent = ' ' * 4 * (level + 1)
+        for f in files:
+            # Exclude files
+            if not any(fnmatch.fnmatch(os.path.join(root, f), pattern) for pattern in exclude_files):
+                structure.append(f"{subindent}{f}")
+                with open(os.path.join(root, f), 'r') as file_content:
+                    try:
+                        content = file_content.read()
+                        structure.append(f"\n{subindent}----- Start of {f} -----\n")
+                        structure.append(f"{content}")
+                        structure.append(f"{subindent}----- End of {f} -----\n")
+                    except:
+                        structure.append(f"{subindent}Contents of {f}:\n{subindent}Unable to read file.\n")
+    return structure
+
+def create_directory_overview(startpath, exclude_dirs=None, exclude_files=None):
+    if exclude_dirs is None:
+        exclude_dirs = []
+    if exclude_files is None:
+        exclude_files = []
+
+    overview = ["## Project Structure\n", "The project is organized into the following directories:\n", "```\n"]
+    for root, dirs, files in os.walk(startpath):
+        # Exclude directories
+        dirs[:] = [d for d in dirs if not any(fnmatch.fnmatch(os.path.join(root, d), pattern) for pattern in exclude_dirs)]
+        level = root.replace(startpath, '').count(os.sep)
+        indent = '│   ' * level + "├── " if level > 0 else ""
+        overview.append(f"{indent}{os.path.basename(root)}/\n")
+        subindent = '│   ' * (level + 1) + "├── "
+        for i, d in enumerate(dirs):
+            overview.append(f"{subindent}{d}/\n")
+        for f in files:
+            # Exclude files
+            if not any(fnmatch.fnmatch(os.path.join(root, f), pattern) for pattern in exclude_files):
+                file_indent = '│   ' * (level + 1) + "└── "
+                overview.append(f"{file_indent}{f}\n")
+    overview.append("```\n")
+    return overview
+
+def save_structure_to_file(startpath, output_file, exclude_dirs=None, exclude_files=None):
+    structure = list_files(startpath, exclude_dirs, exclude_files)
+    overview = create_directory_overview(startpath, exclude_dirs, exclude_files)
+    with open(output_file, 'w') as f:
+        for line in overview:
+            f.write(line)
+        f.write("\nDetailed File Contents:\n\n")
+        for line in structure:
+            f.write(line + '\n')
+
+if __name__ == "__main__":
+    startpath = '.'  # Current directory
+    output_file = 'directory_structure.txt'
+    
+    # Specify directories and files to exclude with wildcards
+    exclude_dirs = ['*__pycache__*', './bamboo_ta.egg-info', './build', './dist', './.git', './images']
+    exclude_files = ['./BTC_USDT-1d.json', './__init__.py*', './README*', './LICENSE', './**/*.log', '*/.gitignore' , './test.py', './custom_indicators.py', './legendary_ta.py' ]
+    
+    save_structure_to_file(startpath, output_file, exclude_dirs, exclude_files)
+    print(f"Directory structure and contents saved to {output_file}")
+
+"""
+GPT Prompt:
+1. You are a developer with extensive knowledge of Python and Pinescript. You have this project where you are converting Pinscripts into Python functions so that you can use these in a library for further data analysis in python. The project structure and code of the Python code will follow. After that wait for further instructions about the pinescript to convert. Is that understood?
+
+2. The following pinsecript should be converted into a python function. If this pinescript is depending on other indicators from other libraries (e.g. pandas-ta), do not use that, but instead create additional functions that will take care of the missing indicators. If the indicators are already available in the given project, then use these indicators. Is this clear?
+
+3. Further instructions based on output GPT.
+
+
+GPT Prompt:
+1. I now have a competely different question concerning the Readme file I have for this modules library. Can you help me with this too?
+
+2. The original Readme file looks like this, but it now misses a lot of new functions we added to the different modules. Please rewrite this section with the information I give you in the next prompt. There you should extract the functions from the modules and add these to the Readme section in the same original style. Do you understand?
+
+This is the original Readme section:
+
+3. Further instructions based on output GPT.
+
+"""
+
+    ----- End of fetchproject.py -----
+
+    bamboo_ta/
+        __init__.py
+
+        ----- Start of __init__.py -----
+
+# -*- coding: utf-8 -*-
+from bamboo_ta.bamboo_ta import *
+import numpy as np
+from pandas import DataFrame
+import pandas as pd
+
+name = "bamboo_ta"
+"""
+.. moduleauthor:: DutchCryptoDad
+"""
+
+        ----- End of __init__.py -----
+
+        statistics.py
+
+        ----- Start of statistics.py -----
+
+# -*- coding: utf-8 -*-
+import numpy as np
+import pandas as pd
+from .bamboo_ta import *
+
+        ----- End of statistics.py -----
+
+        performance.py
+
+        ----- Start of performance.py -----
+
+# -*- coding: utf-8 -*-
+import numpy as np
+import pandas as pd
+from .bamboo_ta import *
+
+        ----- End of performance.py -----
+
+        candles.py
+
+        ----- Start of candles.py -----
+
+# -*- coding: utf-8 -*-
+import numpy as np
+import pandas as pd
+from .bamboo_ta import *
+from .trend import *
+from .utility import *
+from.momentum import *
+
+
+def Exhaustion_Bars(df, maj_qual=6, maj_len=12, min_qual=6, min_len=12, core_length=4):
+    """
+    Leledc Exhaustion Bars - Extended
+    
+    Leledc Exhaustion Bars - Extended
+    Infamous S/R Reversal Indicator
+
+    leledc_major (Trend): 
+     1 Up
+    -1 Down
+    
+    leledc_minor: 
+    1 Sellers exhausted
+    0 Neutral / Hold
+    -1 Buyers exhausted 
+
+    Original (MT4) https://www.abundancetradinggroup.com/leledc-exhaustion-bar-mt4-indicator/
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'open', 'high', 'low', and 'close' columns.
+    - maj_qual (int): Major quality parameter.
+    - maj_len (int): Major length parameter.
+    - min_qual (int): Minor quality parameter.
+    - min_len (int): Minor length parameter.
+    - core_length (int): Core length parameter.
+
+    Call with:
+        exhaustion = bta.Exhaustion_Bars(df)
+        df['leledc_major'] = exhaustion['leledc_major']
+        df['leledc_minor'] = exhaustion['leledc_minor']
+
+    Returns:
+    - pd.DataFrame: DataFrame with columns populated.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['open', 'high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    bindex_maj, sindex_maj, trend_maj = 0, 0, 0
+    bindex_min, sindex_min = 0, 0
+
+    for i in range(len(df_copy)):
+        close = df_copy['close'][i]
+
+        if i < 1 or i - core_length < 0:
+            df_copy.loc[i, 'leledc_major'] = np.nan
+            df_copy.loc[i, 'leledc_minor'] = 0
+            continue
+
+        bindex_maj, sindex_maj = np.nan_to_num(bindex_maj), np.nan_to_num(sindex_maj)
+        bindex_min, sindex_min = np.nan_to_num(bindex_min), np.nan_to_num(sindex_min)
+
+        if close > df_copy['close'][i - core_length]:
+            bindex_maj += 1
+            bindex_min += 1
+        elif close < df_copy['close'][i - core_length]:
+            sindex_maj += 1
+            sindex_min += 1
+
+        update_major = False
+        if bindex_maj > maj_qual and close < df_copy['open'][i] and df_copy['high'][i] >= df_copy['high'][i - maj_len:i].max():
+            bindex_maj, trend_maj, update_major = 0, 1, True
+        elif sindex_maj > maj_qual and close > df_copy['open'][i] and df_copy['low'][i] <= df_copy['low'][i - maj_len:i].min():
+            sindex_maj, trend_maj, update_major = 0, -1, True
+
+        df_copy.loc[i, 'leledc_major'] = trend_maj if update_major else np.nan if trend_maj == 0 else trend_maj
+
+        if bindex_min > min_qual and close < df_copy['open'][i] and df_copy['high'][i] >= df_copy['high'][i - min_len:i].max():
+            bindex_min = 0
+            df_copy.loc[i, 'leledc_minor'] = -1
+        elif sindex_min > min_qual and close > df_copy['open'][i] and df_copy['low'][i] <= df_copy['low'][i - min_len:i].min():
+            sindex_min = 0
+            df_copy.loc[i, 'leledc_minor'] = 1
+        else:
+            df_copy.loc[i, 'leledc_minor'] = 0
+
+    return df_copy[['leledc_major', 'leledc_minor']]
+
+
+def Dynamic_Exhaustion_Bars(df, window=500):
+    """
+    Dynamic Leledc Exhaustion Bars -  By nilux
+    The lookback length and exhaustion bars adjust dynamically to the market.
+    
+    leledc_major (Trend): 
+     1 Up
+    -1 Down
+    
+    leledc_minor: 
+    1 Sellers exhausted
+    0 Neutral / Hold
+    -1 Buyers exhausted 
+        
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame.
+    - window (int): Lookback window for z-score calculation.
+
+    Call with:
+        dynamic_exhaustion = bta.Dynamic_Exhaustion_Bars(df)
+        df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
+        df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
+
+    Returns:
+    - pd.DataFrame: DataFrame with columns populated.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    df_copy['close_pct_change'] = df_copy['close'].pct_change()
+    df_copy['pct_change_zscore'] = ZScore(df_copy['close_pct_change'], window)
+    df_copy['pct_change_zscore_smoothed'] = df_copy['pct_change_zscore'].rolling(window=3).mean()
+    df_copy['pct_change_zscore_smoothed'] = df_copy['pct_change_zscore_smoothed'].fillna(1.0)
+
+    zscore = df_copy['pct_change_zscore_smoothed'].to_numpy()
+    zscore_multi = np.maximum(np.minimum(5.0 - zscore * 2, 5.0), 1.5)
+
+    maj_qual, min_qual = Calculate_Exhaustion_Candles(df_copy, window, zscore_multi)
+    
+    df_copy['maj_qual'] = maj_qual
+    df_copy['min_qual'] = min_qual
+
+    maj_len, min_len = Calculate_Exhaustion_Lengths(df_copy)
+    
+    df_copy['maj_len'] = maj_len
+    df_copy['min_len'] = min_len
+
+    df_copy = populate_leledc_major_minor(df_copy, maj_qual, min_qual, maj_len, min_len)
+
+    return df_copy[['leledc_major', 'leledc_minor']]
+
+
+def Pinbar(df, smi=None):
+    """ 
+    Pinbar - Price Action Indicator
+
+    Pinbars are an easy but sure indication
+    of incoming price reversal. 
+    Signal confirmation with SMI.
+    
+    Pinescript Source by PeterO - Thx!
+    https://tradingview.com/script/aSJnbGnI-PivotPoints-with-Momentum-confirmation-by-PeterO/
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', 'close' columns.
+    - smi: Optional Series for SMI.
+
+    Call with:
+        pin = bta.Pinbar(df)
+        df['pinbar_sell'] = pin['pinbar_sell']
+        df['pinbar_buy'] = pin['pinbar_buy']
+
+    Returns:
+    - pd.DataFrame: DataFrame with buy / sell signals columns populated.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    low = df_copy['low']
+    high = df_copy['high']
+    close = df_copy['close']
+    
+    tr = True_Range(df_copy)
+    
+    if smi is None:
+        df_copy = SMI_Momentum(df_copy)
+        smi = df_copy['smi']
+    
+    df_copy['pinbar_sell'] = (
+        (high < high.shift(1)) &
+        (close < high - (tr * 2 / 3)) &
+        (smi < smi.shift(1)) &
+        (smi.shift(1) > 40) &
+        (smi.shift(1) < smi.shift(2))
+    )
+
+    df_copy['pinbar_buy'] = (
+        (low > low.shift(1)) &
+        (close > low + (tr * 2 / 3)) &
+        (smi.shift(1) < -40) &
+        (smi > smi.shift(1)) &
+        (smi.shift(1) > smi.shift(2))
+    )
+    
+    return df_copy[['pinbar_sell', 'pinbar_buy']]
+
+
+def HeikinAshi(df, pre_smoothing_period=None, post_smoothing_period=None):
+    """
+    Heikin Ashi (HA) with Optional Pre and Post Smoothing
+
+    Call with:
+    - Regular Heiken Ashi:
+        ha_df = bta.HeikinAshi(df)
+
+    - With pre-smoothing of the original data:
+        ha_df = bta.HeikinAshi(df, pre_smoothing_period=14)
+
+    - With both pre and post smoothing:
+        ha_df = bta.HeikinAshi(df, pre_smoothing_period=14, post_smoothing_period=14)
+
+    After calling, the following columns can be extracted:
+        df['HA_Close'] = ha_df['HA_Close']
+        df['HA_Open'] = ha_df['HA_Open']
+        df['HA_High'] = ha_df['HA_High']
+        df['HA_Low'] = ha_df['HA_Low']
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'open', 'high', 'low', and 'close'.
+    - pre_smoothing_period (int, optional): Period for EMA pre-smoothing of the original data. If provided, original price bars are smoothed before Heikin Ashi calculations.
+    - post_smoothing_period (int, optional): Period for EMA post-smoothing of Heikin Ashi values. If provided, Heikin Ashi values are smoothed post calculations.
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'HA_Close', 'HA_Open', 'HA_High', 'HA_Low' columns.
+
+    Description:
+    Heikin Ashi is a type of price chart that shares some characteristics with candlestick charts but differs due to the values used to plot them. This modified version allows for optional smoothing of the original data before the Heikin Ashi calculation and/or smoothing of the Heikin Ashi values themselves, aiming to provide a more refined and smoother representation of price action, making it easier to identify the trend.
+    """
+    df_copy = df.copy()
+
+    # If pre-smoothing is required
+    if pre_smoothing_period:
+        df_copy['open'] = EMA(df_copy, 'open', pre_smoothing_period)
+        df_copy['close'] = EMA(df_copy, 'close', pre_smoothing_period)
+        df_copy['high'] = EMA(df_copy, 'high', pre_smoothing_period)
+        df_copy['low'] = EMA(df_copy, 'low', pre_smoothing_period)
+
+    # Regular Heikin Ashi calculations
+    df_copy['HA_Close'] = (df_copy['open'] + df_copy['high'] +
+                           df_copy['low'] + df_copy['close']) / 4
+    df_copy.reset_index(inplace=True)
+    ha_open = [(df_copy['open'][0] + df_copy['close'][0]) / 2]
+    [ha_open.append((ha_open[i] + df_copy['HA_Close'].values[i]) / 2)
+     for i in range(0, len(df_copy) - 1)]
+    df_copy['HA_Open'] = ha_open
+    df_copy.set_index('index', inplace=True)
+    df_copy['HA_High'] = df_copy[['HA_Open', 'HA_Close', 'high']].max(axis=1)
+    df_copy['HA_Low'] = df_copy[['HA_Open', 'HA_Close', 'low']].min(axis=1)
+
+    # If post-smoothing is required
+    if post_smoothing_period:
+        df_copy['HA_Open'] = EMA(df_copy, 'HA_Open', post_smoothing_period)
+        df_copy['HA_High'] = EMA(df_copy, 'HA_High', post_smoothing_period)
+        df_copy['HA_Low'] = EMA(df_copy, 'HA_Low', post_smoothing_period)
+        df_copy['HA_Close'] = EMA(df_copy, 'HA_Close', post_smoothing_period)
+
+    return df_copy[['HA_Open', 'HA_High', 'HA_Low', 'HA_Close']]
+
+
+def LinRegCandles(df, linreg_length=11, sma_signal=True, signal_length=11):
+    """
+    Linear Regression Candles with Optional Signal Line
+
+    Call with:
+    - Regular Linear Regression Candles with SMA signal line:
+        lr_df = bta.LinRegCandles(df)
+
+    - With EMA signal line:
+        lr_df = bta.LinRegCandles(df, sma_signal=False)
+
+    - With SMA signal line:
+        lr_df = bta.LinRegCandles(df, sma_signal=True)
+
+    After calling, the following columns can be extracted:
+        df['LRC_Open'] = lr_df['bopen']
+        df['LRC_High'] = lr_df['bhigh']
+        df['LRC_Low'] = lr_df['blow']
+        df['LRC_Close'] = lr_df['bclose']
+        df['LRC_Signal'] = lr_df['signal']
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'open', 'high', 'low', and 'close'.
+    - linreg_length (int, optional): Period for linear regression calculation. Default is 11.
+    - sma_signal (bool, optional): If True, uses SMA for the signal line. If False, uses EMA. Default is True.
+    - signal_length (int, optional): Period for the moving average signal line. Default is 11.
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'bopen', 'bhigh', 'blow', 'bclose' as the Linear Regression Candles, and 'signal' as the signal line.
+
+    Description:
+    The Linear Regression Candles transform the traditional OHLC bars using a linear regression algorithm, providing a smoothed representation of price action. The function also provides an optional signal line, which can be either an SMA or an EMA of the Linear Regression Candle close. This signal line can help to identify trends and potential trading signals.
+    """
+    df_copy = df.copy()
+
+    # Calculate linear regression coefficients for open, high, low, and close
+    df_copy['bopen'] = df_copy['open'].rolling(window=linreg_length).apply(
+        lambda x: np.polyfit(np.arange(len(x)), x, 1)[
+            1] + np.polyfit(np.arange(len(x)), x, 1)[0] * (len(x) - 1),
+        raw=True
+    )
+
+    df_copy['bhigh'] = df_copy['high'].rolling(window=linreg_length).apply(
+        lambda x: np.polyfit(np.arange(len(x)), x, 1)[
+            1] + np.polyfit(np.arange(len(x)), x, 1)[0] * (len(x) - 1),
+        raw=True
+    )
+
+    df_copy['blow'] = df_copy['low'].rolling(window=linreg_length).apply(
+        lambda x: np.polyfit(np.arange(len(x)), x, 1)[
+            1] + np.polyfit(np.arange(len(x)), x, 1)[0] * (len(x) - 1),
+        raw=True
+    )
+
+    df_copy['bclose'] = df_copy['close'].rolling(window=linreg_length).apply(
+        lambda x: np.polyfit(np.arange(len(x)), x, 1)[
+            1] + np.polyfit(np.arange(len(x)), x, 1)[0] * (len(x) - 1),
+        raw=True
+    )
+
+    # Calculate the signal line using SMA or EMA
+    if sma_signal:
+        df_copy['signal'] = df_copy['bclose'].rolling(
+            window=signal_length).mean()
+    else:
+        df_copy['signal'] = df_copy['bclose'].ewm(
+            span=signal_length, adjust=False).mean()
+
+    return df_copy
+
+        ----- End of candles.py -----
+
+        volume.py
+
+        ----- Start of volume.py -----
+
+# -*- coding: utf-8 -*-
+import numpy as np
+import pandas as pd
+from .bamboo_ta import *
+from .trend import EMA
+
+
+def OBV_Oscillator(df, channel=10, average=21):
+    """
+    On Balance Volume (OBV) Oscillator
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
+    - channel (int): OBV Channel Length. Default is 10.
+    - average (int): OBV Average Length. Default is 21.
+
+    Call with:
+        obv_osc = OBV_Oscillator(df)
+        df['OBV_Oscillator'] = obv_osc['OBV_Oscillator']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'OBV_Oscillator' column.
+    """
+    df_copy = df.copy()
+
+    # Calculate OBV
+    df_copy['change'] = df_copy['close'].diff()
+    df_copy['OBV'] = np.where(df_copy['change'] > 0, df_copy['volume'] * df_copy['change'], 
+                              np.where(df_copy['change'] < 0, df_copy['volume'] * df_copy['change'], 0))
+    df_copy['OBV'] = df_copy['OBV'].cumsum()
+
+    # Calculate OBV Oscillator
+    ema_obv_channel = df_copy['OBV'].ewm(span=channel, adjust=False).mean()
+    ema_abs_obv_channel = (df_copy['OBV'] - ema_obv_channel).abs().ewm(span=channel, adjust=False).mean()
+    df_copy['OBV_Oscillator'] = ((df_copy['OBV'] - ema_obv_channel) / (0.015 * ema_abs_obv_channel)).ewm(span=average, adjust=False).mean()
+
+    return df_copy[['OBV_Oscillator']]
+
+
+        ----- End of volume.py -----
+
+        trend.py
+
+        ----- Start of trend.py -----
+
+# -*- coding: utf-8 -*-
+from pandas import DataFrame
+import math
+import numpy as np
+import pandas as pd
+# from .bamboo_ta import *
+from .volatility import BollingerBands
+# from .trend import SMA, EMA, LSMA, HMA, WMA
+
+
+def AlligatorBands(df, column="close", jaw_period=13, teeth_period=8, lips_period=5, jaw_shift=8, teeth_shift=5, lips_shift=3):
+    """
+    Bill Williams Alligator Indicator
+
+    Call with:
+        alligator_result = bta.AlligatorBands(df, "high", 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
+        df['jaw'] = alligator_result['jaw']
+        df['teeth'] = alligator_result['teeth']
+        df['lips'] = alligator_result['lips']
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    column (str): The column name on which the Alligator is to be applied. Default is "close".
+    jaw_period (int): Period for the Alligator's Jaw (blue line). Default is 13.
+    teeth_period (int): Period for the Alligator's Teeth (red line). Default is 8.
+    lips_period (int): Period for the Alligator's Lips (green line). Default is 5.
+    jaw_shift (int): Number of periods to shift the Jaw line into the future. Default is 8.
+    teeth_shift (int): Number of periods to shift the Teeth line into the future. Default is 5.
+    lips_shift (int): Number of periods to shift the Lips line into the future. Default is 3.
+
+    Returns:
+    pd.DataFrame: DataFrame with 'jaw', 'teeth', and 'lips' columns added, optionally shifted into the future.
+    """
+
+    df['jaw'] = df[column].rolling(window=jaw_period).mean().shift(jaw_shift)
+    df['teeth'] = df[column].rolling(
+        window=teeth_period).mean().shift(teeth_shift)
+    df['lips'] = df[column].rolling(
+        window=lips_period).mean().shift(lips_shift)
+
+    return df[['jaw', 'teeth', 'lips']]
+
+
+def BollingerTrend(df, column="close", short_length=20, long_length=50, std_dev=2.0):
+    """
+    Bollinger Trend Indicator
+
+    Call with:
+        df['BBTrend'] = bta.BollingerTrend(df, "close", 20, 50, 2.0)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which BBTrend is to be calculated. Default is "close".
+    - short_length (int): The period for the short Bollinger Bands. Default is 20.
+    - long_length (int): The period for the long Bollinger Bands. Default is 50.
+    - stddev (float): The standard deviation multiplier for the Bollinger Bands. Default is 2.0.
+
+    Returns:
+    - pandas.Series: A series of BBTrend values.
+    """
+    # Calculate short Bollinger Bands
+    short_bb = BollingerBands(df, column=column, period=short_length, std_dev=std_dev)
+    short_middle = short_bb['BB_middle']
+    short_upper = short_bb['BB_upper']
+    short_lower = short_bb['BB_lower']
+
+    # Calculate long Bollinger Bands
+    long_bb = BollingerBands(df, column=column, period=long_length, std_dev=std_dev)
+    long_middle = long_bb['BB_middle']
+    long_upper = long_bb['BB_upper']
+    long_lower = long_bb['BB_lower']
+
+    # Calculate BBTrend
+    bbtrend = (np.abs(short_lower - long_lower) - np.abs(short_upper - long_upper)) / short_middle * 100
+    bbtrend = bbtrend.round(2)
+    
+    return bbtrend
+
+
+def BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14):
+    """
+    Bollinger Trend Indicator with selectable Moving Average
+
+    This function calculates the Bollinger Trend (BBTrend) and applies a selected moving average to the BBTrend.
+
+    Usage:
+        BollingerTrendFast = bta.BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14)
+        
+        df['BollingerTrendFast'] = BollingerTrendFast['BBTrend']
+        df['BollingerTrendFastMA'] = BollingerTrendFast['BBTrendMA']
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which BBTrend is to be calculated. Default is "close".
+    - short_length (int): The period for the short Bollinger Bands. Default is 10.
+    - long_length (int): The period for the long Bollinger Bands. Default is 50.
+    - short_stddev (float): The standard deviation multiplier for the short Bollinger Bands. Default is 1.0.
+    - long_stddev (float): The standard deviation multiplier for the long Bollinger Bands. Default is 2.0.
+    - ma_type (str): The type of moving average to use ("SMA", "EMA", "LSMA", "HMA", "WMA"). Default is "SMA".
+    - ma_length (int): The period for the moving average. Default is 14.
+
+    Returns:
+    - pandas.DataFrame: DataFrame with 'BBTrend' and 'MA' columns.
+    
+    Example:
+        result = BollingerTrendWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14)
+        df['BBTrend'] = result['BBTrend']
+        df['MA'] = result['MA']
+    """
+
+    # Calculate short Bollinger Bands
+    short_bb = BollingerBands(df, column=column, period=short_length, std_dev=short_stddev)
+    short_middle = short_bb['BB_middle']
+    short_upper = short_bb['BB_upper']
+    short_lower = short_bb['BB_lower']
+
+    # Calculate long Bollinger Bands
+    long_bb = BollingerBands(df, column=column, period=long_length, std_dev=long_stddev)
+    long_middle = long_bb['BB_middle']
+    long_upper = long_bb['BB_upper']
+    long_lower = long_bb['BB_lower']
+
+    # Calculate BBTrend
+    bbtrend = (np.abs(short_lower - long_lower) - np.abs(short_upper - long_upper)) / short_middle * 100
+    bbtrend = bbtrend.round(2)
+
+    # Select and calculate the moving average
+    if ma_type == "SMA":
+        ma = SMA(df.assign(BBTrend=bbtrend), column="BBTrend", period=ma_length)
+    elif ma_type == "EMA":
+        ma = EMA(df.assign(BBTrend=bbtrend), column="BBTrend", period=ma_length)
+    elif ma_type == "LSMA":
+        ma = LSMA(df.assign(BBTrend=bbtrend), column="BBTrend", period=ma_length)
+    elif ma_type == "HMA":
+        ma = HMA(df.assign(BBTrend=bbtrend), column="BBTrend", period=ma_length)
+    elif ma_type == "WMA":
+        ma = WMA(df.assign(BBTrend=bbtrend), column="BBTrend", period=ma_length)
+    else:
+        raise ValueError("Unsupported moving average type")
+
+    # Returning as DataFrame
+    result = df.copy()
+    result['BBTrend'] = bbtrend.round(2)
+    result['BBTrendMA'] = ma.round(2)
+
+    return result[['BBTrend', 'BBTrendMA']]
+
+
+def Breakouts(df, length=20):
+    """ 
+    S/R Breakouts and Retests
+
+    Makes it easy to work with Support and Resistance.
+    Find Retests, Breakouts and the next levels.
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'close' columns.
+    - length (int): Lookback period.
+
+    Call with:
+        breakout = bta.Breakouts(df)
+        df['support_level'] = breakout['support_level']
+        df['resistance_level'] = breakout['resistance_level']
+        df['support_breakout'] = breakout['support_breakout']
+        df['resistance_breakout'] = breakout['resistance_breakout']
+        df['support_retest'] = breakout['support_retest']
+        df['potential_support_retest'] = breakout['potential_support_retest']
+        df['resistance_retest'] = breakout['resistance_retest']
+        df['potential_resistance_retest'] = breakout['potential_resistance_retest']
+
+    Returns:
+    - pd.DataFrame: DataFrame with event columns populated.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    high = df_copy['high']
+    low = df_copy['low']
+    close = df_copy['close']
+
+    pl = low.rolling(window=length*2+1).min()
+    ph = high.rolling(window=length*2+1).max()
+    
+    s_yLoc = low.shift(length + 1).where(low.shift(length + 1) > low.shift(length - 1), low.shift(length - 1))
+    r_yLoc = high.shift(length + 1).where(high.shift(length + 1) > high.shift(length - 1), high.shift(length + 1))
+
+    cu = close < s_yLoc.shift(length)
+    co = close > r_yLoc.shift(length)
+
+    s1 = (high >= s_yLoc.shift(length)) & (close <= pl.shift(length))
+    s2 = (high >= s_yLoc.shift(length)) & (close >= pl.shift(length)) & (close <= s_yLoc.shift(length))
+    s3 = (high >= pl.shift(length)) & (high <= s_yLoc.shift(length))
+    s4 = (high >= pl.shift(length)) & (high <= s_yLoc.shift(length)) & (close < pl.shift(length))
+
+    r1 = (low <= r_yLoc.shift(length)) & (close >= ph.shift(length))
+    r2 = (low <= r_yLoc.shift(length)) & (close <= ph.shift(length)) & (close >= r_yLoc.shift(length))
+    r3 = (low <= ph.shift(length)) & (low >= r_yLoc.shift(length))
+    r4 = (low <= ph.shift(length)) & (low >= r_yLoc.shift(length)) & (close > ph.shift(length))
+
+    df_copy['support_level'] = pl.diff().where(pl.diff().notna())
+    df_copy['resistance_level'] = ph.diff().where(ph.diff().notna())
+    
+    df_copy['support_level'] = df_copy['support_level'].combine_first(df_copy['support_level'].shift())
+    df_copy['resistance_level'] = df_copy['resistance_level'].combine_first(df_copy['resistance_level'].shift())
+    
+    df_copy['support_breakout'] = cu
+    df_copy['resistance_breakout'] = co
+    df_copy['support_retest'] = s1 | s2 | s3 | s4
+    df_copy['potential_support_retest'] = s1 | s2 | s3
+    df_copy['resistance_retest'] = r1 | r2 | r3 | r4
+    df_copy['potential_resistance_retest'] = r1 | r2 | r3
+    
+    return df_copy[['support_level', 'resistance_level', 'support_breakout', 'resistance_breakout', 'support_retest', 'potential_support_retest', 'resistance_retest', 'potential_resistance_retest']]
+
+
+def EMA(df, column="close", period=21):
+    """
+    Exponential Moving Average (EMA)
+
+    Call with:
+        df['ema'] = bta.EMA(df, "close", 50)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which EMA is to be calculated. Default is "close".
+    - period (int): The period over which EMA is to be calculated. Default is 30.
+
+    Returns:
+    - pandas.Series: A series of EMA values.
+
+    Description:
+    The Exponential Moving Average gives more weight to recent prices and thus reacts more quickly to price changes than the Simple Moving Average.
+    """
+
+    ema = df[column].ewm(span=period, adjust=False).mean()
+    
+    return ema
+
+
+def HMA(df, column="close", period=9):
+    """
+    Hull Moving Average (HMA)
+
+    Call with:
+        df['hma'] = bta.HMA(df, "close", 9)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which HMA is to be calculated. Default is "close".
+    - period (int): The period over which HMA is to be calculated. Default is 9.
+
+    Returns:
+    - pandas.Series: A series of HMA values.
+
+    Description:
+    Hull Moving Average (HMA) is an improved moving average, responsive and with minimal lag. It involves the combination of WMA (Weighted Moving Average) with different periods.
+    """
+
+    # We're assuming that WMA is defined in the same file and thus is accessible here.
+    half_length = math.floor(period / 2)
+    sqrt_length = math.floor(math.sqrt(period))
+
+    wma_half = WMA(df, column=column, period=half_length)
+    wma_full = WMA(df, column=column, period=period)
+
+    h = 2 * wma_half - wma_full
+    h_df = DataFrame(h, columns=[column])
+    hma = WMA(h_df, column=column, period=sqrt_length)
+
+    return hma
+
+
+def LSMA(df, column="close", period=21):
+    """
+    Least Squares Moving Average (LSMA)
+
+    Call with:
+        df['lsma'] = bta.LSMA(df, "close", 50)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which LSMA is to be calculated. Default is "close".
+    - period (int): The period over which LSMA is to be calculated. Default is 21.
+
+    Returns:
+    - pandas.Series: A series of LSMA values.
+
+    Description:
+    LSMA uses linear regression to compute the trend of the data over a specified period. It fits a straight line to the data points using the method of least squares to depict the direction of movement.
+    """
+    lsma_values = []
+
+    for i in range(period - 1, len(df)):
+        # Extract the most recent N df points
+        subset = df.iloc[i + 1 - period:i + 1]
+
+        # Perform linear regression to fit a line
+        x = np.arange(len(subset))
+        y = subset[column].values
+        slope, intercept = np.polyfit(x, y, 1)
+
+        # Calculate the LSMA value using the linear equation
+        lsma = intercept + slope * (period - 1)
+        lsma_values.append(lsma)
+
+    lsma = pd.Series(lsma_values, index=df.index[period - 1:])
+
+    return lsma
+
+
+def RMA(series, period):
+    """
+    Relative Moving Average (RMA) calculation.
+    
+    Parameters:
+    - series (pandas.Series): Input series on which RMA is to be calculated.
+    - period (int): The period over which RMA is to be calculated.
+    
+    Returns:
+    - pandas.Series: A series of RMA values.
+    """
+    return series.ewm(alpha=1/period, adjust=False).mean()
+
+
+def SMA(df, column="close", period=21):
+    """
+    Simple Moving Average (SMA)
+
+    Call with:
+        df['sma'] = bta.SMA(df, "close", 50)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which SMA is to be calculated. Default is "close".
+    - period (int): The period over which SMA is to be calculated. Default is 30.
+
+    Returns:
+    - pandas.Series: A series of SMA values.
+
+    Description:
+    The Simple Moving Average is the unweighted mean of the previous 'period' data points.
+    """
+
+    sma = df[column].rolling(window=period).mean()
+    
+    return sma
+
+
+def STDEV(series, period):
+    """
+    Calculate the standard deviation over a specified period.
+
+    Parameters:
+    - series (pd.Series): The data series to calculate the standard deviation for.
+    - period (int): The period over which to calculate the standard deviation.
+
+    Returns:
+    - pd.Series: The standard deviation of the series.
+    """
+    return series.rolling(window=period).std()
+
+
+def WMA(df, column="close", period=9):
+    """
+    TradingView-Style Weighted Moving Average (WMA)
+
+    Call with:
+        df['wma'] = bta.WMA(df, "close", 9)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which WMA is to be calculated. Default is "close".
+    - period (int): The period over which WMA is to be calculated. Default is 9.
+
+    Returns:
+    - pandas.Series: A series of WMA values.
+
+    Description:
+    The Weighted Moving Average assigns weights linearly. The most recent data gets the highest weight.
+    """
+    weights = range(1, period + 1)
+    numerator = df[column].rolling(window=period).apply(
+        lambda x: sum(weights * x), raw=True)
+    denominator = sum(weights)
+
+    wma = numerator / denominator
+    
+    return wma
+
+
+def ZLEMA(df, column="close", period=21):
+    """
+    Zero Lag Exponential Moving Average (ZLEMA)
+
+    Call with:
+        df['zlema'] = bta.ZLEMA(df, "close", 21)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which ZLEMA is to be calculated. Default is "close".
+    - period (int): The period over which ZLEMA is to be calculated. Default is 21.
+
+    Returns:
+    - pandas.Series: A series of ZLEMA values.
+
+    Description:
+    Zero Lag Exponential Moving Average (ZLEMA) is an EMA that adjusts for lag, making it more responsive to recent price changes. It uses lagged data differences to adjust the EMA calculation, thereby supposedly removing the inherent lag of EMA.
+    """
+    lag = int((period - 1) / 2)
+
+    # Calculating the adjusted data series
+    ema_data = df[column] + (df[column] - df[column].shift(lag))
+
+    # Computing the EMA of the adjusted data series
+    zlema = ema_data.ewm(span=period, adjust=False).mean()
+
+    return zlema
+
+
+
+        ----- End of trend.py -----
+
+        utility.py
+
+        ----- Start of utility.py -----
+
+# -*- coding: utf-8 -*-
+import numpy as np
+import pandas as pd
+from .bamboo_ta import *
+from scipy.signal import argrelextrema
+
+
+def Calculate_Exhaustion_Candles(df, window, multiplier):
+    """
+    Calculate the average consecutive length of ups and downs to adjust the exhaustion bands dynamically
+    
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame.
+    - window (int): Lookback window for calculation.
+    - multiplier (np.ndarray): Array of multipliers.
+
+    Returns:
+    - np.ndarray, np.ndarray: Arrays of major and minor quality values.
+    """
+    consecutive_diff = np.sign(df['close'].diff())
+    maj_qual = np.zeros(len(df))
+    min_qual = np.zeros(len(df))
+
+    for i in range(len(df)):
+        idx_range = consecutive_diff[i - window + 1:i + 1] if i >= window else consecutive_diff[:i + 1]
+        avg_consecutive = Consecutive_Count(idx_range)
+        if isinstance(avg_consecutive, np.ndarray):
+            avg_consecutive = avg_consecutive.item()
+        maj_qual[i] = int(avg_consecutive * (3 * multiplier[i])) if not np.isnan(avg_consecutive) else 0
+        min_qual[i] = int(avg_consecutive * (3 * multiplier[i])) if not np.isnan(avg_consecutive) else 0
+
+    return maj_qual, min_qual
+
+def Calculate_Exhaustion_Lengths(df):
+    """
+    Calculate the average length of peaks and valleys to adjust the exhaustion bands dynamically
+    
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame.
+
+    Returns:
+    - int, int: Average peak distance and average valley distance.
+    """
+    high_indices = argrelextrema(df['high'].to_numpy(), np.greater)[0]
+    low_indices = argrelextrema(df['low'].to_numpy(), np.less)[0]
+
+    if len(high_indices) < 2 or len(low_indices) < 2:
+        return 0, 0
+
+    avg_peak_distance = np.mean(np.diff(high_indices))
+    std_peak_distance = np.std(np.diff(high_indices))
+    avg_valley_distance = np.mean(np.diff(low_indices))
+    std_valley_distance = np.std(np.diff(low_indices))
+
+    maj_len = int(avg_peak_distance + std_peak_distance)
+    min_len = int(avg_valley_distance + std_valley_distance)
+
+    return maj_len, min_len
+
+
+def Consecutive_Count(consecutive_diff):
+    """
+    Calculate the average consecutive count of non-zero differences
+    
+    Parameters:
+    - consecutive_diff (np.ndarray): Array of consecutive differences.
+
+    Returns:
+    - float: Average consecutive count.
+    """
+    non_zero_diff = np.where(consecutive_diff != 0)[0]
+    if len(non_zero_diff) < 2:
+        return 0
+    return np.mean(np.abs(np.diff(non_zero_diff)))
+
+
+def Linear_Decay(start: float, end: float, start_time: int, end_time: int, trade_time: int) -> float:
+    """
+    Simple linear decay function. Decays from start to end after end_time minutes (starts after start_time minutes)
+    
+    Parameters:
+    - start (float): Starting value.
+    - end (float): Ending value.
+    - start_time (int): Start time in minutes.
+    - end_time (int): End time in minutes.
+    - trade_time (int): Current trade time in minutes.
+
+    Returns:
+    - float: Decayed value.
+    """
+    time = max(0, trade_time - start_time)
+    rate = (start - end) / (end_time - start_time)
+    return max(end, start - (rate * time))
+
+
+def Linear_Growth(start: float, end: float, start_time: int, end_time: int, trade_time: int) -> float:
+    """
+    Simple linear growth function. Grows from start to end after end_time minutes (starts after start_time minutes)
+    
+    Parameters:
+    - start (float): Starting value.
+    - end (float): Ending value.
+    - start_time (int): Start time in minutes.
+    - end_time (int): End time in minutes.
+    - trade_time (int): Current trade time in minutes.
+
+    Returns:
+    - float: Grown value.
+    """
+    time = max(0, trade_time - start_time)
+    rate = (end - start) / (end_time - start_time)
+    return min(end, start + (rate * time))
+
+
+def populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len):
+    """
+    Populate Leledc Major and Minor columns
+    
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame.
+    - maj_qual (np.ndarray): Array of major quality values.
+    - min_qual (np.ndarray): Array of minor quality values.
+    - maj_len (int): Major length value.
+    - min_len (int): Minor length value.
+
+    Returns:
+    - pd.DataFrame: DataFrame with populated columns.
+    """
+    bindex_maj, sindex_maj, trend_maj = 0, 0, 0
+    bindex_min, sindex_min = 0, 0
+
+    df['leledc_major'] = np.nan
+    df['leledc_minor'] = 0
+
+    for i in range(1, len(df)):
+        close = df['close'][i]
+        short_length = i if i < 4 else 4
+
+        if close > df['close'][i - short_length]:
+            bindex_maj += 1
+            bindex_min += 1
+        elif close < df['close'][i - short_length]:
+            sindex_maj += 1
+            sindex_min += 1
+
+        update_major = False
+        if bindex_maj > maj_qual[i] and close < df['open'][i] and df['high'][i] >= df['high'][i - maj_len:i].max():
+            bindex_maj, trend_maj, update_major = 0, 1, True
+        elif sindex_maj > maj_qual[i] and close > df['open'][i] and df['low'][i] <= df['low'][i - maj_len:i].min():
+            sindex_maj, trend_maj, update_major = 0, -1, True
+
+        df.at[i, 'leledc_major'] = trend_maj if update_major else np.nan if trend_maj == 0 else trend_maj
+        if bindex_min > min_qual[i] and close < df['open'][i] and df['high'][i] >= df['high'][i - min_len:i].max():
+            bindex_min = 0
+            df.at[i, 'leledc_minor'] = -1
+        elif sindex_min > min_qual[i] and close > df['open'][i] and df['low'][i] <= df['low'][i - min_len:i].min():
+            sindex_min = 0
+            df.at[i, 'leledc_minor'] = 1
+        else:
+            df.at[i, 'leledc_minor'] = 0
+
+    return df
+
+
+def True_Range(df):
+    """
+    Calculate True Range (TR)
+    
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'close' columns.
+
+    Returns:
+    - pd.Series: Series of True Range values.
+    """
+    prev_close = df['close'].shift()
+    tr = pd.concat([df['high'] - df['low'], abs(df['high'] - prev_close), abs(df['low'] - prev_close)], axis=1).max(axis=1)
+    return tr
+
+
+def ZScore(series, window=500):
+    """
+    Calculate the z-score of a series.
+
+    Parameters:
+    - series (pd.Series): Input series.
+    - window (int): Lookback window for mean and standard deviation calculation.
+
+    Returns:
+    - pd.Series: Z-score series.
+    """
+    mean = series.rolling(window=window, min_periods=1).mean()
+    std = series.rolling(window=window, min_periods=1).std(ddof=0)
+    zscore = (series - mean) / std
+    zscore = zscore.fillna(0)  # Fill NaN values with 0 to avoid issues with calculations
+    return zscore
+
+        ----- End of utility.py -----
+
+        momentum.py
+
+        ----- Start of momentum.py -----
+
+# -*- coding: utf-8 -*-
+import numpy as np
+import pandas as pd
+from .bamboo_ta import *
+from .trend import *
+from .volatility import *
+from .utility import *
+
+
+def CMO(df, length=14):
+    """
+    Chande Momentum Oscillator (CMO)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
+    - length (int): Length for the CMO calculation. Default is 14.
+
+    Call with:
+        cmo = CMO(df)
+        df['cmo'] = cmo['cmo']
+
+    For Signal line:
+        df['CMO_Signal'] = df['CMO'].rolling(window=10).mean().round(2)  # Using SMA for signal
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'cmo' column.
+    """
+    df_copy = df.copy()
+
+    mom = df['close'].diff()
+    pos_mom = mom.where(mom > 0, 0)
+    neg_mom = -mom.where(mom < 0, 0)
+    sm1 = pos_mom.rolling(window=length).sum()
+    sm2 = neg_mom.rolling(window=length).sum()
+    cmo = 100 * (sm1 - sm2) / (sm1 + sm2)
+
+    df_copy['cmo'] = cmo.round(2)
+    
+    return df_copy[['cmo']]
+
+
+def EWO(df, column="close", sma1_period=5, sma2_period=35):
+    """
+    Elliott Wave Oscillator (EWO)
+
+    Call with:
+        df['ewo'] = bta.EWO(df, "close", 5, 35)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which EWO is to be calculated. Default is "close".
+    - sma1_period (int): The period for the shorter SMA used in EWO calculation. Default is 5.
+    - sma2_period (int): The period for the longer SMA used in EWO calculation. Default is 35.
+
+    Returns:
+    - pandas.Series: A series of EWO values.
+
+    Description:
+    The Elliott Wave Oscillator (EWO) is a specific tool to help you identify the trend and the overall market pattern to assist in finding future trading opportunities. It is derived by calculating the difference between a short and long period simple moving average, then normalizing the result with the close price.
+    """
+    sma1 = df[column].rolling(window=sma1_period).mean()
+    sma2 = df[column].rolling(window=sma2_period).mean()
+    ewo = (sma1 - sma2) / df[column] * 100
+
+    return ewo
+
+
+def Fisher_cg(df, length=20, min_period=10):
+    """ 
+    Fisher Stochastic Center of Gravity
+    
+    Original Pinescript by dasanc
+    https://tradingview.com/script/5BT3a9mJ-Fisher-Stochastic-Center-of-Gravity/
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'high' and 'low' columns.
+    - length (int): Lookback period.
+    - min_period (int): Minimum lookback period.
+
+    Call with:
+        fisher = bta.Fisher_cg(df)
+        df['fisher_cg'] = fisher['fisher_cg']
+        df['fisher_sig'] = fisher['fisher_sig']
+
+    Returns:
+    - pd.DataFrame: DataFrame with fisher_cg and fisher_sig columns populated.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['high', 'low']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    df_copy['hl2'] = (df_copy['high'] + df_copy['low']) / 2
+
+    if length < min_period:
+        length = min_period
+
+    num = sum((1 + i) * df_copy['hl2'].shift(i) for i in range(length))
+    denom = sum(df_copy['hl2'].shift(i) for i in range(length))
+
+    CG = -num / denom + (length + 1) / 2
+    MaxCG = CG.rolling(window=length).max()
+    MinCG = CG.rolling(window=length).min()
+
+    Value1 = np.where(MaxCG != MinCG, (CG - MinCG) / (MaxCG - MinCG), 0)
+    Value2 = (4 * Value1 + 3 * np.roll(Value1, 1) + 2 * np.roll(Value1, 2) + np.roll(Value1, 3)) / 10
+    Value3 = 0.5 * np.log((1 + 1.98 * (Value2 - 0.5)) / (1 - 1.98 * (Value2 - 0.5)))
+
+    df_copy['fisher_cg'] = pd.Series(Value3, index=df_copy.index)  # Center of Gravity
+    df_copy['fisher_sig'] = df_copy['fisher_cg'].shift(1)  # Signal / Trigger
+
+    return df_copy[['fisher_cg', 'fisher_sig']]
+
+
+def Inverse_Fisher_Transform(df, src='close', rsi_length=10, rsi_smoothing=5, e_value=2.71):
+    """
+    Inverse Fisher Transform
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
+    - src (str): Source column to calculate the indicator.
+    - rsi_length (int): Length for the RSI calculation. Default is 10.
+    - rsi_smoothing (int): Length for the RSI smoothing (EMA). Default is 5.
+    - e_value (float): E value for the inverse fisher transform. Default is 2.71.
+
+    Call with:
+        ift = Inverse_Fisher_Transform(df)
+        df['ift'] = ift['ift']
+
+    Use additional levels in your dataframe for 
+        # Add horizontal levels
+        df['level_1_35'] = 1.35
+        df['level_0_5'] = 0.5
+        df['level_0'] = 0
+        df['level_minus_0_5'] = -0.5
+        df['level_minus_1'] = -1
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'ift' column.
+    """
+    df_copy = df.copy()
+
+    # Calculate RSI values
+    rsi_values = RSI(df, column=src, period=rsi_length)
+    
+    # Smooth RSI values with EMA
+    rsi_ema_values = EMA(df.assign(rsi_values=rsi_values), 'rsi_values', rsi_smoothing)
+    
+    # Apply Inverse Fisher Transform
+    inv_fisher = (np.exp(2.0 * (rsi_ema_values - 50) * 0.1) - 1) / (np.exp(2.0 * (rsi_ema_values - 50) * 0.1) + 1)
+
+    df_copy['ift'] = inv_fisher.round(2)
+    
+    return df_copy[['ift']]
+
+
+def MACD(df, column="close", short_window=12, long_window=26, signal_window=9):
+    """
+    Moving Average Convergence Divergence (MACD)
+
+    Call with:
+        macd_result = bta.MACD(df, "close", 12, 26, 9)
+        df['macd'] = macd_result['MACD']
+        df['macd_signal'] = macd_result['MACD_signal']
+        df['macd_histogram'] = macd_result['MACD_histogram']
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the "close" column.
+    - short_window (int): The short-term period for EMA. Default is 12.
+    - long_window (int): The long-term period for EMA. Default is 26.
+    - signal_window (int): The signal line period for EMA. Default is 9.
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'MACD', 'Signal', and 'Histogram' columns.
+
+    Description:
+    MACD is a trend-following momentum indicator that shows the relationship between two moving averages of a security’s price.
+    """
+    short_ema = EMA(df, column=column, period=short_window)
+    long_ema = EMA(df, column=column, period=long_window)
+    macd = short_ema - long_ema
+    signal = macd.ewm(span=signal_window, adjust=False).mean()
+    histogram = macd - signal
+
+    # Returning as DataFrame
+    return pd.DataFrame({
+        'MACD': macd,
+        'MACD_signal': signal,
+        'MACD_histogram': histogram
+    })
+
+
+def MACD_Leader(df, src, fast_length=12, slow_length=26, signal_length=9):
+    """
+    MACD Leader
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the source column.
+    - src (str): The column to use for calculations.
+    - fast_length (int): Length for the fast EMA. Default is 12.
+    - slow_length (int): Length for the slow EMA. Default is 26.
+    - signal_length (int): Length for the signal EMA. Default is 9.
+
+    Call with:
+        macd_leader = MACD_Leader(df, 'close')
+        df['macd_leader'] = macd_leader['macd_leader']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'macd_leader' column.
+    """
+    df_copy = df.copy()
+
+    src_series = df[src]
+    sema = EMA(df.assign(src_series=src_series), 'src_series', fast_length)
+    lema = EMA(df.assign(src_series=src_series), 'src_series', slow_length)
+    i1 = sema + EMA(df.assign(diff=src_series - sema), 'diff', fast_length)
+    i2 = lema + EMA(df.assign(diff=src_series - lema), 'diff', slow_length)
+    macd_leader = ((i1 - i2) / 10) * 100
+
+    df_copy['macd_leader'] = macd_leader.round(2)
+    
+    return df_copy[['macd_leader']]
+
+
+def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0):
+    """
+    Waddah Attar Explosion Indicator
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'open', 'high', 'low', and 'close'.
+    - sensitivity (int): Sensitivity factor for the indicator. Default is 150.
+    - fast_length (int): Length for the fast EMA. Default is 20.
+    - slow_length (int): Length for the slow EMA. Default is 40.
+    - channel_length (int): Length for the Bollinger Bands. Default is 20.
+    - mult (float): Standard deviation multiplier for the Bollinger Bands. Default is 2.0.
+
+    Call with:
+        WAE = bta.Waddah_Attar_Explosion(df)
+        df['trend_up'] = WAE['trend_up']
+        df['trend_down'] = WAE['trend_down']
+        df['explosion_line'] = WAE['explosion_line']
+        df['dead_zone_line'] = WAE['dead_zone_line']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'trend_up', 'trend_down', 'explosion_line', and 'dead_zone_line' columns.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['open', 'high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    # print("DataFrame columns:", df.columns)  # Debug print
+    # print("First few rows of the DataFrame:\n", df.head())  # Debug print
+
+    # Calculate DEAD_ZONE
+    dead_zone = RMA(TR(df), 100) * 3.7
+    # print("DEAD_ZONE calculated")  # Debug print
+
+    # Calculate MACD
+    macd_fast = EMA(df, 'close', fast_length)
+    macd_slow = EMA(df, 'close', slow_length)
+    macd_diff = macd_fast - macd_slow
+    t1 = (macd_diff - macd_diff.shift(1)) * sensitivity
+    # print("MACD and t1 calculated")  # Debug print
+
+    # Calculate Bollinger Bands
+    bb = BollingerBands(df, column='close', period=channel_length, std_dev=mult)
+    e1 = bb['BB_upper'] - bb['BB_lower']
+    # print("Bollinger Bands calculated")  # Debug print
+
+    trend_up = np.where(t1 >= 0, t1, 0)
+    trend_down = np.where(t1 < 0, -t1, 0)
+
+    df_copy['trend_up'] = trend_up.round(2)
+    df_copy['trend_down'] = trend_down.round(2)
+    df_copy['explosion_line'] = e1.round(2)
+    df_copy['dead_zone_line'] = dead_zone.round(2)
+
+    return df_copy[['trend_up', 'trend_down', 'explosion_line', 'dead_zone_line']]
+
+
+def WaveTrend_Oscillator(df, src, n1=8, n2=12):
+    """
+    WaveTrend Oscillator
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the source column.
+    - src (str): The column to use for calculations.
+    - n1 (int): Length for the first EMA. Default is 8.
+    - n2 (int): Length for the second EMA. Default is 12.
+
+    Call with:
+        wt = WaveTrend_Oscillator(df, 'close')
+        df['wavetrend'] = wt['wavetrend']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'wavetrend' column.
+    """
+    df_copy = df.copy()
+
+    src_series = df[src]
+    ema_src = EMA(df.assign(src_series=src_series), 'src_series', n1)
+    d = EMA(df.assign(diff=np.abs(src_series - ema_src)), 'diff', n1)
+    ci = (src_series - ema_src) / (0.015 * d)
+    tci = EMA(df.assign(ci=ci), 'ci', n2)
+    wavetrend = tci - SMA(df.assign(tci=tci), 'tci', 4)
+
+    df_copy['wavetrend'] = wavetrend.round(2)
+    
+    return df_copy[['wavetrend']]
+
+
+def RSI(df, column="close", period=14):
+    """
+    Relative Strength Index (RSI)
+
+    Call with:
+        df['rsi'] = bta.RSI(df, "close", 14)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which RSI is to be calculated. Default is "close".
+    - period (int): The period over which RSI is to be calculated. Default is 14.
+
+    Returns:
+    - pandas.Series: A series of RSI values.
+
+    Description:
+    RSI measures the magnitude of recent price changes to evaluate overbought or oversold conditions in the price of a stock or other asset.
+    """
+    delta = df[column].diff(1)
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+
+    avg_gain = gain.rolling(window=period, min_periods=1).mean()
+    avg_loss = loss.rolling(window=period, min_periods=1).mean()
+
+    for i in range(period, len(df)):
+        avg_gain[i] = (avg_gain[i-1] * (period - 1) + gain[i]) / period
+        avg_loss[i] = (avg_loss[i-1] * (period - 1) + loss[i]) / period
+
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+
+    return rsi
+
+
+def SMI_Momentum(df, k_length=9, d_length=3):
+    """ 
+    The Stochastic Momentum Index (SMI) Indicator
+    
+    The Stochastic Momentum Index (SMI) Indicator was developed by 
+    William Blau in 1993 and is considered to be a momentum indicator 
+    that can help identify trend reversal points
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'close' columns.
+    - k_length (int): Period for %K.
+    - d_length (int): Period for %D.
+
+    Call with:
+        smi = bta.SMI_Momentum(df)
+        df['smi'] = smi['smi']
+
+    Returns:
+    - pd.DataFrame: DataFrame with smi column populated.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    ll = df_copy['low'].rolling(window=k_length).min()
+    hh = df_copy['high'].rolling(window=k_length).max()
+
+    diff = hh - ll
+    rdiff = df_copy['close'] - (hh + ll) / 2
+
+    avgrel = rdiff.ewm(span=d_length).mean().ewm(span=d_length).mean()
+    avgdiff = diff.ewm(span=d_length).mean().ewm(span=d_length).mean()
+
+    df_copy['smi'] = np.where(avgdiff != 0, (avgrel / (avgdiff / 2) * 100), 0)
+    
+    return df_copy[['smi']]
+
+
+def QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollinger_length=50, bb_multiplier=0.35,
+            rsi_period2=6, rsi_smoothing2=5, qqe_factor2=1.61, threshold2=3):
+    """
+    QQE Mod Indicator
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain a 'close' column.
+    - rsi_period (int): Period for RSI calculation. Default is 6.
+    - rsi_smoothing (int): Smoothing period for RSI. Default is 5.
+    - qqe_factor (int): Fast QQE Factor. Default is 3.
+    - threshold (int): Threshold value. Default is 3.
+    - bollinger_length (int): Length for Bollinger Bands calculation. Default is 50.
+    - bb_multiplier (float): Multiplier for Bollinger Bands. Default is 0.35.
+    - rsi_period2 (int): Period for the second RSI calculation. Default is 6.
+    - rsi_smoothing2 (int): Smoothing period for the second RSI. Default is 5.
+    - qqe_factor2 (float): Fast QQE Factor for the second QQE. Default is 1.61.
+    - threshold2 (int): Threshold value for the second QQE. Default is 3.
+
+    Call with:
+        qqe_mod = QQE_Mod(df)
+        df['QQE_Line'] = qqe_mod['QQE_Line']
+        df['Histo2'] = qqe_mod['Histo2']
+        df['QQE_Up'] = qqe_mod['QQE_Up']
+        df['QQE_Down'] = qqe_mod['QQE_Down']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'QQE_Line', 'Histo2', 'QQE_Up', and 'QQE_Down' columns.
+    """
+    def wilders_ema(series, period):
+        return series.ewm(alpha=1/period, adjust=False).mean()
+
+    df_copy = df.copy()
+
+    # First QQE Calculation
+    src = df_copy['close']
+    wilders_period = rsi_period * 2 - 1
+
+    rsi = RSI(df_copy, column='close', period=rsi_period)
+    rsi_ma = EMA(df_copy.assign(rsi=rsi), column='rsi', period=rsi_smoothing)
+    atr_rsi = abs(rsi_ma.shift(1) - rsi_ma)
+    ma_atr_rsi = wilders_ema(atr_rsi, wilders_period)
+    dar = wilders_ema(ma_atr_rsi, wilders_period) * qqe_factor
+
+    longband = np.zeros(len(df_copy))
+    shortband = np.zeros(len(df_copy))
+    trend = np.zeros(len(df_copy))
+
+    delta_fast_atr_rsi = dar
+    rsindex = rsi_ma
+    newshortband = rsindex + delta_fast_atr_rsi
+    newlongband = rsindex - delta_fast_atr_rsi
+
+    for i in range(1, len(df_copy)):
+        if rsindex.iloc[i - 1] > longband[i - 1] and rsindex.iloc[i] > longband[i - 1]:
+            longband[i] = max(longband[i - 1], newlongband.iloc[i])
+        else:
+            longband[i] = newlongband.iloc[i]
+
+        if rsindex.iloc[i - 1] < shortband[i - 1] and rsindex.iloc[i] < shortband[i - 1]:
+            shortband[i] = min(shortband[i - 1], newshortband.iloc[i])
+        else:
+            shortband[i] = newshortband.iloc[i]
+
+        cross_1 = (longband[i - 1] > rsindex.iloc[i]) and (longband[i - 1] <= rsindex.iloc[i - 1])
+        if (rsindex.iloc[i] > shortband[i - 1]):
+            trend[i] = 1
+        elif cross_1:
+            trend[i] = -1
+        else:
+            trend[i] = trend[i - 1]
+
+    fast_atr_rsi_tl = np.where(trend == 1, longband, shortband)
+
+    # Bollinger Bands on FastATRRSI TL
+    basis = SMA(pd.DataFrame(fast_atr_rsi_tl - 50), column=0, period=bollinger_length)
+    dev = bb_multiplier * STDEV(pd.Series(fast_atr_rsi_tl - 50), bollinger_length)
+    upper = basis + dev
+    lower = basis - dev
+
+    # Second QQE Calculation
+    wilders_period2 = rsi_period2 * 2 - 1
+
+    rsi2 = RSI(df_copy, column='close', period=rsi_period2)
+    rsi_ma2 = EMA(df_copy.assign(rsi2=rsi2), column='rsi2', period=rsi_smoothing2)
+    atr_rsi2 = abs(rsi_ma2.shift(1) - rsi_ma2)
+    ma_atr_rsi2 = wilders_ema(atr_rsi2, wilders_period2)
+    dar2 = wilders_ema(ma_atr_rsi2, wilders_period2) * qqe_factor2
+
+    longband2 = np.zeros(len(df_copy))
+    shortband2 = np.zeros(len(df_copy))
+    trend2 = np.zeros(len(df_copy))
+
+    delta_fast_atr_rsi2 = dar2
+    rsindex2 = rsi_ma2
+    newshortband2 = rsindex2 + delta_fast_atr_rsi2
+    newlongband2 = rsindex2 - delta_fast_atr_rsi2
+
+    for i in range(1, len(df_copy)):
+        if rsindex2.iloc[i - 1] > longband2[i - 1] and rsindex2.iloc[i] > longband2[i - 1]:
+            longband2[i] = max(longband2[i - 1], newlongband2.iloc[i])
+        else:
+            longband2[i] = newlongband2.iloc[i]
+
+        if rsindex2.iloc[i - 1] < shortband2[i - 1] and rsindex2.iloc[i] < shortband2[i - 1]:
+            shortband2[i] = min(shortband2[i - 1], newshortband2.iloc[i])
+        else:
+            shortband2[i] = newshortband2.iloc[i]
+
+        cross_2 = (longband2[i - 1] > rsindex2.iloc[i]) and (longband2[i - 1] <= rsindex2.iloc[i - 1])
+        if (rsindex2.iloc[i] > shortband2[i - 1]):
+            trend2[i] = 1
+        elif cross_2:
+            trend2[i] = -1
+        else:
+            trend2[i] = trend2[i - 1]
+
+    fast_atr_rsi2_tl = np.where(trend2 == 1, longband2, shortband2)
+
+    hcolor2 = np.where(rsi_ma2 - 50 > threshold2, 'silver', np.where(rsi_ma2 - 50 < -threshold2, 'silver', np.nan))
+
+    df_copy['QQE_Line'] = (fast_atr_rsi2_tl - 50).round(2)
+    df_copy['Histo2'] = (rsi_ma2 - 50).round(2)
+
+    greenbar1 = rsi_ma2 - 50 > threshold2
+    greenbar2 = rsi_ma - 50 > upper
+
+    redbar1 = rsi_ma2 - 50 < -threshold2
+    redbar2 = rsi_ma - 50 < lower
+
+    df_copy['QQE_Up'] = np.where(greenbar1 & greenbar2, rsi_ma2 - 50, np.nan).round(2)
+    df_copy['QQE_Down'] = np.where(redbar1 & redbar2, rsi_ma2 - 50, np.nan).round(2)
+
+    return df_copy[['QQE_Line', 'Histo2', 'QQE_Up', 'QQE_Down']]
+
+        ----- End of momentum.py -----
+
+        cycles.py
+
+        ----- Start of cycles.py -----
+
+# -*- coding: utf-8 -*-
+import numpy as np
+import pandas as pd
+from .bamboo_ta import *
+
+        ----- End of cycles.py -----
+
+        bamboo_ta.py
+
+        ----- Start of bamboo_ta.py -----
+
+# bamboo_ta.py
+# -*- coding: utf-8 -*-
+# Import the individual bamboo ta libraries
+from bamboo_ta.candles import *
+from bamboo_ta.cycles import *
+from bamboo_ta.momentum import *
+from bamboo_ta.performance import *
+from bamboo_ta.statistics import *
+from bamboo_ta.trend import *
+from bamboo_ta.utility import *
+from bamboo_ta.volatility import *
+from bamboo_ta.volume import *
+        ----- End of bamboo_ta.py -----
+
+        volatility.py
+
+        ----- Start of volatility.py -----
+
+# -*- coding: utf-8 -*-
+# volatility.py
+import numpy as np
+import pandas as pd
+
+def BollingerBands(df, column="close", period=20, std_dev=2, ddof=0):
+    """
+    Bollinger Bands (BBANDS)
+
+    Call with:
+        bb_result = bta.BollingerBands(df, "close", 21, 2, 0)
+        df['bb_upper'] = bb_result['BB_upper']
+        df['bb_middle'] = bb_result['BB_middle']
+        df['bb_lower'] = bb_result['BB_lower']
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data
+    column (str): The column name on which the BBANDS is to be applied
+    period (int): Look-back period to compute the moving average
+    std_dev (int): Number of standard deviations to compute the upper and lower bands
+    ddof (int): Degrees of Freedom to use in standard deviation calculation. Default: 0
+
+    Returns:
+    pd.DataFrame: DataFrame with 'Upper_Band', 'Middle_Band', 'Lower_Band' columns added.
+    """
+
+    # Local import to avoid circular dependency
+    from .trend import SMA
+
+    # Middle Band = SMA
+    sma = SMA(df, column=column, period=period)
+
+    # Calculate standard deviation of the specified column
+    rolling_std = df[column].rolling(window=period).std(ddof=ddof)
+
+    # Upper Band = Middle Band + (std_dev * rolling standard deviation)
+    upper_band = sma + (rolling_std * std_dev)
+
+    # Lower Band = Middle Band - (std_dev * rolling standard deviation)
+    lower_band = sma - (rolling_std * std_dev)
+
+    # Returning as DataFrame
+    return pd.DataFrame({
+        'BB_upper': upper_band,
+        'BB_middle': sma,
+        'BB_lower': lower_band
+    })
+
+
+def TR(df):
+    """
+    True Range (TR) calculation.
+    
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'high', 'low', and 'close'.
+    
+    Returns:
+    - pandas.Series: A series of True Range values.
+    """
+    high_low = df['high'] - df['low']
+    high_close = np.abs(df['high'] - df['close'].shift())
+    low_close = np.abs(df['low'] - df['close'].shift())
+
+    tr = high_low.combine(high_close, max).combine(low_close, max)
+    return tr
+        ----- End of volatility.py -----
+

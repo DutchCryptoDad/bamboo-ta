@@ -208,13 +208,10 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 
 # WAE = bta.Waddah_Attar_Explosion(df)
-# print(WAE)
 # df['trend_up'] = WAE['trend_up']
 # df['trend_down'] = WAE['trend_down']
 # df['explosion_line'] = WAE['explosion_line']
 # df['dead_zone_line'] = WAE['dead_zone_line']
-
-# AKA the Pathways to Profit Indicator
 
 # df['MACD_Leader'] = bta.MACD_Leader(df, 'close')
 # df['CMO'] = bta.CMO(df)['cmo']
@@ -229,6 +226,36 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['QQE_Up'] = qqe_mod['QQE_Up']
 # df['QQE_Down'] = qqe_mod['QQE_Down']
 
-df['OBV_Oscillator'] = bta.OBV_Oscillator(df)
+# df['OBV_Oscillator'] = bta.OBV_Oscillator(df)
 
-print(df.tail(50))
+# fisher = bta.Fisher_cg(df)
+# df['fisher_cg'] = fisher['fisher_cg']
+# df['fisher_sig'] = fisher['fisher_sig']
+
+# breakout = bta.Breakouts(df)
+# df['support_level'] = breakout['support_level']
+# df['resistance_level'] = breakout['resistance_level']
+# df['support_breakout'] = breakout['support_breakout']
+# df['resistance_breakout'] = breakout['resistance_breakout']
+# df['support_retest'] = breakout['support_retest']
+# df['potential_support_retest'] = breakout['potential_support_retest']
+# df['resistance_retest'] = breakout['resistance_retest']
+# df['potential_resistance_retest'] = breakout['potential_resistance_retest']
+
+# pin = bta.Pinbar(df)
+# df['pinbar_sell'] = pin['pinbar_sell']
+# df['pinbar_buy'] = pin['pinbar_buy']
+
+# smi = bta.SMI_Momentum(df)
+# # df['smi'] = smi['smi']
+
+# exhaustion = bta.Exhaustion_Bars(df)
+# df['leledc_major'] = exhaustion['leledc_major']
+# df['leledc_minor'] = exhaustion['leledc_minor']
+
+# dynamic_exhaustion = bta.Dynamic_Exhaustion_Bars(df)
+# df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
+# df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
+
+
+print(df.tail(25))

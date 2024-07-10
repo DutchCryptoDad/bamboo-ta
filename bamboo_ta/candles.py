@@ -2,7 +2,209 @@
 import numpy as np
 import pandas as pd
 from .bamboo_ta import *
-from .trend import EMA
+from .trend import *
+from .utility import *
+from.momentum import *
+
+
+def Exhaustion_Bars(df, maj_qual=6, maj_len=12, min_qual=6, min_len=12, core_length=4):
+    """
+    Leledc Exhaustion Bars - Extended
+    
+    Leledc Exhaustion Bars - Extended
+    Infamous S/R Reversal Indicator
+
+    leledc_major (Trend): 
+     1 Up
+    -1 Down
+    
+    leledc_minor: 
+    1 Sellers exhausted
+    0 Neutral / Hold
+    -1 Buyers exhausted 
+
+    Original (MT4) https://www.abundancetradinggroup.com/leledc-exhaustion-bar-mt4-indicator/
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'open', 'high', 'low', and 'close' columns.
+    - maj_qual (int): Major quality parameter.
+    - maj_len (int): Major length parameter.
+    - min_qual (int): Minor quality parameter.
+    - min_len (int): Minor length parameter.
+    - core_length (int): Core length parameter.
+
+    Call with:
+        exhaustion = bta.Exhaustion_Bars(df)
+        df['leledc_major'] = exhaustion['leledc_major']
+        df['leledc_minor'] = exhaustion['leledc_minor']
+
+    Returns:
+    - pd.DataFrame: DataFrame with columns populated.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['open', 'high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    bindex_maj, sindex_maj, trend_maj = 0, 0, 0
+    bindex_min, sindex_min = 0, 0
+
+    for i in range(len(df_copy)):
+        close = df_copy['close'][i]
+
+        if i < 1 or i - core_length < 0:
+            df_copy.loc[i, 'leledc_major'] = np.nan
+            df_copy.loc[i, 'leledc_minor'] = 0
+            continue
+
+        bindex_maj, sindex_maj = np.nan_to_num(bindex_maj), np.nan_to_num(sindex_maj)
+        bindex_min, sindex_min = np.nan_to_num(bindex_min), np.nan_to_num(sindex_min)
+
+        if close > df_copy['close'][i - core_length]:
+            bindex_maj += 1
+            bindex_min += 1
+        elif close < df_copy['close'][i - core_length]:
+            sindex_maj += 1
+            sindex_min += 1
+
+        update_major = False
+        if bindex_maj > maj_qual and close < df_copy['open'][i] and df_copy['high'][i] >= df_copy['high'][i - maj_len:i].max():
+            bindex_maj, trend_maj, update_major = 0, 1, True
+        elif sindex_maj > maj_qual and close > df_copy['open'][i] and df_copy['low'][i] <= df_copy['low'][i - maj_len:i].min():
+            sindex_maj, trend_maj, update_major = 0, -1, True
+
+        df_copy.loc[i, 'leledc_major'] = trend_maj if update_major else np.nan if trend_maj == 0 else trend_maj
+
+        if bindex_min > min_qual and close < df_copy['open'][i] and df_copy['high'][i] >= df_copy['high'][i - min_len:i].max():
+            bindex_min = 0
+            df_copy.loc[i, 'leledc_minor'] = -1
+        elif sindex_min > min_qual and close > df_copy['open'][i] and df_copy['low'][i] <= df_copy['low'][i - min_len:i].min():
+            sindex_min = 0
+            df_copy.loc[i, 'leledc_minor'] = 1
+        else:
+            df_copy.loc[i, 'leledc_minor'] = 0
+
+    return df_copy[['leledc_major', 'leledc_minor']]
+
+
+def Dynamic_Exhaustion_Bars(df, window=500):
+    """
+    Dynamic Leledc Exhaustion Bars -  By nilux
+    The lookback length and exhaustion bars adjust dynamically to the market.
+    
+    leledc_major (Trend): 
+     1 Up
+    -1 Down
+    
+    leledc_minor: 
+    1 Sellers exhausted
+    0 Neutral / Hold
+    -1 Buyers exhausted 
+        
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame.
+    - window (int): Lookback window for z-score calculation.
+
+    Call with:
+        dynamic_exhaustion = bta.Dynamic_Exhaustion_Bars(df)
+        df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
+        df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
+
+    Returns:
+    - pd.DataFrame: DataFrame with columns populated.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    df_copy['close_pct_change'] = df_copy['close'].pct_change()
+    df_copy['pct_change_zscore'] = ZScore(df_copy['close_pct_change'], window)
+    df_copy['pct_change_zscore_smoothed'] = df_copy['pct_change_zscore'].rolling(window=3).mean()
+    df_copy['pct_change_zscore_smoothed'] = df_copy['pct_change_zscore_smoothed'].fillna(1.0)
+
+    zscore = df_copy['pct_change_zscore_smoothed'].to_numpy()
+    zscore_multi = np.maximum(np.minimum(5.0 - zscore * 2, 5.0), 1.5)
+
+    maj_qual, min_qual = Calculate_Exhaustion_Candles(df_copy, window, zscore_multi)
+    
+    df_copy['maj_qual'] = maj_qual
+    df_copy['min_qual'] = min_qual
+
+    maj_len, min_len = Calculate_Exhaustion_Lengths(df_copy)
+    
+    df_copy['maj_len'] = maj_len
+    df_copy['min_len'] = min_len
+
+    df_copy = populate_leledc_major_minor(df_copy, maj_qual, min_qual, maj_len, min_len)
+
+    return df_copy[['leledc_major', 'leledc_minor']]
+
+
+def Pinbar(df, smi=None):
+    """ 
+    Pinbar - Price Action Indicator
+
+    Pinbars are an easy but sure indication
+    of incoming price reversal. 
+    Signal confirmation with SMI.
+    
+    Pinescript Source by PeterO - Thx!
+    https://tradingview.com/script/aSJnbGnI-PivotPoints-with-Momentum-confirmation-by-PeterO/
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', 'close' columns.
+    - smi: Optional Series for SMI.
+
+    Call with:
+        pin = bta.Pinbar(df)
+        df['pinbar_sell'] = pin['pinbar_sell']
+        df['pinbar_buy'] = pin['pinbar_buy']
+
+    Returns:
+    - pd.DataFrame: DataFrame with buy / sell signals columns populated.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    low = df_copy['low']
+    high = df_copy['high']
+    close = df_copy['close']
+    
+    tr = True_Range(df_copy)
+    
+    if smi is None:
+        df_copy = SMI_Momentum(df_copy)
+        smi = df_copy['smi']
+    
+    df_copy['pinbar_sell'] = (
+        (high < high.shift(1)) &
+        (close < high - (tr * 2 / 3)) &
+        (smi < smi.shift(1)) &
+        (smi.shift(1) > 40) &
+        (smi.shift(1) < smi.shift(2))
+    )
+
+    df_copy['pinbar_buy'] = (
+        (low > low.shift(1)) &
+        (close > low + (tr * 2 / 3)) &
+        (smi.shift(1) < -40) &
+        (smi > smi.shift(1)) &
+        (smi.shift(1) > smi.shift(2))
+    )
+    
+    return df_copy[['pinbar_sell', 'pinbar_buy']]
 
 
 def HeikinAshi(df, pre_smoothing_period=None, post_smoothing_period=None):

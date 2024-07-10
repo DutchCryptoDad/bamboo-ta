@@ -508,7 +508,7 @@ def QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollin
 
     # Bollinger Bands on FastATRRSI TL
     basis = SMA(pd.DataFrame(fast_atr_rsi_tl - 50), column=0, period=bollinger_length)
-    dev = bb_multiplier * stdev(pd.Series(fast_atr_rsi_tl - 50), bollinger_length)
+    dev = bb_multiplier * STDEV(pd.Series(fast_atr_rsi_tl - 50), bollinger_length)
     upper = basis + dev
     lower = basis - dev
 
