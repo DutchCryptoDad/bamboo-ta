@@ -226,6 +226,26 @@ Or individual indicators.
          df['QQE_Up'] = qqe_mod['QQE_Up']
          df['QQE_Down'] = qqe_mod['QQE_Down']
          ```
+     - **MAStreak**: MA Streak Indicator.
+       - **Usage**: 
+         ```python
+         df['mastreak'] = MAStreak(df, period=4, column='close')
+         ```
+     - **RMI**: Relative Momentum Index.
+       - **Usage**: 
+         ```python
+         df['rmi'] = RMI(df, length=20, mom=5)
+         ```
+     - **ROC**: Rate of Change.
+       - **Usage**: 
+         ```python
+         df['roc'] = ROC(df, column='close', period=21)
+         ```
+     - **SROC**: Smoothed Rate of Change.
+       - **Usage**: 
+         ```python
+         df['sroc'] = SROC(df, roclen=21, emalen=13, smooth=21)
+         ```
 
 4. **performance**
    - **Description**: Contains performance-related indicators.
@@ -299,6 +319,33 @@ Or individual indicators.
          df['resistance_retest'] = breakout['resistance_retest']
          df['potential_resistance_retest'] = breakout['potential_resistance_retest']
          ```
+     - **SSLChannels**: SSL Channels.
+       - **Usage**: 
+         ```python
+         ssl_down, ssl_up = SSLChannels(df, length=10, mode='sma')
+         df['ssl_down'] = ssl_down
+         df['ssl_up'] = ssl_up
+         ```
+     - **SSLChannelsATR**: SSL Channels with ATR.
+       - **Usage**: 
+         ```python
+         ssl_down, ssl_up = SSLChannelsATR(df, length=7)
+         df['ssl_atr_down'] = ssl_down
+         df['ssl_atr_up'] = ssl_up
+         ```
+     - **PCC**: Percent Change Channel.
+       - **Usage**: 
+         ```python
+         upper, rangema, lower = PCC(df, period=20, mult=2)
+         df['pcc_upper'] = upper
+         df['pcc_rangema'] = rangema
+         df['pcc_lower'] = lower
+         ```
+     - **T3**: T3 Average.
+       - **Usage**: 
+         ```python
+         df['t3_average'] = T3(df, length=5)
+         ```
 
 7. **utility**
    - **Description**: Utility functions and helper methods for technical analysis.
@@ -342,6 +389,16 @@ Or individual indicators.
        - **Usage**:
          ```python
          zscore = ZScore(series, window=500)
+         ```
+     - **ATR**: Calculate the Average True Range (ATR).
+       - **Usage**:
+         ```python
+         atr = ATR(df, period=14)
+         ```
+     - **RMA**: Calculate the Relative Moving Average (RMA).
+       - **Usage**:
+         ```python
+         rma = RMA(series, period)
          ```
 
 8. **volatility**

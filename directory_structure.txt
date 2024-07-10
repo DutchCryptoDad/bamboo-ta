@@ -5,7 +5,6 @@ The project is organized into the following directories:
 │   ├── bamboo_ta/
 │   └── requirements.txt
 │   └── setup.py
-│   └── fetchproject.py
 │   ├── bamboo_ta/
 │   │   └── __init__.py
 │   │   └── statistics.py
@@ -78,108 +77,6 @@ setup(
 )
 
     ----- End of setup.py -----
-
-    fetchproject.py
-
-    ----- Start of fetchproject.py -----
-
-import os
-import fnmatch
-
-def list_files(startpath, exclude_dirs=None, exclude_files=None):
-    if exclude_dirs is None:
-        exclude_dirs = []
-    if exclude_files is None:
-        exclude_files = []
-
-    structure = []
-    for root, dirs, files in os.walk(startpath):
-        # Exclude directories
-        dirs[:] = [d for d in dirs if not any(fnmatch.fnmatch(os.path.join(root, d), pattern) for pattern in exclude_dirs)]
-        level = root.replace(startpath, '').count(os.sep)
-        indent = ' ' * 4 * (level)
-        structure.append(f"{indent}{os.path.basename(root)}/")
-        subindent = ' ' * 4 * (level + 1)
-        for f in files:
-            # Exclude files
-            if not any(fnmatch.fnmatch(os.path.join(root, f), pattern) for pattern in exclude_files):
-                structure.append(f"{subindent}{f}")
-                with open(os.path.join(root, f), 'r') as file_content:
-                    try:
-                        content = file_content.read()
-                        structure.append(f"\n{subindent}----- Start of {f} -----\n")
-                        structure.append(f"{content}")
-                        structure.append(f"{subindent}----- End of {f} -----\n")
-                    except:
-                        structure.append(f"{subindent}Contents of {f}:\n{subindent}Unable to read file.\n")
-    return structure
-
-def create_directory_overview(startpath, exclude_dirs=None, exclude_files=None):
-    if exclude_dirs is None:
-        exclude_dirs = []
-    if exclude_files is None:
-        exclude_files = []
-
-    overview = ["## Project Structure\n", "The project is organized into the following directories:\n", "```\n"]
-    for root, dirs, files in os.walk(startpath):
-        # Exclude directories
-        dirs[:] = [d for d in dirs if not any(fnmatch.fnmatch(os.path.join(root, d), pattern) for pattern in exclude_dirs)]
-        level = root.replace(startpath, '').count(os.sep)
-        indent = '│   ' * level + "├── " if level > 0 else ""
-        overview.append(f"{indent}{os.path.basename(root)}/\n")
-        subindent = '│   ' * (level + 1) + "├── "
-        for i, d in enumerate(dirs):
-            overview.append(f"{subindent}{d}/\n")
-        for f in files:
-            # Exclude files
-            if not any(fnmatch.fnmatch(os.path.join(root, f), pattern) for pattern in exclude_files):
-                file_indent = '│   ' * (level + 1) + "└── "
-                overview.append(f"{file_indent}{f}\n")
-    overview.append("```\n")
-    return overview
-
-def save_structure_to_file(startpath, output_file, exclude_dirs=None, exclude_files=None):
-    structure = list_files(startpath, exclude_dirs, exclude_files)
-    overview = create_directory_overview(startpath, exclude_dirs, exclude_files)
-    with open(output_file, 'w') as f:
-        for line in overview:
-            f.write(line)
-        f.write("\nDetailed File Contents:\n\n")
-        for line in structure:
-            f.write(line + '\n')
-
-if __name__ == "__main__":
-    startpath = '.'  # Current directory
-    output_file = 'directory_structure.txt'
-    
-    # Specify directories and files to exclude with wildcards
-    exclude_dirs = ['*__pycache__*', './bamboo_ta.egg-info', './build', './dist', './.git', './images']
-    exclude_files = ['./BTC_USDT-1d.json', './__init__.py*', './README*', './LICENSE', './**/*.log', '*/.gitignore' , './test.py', './custom_indicators.py', './legendary_ta.py' ]
-    
-    save_structure_to_file(startpath, output_file, exclude_dirs, exclude_files)
-    print(f"Directory structure and contents saved to {output_file}")
-
-"""
-GPT Prompt:
-1. You are a developer with extensive knowledge of Python and Pinescript. You have this project where you are converting Pinscripts into Python functions so that you can use these in a library for further data analysis in python. The project structure and code of the Python code will follow. After that wait for further instructions about the pinescript to convert. Is that understood?
-
-2. The following pinsecript should be converted into a python function. If this pinescript is depending on other indicators from other libraries (e.g. pandas-ta), do not use that, but instead create additional functions that will take care of the missing indicators. If the indicators are already available in the given project, then use these indicators. Is this clear?
-
-3. Further instructions based on output GPT.
-
-
-GPT Prompt:
-1. I now have a competely different question concerning the Readme file I have for this modules library. Can you help me with this too?
-
-2. The original Readme file looks like this, but it now misses a lot of new functions we added to the different modules. Please rewrite this section with the information I give you in the next prompt. There you should extract the functions from the modules and add these to the Readme section in the same original style. Do you understand?
-
-This is the original Readme section:
-
-3. Further instructions based on output GPT.
-
-"""
-
-    ----- End of fetchproject.py -----
 
     bamboo_ta/
         __init__.py
@@ -625,7 +522,7 @@ import pandas as pd
 # from .bamboo_ta import *
 from .volatility import BollingerBands
 # from .trend import SMA, EMA, LSMA, HMA, WMA
-
+from .utility import *
 
 def AlligatorBands(df, column="close", jaw_period=13, teeth_period=8, lips_period=5, jaw_shift=8, teeth_shift=5, lips_shift=3):
     """
@@ -932,6 +829,39 @@ def LSMA(df, column="close", period=21):
     return lsma
 
 
+def PCC(df, period=20, mult=2):
+    """
+    Percent Change Channel (PCC)
+
+    Call with:
+        upper, rangema, lower = bta.PCC(df, period=20, mult=2)
+        df['pcc_upper'] = upper
+        df['pcc_rangema'] = rangema
+        df['pcc_lower'] = lower
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    period (int): Period for the ZEMA calculation. Default is 20.
+    mult (int): Multiplier for the range. Default is 2.
+
+    Returns:
+    tuple: Upper, RangeMA, and Lower bands as Series.
+    """
+    df_copy = df.copy()
+
+    df_copy['previous_close'] = df_copy['close'].shift()
+    df_copy['close_change'] = (df_copy['close'] - df_copy['previous_close']) / df_copy['previous_close'] * 100
+    df_copy['high_change'] = (df_copy['high'] - df_copy['close']) / df_copy['close'] * 100
+    df_copy['low_change'] = (df_copy['low'] - df_copy['close']) / df_copy['close'] * 100
+    df_copy['delta'] = df_copy['high_change'] - df_copy['low_change']
+    mid = ZEMA(df_copy, period, 'close_change')
+    rangema = ZEMA(df_copy, period, 'delta')
+    upper = mid + rangema * mult
+    lower = mid - rangema * mult
+    
+    return upper, rangema, lower
+
+
 def RMA(series, period):
     """
     Relative Moving Average (RMA) calculation.
@@ -970,6 +900,68 @@ def SMA(df, column="close", period=21):
     return sma
 
 
+def SSLChannels(df, length=10, mode='sma'):
+    """
+    SSL Channels
+
+    Call with:
+        ssl_down, ssl_up = bta.SSLChannels(df, length=10, mode='sma')
+        df['ssl_down'] = ssl_down
+        df['ssl_up'] = ssl_up
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    length (int): Period for the SMA calculation. Default is 10.
+    mode (str): Type of moving average to use. Currently only 'sma' is supported.
+
+    Returns:
+    tuple: SSL Down and SSL Up series.
+    """
+    df_copy = df.copy()
+
+    if mode not in ('sma'):
+        raise ValueError(f"Mode {mode} not supported yet")
+    
+    df_copy['smaHigh'] = df_copy['high'].rolling(length).mean()
+    df_copy['smaLow'] = df_copy['low'].rolling(length).mean()
+    df_copy['hlv'] = np.where(df_copy['close'] > df_copy['smaHigh'], 1,
+                              np.where(df_copy['close'] < df_copy['smaLow'], -1, np.NAN))
+    df_copy['hlv'] = df_copy['hlv'].ffill()
+    df_copy['sslDown'] = np.where(df_copy['hlv'] < 0, df_copy['smaHigh'], df_copy['smaLow'])
+    df_copy['sslUp'] = np.where(df_copy['hlv'] < 0, df_copy['smaLow'], df_copy['smaHigh'])
+
+    return df_copy['sslDown'], df_copy['sslUp']
+
+
+def SSLChannelsATR(df, length=7):
+    """
+    SSL Channels with ATR
+
+    Call with:
+        ssl_down, ssl_up = bta.SSLChannelsATR(df, length=7)
+        df['ssl_atr_down'] = ssl_down
+        df['ssl_atr_up'] = ssl_up
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    length (int): Period for the SMA calculation. Default is 7.
+
+    Returns:
+    tuple: SSL Down and SSL Up series.
+    """
+    df_copy = df.copy()
+
+    df_copy['ATR'] = ATR(df_copy, period=14)
+    df_copy['smaHigh'] = df_copy['high'].rolling(length).mean() + df_copy['ATR']
+    df_copy['smaLow'] = df_copy['low'].rolling(length).mean() - df_copy['ATR']
+    df_copy['hlv'] = np.where(df_copy['close'] > df_copy['smaHigh'], 1, np.where(df_copy['close'] < df_copy['smaLow'], -1, np.NAN))
+    df_copy['hlv'] = df_copy['hlv'].ffill()
+    df_copy['sslDown'] = np.where(df_copy['hlv'] < 0, df_copy['smaHigh'], df_copy['smaLow'])
+    df_copy['sslUp'] = np.where(df_copy['hlv'] < 0, df_copy['smaLow'], df_copy['smaHigh'])
+    
+    return df_copy['sslDown'], df_copy['sslUp']
+
+
 def STDEV(series, period):
     """
     Calculate the standard deviation over a specified period.
@@ -982,6 +974,40 @@ def STDEV(series, period):
     - pd.Series: The standard deviation of the series.
     """
     return series.rolling(window=period).std()
+
+
+def T3(df, length=5):
+    """
+    T3 Average by HPotter
+
+    Call with:
+        df['t3_average'] = bta.T3(df, length=5)
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    length (int): Period for the EMA calculation. Default is 5.
+
+    Returns:
+    pd.Series: Series of T3 Average values.
+    """
+    df_copy = df.copy()
+
+    df_copy['xe1'] = EMA(df_copy, column='close', period=length)
+    df_copy['xe2'] = EMA(df_copy, column='xe1', period=length)
+    df_copy['xe3'] = EMA(df_copy, column='xe2', period=length)
+    df_copy['xe4'] = EMA(df_copy, column='xe3', period=length)
+    df_copy['xe5'] = EMA(df_copy, column='xe4', period=length)
+    df_copy['xe6'] = EMA(df_copy, column='xe5', period=length)
+    
+    b = 0.7
+    c1 = -b*b*b
+    c2 = 3*b*b+3*b*b*b
+    c3 = -6*b*b-3*b-3*b*b*b
+    c4 = 1+3*b+b*b*b+3*b*b
+    
+    df_copy['T3Average'] = c1 * df_copy['xe6'] + c2 * df_copy['xe5'] + c3 * df_copy['xe4'] + c4 * df_copy['xe3']
+    
+    return df_copy['T3Average']
 
 
 def WMA(df, column="close", period=9):
@@ -1010,6 +1036,31 @@ def WMA(df, column="close", period=9):
     wma = numerator / denominator
     
     return wma
+
+
+def ZEMA(df, period, column='close'):
+    """
+    Zero Lag Exponential Moving Average (ZEMA)
+
+    Call with:
+        df['zema'] = bta.ZEMA(df, period=21, column='close')
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    period (int): Period for the EMA calculation.
+    column (str): The column name on which the ZEMA is to be applied. Default is "close".
+
+    Returns:
+    pd.Series: Series of ZEMA values.
+    """
+    df_copy = df.copy()
+
+    df_copy['ema1'] = EMA(df_copy, column=column, period=period)
+    df_copy['ema2'] = EMA(df_copy, column='ema1', period=period)
+    df_copy['d'] = df_copy['ema1'] - df_copy['ema2']
+    df_copy['zema'] = df_copy['ema1'] + df_copy['d']
+    
+    return df_copy['zema']
 
 
 def ZLEMA(df, column="close", period=21):
@@ -1053,6 +1104,29 @@ import numpy as np
 import pandas as pd
 from .bamboo_ta import *
 from scipy.signal import argrelextrema
+
+
+def ATR(df, period=14):
+    """
+    Average True Range (ATR)
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    period (int): Period for the ATR calculation. Default is 14.
+
+    Returns:
+    pd.Series: Series of ATR values.
+    """
+    df_copy = df.copy()
+
+    df_copy['high_low'] = df_copy['high'] - df_copy['low']
+    df_copy['high_close'] = (df_copy['high'] - df_copy['close'].shift()).abs()
+    df_copy['low_close'] = (df_copy['low'] - df_copy['close'].shift()).abs()
+    df_copy['true_range'] = df_copy[['high_low', 'high_close', 'low_close']].max(axis=1)
+
+    atr = df_copy['true_range'].rolling(window=period, min_periods=1).mean()
+    
+    return atr
 
 
 def Calculate_Exhaustion_Candles(df, window, multiplier):
@@ -1210,6 +1284,20 @@ def populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len):
             df.at[i, 'leledc_minor'] = 0
 
     return df
+
+
+def SameLength(bigger, shorter):
+    """
+    Ensures the shorter array has the same length as the bigger array by padding with NaN values.
+    
+    Args:
+    bigger (np.ndarray): The array with the larger size.
+    shorter (np.ndarray): The array with the smaller size.
+    
+    Returns:
+    np.ndarray: The shorter array padded with NaN values to match the size of the bigger array.
+    """
+    return np.concatenate((np.full((bigger.shape[0] - shorter.shape[0]), np.nan), shorter))
 
 
 def True_Range(df):
@@ -1477,6 +1565,106 @@ def MACD_Leader(df, src, fast_length=12, slow_length=26, signal_length=9):
     return df_copy[['macd_leader']]
 
 
+def MAStreak(df, period=4, column='close'):
+    """
+    MA Streak
+
+    Call with:
+        df['mastreak'] = bta.MAStreak(df, period=4, column='close')
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    period (int): Period for the ZEMA calculation. Default is 4.
+    column (str): The column name on which the ZEMA is to be applied. Default is "close".
+
+    Returns:
+    pd.Series: Series of MA Streak values.
+    """
+    df_copy = df.copy()
+
+    avgval = ZEMA(df_copy, period, column)
+    arr = np.diff(avgval)
+    pos = np.clip(arr, 0, 1).astype(bool).cumsum()
+    neg = np.clip(arr, -1, 0).astype(bool).cumsum()
+    streak = np.where(arr >= 0, pos - np.maximum.accumulate(np.where(arr <= 0, pos, 0)),
+                      -neg + np.maximum.accumulate(np.where(arr >= 0, neg, 0)))
+    
+    return SameLength(df_copy['close'], streak)
+
+
+def RMI(df, length=20, mom=5):
+    """
+    Relative Momentum Index (RMI)
+
+    Call with:
+        df['rmi'] = bta.RMI(df, length=20, mom=5)
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    length (int): Period for the EMA calculation. Default is 20.
+    mom (int): Momentum period. Default is 5.
+
+    Returns:
+    pd.Series: Series of RMI values.
+    """
+    df_copy = df.copy()
+
+    df_copy['maxup'] = (df_copy['close'] - df_copy['close'].shift(mom)).clip(lower=0)
+    df_copy['maxdown'] = (df_copy['close'].shift(mom) - df_copy['close']).clip(lower=0)
+    df_copy.fillna(0, inplace=True)
+    df_copy["emaInc"] = EMA(df_copy, column='maxup', period=length)
+    df_copy["emaDec"] = EMA(df_copy, column='maxdown', period=length)
+    df_copy['RMI'] = np.where(df_copy['emaDec'] == 0, 0, 100 - 100 / (1 + df_copy["emaInc"] / df_copy["emaDec"]))
+    
+    return df_copy['RMI']
+
+
+def ROC(df, column='close', period=21):
+    """
+    Rate of Change (ROC)
+
+    Call with:
+        df['roc'] = bta.ROC(df, roclen=21, emalen=13, smooth=21)
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    column (str): The column name on which the ROC is to be applied. Default is "close".
+    period (int): Period for the ROC calculation. Default is 21.
+
+    Returns:
+    pd.Series: Series of ROC values.
+    """
+    df_copy = df.copy()
+
+    df_copy['roc'] = df_copy[column].diff(period) / df_copy[column].shift(period) * 100
+    
+    return df_copy['roc']
+
+
+def SROC(df, roclen=21, emalen=13, smooth=21):
+    """
+    Smoothed Rate of Change (SROC)
+
+    Call with:
+        df['sroc'] = bta.SROC(df, roclen=21, emalen=13, smooth=21)
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    roclen (int): Period for the ROC calculation. Default is 21.
+    emalen (int): Period for the EMA calculation. Default is 13.
+    smooth (int): Smoothing period for the ROC calculation. Default is 21.
+
+    Returns:
+    pd.Series: Series of SROC values.
+    """
+    df_copy = df.copy()
+
+    roc = ROC(df_copy, column='close', period=roclen)
+    ema = EMA(df_copy, column='close', period=emalen)
+    sroc = ROC(pd.DataFrame(ema), column='close', period=smooth)
+    
+    return sroc
+
 def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0):
     """
     Waddah Attar Explosion Indicator
@@ -1535,6 +1723,39 @@ def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, 
     df_copy['dead_zone_line'] = dead_zone.round(2)
 
     return df_copy[['trend_up', 'trend_down', 'explosion_line', 'dead_zone_line']]
+
+
+def WaveTrend(df, chlen=10, avg=21, smalen=4):
+    """
+    WaveTrend Oscillator by LazyBear
+
+    Call with:
+        wt1, wt2 = bta.WaveTrend(df, chlen=10, avg=21, smalen=4)
+        df['wt1'] = wt1
+        df['wt2'] = wt2
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    chlen (int): Channel length for the EMA calculation. Default is 10.
+    avg (int): Average period for the EMA calculation. Default is 21.
+    smalen (int): Period for the SMA calculation. Default is 4.
+
+    Returns:
+    tuple: WaveTrend 1 and WaveTrend 2 series.
+    """
+    df_copy = df.copy()
+
+    df_copy['hlc3'] = (df_copy['high'] + df_copy['low'] + df_copy['close']) / 3
+    df_copy['esa'] = EMA(df_copy, column='hlc3', period=chlen)
+    df_copy['abs_diff'] = (df_copy['hlc3'] - df_copy['esa']).abs()
+    df_copy['d'] = EMA(df_copy, column='abs_diff', period=chlen)
+    df_copy['ci'] = (df_copy['hlc3'] - df_copy['esa']) / (0.015 * df_copy['d'])
+    df_copy['tci'] = EMA(df_copy, column='ci', period=avg)
+    df_copy['wt1'] = df_copy['tci']
+    df_copy['wt2'] = SMA(df_copy, column='wt1', period=smalen)
+
+    # Return only the calculated columns
+    return df_copy['wt1'], df_copy['wt2']
 
 
 def WaveTrend_Oscillator(df, src, n1=8, n2=12):

@@ -5,6 +5,29 @@ from .bamboo_ta import *
 from scipy.signal import argrelextrema
 
 
+def ATR(df, period=14):
+    """
+    Average True Range (ATR)
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    period (int): Period for the ATR calculation. Default is 14.
+
+    Returns:
+    pd.Series: Series of ATR values.
+    """
+    df_copy = df.copy()
+
+    df_copy['high_low'] = df_copy['high'] - df_copy['low']
+    df_copy['high_close'] = (df_copy['high'] - df_copy['close'].shift()).abs()
+    df_copy['low_close'] = (df_copy['low'] - df_copy['close'].shift()).abs()
+    df_copy['true_range'] = df_copy[['high_low', 'high_close', 'low_close']].max(axis=1)
+
+    atr = df_copy['true_range'].rolling(window=period, min_periods=1).mean()
+    
+    return atr
+
+
 def Calculate_Exhaustion_Candles(df, window, multiplier):
     """
     Calculate the average consecutive length of ups and downs to adjust the exhaustion bands dynamically
@@ -160,6 +183,20 @@ def populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len):
             df.at[i, 'leledc_minor'] = 0
 
     return df
+
+
+def SameLength(bigger, shorter):
+    """
+    Ensures the shorter array has the same length as the bigger array by padding with NaN values.
+    
+    Args:
+    bigger (np.ndarray): The array with the larger size.
+    shorter (np.ndarray): The array with the smaller size.
+    
+    Returns:
+    np.ndarray: The shorter array padded with NaN values to match the size of the bigger array.
+    """
+    return np.concatenate((np.full((bigger.shape[0] - shorter.shape[0]), np.nan), shorter))
 
 
 def True_Range(df):

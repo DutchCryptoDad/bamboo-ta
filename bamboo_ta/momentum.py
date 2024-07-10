@@ -225,6 +225,108 @@ def MACD_Leader(df, src, fast_length=12, slow_length=26, signal_length=9):
     return df_copy[['macd_leader']]
 
 
+def MAStreak(df, period=4, column='close'):
+    """
+    MA Streak
+    Port of: https://www.tradingview.com/script/Yq1z7cIv-MA-Streak-Can-Show-When-a-Run-Is-Getting-Long-in-the-Tooth/
+    
+    Call with:
+        df['mastreak'] = bta.MAStreak(df, period=4, column='close')
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    period (int): Period for the ZEMA calculation. Default is 4.
+    column (str): The column name on which the ZEMA is to be applied. Default is "close".
+
+    Returns:
+    pd.Series: Series of MA Streak values.
+    """
+    df_copy = df.copy()
+
+    avgval = ZEMA(df_copy, period, column)
+    arr = np.diff(avgval)
+    pos = np.clip(arr, 0, 1).astype(bool).cumsum()
+    neg = np.clip(arr, -1, 0).astype(bool).cumsum()
+    streak = np.where(arr >= 0, pos - np.maximum.accumulate(np.where(arr <= 0, pos, 0)),
+                      -neg + np.maximum.accumulate(np.where(arr >= 0, neg, 0)))
+    
+    return SameLength(df_copy['close'], streak)
+
+
+def RMI(df, length=20, mom=5):
+    """
+    Relative Momentum Index (RMI)
+    Source: https://github.com/freqtrade/technical/blob/master/technical/indicators/indicators.py#L912
+
+    Call with:
+        df['rmi'] = bta.RMI(df, length=20, mom=5)
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    length (int): Period for the EMA calculation. Default is 20.
+    mom (int): Momentum period. Default is 5.
+
+    Returns:
+    pd.Series: Series of RMI values.
+    """
+    df_copy = df.copy()
+
+    df_copy['maxup'] = (df_copy['close'] - df_copy['close'].shift(mom)).clip(lower=0)
+    df_copy['maxdown'] = (df_copy['close'].shift(mom) - df_copy['close']).clip(lower=0)
+    df_copy.fillna(0, inplace=True)
+    df_copy["emaInc"] = EMA(df_copy, column='maxup', period=length)
+    df_copy["emaDec"] = EMA(df_copy, column='maxdown', period=length)
+    df_copy['RMI'] = np.where(df_copy['emaDec'] == 0, 0, 100 - 100 / (1 + df_copy["emaInc"] / df_copy["emaDec"]))
+    
+    return df_copy['RMI']
+
+
+def ROC(df, column='close', period=21):
+    """
+    Rate of Change (ROC)
+
+    Call with:
+        df['roc'] = bta.ROC(df, column='close', period=21)
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    column (str): The column name on which the ROC is to be applied. Default is "close".
+    period (int): Period for the ROC calculation. Default is 21.
+
+    Returns:
+    pd.Series: Series of ROC values.
+    """
+    df_copy = df.copy()
+
+    df_copy['roc'] = df_copy[column].diff(period) / df_copy[column].shift(period) * 100
+    
+    return df_copy['roc']
+
+
+def SROC(df, roclen=21, emalen=13, smooth=21):
+    """
+    Smoothed Rate of Change (SROC)
+
+    Call with:
+        df['sroc'] = bta.SROC(df, roclen=21, emalen=13, smooth=21)
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    roclen (int): Period for the ROC calculation. Default is 21.
+    emalen (int): Period for the EMA calculation. Default is 13.
+    smooth (int): Smoothing period for the ROC calculation. Default is 21.
+
+    Returns:
+    pd.Series: Series of SROC values.
+    """
+    df_copy = df.copy()
+
+    roc = ROC(df_copy, column='close', period=roclen)
+    ema = EMA(df_copy, column='close', period=emalen)
+    sroc = ROC(pd.DataFrame(ema), column='close', period=smooth)
+    
+    return sroc
+
 def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0):
     """
     Waddah Attar Explosion Indicator
@@ -283,6 +385,40 @@ def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, 
     df_copy['dead_zone_line'] = dead_zone.round(2)
 
     return df_copy[['trend_up', 'trend_down', 'explosion_line', 'dead_zone_line']]
+
+
+def WaveTrend(df, chlen=10, avg=21, smalen=4):
+    """
+    WaveTrend Oscillator by LazyBear
+    https://www.tradingview.com/script/2KE8wTuF-Indicator-WaveTrend-Oscillator-WT/
+
+    Call with:
+        wt1, wt2 = bta.WaveTrend(df, chlen=10, avg=21, smalen=4)
+        df['wt1'] = wt1
+        df['wt2'] = wt2
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    chlen (int): Channel length for the EMA calculation. Default is 10.
+    avg (int): Average period for the EMA calculation. Default is 21.
+    smalen (int): Period for the SMA calculation. Default is 4.
+
+    Returns:
+    tuple: WaveTrend 1 and WaveTrend 2 series.
+    """
+    df_copy = df.copy()
+
+    df_copy['hlc3'] = (df_copy['high'] + df_copy['low'] + df_copy['close']) / 3
+    df_copy['esa'] = EMA(df_copy, column='hlc3', period=chlen)
+    df_copy['abs_diff'] = (df_copy['hlc3'] - df_copy['esa']).abs()
+    df_copy['d'] = EMA(df_copy, column='abs_diff', period=chlen)
+    df_copy['ci'] = (df_copy['hlc3'] - df_copy['esa']) / (0.015 * df_copy['d'])
+    df_copy['tci'] = EMA(df_copy, column='ci', period=avg)
+    df_copy['wt1'] = df_copy['tci']
+    df_copy['wt2'] = SMA(df_copy, column='wt1', period=smalen)
+
+    # Return only the calculated columns
+    return df_copy['wt1'], df_copy['wt2']
 
 
 def WaveTrend_Oscillator(df, src, n1=8, n2=12):

@@ -6,7 +6,7 @@ import pandas as pd
 # from .bamboo_ta import *
 from .volatility import BollingerBands
 # from .trend import SMA, EMA, LSMA, HMA, WMA
-
+from .utility import *
 
 def AlligatorBands(df, column="close", jaw_period=13, teeth_period=8, lips_period=5, jaw_shift=8, teeth_shift=5, lips_shift=3):
     """
@@ -313,6 +313,41 @@ def LSMA(df, column="close", period=21):
     return lsma
 
 
+def PCC(df, period=20, mult=2):
+    """
+    Percent Change Channel (PCC)
+    PCC is like KC unless it uses percentage changes in price to set channel distance.
+    https://www.tradingview.com/script/6wwAWXA1-MA-Streak-Change-Channel/
+
+    Call with:
+        upper, rangema, lower = bta.PCC(df, period=20, mult=2)
+        df['pcc_upper'] = upper
+        df['pcc_rangema'] = rangema
+        df['pcc_lower'] = lower
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    period (int): Period for the ZEMA calculation. Default is 20.
+    mult (int): Multiplier for the range. Default is 2.
+
+    Returns:
+    tuple: Upper, RangeMA, and Lower bands as Series.
+    """
+    df_copy = df.copy()
+
+    df_copy['previous_close'] = df_copy['close'].shift()
+    df_copy['close_change'] = (df_copy['close'] - df_copy['previous_close']) / df_copy['previous_close'] * 100
+    df_copy['high_change'] = (df_copy['high'] - df_copy['close']) / df_copy['close'] * 100
+    df_copy['low_change'] = (df_copy['low'] - df_copy['close']) / df_copy['close'] * 100
+    df_copy['delta'] = df_copy['high_change'] - df_copy['low_change']
+    mid = ZEMA(df_copy, period, 'close_change')
+    rangema = ZEMA(df_copy, period, 'delta')
+    upper = mid + rangema * mult
+    lower = mid - rangema * mult
+    
+    return upper, rangema, lower
+
+
 def RMA(series, period):
     """
     Relative Moving Average (RMA) calculation.
@@ -351,6 +386,71 @@ def SMA(df, column="close", period=21):
     return sma
 
 
+def SSLChannels(df, length=10, mode='sma'):
+    """
+    SSL Channels
+    Source: https://www.tradingview.com/script/xzIoaIJC-SSL-channel/
+    Source: https://github.com/freqtrade/technical/blob/master/technical/indicators/indicators.py#L1025
+
+    Call with:
+        ssl_down, ssl_up = bta.SSLChannels(df, length=10, mode='sma')
+        df['ssl_down'] = ssl_down
+        df['ssl_up'] = ssl_up
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    length (int): Period for the SMA calculation. Default is 10.
+    mode (str): Type of moving average to use. Currently only 'sma' is supported.
+
+    Returns:
+    tuple: SSL Down and SSL Up series.
+    """
+    df_copy = df.copy()
+
+    if mode not in ('sma'):
+        raise ValueError(f"Mode {mode} not supported yet")
+    
+    df_copy['smaHigh'] = df_copy['high'].rolling(length).mean()
+    df_copy['smaLow'] = df_copy['low'].rolling(length).mean()
+    df_copy['hlv'] = np.where(df_copy['close'] > df_copy['smaHigh'], 1,
+                              np.where(df_copy['close'] < df_copy['smaLow'], -1, np.NAN))
+    df_copy['hlv'] = df_copy['hlv'].ffill()
+    df_copy['sslDown'] = np.where(df_copy['hlv'] < 0, df_copy['smaHigh'], df_copy['smaLow'])
+    df_copy['sslUp'] = np.where(df_copy['hlv'] < 0, df_copy['smaLow'], df_copy['smaHigh'])
+
+    return df_copy['sslDown'], df_copy['sslUp']
+
+
+def SSLChannelsATR(df, length=7):
+    """
+    SSL Channels with ATR
+    SSL Channels with ATR: https://www.tradingview.com/script/SKHqWzql-SSL-ATR-channel/
+
+    Call with:
+        ssl_down, ssl_up = bta.SSLChannelsATR(df, length=7)
+        df['ssl_atr_down'] = ssl_down
+        df['ssl_atr_up'] = ssl_up
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    length (int): Period for the SMA calculation. Default is 7.
+
+    Returns:
+    tuple: SSL Down and SSL Up series.
+    """
+    df_copy = df.copy()
+
+    df_copy['ATR'] = ATR(df_copy, period=14)
+    df_copy['smaHigh'] = df_copy['high'].rolling(length).mean() + df_copy['ATR']
+    df_copy['smaLow'] = df_copy['low'].rolling(length).mean() - df_copy['ATR']
+    df_copy['hlv'] = np.where(df_copy['close'] > df_copy['smaHigh'], 1, np.where(df_copy['close'] < df_copy['smaLow'], -1, np.NAN))
+    df_copy['hlv'] = df_copy['hlv'].ffill()
+    df_copy['sslDown'] = np.where(df_copy['hlv'] < 0, df_copy['smaHigh'], df_copy['smaLow'])
+    df_copy['sslUp'] = np.where(df_copy['hlv'] < 0, df_copy['smaLow'], df_copy['smaHigh'])
+    
+    return df_copy['sslDown'], df_copy['sslUp']
+
+
 def STDEV(series, period):
     """
     Calculate the standard deviation over a specified period.
@@ -363,6 +463,41 @@ def STDEV(series, period):
     - pd.Series: The standard deviation of the series.
     """
     return series.rolling(window=period).std()
+
+
+def T3(df, length=5):
+    """
+    T3 Average by HPotter
+    https://www.tradingview.com/script/qzoC9H1I-T3-Average/
+
+    Call with:
+        df['t3_average'] = bta.T3(df, length=5)
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    length (int): Period for the EMA calculation. Default is 5.
+
+    Returns:
+    pd.Series: Series of T3 Average values.
+    """
+    df_copy = df.copy()
+
+    df_copy['xe1'] = EMA(df_copy, column='close', period=length)
+    df_copy['xe2'] = EMA(df_copy, column='xe1', period=length)
+    df_copy['xe3'] = EMA(df_copy, column='xe2', period=length)
+    df_copy['xe4'] = EMA(df_copy, column='xe3', period=length)
+    df_copy['xe5'] = EMA(df_copy, column='xe4', period=length)
+    df_copy['xe6'] = EMA(df_copy, column='xe5', period=length)
+    
+    b = 0.7
+    c1 = -b*b*b
+    c2 = 3*b*b+3*b*b*b
+    c3 = -6*b*b-3*b-3*b*b*b
+    c4 = 1+3*b+b*b*b+3*b*b
+    
+    df_copy['T3Average'] = c1 * df_copy['xe6'] + c2 * df_copy['xe5'] + c3 * df_copy['xe4'] + c4 * df_copy['xe3']
+    
+    return df_copy['T3Average']
 
 
 def WMA(df, column="close", period=9):
@@ -391,6 +526,33 @@ def WMA(df, column="close", period=9):
     wma = numerator / denominator
     
     return wma
+
+
+def ZEMA(df, period, column='close'):
+    """
+    Zero Lag Exponential Moving Average (ZEMA)
+    Source: https://github.com/freqtrade/technical/blob/master/technical/indicators/overlap_studies.py#L79
+    Modified slightly to use ta.EMA instead of technical ema
+
+    Call with:
+        df['zema'] = bta.ZEMA(df, period=21, column='close')
+
+    Args:
+    df (pd.DataFrame): DataFrame containing the data.
+    period (int): Period for the EMA calculation.
+    column (str): The column name on which the ZEMA is to be applied. Default is "close".
+
+    Returns:
+    pd.Series: Series of ZEMA values.
+    """
+    df_copy = df.copy()
+
+    df_copy['ema1'] = EMA(df_copy, column=column, period=period)
+    df_copy['ema2'] = EMA(df_copy, column='ema1', period=period)
+    df_copy['d'] = df_copy['ema1'] - df_copy['ema2']
+    df_copy['zema'] = df_copy['ema1'] + df_copy['d']
+    
+    return df_copy['zema']
 
 
 def ZLEMA(df, column="close", period=21):

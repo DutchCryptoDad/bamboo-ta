@@ -69,7 +69,7 @@ if __name__ == "__main__":
     
     # Specify directories and files to exclude with wildcards
     exclude_dirs = ['*__pycache__*', './bamboo_ta.egg-info', './build', './dist', './.git', './images']
-    exclude_files = ['./BTC_USDT-1d.json', './__init__.py*', './README*', './LICENSE', './**/*.log', '*/.gitignore' , './test.py', './custom_indicators.py', './legendary_ta.py' ]
+    exclude_files = ['./BTC_USDT-1d.json', './__init__.py*', './README*', './LICENSE', './**/*.log', '*/.gitignore' , './test.py', './custom_indicators.py', './legendary_ta.py', './fetchproject.py', './directory_structure.txt' ]
     
     save_structure_to_file(startpath, output_file, exclude_dirs, exclude_files)
     print(f"Directory structure and contents saved to {output_file}")
@@ -84,7 +84,21 @@ GPT Prompt:
 
 
 GPT Prompt:
+1. You are a developer with extensive knowledge of Python and Technical Indicators in Trading. You have this project where you are converting Third party Python code into your own TA library with Python functions so that you can use these within your own library in a consequent and familiar way for further data analysis in python. The project structure and code of the Python code will follow. After that wait for further instructions about the third party Python code to convert. Is that understood?
+
+2. The following third party python should be converted into the same format as my own functions  and should also be added to their consequitive modules. Please check first if they already exist, if they do, then ignore these (but say that you will not create these). If the third party Python code is depending on other libraries (e.g. pandas-ta), do not use these external libraries, but instead create additional functions that will take care of the missing functions or indicators. If these dependend functions alreaty exist in your own project, then use those instead. Is this clear?
+
+3. Further instructions based on output GPT.
+
+
+GPT Prompt:
+1. I have a Readme file that is part of a complete python programm. It contains the descriptions of functions that are in the submoduled. However I have added more functions to these modules and I would like to recreate this Readme section so that it also contains the added funtions. In other words the Readme file is updated with the most current situation. 
+
+I can give you the current modules Readme section now and later the complete contents of all other modules so that you can update the Readme section with this. Do you understand?
+
+
 1. I now have a competely different question concerning the Readme file I have for this modules library. Can you help me with this too?
+
 
 2. The original Readme file looks like this, but it now misses a lot of new functions we added to the different modules. Please rewrite this section with the information I give you in the next prompt. There you should extract the functions from the modules and add these to the Readme section in the same original style. Do you understand?
 

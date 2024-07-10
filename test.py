@@ -258,4 +258,33 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
 
 
+# wt1, wt2 = bta.WaveTrend(df, chlen=10, avg=21, smalen=4)
+# df['wt1'] = wt1
+# df['wt2'] = wt2
+
+# ssl_down, ssl_up = bta.SSLChannels(df, length=10, mode='sma')
+# df['ssl_down'] = ssl_down
+# df['ssl_up'] = ssl_up
+
+# ssl_down, ssl_up = bta.SSLChannelsATR(df, length=7)
+# df['ssl_atr_down'] = ssl_down
+# df['ssl_atr_up'] = ssl_up
+
+# upper, rangema, lower = bta.PCC(df, period=20, mult=2)
+# df['pcc_upper'] = upper
+# df['pcc_rangema'] = rangema
+# df['pcc_lower'] = lower
+
+# df['sroc'] = bta.SROC(df, roclen=21, emalen=13, smooth=21)
+
+# df['roc'] = bta.ROC(df, column='close', period=21)
+
+# df['t3_average'] = bta.T3(df, length=5)
+
+# df['mastreak'] = bta.MAStreak(df, period=4, column='close')
+
+# df['rmi'] = bta.RMI(df, length=20, mom=5)
+
+# df['zema'] = bta.ZEMA(df, period=21, column='close')
+
 print(df.tail(25))
