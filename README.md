@@ -577,3 +577,4 @@ Now you an upload libraries without having to use the password.
 
 * [ThinkOrSwim Tech indicators](https://tlc.thinkorswim.com/center/reference/Tech-Indicators)
 * [Legendary TA](https://github.com/just-nilux/legendary_ta)
+* [CryptoFrog Custom Indicators](https://github.com/froggleston/cryptofrog-strategies/blob/main/custom_indicators.py)
