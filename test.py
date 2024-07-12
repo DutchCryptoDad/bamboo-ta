@@ -388,8 +388,12 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['pvo'] = pvo['pvo']
 # df['pvo_signal'] = pvo['pvo_signal']
 # df['pvo_hist'] = pvo['pvo_hist']
-ppo = bta.PPO(df)
-df['ppo'] = ppo['ppo']
-df['ppo_signal'] = ppo['ppo_signal']
-df['ppo_hist'] = ppo['ppo_hist']
+# ppo = bta.PPO(df)
+# df['ppo'] = ppo['ppo']
+# df['ppo_signal'] = ppo['ppo_signal']
+# df['ppo_hist'] = ppo['ppo_hist']
+
+
+
+
 print(df.tail(25))
