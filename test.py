@@ -318,19 +318,19 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # print(true_range)
 
 
-## DropNA function
-# Sample data with NaNs
-data_with_nans = {
-    'A': [1, 2, np.nan, 4, 5],
-    'B': [5, 4, np.nan, 2, 1],
-    'C': [np.nan, 2, 3, np.nan, 5]
-}
-df_with_nans = pd.DataFrame(data_with_nans)
+# ## DropNA function
+# # Sample data with NaNs
+# data_with_nans = {
+#     'A': [1, 2, np.nan, 4, 5],
+#     'B': [5, 4, np.nan, 2, 1],
+#     'C': [np.nan, 2, 3, np.nan, 5]
+# }
+# df_with_nans = pd.DataFrame(data_with_nans)
 
-# Test dropna function
-cleaned_df = bta.dropna(df_with_nans)
-print("DataFrame after dropna:")
-print(cleaned_df)
+# # Test dropna function
+# cleaned_df = bta.dropna(df_with_nans)
+# print("DataFrame after dropna:")
+# print(cleaned_df)
 
 ###SMA Example
 # # Sample series
@@ -365,25 +365,31 @@ print(cleaned_df)
 # print("Max of series1 and series2:")
 # print(max_series)
 
-df['tsi'] = bta.TSI(df['close'], 25, 13)
-df['uo'] = bta.UltimateOscillator(df['high'], df['low'], df['close'], 7, 14, 28)
-stoch = bta.StochasticsOscillator(df, 'high', 'low', 'close', 14, 3)
-df['stoch'] = stoch['stoch']
-df['stoch_signal'] = stoch['stoch_signal']
-df['stoch_hist'] = stoch['stoch_hist']
-df['williams_r'] = bta.WilliamsR(df['high'], df['low'], df['close'], 14)
-df['stoch_rsi'] = bta.StochRSI(df['close'], 14, 3, 3)
-df['kama'] = bta.KAMA(df['close'], 10, 2, 30)
-df['ao'] = bta.AwesomeOscillator(df['high'], df['low'], 5, 34)
-pvo = bta.PVOCombined(df)
-df['pvo'] = pvo['pvo']
-df['pvo_signal'] = pvo['pvo_signal']
-df['pvo_hist'] = pvo['pvo_hist']
-pvo = bta.PVO(df)
-df['pvo'] = pvo['pvo']
-df['pvo_signal'] = pvo['pvo_signal']
-df['pvo_hist'] = pvo['pvo_hist']
+# df['tsi'] = bta.TSI(df['close'], 25, 13)
+# df['uo'] = bta.UltimateOscillator(df['high'], df['low'], df['close'], 7, 14, 28)
+# stoch = bta.StochasticsOscillator(df, 'high', 'low', 'close', 14, 3)
+# df['stoch'] = stoch['stoch']
+# df['stoch_signal'] = stoch['stoch_signal']
+# df['stoch_hist'] = stoch['stoch_hist']
+# df['williams_r'] = bta.WilliamsR(df['high'], df['low'], df['close'], 14)
+
+# stoch_rsi = bta.StochRSI(df, 'close', 14, 3, 3)
+# df['stoch_rsi'] = stoch_rsi['stoch_rsi']
+# df['stoch_rsi_k'] = stoch_rsi['stoch_rsi_k']
+# df['stoch_rsi_d'] = stoch_rsi['stoch_rsi_d']
+
+# df['kama'] = bta.KAMA(df['close'], 10, 2, 30)
+# df['ao'] = bta.AwesomeOscillator(df['high'], df['low'], 5, 34)
+# pvo = bta.PVO(df)
+# df['pvo'] = pvo['pvo']
+# df['pvo_signal'] = pvo['pvo_signal']
+# df['pvo_hist'] = pvo['pvo_hist']
+# pvo = bta.PVO(df)
+# df['pvo'] = pvo['pvo']
+# df['pvo_signal'] = pvo['pvo_signal']
+# df['pvo_hist'] = pvo['pvo_hist']
 ppo = bta.PPO(df)
 df['ppo'] = ppo['ppo']
 df['ppo_signal'] = ppo['ppo_signal']
 df['ppo_hist'] = ppo['ppo_hist']
+print(df.tail(25))

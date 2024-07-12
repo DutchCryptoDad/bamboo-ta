@@ -7,6 +7,40 @@ from .volatility import *
 from .utility import *
 
 
+def AwesomeOscillator(
+    high: pd.Series,
+    low: pd.Series,
+    window1: int = 5,
+    window2: int = 34,
+    fillna: bool = False,
+) -> pd.Series:
+    """Awesome Oscillator
+
+    Call with:
+        df['ao'] = bta.AwesomeOscillator(df['high'], df['low'], 5, 34)
+
+    Args:
+        high(pandas.Series): dataset 'High' column.
+        low(pandas.Series): dataset 'Low' column.
+        window1(int): short period.
+        window2(int): long period.
+        fillna(bool): if True, fill nan values with -50.
+
+    Returns:
+        pandas.Series: New feature generated.
+    """
+    median_price = 0.5 * (high + low)
+    min_periods_s = 0 if fillna else window1
+    min_periods_l = 0 if fillna else window2
+    ao = (
+        median_price.rolling(window1, min_periods=min_periods_s).mean()
+        - median_price.rolling(window2, min_periods=min_periods_l).mean()
+    )
+    if fillna:
+        ao = ao.fillna(0)
+    return ao
+
+
 def CMO(df, length=14):
     """
     Chande Momentum Oscillator (CMO)
@@ -157,6 +191,74 @@ def Inverse_Fisher_Transform(df, src='close', rsi_length=10, rsi_smoothing=5, e_
     return df_copy[['ift']]
 
 
+def KAMA(
+    close: pd.Series,
+    window: int = 10,
+    pow1: int = 2,
+    pow2: int = 30,
+    fillna: bool = False,
+) -> pd.Series:
+    """Kaufman's Adaptive Moving Average (KAMA)
+
+    Moving average designed to account for market noise or volatility. KAMA
+    will closely follow prices when the price swings are relatively small and
+    the noise is low. KAMA will adjust when the price swings widen and follow
+    prices from a greater distance. This trend-following indicator can be
+    used to identify the overall trend, time turning points and filter price
+    movements.
+
+    Call with:
+        df['kama'] = bta.KAMA(df['close'], 10, 2, 30)
+
+    Args:
+        close(pandas.Series): dataset 'Close' column.
+        window(int): n number of periods for the efficiency ratio.
+        pow1(int): number of periods for the fastest EMA constant.
+        pow2(int): number of periods for the slowest EMA constant.
+        fillna(bool): if True, fill nan values.
+
+    Returns:
+        pandas.Series: New feature generated.
+    """
+    close_values = close.values
+    vol = pd.Series(abs(close - np.roll(close, 1)))
+
+    min_periods = 0 if fillna else window
+    er_num = abs(close_values - np.roll(close_values, window))
+    er_den = vol.rolling(window, min_periods=min_periods).sum()
+    efficiency_ratio = np.divide(
+        er_num, er_den, out=np.zeros_like(er_num), where=er_den != 0
+    )
+
+    smoothing_constant = (
+        (
+            efficiency_ratio * (2.0 / (pow1 + 1) - 2.0 / (pow2 + 1.0))
+            + 2 / (pow2 + 1.0)
+        )
+        ** 2.0
+    ).values
+
+    kama = np.zeros(smoothing_constant.size)
+    len_kama = len(kama)
+    first_value = True
+
+    for i in range(len_kama):
+        if np.isnan(smoothing_constant[i]):
+            kama[i] = np.nan
+        elif first_value:
+            kama[i] = close_values[i]
+            first_value = False
+        else:
+            kama[i] = kama[i - 1] + smoothing_constant[i] * (
+                close_values[i] - kama[i - 1]
+            )
+    
+    kama_series = pd.Series(kama, index=close.index)
+    if fillna:
+        kama_series = kama_series.fillna(close)
+    return kama_series
+
+
 def MACD(df, column="close", short_window=12, long_window=26, signal_window=9):
     """
     Moving Average Convergence Divergence (MACD)
@@ -253,6 +355,122 @@ def MAStreak(df, period=4, column='close'):
     return SameLength(df_copy['close'], streak)
 
 
+def PPO(
+    df: pd.DataFrame,
+    close_col: str = 'close',
+    window_slow: int = 26,
+    window_fast: int = 12,
+    window_sign: int = 9,
+    fillna: bool = False
+) -> pd.DataFrame:
+    """
+    Percentage Price Oscillator (PPO) Combined Function
+
+    This function calculates and returns the PPO, PPO Signal, and PPO Histogram values.
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the close column.
+    - close_col (str): Name of the column containing close price data.
+    - window_slow (int): n period long-term.
+    - window_fast (int): n period short-term.
+    - window_sign (int): n period to signal.
+    - fillna (bool): if True, fill nan values.
+
+    Call with:
+        ppo = bta.PPO(df)
+        df['ppo'] = ppo['ppo']
+        df['ppo_signal'] = ppo['ppo_signal']
+        df['ppo_hist'] = ppo['ppo_hist']
+
+    Returns:
+    - pd.DataFrame: DataFrame with columns ['ppo', 'ppo_signal', 'ppo_hist'].
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    if close_col not in df.columns:
+        raise KeyError(f"DataFrame must contain '{close_col}' column")
+
+    close = df_copy[close_col]
+
+    # Calculate EMA
+    emafast = close.ewm(span=window_fast, adjust=False).mean()
+    emaslow = close.ewm(span=window_slow, adjust=False).mean()
+    ppo = ((emafast - emaslow) / emaslow) * 100
+
+    ppo_signal = ppo.ewm(span=window_sign, adjust=False).mean()
+    ppo_hist = ppo - ppo_signal
+
+    if fillna:
+        ppo = ppo.fillna(0)
+        ppo_signal = ppo_signal.fillna(0)
+        ppo_hist = ppo_hist.fillna(0)
+
+    df_copy['ppo'] = ppo
+    df_copy['ppo_signal'] = ppo_signal
+    df_copy['ppo_hist'] = ppo_hist
+
+    return df_copy[['ppo', 'ppo_signal', 'ppo_hist']]
+
+
+def PVO(
+    df: pd.DataFrame,
+    volume_col: str = 'volume',
+    window_slow: int = 26,
+    window_fast: int = 12,
+    window_sign: int = 9,
+    fillna: bool = False
+) -> pd.DataFrame:
+    """
+    Percentage Volume Oscillator (PVO) Combined Function
+    
+    This function calculates and returns the PVO, PVO Signal, and PVO Histogram values.
+
+    Call with:
+        pvo = bta.PVO(df)
+        df['pvo'] = pvo['pvo']
+        df['pvo_signal'] = pvo['pvo_signal']
+        df['pvo_hist'] = pvo['pvo_hist']
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the volume column.
+    - volume_col (str): Name of the column containing volume data.
+    - window_slow (int): n period long-term.
+    - window_fast (int): n period short-term.
+    - window_sign (int): n period to signal.
+    - fillna (bool): if True, fill nan values.
+
+    Returns:
+    - pd.DataFrame: DataFrame with columns ['pvo', 'pvo_signal', 'pvo_hist'].
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    if volume_col not in df.columns:
+        raise KeyError(f"DataFrame must contain '{volume_col}' column")
+
+    volume = df_copy[volume_col]
+
+    # Calculate EMA
+    emafast = volume.ewm(span=window_fast, adjust=False).mean()
+    emaslow = volume.ewm(span=window_slow, adjust=False).mean()
+    pvo = ((emafast - emaslow) / emaslow) * 100
+
+    pvo_signal = pvo.ewm(span=window_sign, adjust=False).mean()
+    pvo_hist = pvo - pvo_signal
+
+    if fillna:
+        pvo = pvo.fillna(0)
+        pvo_signal = pvo_signal.fillna(0)
+        pvo_hist = pvo_hist.fillna(0)
+
+    df_copy['pvo'] = pvo
+    df_copy['pvo_signal'] = pvo_signal
+    df_copy['pvo_hist'] = pvo_hist
+
+    return df_copy[['pvo', 'pvo_signal', 'pvo_hist']]
+
+
 def RMI(df, length=20, mom=5):
     """
     Relative Momentum Index (RMI)
@@ -326,6 +544,7 @@ def SROC(df, roclen=21, emalen=13, smooth=21):
     sroc = ROC(pd.DataFrame(ema), column='close', period=smooth)
     
     return sroc
+
 
 def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0):
     """
@@ -450,83 +669,6 @@ def WaveTrend_Oscillator(df, src, n1=8, n2=12):
     df_copy['wavetrend'] = wavetrend.round(2)
     
     return df_copy[['wavetrend']]
-
-
-def RSI(df, column="close", period=14):
-    """
-    Relative Strength Index (RSI)
-
-    Call with:
-        df['rsi'] = bta.RSI(df, "close", 14)
-
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
-    - column (str): The column on which RSI is to be calculated. Default is "close".
-    - period (int): The period over which RSI is to be calculated. Default is 14.
-
-    Returns:
-    - pandas.Series: A series of RSI values.
-
-    Description:
-    RSI measures the magnitude of recent price changes to evaluate overbought or oversold conditions in the price of a stock or other asset.
-    """
-    delta = df[column].diff(1)
-    gain = delta.where(delta > 0, 0)
-    loss = -delta.where(delta < 0, 0)
-
-    avg_gain = gain.rolling(window=period, min_periods=1).mean()
-    avg_loss = loss.rolling(window=period, min_periods=1).mean()
-
-    for i in range(period, len(df)):
-        avg_gain[i] = (avg_gain[i-1] * (period - 1) + gain[i]) / period
-        avg_loss[i] = (avg_loss[i-1] * (period - 1) + loss[i]) / period
-
-    rs = avg_gain / avg_loss
-    rsi = 100 - (100 / (1 + rs))
-
-    return rsi
-
-
-def SMI_Momentum(df, k_length=9, d_length=3):
-    """ 
-    The Stochastic Momentum Index (SMI) Indicator
-    
-    The Stochastic Momentum Index (SMI) Indicator was developed by 
-    William Blau in 1993 and is considered to be a momentum indicator 
-    that can help identify trend reversal points
-
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'close' columns.
-    - k_length (int): Period for %K.
-    - d_length (int): Period for %D.
-
-    Call with:
-        smi = bta.SMI_Momentum(df)
-        df['smi'] = smi['smi']
-
-    Returns:
-    - pd.DataFrame: DataFrame with smi column populated.
-    """
-    df_copy = df.copy()
-
-    # Ensure the DataFrame contains the required columns
-    required_columns = ['high', 'low', 'close']
-    for col in required_columns:
-        if col not in df.columns:
-            raise KeyError(f"DataFrame must contain '{col}' column")
-
-    ll = df_copy['low'].rolling(window=k_length).min()
-    hh = df_copy['high'].rolling(window=k_length).max()
-
-    diff = hh - ll
-    rdiff = df_copy['close'] - (hh + ll) / 2
-
-    avgrel = rdiff.ewm(span=d_length).mean().ewm(span=d_length).mean()
-    avgdiff = diff.ewm(span=d_length).mean().ewm(span=d_length).mean()
-
-    df_copy['smi'] = np.where(avgdiff != 0, (avgrel / (avgdiff / 2) * 100), 0)
-    
-    return df_copy[['smi']]
 
 
 def QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollinger_length=50, bb_multiplier=0.35,
@@ -662,6 +804,169 @@ def QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollin
     df_copy['QQE_Down'] = np.where(redbar1 & redbar2, rsi_ma2 - 50, np.nan).round(2)
 
     return df_copy[['QQE_Line', 'Histo2', 'QQE_Up', 'QQE_Down']]
+
+
+def ROC(close: pd.Series, window: int = 12, fillna: bool = False) -> pd.Series:
+    """Rate of Change (ROC)
+
+    The Rate-of-Change (ROC) indicator, which is also referred to as simply
+    Momentum, is a pure momentum oscillator that measures the percent change in
+    price from one period to the next. The ROC calculation compares the current
+    price with the price “n” periods ago. The plot forms an oscillator that
+    fluctuates above and below the zero line as the Rate-of-Change moves from
+    positive to negative. As a momentum oscillator, ROC signals include
+    centerline crossovers, divergences and overbought-oversold readings.
+    Divergences fail to foreshadow reversals more often than not, so this
+    article will forgo a detailed discussion on them. Even though centerline
+    crossovers are prone to whipsaw, especially short-term, these crossovers
+    can be used to identify the overall trend. Identifying overbought or
+    oversold extremes comes naturally to the Rate-of-Change oscillator.
+
+    Call with:
+        df['roc'] = bta.ROC(df['close'], 12)
+    
+    Args:
+        close(pandas.Series): dataset 'Close' column.
+        window(int): n periods.
+        fillna(bool): if True, fill nan values.
+
+    Returns:
+        pandas.Series: New feature generated.
+    """
+    roc = ((close - close.shift(window)) / close.shift(window)) * 100
+    if fillna:
+        roc = roc.fillna(0)
+    return roc
+
+
+def RSI(df, column="close", period=14):
+    """
+    Relative Strength Index (RSI)
+
+    Call with:
+        df['rsi'] = bta.RSI(df, "close", 14)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
+    - column (str): The column on which RSI is to be calculated. Default is "close".
+    - period (int): The period over which RSI is to be calculated. Default is 14.
+
+    Returns:
+    - pandas.Series: A series of RSI values.
+
+    Description:
+    RSI measures the magnitude of recent price changes to evaluate overbought or oversold conditions in the price of a stock or other asset.
+    """
+    delta = df[column].diff(1)
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+
+    avg_gain = gain.rolling(window=period, min_periods=1).mean()
+    avg_loss = loss.rolling(window=period, min_periods=1).mean()
+
+    for i in range(period, len(df)):
+        avg_gain[i] = (avg_gain[i-1] * (period - 1) + gain[i]) / period
+        avg_loss[i] = (avg_loss[i-1] * (period - 1) + loss[i]) / period
+
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+
+    return rsi
+
+
+def SMI_Momentum(df, k_length=9, d_length=3):
+    """ 
+    The Stochastic Momentum Index (SMI) Indicator
+    
+    The Stochastic Momentum Index (SMI) Indicator was developed by 
+    William Blau in 1993 and is considered to be a momentum indicator 
+    that can help identify trend reversal points
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'close' columns.
+    - k_length (int): Period for %K.
+    - d_length (int): Period for %D.
+
+    Call with:
+        smi = bta.SMI_Momentum(df)
+        df['smi'] = smi['smi']
+
+    Returns:
+    - pd.DataFrame: DataFrame with smi column populated.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    ll = df_copy['low'].rolling(window=k_length).min()
+    hh = df_copy['high'].rolling(window=k_length).max()
+
+    diff = hh - ll
+    rdiff = df_copy['close'] - (hh + ll) / 2
+
+    avgrel = rdiff.ewm(span=d_length).mean().ewm(span=d_length).mean()
+    avgdiff = diff.ewm(span=d_length).mean().ewm(span=d_length).mean()
+
+    df_copy['smi'] = np.where(avgdiff != 0, (avgrel / (avgdiff / 2) * 100), 0)
+    
+    return df_copy[['smi']]
+
+
+def StochRSI(
+    df: pd.DataFrame,
+    close_col: str = 'close',
+    window: int = 14,
+    smooth1: int = 3,
+    smooth2: int = 3,
+    fillna: bool = False
+) -> pd.DataFrame:
+    """
+    Stochastic RSI
+
+    Call with:
+        stoch_rsi = bta.StochRSI(df, 'close', 14, 3, 3)
+        df['stoch_rsi'] = stoch_rsi['stoch_rsi']
+        df['stoch_rsi_k'] = stoch_rsi['stoch_rsi_k']
+        df['stoch_rsi_d'] = stoch_rsi['stoch_rsi_d']
+
+    Args:
+        df (pd.DataFrame): Input DataFrame which should contain the close column.
+        close_col (str): Name of the column containing close price data.
+        window (int): Lookback period for RSI (default is 14).
+        smooth1 (int): Smoothing period for %K line (default is 3).
+        smooth2 (int): Smoothing period for %D line (default is 3).
+        fillna (bool): If True, fill nan values (default is False).
+
+    Returns:
+        pd.DataFrame: DataFrame with columns ['stoch_rsi', 'stoch_rsi_k', 'stoch_rsi_d'].
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required column
+    if close_col not in df.columns:
+        raise KeyError(f"DataFrame must contain '{close_col}' column")
+
+    rsi = RSI(df, close_col, window)
+    lowest_low_rsi = rsi.rolling(window).min()
+    highest_high_rsi = rsi.rolling(window).max()
+    stoch_rsi = (rsi - lowest_low_rsi) / (highest_high_rsi - lowest_low_rsi)
+    stoch_rsi_k = stoch_rsi.rolling(smooth1).mean()
+    stoch_rsi_d = stoch_rsi_k.rolling(smooth2).mean()
+
+    if fillna:
+        stoch_rsi = stoch_rsi.fillna(0)
+        stoch_rsi_k = stoch_rsi_k.fillna(0)
+        stoch_rsi_d = stoch_rsi_d.fillna(0)
+
+    df_copy['stoch_rsi'] = stoch_rsi
+    df_copy['stoch_rsi_k'] = stoch_rsi_k
+    df_copy['stoch_rsi_d'] = stoch_rsi_d
+
+    return df_copy[['stoch_rsi', 'stoch_rsi_k', 'stoch_rsi_d']]
 
 
 def TSI(close: pd.Series, window_slow: int = 25, window_fast: int = 13, fillna: bool = False) -> pd.Series:
@@ -839,283 +1144,3 @@ def WilliamsR(
         wr = wr.fillna(-50)
     return wr
 
-
-def StochRSI(
-    close: pd.Series,
-    window: int = 14,
-    smooth1: int = 3,
-    smooth2: int = 3,
-    fillna: bool = False,
-) -> pd.Series:
-    """Stochastic RSI
-
-    Call with:
-        df['stoch_rsi'] = bta.StochRSI(df['close'], 14, 3, 3)
-
-    Args:
-        close(pandas.Series): dataset 'Close' column.
-        window(int): n period.
-        smooth1(int): moving average of Stochastic RSI.
-        smooth2(int): moving average of %K.
-        fillna(bool): if True, fill nan values.
-
-    Returns:
-        pandas.Series: New feature generated.
-    """
-    rsi = RSI(close, window, fillna)
-    lowest_low_rsi = rsi.rolling(window).min()
-    stochrsi = (rsi - lowest_low_rsi) / (rsi.rolling(window).max() - lowest_low_rsi)
-    if fillna:
-        stochrsi = stochrsi.fillna(0)
-    return stochrsi
-
-
-def PPO(
-    df: pd.DataFrame,
-    close_col: str = 'close',
-    window_slow: int = 26,
-    window_fast: int = 12,
-    window_sign: int = 9,
-    fillna: bool = False
-) -> pd.DataFrame:
-    """
-    Percentage Price Oscillator (PPO) Combined Function
-
-    This function calculates and returns the PPO, PPO Signal, and PPO Histogram values.
-
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the close column.
-    - close_col (str): Name of the column containing close price data.
-    - window_slow (int): n period long-term.
-    - window_fast (int): n period short-term.
-    - window_sign (int): n period to signal.
-    - fillna (bool): if True, fill nan values.
-
-    Call with:
-        ppo = bta.PPO(df)
-        df['ppo'] = ppo['ppo']
-        df['ppo_signal'] = ppo['ppo_signal']
-        df['ppo_hist'] = ppo['ppo_hist']
-
-    Returns:
-    - pd.DataFrame: DataFrame with columns ['ppo', 'ppo_signal', 'ppo_hist'].
-    """
-    df_copy = df.copy()
-
-    # Ensure the DataFrame contains the required columns
-    if close_col not in df.columns:
-        raise KeyError(f"DataFrame must contain '{close_col}' column")
-
-    close = df_copy[close_col]
-
-    # Assuming EMA from trend.py is imported correctly
-    emafast = EMA(close, window_fast, fillna)
-    emaslow = EMA(close, window_slow, fillna)
-    ppo = ((emafast - emaslow) / emaslow) * 100
-
-    ppo_signal = EMA(ppo, window_sign, fillna)
-    ppo_hist = ppo - ppo_signal
-
-    if fillna:
-        ppo = ppo.fillna(0)
-        ppo_signal = ppo_signal.fillna(0)
-        ppo_hist = ppo_hist.fillna(0)
-
-    df_copy['ppo'] = ppo
-    df_copy['ppo_signal'] = ppo_signal
-    df_copy['ppo_hist'] = ppo_hist
-
-    return df_copy[['ppo', 'ppo_signal', 'ppo_hist']]
-
-
-def PVO(
-    df: pd.DataFrame,
-    volume_col: str = 'volume',
-    window_slow: int = 26,
-    window_fast: int = 12,
-    window_sign: int = 9,
-    fillna: bool = False
-) -> pd.DataFrame:
-    """
-    Percentage Volume Oscillator (PVO) Combined Function
-    
-    This function calculates and returns the PVO, PVO Signal, and PVO Histogram values.
-
-    Call with:
-        pvo = bta.PVO(df)
-        df['pvo'] = pvo['pvo']
-        df['pvo_signal'] = pvo['pvo_signal']
-        df['pvo_hist'] = pvo['pvo_hist']
-
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the volume column.
-    - volume_col (str): Name of the column containing volume data.
-    - window_slow (int): n period long-term.
-    - window_fast (int): n period short-term.
-    - window_sign (int): n period to signal.
-    - fillna (bool): if True, fill nan values.
-
-    Returns:
-    - pd.DataFrame: DataFrame with columns ['pvo', 'pvo_signal', 'pvo_hist'].
-    """
-    df_copy = df.copy()
-
-    # Ensure the DataFrame contains the required columns
-    if volume_col not in df.columns:
-        raise KeyError(f"DataFrame must contain '{volume_col}' column")
-
-    volume = df_copy[volume_col]
-
-    # Assuming EMA from trend.py is imported correctly
-    emafast = EMA(volume, window_fast, fillna)
-    emaslow = EMA(volume, window_slow, fillna)
-    pvo = ((emafast - emaslow) / emaslow) * 100
-
-    pvo_signal = EMA(pvo, window_sign, fillna)
-    pvo_hist = pvo - pvo_signal
-
-    if fillna:
-        pvo = pvo.fillna(0)
-        pvo_signal = pvo_signal.fillna(0)
-        pvo_hist = pvo_hist.fillna(0)
-
-    df_copy['pvo'] = pvo
-    df_copy['pvo_signal'] = pvo_signal
-    df_copy['pvo_hist'] = pvo_hist
-
-    return df_copy[['pvo', 'pvo_signal', 'pvo_hist']]
-
-
-def KAMA(
-    close: pd.Series,
-    window: int = 10,
-    pow1: int = 2,
-    pow2: int = 30,
-    fillna: bool = False,
-) -> pd.Series:
-    """Kaufman's Adaptive Moving Average (KAMA)
-
-    Moving average designed to account for market noise or volatility. KAMA
-    will closely follow prices when the price swings are relatively small and
-    the noise is low. KAMA will adjust when the price swings widen and follow
-    prices from a greater distance. This trend-following indicator can be
-    used to identify the overall trend, time turning points and filter price
-    movements.
-
-    Call with:
-        df['kama'] = bta.KAMA(df['close'], 10, 2, 30)
-
-    Args:
-        close(pandas.Series): dataset 'Close' column.
-        window(int): n number of periods for the efficiency ratio.
-        pow1(int): number of periods for the fastest EMA constant.
-        pow2(int): number of periods for the slowest EMA constant.
-        fillna(bool): if True, fill nan values.
-
-    Returns:
-        pandas.Series: New feature generated.
-    """
-    close_values = close.values
-    vol = pd.Series(abs(close - np.roll(close, 1)))
-
-    min_periods = 0 if fillna else window
-    er_num = abs(close_values - np.roll(close_values, window))
-    er_den = vol.rolling(window, min_periods=min_periods).sum()
-    efficiency_ratio = np.divide(
-        er_num, er_den, out=np.zeros_like(er_num), where=er_den != 0
-    )
-
-    smoothing_constant = (
-        (
-            efficiency_ratio * (2.0 / (pow1 + 1) - 2.0 / (pow2 + 1.0))
-            + 2 / (pow2 + 1.0)
-        )
-        ** 2.0
-    ).values
-
-    kama = np.zeros(smoothing_constant.size)
-    len_kama = len(kama)
-    first_value = True
-
-    for i in range(len_kama):
-        if np.isnan(smoothing_constant[i]):
-            kama[i] = np.nan
-        elif first_value:
-            kama[i] = close_values[i]
-            first_value = False
-        else:
-            kama[i] = kama[i - 1] + smoothing_constant[i] * (
-                close_values[i] - kama[i - 1]
-            )
-    
-    kama_series = pd.Series(kama, index=close.index)
-    if fillna:
-        kama_series = kama_series.fillna(close)
-    return kama_series
-
-
-def ROC(close: pd.Series, window: int = 12, fillna: bool = False) -> pd.Series:
-    """Rate of Change (ROC)
-
-    The Rate-of-Change (ROC) indicator, which is also referred to as simply
-    Momentum, is a pure momentum oscillator that measures the percent change in
-    price from one period to the next. The ROC calculation compares the current
-    price with the price “n” periods ago. The plot forms an oscillator that
-    fluctuates above and below the zero line as the Rate-of-Change moves from
-    positive to negative. As a momentum oscillator, ROC signals include
-    centerline crossovers, divergences and overbought-oversold readings.
-    Divergences fail to foreshadow reversals more often than not, so this
-    article will forgo a detailed discussion on them. Even though centerline
-    crossovers are prone to whipsaw, especially short-term, these crossovers
-    can be used to identify the overall trend. Identifying overbought or
-    oversold extremes comes naturally to the Rate-of-Change oscillator.
-
-    Call with:
-        df['roc'] = bta.ROC(df['close'], 12)
-    
-    Args:
-        close(pandas.Series): dataset 'Close' column.
-        window(int): n periods.
-        fillna(bool): if True, fill nan values.
-
-    Returns:
-        pandas.Series: New feature generated.
-    """
-    roc = ((close - close.shift(window)) / close.shift(window)) * 100
-    if fillna:
-        roc = roc.fillna(0)
-    return roc
-
-
-def AwesomeOscillator(
-    high: pd.Series,
-    low: pd.Series,
-    window1: int = 5,
-    window2: int = 34,
-    fillna: bool = False,
-) -> pd.Series:
-    """Awesome Oscillator
-
-    Call with:
-        df['ao'] = bta.AwesomeOscillator(df['high'], df['low'], 5, 34)
-
-    Args:
-        high(pandas.Series): dataset 'High' column.
-        low(pandas.Series): dataset 'Low' column.
-        window1(int): short period.
-        window2(int): long period.
-        fillna(bool): if True, fill nan values with -50.
-
-    Returns:
-        pandas.Series: New feature generated.
-    """
-    median_price = 0.5 * (high + low)
-    min_periods_s = 0 if fillna else window1
-    min_periods_l = 0 if fillna else window2
-    ao = (
-        median_price.rolling(window1, min_periods=min_periods_s).mean()
-        - median_price.rolling(window2, min_periods=min_periods_l).mean()
-    )
-    if fillna:
-        ao = ao.fillna(0)
-    return ao
