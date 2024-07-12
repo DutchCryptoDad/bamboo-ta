@@ -287,4 +287,103 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 # df['zema'] = bta.ZEMA(df, period=21, column='close')
 
-print(df.tail(25))
+# print(df.tail(25))
+
+### Indicatormin
+# import pandas as pd
+# import numpy as np
+
+# # Sample data
+# data = {
+#     'high': [1, 2, 3, 4, 5],
+#     'low': [0.5, 1.5, 2.5, 3.5, 4.5],
+#     'close': [0.8, 1.8, 2.8, 3.8, 4.8]
+# }
+# df = pd.DataFrame(data)
+# df['prev_close'] = df['close'].shift(1)
+
+# # Instantiate IndicatorMixin
+# indicator = bta.IndicatorMixin()
+
+# # Test _check_fillna
+# series = pd.Series([np.nan, 2, np.nan, 4, 5])
+# indicator._fillna = True
+# filled_series = indicator._check_fillna(series, value=0)
+# print("Filled series:")
+# print(filled_series)
+
+# # Test _true_range
+# true_range = indicator._true_range(df['high'], df['low'], df['prev_close'])
+# print("True Range:")
+# print(true_range)
+
+
+## DropNA function
+# Sample data with NaNs
+data_with_nans = {
+    'A': [1, 2, np.nan, 4, 5],
+    'B': [5, 4, np.nan, 2, 1],
+    'C': [np.nan, 2, 3, np.nan, 5]
+}
+df_with_nans = pd.DataFrame(data_with_nans)
+
+# Test dropna function
+cleaned_df = bta.dropna(df_with_nans)
+print("DataFrame after dropna:")
+print(cleaned_df)
+
+###SMA Example
+# # Sample series
+# series = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+
+# # Test _sma function
+# sma_series = bta._sma(series, periods=3)
+# print("Simple Moving Average:")
+# print(sma_series)
+
+# # Sample series
+# series = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+
+# # Test _ema function
+# ema_series = _ema(series, periods=3)
+# print("Exponential Moving Average:")
+# print(ema_series)
+
+
+# ## GetMinMax
+# # Sample series
+# series1 = pd.Series([1, 2, 3, 4, 5])
+# series2 = pd.Series([5, 4, 3, 2, 1])
+
+# # Test _get_min_max function for min
+# min_series = bta.get_min_max(series1, series2, function="min")
+# print("Min of series1 and series2:")
+# print(min_series)
+
+# # Test _get_min_max function for max
+# max_series = bta.get_min_max(series1, series2, function="max")
+# print("Max of series1 and series2:")
+# print(max_series)
+
+df['tsi'] = bta.TSI(df['close'], 25, 13)
+df['uo'] = bta.UltimateOscillator(df['high'], df['low'], df['close'], 7, 14, 28)
+stoch = bta.StochasticsOscillator(df, 'high', 'low', 'close', 14, 3)
+df['stoch'] = stoch['stoch']
+df['stoch_signal'] = stoch['stoch_signal']
+df['stoch_hist'] = stoch['stoch_hist']
+df['williams_r'] = bta.WilliamsR(df['high'], df['low'], df['close'], 14)
+df['stoch_rsi'] = bta.StochRSI(df['close'], 14, 3, 3)
+df['kama'] = bta.KAMA(df['close'], 10, 2, 30)
+df['ao'] = bta.AwesomeOscillator(df['high'], df['low'], 5, 34)
+pvo = bta.PVOCombined(df)
+df['pvo'] = pvo['pvo']
+df['pvo_signal'] = pvo['pvo_signal']
+df['pvo_hist'] = pvo['pvo_hist']
+pvo = bta.PVO(df)
+df['pvo'] = pvo['pvo']
+df['pvo_signal'] = pvo['pvo_signal']
+df['pvo_hist'] = pvo['pvo_hist']
+ppo = bta.PPO(df)
+df['ppo'] = ppo['ppo']
+df['ppo_signal'] = ppo['ppo_signal']
+df['ppo_hist'] = ppo['ppo_hist']

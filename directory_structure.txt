@@ -832,6 +832,8 @@ def LSMA(df, column="close", period=21):
 def PCC(df, period=20, mult=2):
     """
     Percent Change Channel (PCC)
+    PCC is like KC unless it uses percentage changes in price to set channel distance.
+    https://www.tradingview.com/script/6wwAWXA1-MA-Streak-Change-Channel/
 
     Call with:
         upper, rangema, lower = bta.PCC(df, period=20, mult=2)
@@ -903,6 +905,8 @@ def SMA(df, column="close", period=21):
 def SSLChannels(df, length=10, mode='sma'):
     """
     SSL Channels
+    Source: https://www.tradingview.com/script/xzIoaIJC-SSL-channel/
+    Source: https://github.com/freqtrade/technical/blob/master/technical/indicators/indicators.py#L1025
 
     Call with:
         ssl_down, ssl_up = bta.SSLChannels(df, length=10, mode='sma')
@@ -936,6 +940,7 @@ def SSLChannels(df, length=10, mode='sma'):
 def SSLChannelsATR(df, length=7):
     """
     SSL Channels with ATR
+    SSL Channels with ATR: https://www.tradingview.com/script/SKHqWzql-SSL-ATR-channel/
 
     Call with:
         ssl_down, ssl_up = bta.SSLChannelsATR(df, length=7)
@@ -979,6 +984,7 @@ def STDEV(series, period):
 def T3(df, length=5):
     """
     T3 Average by HPotter
+    https://www.tradingview.com/script/qzoC9H1I-T3-Average/
 
     Call with:
         df['t3_average'] = bta.T3(df, length=5)
@@ -1041,6 +1047,8 @@ def WMA(df, column="close", period=9):
 def ZEMA(df, period, column='close'):
     """
     Zero Lag Exponential Moving Average (ZEMA)
+    Source: https://github.com/freqtrade/technical/blob/master/technical/indicators/overlap_studies.py#L79
+    Modified slightly to use ta.EMA instead of technical ema
 
     Call with:
         df['zema'] = bta.ZEMA(df, period=21, column='close')
@@ -1568,7 +1576,8 @@ def MACD_Leader(df, src, fast_length=12, slow_length=26, signal_length=9):
 def MAStreak(df, period=4, column='close'):
     """
     MA Streak
-
+    Port of: https://www.tradingview.com/script/Yq1z7cIv-MA-Streak-Can-Show-When-a-Run-Is-Getting-Long-in-the-Tooth/
+    
     Call with:
         df['mastreak'] = bta.MAStreak(df, period=4, column='close')
 
@@ -1595,6 +1604,7 @@ def MAStreak(df, period=4, column='close'):
 def RMI(df, length=20, mom=5):
     """
     Relative Momentum Index (RMI)
+    Source: https://github.com/freqtrade/technical/blob/master/technical/indicators/indicators.py#L912
 
     Call with:
         df['rmi'] = bta.RMI(df, length=20, mom=5)
@@ -1624,7 +1634,7 @@ def ROC(df, column='close', period=21):
     Rate of Change (ROC)
 
     Call with:
-        df['roc'] = bta.ROC(df, roclen=21, emalen=13, smooth=21)
+        df['roc'] = bta.ROC(df, column='close', period=21)
 
     Args:
     df (pd.DataFrame): DataFrame containing the data.
@@ -1728,6 +1738,7 @@ def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, 
 def WaveTrend(df, chlen=10, avg=21, smalen=4):
     """
     WaveTrend Oscillator by LazyBear
+    https://www.tradingview.com/script/2KE8wTuF-Indicator-WaveTrend-Oscillator-WT/
 
     Call with:
         wt1, wt2 = bta.WaveTrend(df, chlen=10, avg=21, smalen=4)
