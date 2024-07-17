@@ -393,7 +393,94 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['ppo_signal'] = ppo['ppo_signal']
 # df['ppo_hist'] = ppo['ppo_hist']
 
+# cr = bta.Cumulative_Return(df)
+# df['cumulative_return'] = cr
 
+# dlr = bta.Daily_Log_Return(df)
+# df['daily_log_return'] = dlr
+
+# dr = bta.Daily_Return(df)
+# df['daily_return'] = dr
+
+# min_max_series = bta.get_min_max(series1, series2, function)
+# df['min_max'] = min_max_series
+
+# ema = bta._ema(series, periods)
+# df['ema'] = ema
+
+# sma = _sma(series, periods)
+# df['sma'] = sma
+
+# dropna = bta.dropna(df)
+
+# zscore = bta.ZScore(series)
+# df['zscore'] = zscore
+
+# tr = bta.True_Range(df)
+# df['true_range'] = tr
+
+# padded_array = SameLength(bigger, shorter)
+
+# leledc_major_minor = populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len)
+
+# grown_value = Linear_Growth(start, end, start_time, end_time, trade_time)
+
+# count = Consecutive_Count(consecutive_diff)
+
+# maj_len, min_len = bta.Calculate_Exhaustion_Lengths(df)
+# df['maj_len'] = maj_len
+# df['min_len'] = min_len
+
+# maj_qual, min_qual = bta.Calculate_Exhaustion_Candles(df, window=3, multiplier=2)
+# df['maj_qual'] = maj_qual
+# df['min_qual'] = min_qual
+
+# Example usage:
+# df = pd.DataFrame({'close': [1, 2, 3, 2, 1, 2, 3]})
+# window = 3
+# multiplier = 2
+# maj_qual, min_qual = bta.Calculate_Exhaustion_Candles(df, window, multiplier)
+# df['maj_qual'] = maj_qual
+# df['min_qual'] = min_qual
+
+# atr = bta.ATR(df)
+# df['atr'] = atr
+
+# adi = bta.Accumulation_Distribution_Index(high=df['high'], low=df['low'], close=df['close'], volume=df['volume'], fillna=True)
+# df['adi'] = adi
+
+# cmf_df = bta.Chaikin_Money_Flow(df, src_cols=('high', 'low', 'close', 'volume'), window=20, fillna=True)
+# df['cmf'] = cmf_df['cmf']
+
+# eom_df = bta.Ease_Of_Movement(df, src_cols=('high', 'low', 'volume'), window=14, fillna=True)
+# df['eom'] = eom_df['eom']
+
+# seom_df = bta.Sma_Ease_Of_Movement(df, src_cols=('high', 'low', 'volume'), window=14, fillna=True)
+# df['seom'] = seom_df['seom']
+
+# fi_df = bta.Force_Index(df, src_cols=('close', 'volume'), window=13, fillna=True)
+# df['fi'] = fi_df['fi']
+
+# mfi_df = bta.Money_Flow_Index(df, src_cols=('high', 'low', 'close', 'volume'), window=14, fillna=True)
+# df['mfi'] = mfi_df['mfi']
+
+# nvi_df = bta.Negative_Volume_Index(df, src_cols=('close', 'volume'), fillna=True)
+# df['nvi'] = nvi_df['nvi']
+
+
+# obv_df = bta.On_Balance_Volume(df, src_cols=('close', 'volume'), fillna=True)
+# df['obv'] = obv_df['obv']
+
+
+# obv_osc_df = bta.OBV_Oscillator(df, src_cols=('close', 'volume'), channel=10, average=21, fillna=True)
+# df['OBV_Oscillator'] = obv_osc_df['OBV_Oscillator']
+
+# vpt_df =bta.Volume_Price_Trend(df, src_cols=('close', 'volume'), fillna=True, smoothing_factor=10, dropnans=True)
+# df['Volume_Price_Trend'] = vpt_df['Volume_Price_Trend']
+
+# vwap_df = bta.Volume_Weighted_Average_Price(df, src_cols=('high', 'low', 'close', 'volume'), window=14, fillna=True)
+# df['Volume_Weighted_Average_Price'] = vwap_df['Volume_Weighted_Average_Price']
 
 
 print(df.tail(25))
+
