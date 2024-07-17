@@ -5,6 +5,8 @@ The project is organized into the following directories:
 │   ├── bamboo_ta/
 │   └── requirements.txt
 │   └── setup.py
+│   └── test copy.py
+│   └── prompts.md
 │   ├── bamboo_ta/
 │   │   └── __init__.py
 │   │   └── statistics.py
@@ -78,6 +80,1041 @@ setup(
 
     ----- End of setup.py -----
 
+    test copy.py
+
+    ----- Start of test copy.py -----
+
+# -*- coding: utf-8 -*-
+# Import necessary libraries
+# Importeer necessary libraries
+import bamboo_ta.bamboo_ta as bta
+#import pandas_ta as pta
+import pandas as pd
+from pandas import DataFrame
+import numpy as np
+
+# Create dataframe
+# create dataframe and read the json data in the datasets directory
+df = pd.read_json("./BTC_USDT-1d.json")
+# name the columns that are loaded into the dataframe
+df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
+# the date column consists of unix time in milliseconds, so this command changes this data into human readable form.
+df['date'] = (pd.to_datetime(df['date'], unit='ms'))
+# ========================================
+
+# TREND CALCULATIONS
+
+# # Simple Moving Average
+# df['sma'] = bta.SMA(df, "close", 50)  # correct
+# # Exponential Moving Average
+# df['ema'] = bta.EMA(df, "close", 50)  # correct
+# # Least squares moving average
+# df['lsma'] = bta.LSMA(df, "close", 50)  # correct
+
+# RESULTS:
+#            date      open      high       low     close        volume         sma           ema          lsma
+# 1967 2023-01-05  16850.36  16879.82  16753.00  16831.85  163473.56641  16793.0500  17123.708932  16908.227482
+# 1968 2023-01-06  16831.85  17041.00  16679.00  16950.65  207401.28415  16798.2118  17116.922308  16916.445059
+# 1969 2023-01-07  16950.31  16981.91  16908.00  16943.57  104526.56880  16803.0742  17110.124178  16923.821224
+# 1970 2023-01-08  16943.83  17176.99  16911.00  17127.83  135155.89695  16811.6172  17110.818524  16944.941788
+# 1971 2023-01-09  17127.83  17398.80  17104.66  17178.26  266211.52723  16829.5778  17113.463288  16952.155035
+
+# # VOLATILITY CALCULATIONS
+# bb_result = bta.BollingerBands(df, "close", 21, 2, 0)
+# df['bb_upper'] = bb_result['BB_upper']
+# df['bb_middle'] = bb_result['BB_middle']
+# df['bb_lower'] = bb_result['BB_lower']
+
+
+# # Based on Pandas TA
+# lng = 21
+# dev = 2
+
+# df['bb_upper'] = pta.bbands(close=df['close'], length=lng,
+#                             std=dev, mamode=None, offset=None)[f'BBU_{lng}_{dev}.0']
+# df['bb_middle'] = pta.bbands(close=df['close'], length=lng,
+#                              std=dev, mamode=None, offset=None)[f'BBM_{lng}_{dev}.0']
+# df['bb_lower'] = pta.bbands(close=df['close'], length=lng,
+#                             std=dev, mamode=None, offset=None)[f'BBL_{lng}_{dev}.0']
+
+# RESULT OF BOLLINGER CHECKS:
+# python test.py
+#            date      open      high       low     close        volume      BB_upper     BB_middle      BB_lower      bb_upper     bb_middle      bb_lower
+# 1967 2023-01-05  16850.36  16879.82  16753.00  16831.85  163473.56641  16976.289552  16722.740000  16469.190448  16976.289552  16722.740000  16469.190448
+# 1968 2023-01-06  16831.85  17041.00  16679.00  16950.65  207401.28415  17005.670681  16737.908095  16470.145510  17005.670681  16737.908095  16470.145510
+# 1969 2023-01-07  16950.31  16981.91  16908.00  16943.57  104526.56880  17027.316671  16745.862857  16464.409044  17027.316671  16745.862857  16464.409044
+# 1970 2023-01-08  16943.83  17176.99  16911.00  17127.83  135155.89695  17089.406121  16764.416190  16439.426259  17089.406121  16764.416190  16439.426259
+# 1971 2023-01-09  17127.83  17398.80  17104.66  17178.26  266211.52723  17135.923174  16799.624762  16463.326350  17135.923174  16799.624762  16463.326350
+
+
+# MOMENTUM INDICATORS
+
+# # RSI
+# df['rsi'] = bta.RSI(df, "close", 14)
+# df['p_rsi'] = pta.rsi(close=df['close'], length=14)
+
+#  /bamboo-ta on  main ≡  ~5
+# ➜  python test.py
+#            date      open      high       low     close        volume        rsi      p_rsi
+# 1967 2023-01-05  16850.36  16879.82  16753.00  16831.85  163473.56641  50.071524  50.071524
+# 1968 2023-01-06  16831.85  17041.00  16679.00  16950.65  207401.28415  53.243658  53.243658
+# 1969 2023-01-07  16950.31  16981.91  16908.00  16943.57  104526.56880  53.027433  53.027433
+# 1970 2023-01-08  16943.83  17176.99  16911.00  17127.83  135155.89695  57.827520  57.827520
+# 1971 2023-01-09  17127.83  17398.80  17104.66  17178.26  266211.52723  59.060593  59.060593
+
+# MACD
+# macd_result = bta.MACD(df, "close", 12, 26, 9)
+# df['macd'] = macd_result['MACD']
+# df['macd_signal'] = macd_result['MACD_signal']
+# df['macd_histogram'] = macd_result['MACD_histogram']
+
+# # Pandas MACD
+# pta.macd(close=df['close'], fast=None, slow=None,
+#          signal=None, offset=None).tail(5)
+# df['P_macd'] = pta.macd(close=df['close'], fast=None,
+#                         slow=None, signal=None, offset=None)['MACD_12_26_9']
+# df['P_macs'] = pta.macd(close=df['close'], fast=None,
+#                         slow=None, signal=None, offset=None)['MACDs_12_26_9']
+# df['P_macdh'] = pta.macd(close=df['close'], fast=None,
+#                          slow=None, signal=None, offset=None)['MACDh_12_26_9']
+
+#  /bamboo-ta on  main ≡  ~13
+# ➜  python test.py
+#            date      open      high       low     close        volume       macd  macd_signal  macd_histogram     P_macd      P_macs    P_macdh
+# 1967 2023-01-05  16850.36  16879.82  16753.00  16831.85  163473.56641 -83.250482  -111.409248       28.158766 -83.250482 -111.409248  28.158766
+# 1968 2023-01-06  16831.85  17041.00  16679.00  16950.65  207401.28415 -60.071674  -101.141734       41.070059 -60.071674 -101.141734  41.070059
+# 1969 2023-01-07  16950.31  16981.91  16908.00  16943.57  104526.56880 -41.791848   -89.271757       47.479908 -41.791848  -89.271757  47.479908
+# 1970 2023-01-08  16943.83  17176.99  16911.00  17127.83  135155.89695 -12.294984   -73.876402       61.581418 -12.294984  -73.876402  61.581418
+# 1971 2023-01-09  17127.83  17398.80  17104.66  17178.26  266211.52723  14.978115   -56.105499       71.083614  14.978115  -56.105499  71.083614
+
+# supertrend_result = bta.SuperTrend(df, "close", 7, 3.0, 0)
+# df['supertrend'] = supertrend_result['ST_trend']
+# df['supertrend_d'] = supertrend_result['ST_direction']
+# df['supertrend_l'] = supertrend_result['ST_long']
+# df['supertrend_s'] = supertrend_result['ST_short']
+
+# # Using Pandas TA
+# # Supertrend is 1 where close is above supertrend (bullish), and -1 if close is below supertrend (bearish).
+
+# st_length = 7
+# st_mult = 3.0
+
+# df['st'] = pta.supertrend(high=df['high'], low=df['low'], close=df['close'],
+#                           length=st_length, multiplier=st_mult)[f'SUPERT_{st_length}_{st_mult}']
+# df['std'] = pta.supertrend(high=df['high'], low=df['low'], close=df['close'],
+#                            length=st_length, multiplier=st_mult)[f'SUPERTd_{st_length}_{st_mult}']
+# df['stl'] = pta.supertrend(high=df['high'], low=df['low'], close=df['close'],
+#                            length=st_length, multiplier=st_mult)[f'SUPERTl_{st_length}_{st_mult}']
+# df['sts'] = pta.supertrend(high=df['high'], low=df['low'], close=df['close'],
+#                            length=st_length, multiplier=st_mult)[f'SUPERTs_{st_length}_{st_mult}']
+
+# df['wma'] = bta.WMA(df, "close", 50)
+# df['hma'] = bta.HMA(df, "close", 50)
+# df['zlema'] = bta.ZLEMA(df, "close", 50)
+
+# ➜  python test.py
+#            date      open      high       low     close        volume         sma           wma           hma         zlema
+# 1967 2023-01-05  16850.36  16879.82  16753.00  16831.85  163473.56641  16793.0500  16831.442494  16689.219892  16590.685184
+# 1968 2023-01-06  16831.85  17041.00  16679.00  16950.65  207401.28415  16798.2118  16837.622886  16676.593601  16572.485765
+# 1969 2023-01-07  16950.31  16981.91  16908.00  16943.57  104526.56880  16803.0742  16843.323208  16672.061953  16553.329069
+# 1970 2023-01-08  16943.83  17176.99  16911.00  17127.83  135155.89695  16811.6172  16856.058729  16680.025132  16566.897341
+# 1971 2023-01-09  17127.83  17398.80  17104.66  17178.26  266211.52723  16829.5778  16870.436878  16700.310344  16612.289602
+
+# df['ewo'] = bta.EWO(df, "close", 5, 35)
+
+# ➜  python test.py
+#            date      open      high       low     close        volume       ewo
+# 1967 2023-01-05  16850.36  16879.82  16753.00  16831.85  163473.56641 -1.075050
+# 1968 2023-01-06  16831.85  17041.00  16679.00  16950.65  207401.28415 -0.649598
+# 1969 2023-01-07  16950.31  16981.91  16908.00  16943.57  104526.56880 -0.340181
+# 1970 2023-01-08  16943.83  17176.99  16911.00  17127.83  135155.89695  0.188342
+# 1971 2023-01-09  17127.83  17398.80  17104.66  17178.26  266211.52723  0.534305
+
+
+# ha_result = bta.HeikinAshi(
+#     df, pre_smoothing_period=14, post_smoothing_period=14)
+# df['HA_Open'] = ha_result['HA_Open']
+# df['HA_High'] = ha_result['HA_High']
+# df['HA_Low'] = ha_result['HA_Low']
+# df['HA_Close'] = ha_result['HA_Close']
+
+# #  /bamboo-ta on  main ≡  ~2
+# # ➜  python test.py
+# #            date      open      high       low     close        volume    HA_Close       HA_Open   HA_High        HA_Low
+# # 1967 2023-01-05  16850.36  16879.82  16753.00  16831.85  163473.56641  16828.7575  16721.877756  16879.82  16721.877756
+# # 1968 2023-01-06  16831.85  17041.00  16679.00  16950.65  207401.28415  16875.6250  16775.317628  17041.00  16679.000000
+# # 1969 2023-01-07  16950.31  16981.91  16908.00  16943.57  104526.56880  16945.9475  16825.471314  16981.91  16825.471314
+# # 1970 2023-01-08  16943.83  17176.99  16911.00  17127.83  135155.89695  17039.9125  16885.709407  17176.99  16885.709407
+# # 1971 2023-01-09  17127.83  17398.80  17104.66  17178.26  266211.52723  17202.3875  16962.810954  17398.80  16962.810954
+
+# ➜  python test.py
+#            date      open      high       low     close        volume       HA_Open       HA_High        HA_Low      HA_Close
+# 1967 2023-01-05  16850.36  16879.82  16753.00  16831.85  163473.56641  16828.347559  16955.448586  16642.252201  16801.965683
+# 1968 2023-01-06  16831.85  17041.00  16679.00  16950.65  207401.28415  16815.156621  16945.774718  16639.259120  16795.707645
+# 1969 2023-01-07  16950.31  16981.91  16908.00  16943.57  104526.56880  16805.432133  16939.150974  16641.788599  16793.678094
+# 1970 2023-01-08  16943.83  17176.99  16911.00  17127.83  135155.89695  16799.555114  16938.404055  16648.474500  16796.531177
+# 1971 2023-01-09  17127.83  17398.80  17104.66  17178.26  266211.52723  16798.043145  16946.027853  16661.606318  16805.889382
+
+# lr_df = bta.LinRegCandles(df, sma_signal=True)
+
+# # After calling, the following columns can be extracted:
+# df['LRC_Open'] = lr_df['bopen']
+# df['LRC_High'] = lr_df['bhigh']
+# df['LRC_Low'] = lr_df['blow']
+# df['LRC_Close'] = lr_df['bclose']
+# df['LRC_Signal'] = lr_df['signal']
+
+#  /bamboo-ta on  main ≡  ~2
+# ➜  python test.py
+#            date      open      high       low     close        volume      LRC_Open      LRC_High       LRC_Low     LRC_Close    LRC_Signal
+# 1967 2023-01-05  16850.36  16879.82  16753.00  16831.85  163473.56641  16648.707727  16794.727273  16597.960000  16718.946364  16680.307975
+# 1968 2023-01-06  16831.85  17041.00  16679.00  16950.65  207401.28415  16719.063636  16899.244091  16676.039091  16842.977727  16676.179628
+# 1969 2023-01-07  16950.31  16981.91  16908.00  16943.57  104526.56880  16842.992273  16985.721364  16795.958182  16924.602727  16683.688719
+# 1970 2023-01-08  16943.83  17176.99  16911.00  17127.83  135155.89695  16924.666364  17099.740455  16879.386818  17025.155455  16707.076570
+# 1971 2023-01-09  17127.83  17398.80  17104.66  17178.26  266211.52723  17025.216364  17244.566364  17008.464091  17131.032273  16744.021033
+
+# alligator_result = bta.AlligatorBands(df, "close", 13, 8, 5)
+# df['jaw'] = alligator_result['jaw']
+# df['teeth'] = alligator_result['teeth']
+# df['lips'] = alligator_result['lips']
+# alligator_result = bta.AlligatorBands(
+#     df, "close", 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
+# df['jaw'] = alligator_result['jaw']
+# df['teeth'] = alligator_result['teeth']
+# df['lips'] = alligator_result['lips']
+# # Print stuff
+# print(df.tail(7))
+
+
+# df['BBTrend'] = bta.BollingerTrend(df, "close", 20, 50, 2.0)
+
+# BollingerTrendFast = bta.BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14)
+# df['BollingerTrendFast'] = BollingerTrendFast['BBTrend']
+# df['BollingerTrendFastMA'] = BollingerTrendFast['BBTrendMA']
+
+
+# WAE = bta.Waddah_Attar_Explosion(df)
+# df['trend_up'] = WAE['trend_up']
+# df['trend_down'] = WAE['trend_down']
+# df['explosion_line'] = WAE['explosion_line']
+# df['dead_zone_line'] = WAE['dead_zone_line']
+
+# df['MACD_Leader'] = bta.MACD_Leader(df, 'close')
+# df['CMO'] = bta.CMO(df)['cmo']
+# df['CMO_Signal'] = df['CMO'].rolling(window=10).mean().round(2)  # Using SMA for signal
+# df['Wavetrend'] = bta.WaveTrend_Oscillator(df, 'close')
+
+# df['IFT'] = bta.Inverse_Fisher_Transform(df, rsi_length=5, rsi_smoothing=9)
+
+# qqe_mod = bta.QQE_Mod(df)
+# df['QQE_Line'] = qqe_mod['QQE_Line']
+# df['Histo2'] = qqe_mod['Histo2']
+# df['QQE_Up'] = qqe_mod['QQE_Up']
+# df['QQE_Down'] = qqe_mod['QQE_Down']
+
+# df['OBV_Oscillator'] = bta.OBV_Oscillator(df)
+
+# fisher = bta.Fisher_cg(df)
+# df['fisher_cg'] = fisher['fisher_cg']
+# df['fisher_sig'] = fisher['fisher_sig']
+
+# breakout = bta.Breakouts(df)
+# df['support_level'] = breakout['support_level']
+# df['resistance_level'] = breakout['resistance_level']
+# df['support_breakout'] = breakout['support_breakout']
+# df['resistance_breakout'] = breakout['resistance_breakout']
+# df['support_retest'] = breakout['support_retest']
+# df['potential_support_retest'] = breakout['potential_support_retest']
+# df['resistance_retest'] = breakout['resistance_retest']
+# df['potential_resistance_retest'] = breakout['potential_resistance_retest']
+
+# pin = bta.Pinbar(df)
+# df['pinbar_sell'] = pin['pinbar_sell']
+# df['pinbar_buy'] = pin['pinbar_buy']
+
+# smi = bta.SMI_Momentum(df)
+# # df['smi'] = smi['smi']
+
+# exhaustion = bta.Exhaustion_Bars(df)
+# df['leledc_major'] = exhaustion['leledc_major']
+# df['leledc_minor'] = exhaustion['leledc_minor']
+
+# dynamic_exhaustion = bta.Dynamic_Exhaustion_Bars(df)
+# df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
+# df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
+
+
+# wt1, wt2 = bta.WaveTrend(df, chlen=10, avg=21, smalen=4)
+# df['wt1'] = wt1
+# df['wt2'] = wt2
+
+# ssl_down, ssl_up = bta.SSLChannels(df, length=10, mode='sma')
+# df['ssl_down'] = ssl_down
+# df['ssl_up'] = ssl_up
+
+# ssl_down, ssl_up = bta.SSLChannelsATR(df, length=7)
+# df['ssl_atr_down'] = ssl_down
+# df['ssl_atr_up'] = ssl_up
+
+# upper, rangema, lower = bta.PCC(df, period=20, mult=2)
+# df['pcc_upper'] = upper
+# df['pcc_rangema'] = rangema
+# df['pcc_lower'] = lower
+
+# df['sroc'] = bta.SROC(df, roclen=21, emalen=13, smooth=21)
+
+# df['roc'] = bta.ROC(df, column='close', period=21)
+
+# df['t3_average'] = bta.T3(df, length=5)
+
+# df['mastreak'] = bta.MAStreak(df, period=4, column='close')
+
+# df['rmi'] = bta.RMI(df, length=20, mom=5)
+
+# df['zema'] = bta.ZEMA(df, period=21, column='close')
+
+# print(df.tail(25))
+
+### Indicatormin
+# import pandas as pd
+# import numpy as np
+
+# # Sample data
+# data = {
+#     'high': [1, 2, 3, 4, 5],
+#     'low': [0.5, 1.5, 2.5, 3.5, 4.5],
+#     'close': [0.8, 1.8, 2.8, 3.8, 4.8]
+# }
+# df = pd.DataFrame(data)
+# df['prev_close'] = df['close'].shift(1)
+
+# # Instantiate IndicatorMixin
+# indicator = bta.IndicatorMixin()
+
+# # Test _check_fillna
+# series = pd.Series([np.nan, 2, np.nan, 4, 5])
+# indicator._fillna = True
+# filled_series = indicator._check_fillna(series, value=0)
+# print("Filled series:")
+# print(filled_series)
+
+# # Test _true_range
+# true_range = indicator._true_range(df['high'], df['low'], df['prev_close'])
+# print("True Range:")
+# print(true_range)
+
+
+# ## DropNA function
+# # Sample data with NaNs
+# data_with_nans = {
+#     'A': [1, 2, np.nan, 4, 5],
+#     'B': [5, 4, np.nan, 2, 1],
+#     'C': [np.nan, 2, 3, np.nan, 5]
+# }
+# df_with_nans = pd.DataFrame(data_with_nans)
+
+# # Test dropna function
+# cleaned_df = bta.dropna(df_with_nans)
+# print("DataFrame after dropna:")
+# print(cleaned_df)
+
+###SMA Example
+# # Sample series
+# series = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+
+# # Test _sma function
+# sma_series = bta._sma(series, periods=3)
+# print("Simple Moving Average:")
+# print(sma_series)
+
+# # Sample series
+# series = pd.Series([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+
+# # Test _ema function
+# ema_series = _ema(series, periods=3)
+# print("Exponential Moving Average:")
+# print(ema_series)
+
+
+# ## GetMinMax
+# # Sample series
+# series1 = pd.Series([1, 2, 3, 4, 5])
+# series2 = pd.Series([5, 4, 3, 2, 1])
+
+# # Test _get_min_max function for min
+# min_series = bta.get_min_max(series1, series2, function="min")
+# print("Min of series1 and series2:")
+# print(min_series)
+
+# # Test _get_min_max function for max
+# max_series = bta.get_min_max(series1, series2, function="max")
+# print("Max of series1 and series2:")
+# print(max_series)
+
+# df['tsi'] = bta.TSI(df['close'], 25, 13)
+# df['uo'] = bta.UltimateOscillator(df['high'], df['low'], df['close'], 7, 14, 28)
+# stoch = bta.StochasticsOscillator(df, 'high', 'low', 'close', 14, 3)
+# df['stoch'] = stoch['stoch']
+# df['stoch_signal'] = stoch['stoch_signal']
+# df['stoch_hist'] = stoch['stoch_hist']
+# df['williams_r'] = bta.WilliamsR(df['high'], df['low'], df['close'], 14)
+
+# stoch_rsi = bta.StochRSI(df, 'close', 14, 3, 3)
+# df['stoch_rsi'] = stoch_rsi['stoch_rsi']
+# df['stoch_rsi_k'] = stoch_rsi['stoch_rsi_k']
+# df['stoch_rsi_d'] = stoch_rsi['stoch_rsi_d']
+
+# df['kama'] = bta.KAMA(df['close'], 10, 2, 30)
+# df['ao'] = bta.AwesomeOscillator(df['high'], df['low'], 5, 34)
+# pvo = bta.PVO(df)
+# df['pvo'] = pvo['pvo']
+# df['pvo_signal'] = pvo['pvo_signal']
+# df['pvo_hist'] = pvo['pvo_hist']
+# pvo = bta.PVO(df)
+# df['pvo'] = pvo['pvo']
+# df['pvo_signal'] = pvo['pvo_signal']
+# df['pvo_hist'] = pvo['pvo_hist']
+# ppo = bta.PPO(df)
+# df['ppo'] = ppo['ppo']
+# df['ppo_signal'] = ppo['ppo_signal']
+# df['ppo_hist'] = ppo['ppo_hist']
+
+# cr = bta.Cumulative_Return(df)
+# df['cumulative_return'] = cr
+
+# dlr = bta.Daily_Log_Return(df)
+# df['daily_log_return'] = dlr
+
+# dr = bta.Daily_Return(df)
+# df['daily_return'] = dr
+
+# min_max_series = bta.get_min_max(series1, series2, function)
+# df['min_max'] = min_max_series
+
+# ema = bta._ema(series, periods)
+# df['ema'] = ema
+
+# sma = _sma(series, periods)
+# df['sma'] = sma
+
+# dropna = bta.dropna(df)
+
+# zscore = bta.ZScore(series)
+# df['zscore'] = zscore
+
+# tr = bta.True_Range(df)
+# df['true_range'] = tr
+
+# padded_array = SameLength(bigger, shorter)
+
+# leledc_major_minor = populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len)
+
+# grown_value = Linear_Growth(start, end, start_time, end_time, trade_time)
+
+# count = Consecutive_Count(consecutive_diff)
+
+# maj_len, min_len = bta.Calculate_Exhaustion_Lengths(df)
+# df['maj_len'] = maj_len
+# df['min_len'] = min_len
+
+# maj_qual, min_qual = bta.Calculate_Exhaustion_Candles(df, window=3, multiplier=2)
+# df['maj_qual'] = maj_qual
+# df['min_qual'] = min_qual
+
+# Example usage:
+# df = pd.DataFrame({'close': [1, 2, 3, 2, 1, 2, 3]})
+# window = 3
+# multiplier = 2
+# maj_qual, min_qual = bta.Calculate_Exhaustion_Candles(df, window, multiplier)
+# df['maj_qual'] = maj_qual
+# df['min_qual'] = min_qual
+
+# atr = bta.ATR(df)
+# df['atr'] = atr
+
+# adi = bta.Accumulation_Distribution_Index(high=df['high'], low=df['low'], close=df['close'], volume=df['volume'], fillna=True)
+# df['adi'] = adi
+
+# cmf_df = bta.Chaikin_Money_Flow(df, src_cols=('high', 'low', 'close', 'volume'), window=20, fillna=True)
+# df['cmf'] = cmf_df['cmf']
+
+# eom_df = bta.Ease_Of_Movement(df, src_cols=('high', 'low', 'volume'), window=14, fillna=True)
+# df['eom'] = eom_df['eom']
+
+# seom_df = bta.Sma_Ease_Of_Movement(df, src_cols=('high', 'low', 'volume'), window=14, fillna=True)
+# df['seom'] = seom_df['seom']
+
+# fi_df = bta.Force_Index(df, src_cols=('close', 'volume'), window=13, fillna=True)
+# df['fi'] = fi_df['fi']
+
+# mfi_df = bta.Money_Flow_Index(df, src_cols=('high', 'low', 'close', 'volume'), window=14, fillna=True)
+# df['mfi'] = mfi_df['mfi']
+
+# nvi_df = bta.Negative_Volume_Index(df, src_cols=('close', 'volume'), fillna=True)
+# df['nvi'] = nvi_df['nvi']
+
+
+# obv_df = bta.On_Balance_Volume(df, src_cols=('close', 'volume'), fillna=True)
+# df['obv'] = obv_df['obv']
+
+
+# obv_osc_df = bta.OBV_Oscillator(df, src_cols=('close', 'volume'), channel=10, average=21, fillna=True)
+# df['OBV_Oscillator'] = obv_osc_df['OBV_Oscillator']
+
+# vpt_df =bta.Volume_Price_Trend(df, src_cols=('close', 'volume'), fillna=True, smoothing_factor=10, dropnans=True)
+# df['Volume_Price_Trend'] = vpt_df['Volume_Price_Trend']
+
+# vwap_df = bta.Volume_Weighted_Average_Price(df, src_cols=('high', 'low', 'close', 'volume'), window=14, fillna=True)
+# df['Volume_Weighted_Average_Price'] = vwap_df['Volume_Weighted_Average_Price']
+
+### After refactoring:
+
+# exhaustion = bta.Exhaustion_Bars(df)
+# df['leledc_major'] = exhaustion['leledc_major']
+# df['leledc_minor'] = exhaustion['leledc_minor']
+
+# dynamic_exhaustion = bta.Dynamic_Exhaustion_Bars(df)
+# df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
+# df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
+
+# pin = bta.Pinbar(df)
+# df['pinbar_sell'] = pin['pinbar_sell']
+# df['pinbar_buy'] = pin['pinbar_buy']
+
+# ha_df = bta.HeikinAshi(df)
+# df['ha_close'] = ha_df['ha_close']
+# df['ha_open'] = ha_df['ha_open']
+# df['ha_high'] = ha_df['ha_high']
+# df['ha_low'] = ha_df['ha_low']
+
+# lr_df = bta.LinRegCandles(df)
+# df['lrc_open'] = lr_df['bopen']
+# df['lrc_high'] = lr_df['bhigh']
+# df['lrc_low'] = lr_df['blow']
+# df['lrc_close'] = lr_df['bclose']
+# df['lrc_signal'] = lr_df['signal']
+
+# df['ao'] = bta.AwesomeOscillator(df['high'], df['low'], 5, 34)
+df['ao'] = bta.awesome_oscillator(df['high'], df['low'], 5, 34)
+
+print(df.tail(25))
+
+
+    ----- End of test copy.py -----
+
+    prompts.md
+
+    ----- Start of prompts.md -----
+
+GPT Prompt:
+1. You are a developer with extensive knowledge of Python and Pinescript. You have this project where you are converting Pinscripts into Python functions so that you can use these in a library for further data analysis in python. The project structure and code of the Python code will follow. After that wait for further instructions about the pinescript to convert. Is that understood?
+
+2. The following pinsecript should be converted into a python function. If this pinescript is depending on other indicators from other libraries (e.g. pandas-ta), do not use that, but instead create additional functions that will take care of the missing indicators. If the indicators are already available in the given project, then use these indicators. Is this clear?
+
+3. Further instructions based on output GPT.
+
+GPT prompt
+
+1. You are a developer with extensive knowledge of Python and Technical Indicators in Trading. You enherited a project where trading technical analsis indicators are programmed in a TA library with Python functions. However you noticed that the previous programmer was very inconsistent in its programming and functions are build in different ways. Your task is to refactor the code so that all the functions have the same building style, input method, calculation method and output method. Also watch for redundant code and if detected solve this too by pointing to the correct funtion.
+The project structure and code of the Python code will follow next. After that wait for further instructions about the definitive way each function should be build for consistency.
+Is that understood?
+
+2. The code should be refactored into the same format style as previously mentioned. 
+Please be extra aware of the naming convention of the functions, the way the descriptions are written, including the "call with:" example and the way the output is provided by means of the df_copy method and all the dataframe column names should be in lowercase, and keep the output limited to two decimals behind the comma or .. 
+Please use the same function style and buildup, inputs and output style, example in the description like "call with" and more from the next example I will provide you next. So format to match the desired style and including a brief description of the indicator's purpose and functionality, with lowercase column names and limiting the output to two decimal places, ensure consistency in how single-column indicators are handled. After this prompt I will provide you with the different modules that have to be refactored.
+Is this clear?
+
+3. Here is the example function:
+
+def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0):
+   '''
+    Waddah Attar Explosion Indicator
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'open', 'high', 'low', and 'close'.
+    - sensitivity (int): Sensitivity factor for the indicator. Default is 150.
+    - fast_length (int): Length for the fast EMA. Default is 20.
+    - slow_length (int): Length for the slow EMA. Default is 40.
+    - channel_length (int): Length for the Bollinger Bands. Default is 20.
+    - mult (float): Standard deviation multiplier for the Bollinger Bands. Default is 2.0.
+
+    Call with:
+        WAE = bta.Waddah_Attar_Explosion(df)
+        df['trend_up'] = WAE['trend_up']
+        df['trend_down'] = WAE['trend_down']
+        df['explosion_line'] = WAE['explosion_line']
+        df['dead_zone_line'] = WAE['dead_zone_line']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'trend_up', 'trend_down', 'explosion_line', and 'dead_zone_line' columns.
+    '''
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['open', 'high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    # print("DataFrame columns:", df.columns)  # Debug print
+    # print("First few rows of the DataFrame:\n", df.head())  # Debug print
+
+    # Calculate DEAD_ZONE
+    dead_zone = RMA(TR(df), 100) * 3.7
+    # print("DEAD_ZONE calculated")  # Debug print
+
+    # Calculate MACD
+    macd_fast = EMA(df, 'close', fast_length)
+    macd_slow = EMA(df, 'close', slow_length)
+    macd_diff = macd_fast - macd_slow
+    t1 = (macd_diff - macd_diff.shift(1)) * sensitivity
+    # print("MACD and t1 calculated")  # Debug print
+
+    # Calculate Bollinger Bands
+    bb = BollingerBands(df, column='close', period=channel_length, std_dev=mult)
+    e1 = bb['BB_upper'] - bb['BB_lower']
+    # print("Bollinger Bands calculated")  # Debug print
+
+    trend_up = np.where(t1 >= 0, t1, 0)
+    trend_down = np.where(t1 < 0, -t1, 0)
+
+    df_copy['trend_up'] = trend_up.round(2)
+    df_copy['trend_down'] = trend_down.round(2)
+    df_copy['explosion_line'] = e1.round(2)
+    df_copy['dead_zone_line'] = dead_zone.round(2)
+
+    return df_copy[['trend_up', 'trend_down', 'explosion_line', 'dead_zone_line']]
+
+
+GPT Prompt:
+1. You are a developer with extensive knowledge of Python and Technical Indicators in Trading. You have this project where you are converting Third party Python code into your own TA library with Python functions so that you can use these within your own library in a consequent and familiar way for further data analysis in python. The project structure and code of the Python code will follow. After that wait for further instructions about the third party Python code to convert. Is that understood?
+
+2. The following third party python should be converted into the same format as my own functions  and should also be added to their consequitive modules. Please check first if they already exist, if they do, then ignore these (but say that you will not create these). If the third party Python code is depending on other libraries (e.g. pandas-ta), do not use these external libraries, but instead create additional functions that will take care of the missing functions or indicators. If these dependend functions alreaty exist in your own project, then use those instead. Please be extra aware of the naming convention of these functions, the way the descriptions are written, including the "call with:" example and the way the output is provided by means of the df_copy method. 
+
+3. Further instructions based on output GPT.
+
+
+GPT Prompt:
+1. I have a Readme file that is part of a complete python programm. It contains the descriptions of functions that are in the submoduled. However I have added more functions to these modules and I would like to recreate this Readme section so that it also contains the added funtions. In other words the Readme file is updated with the most current situation. 
+
+I can give you the current modules Readme section now and later the complete contents of all other modules so that you can update the Readme section with this. Do you understand?
+
+
+1. I now have a competely different question concerning the Readme file I have for this modules library. Can you help me with this too?
+
+
+2. The original Readme file looks like this, but it now misses a lot of new functions we added to the different modules. Please rewrite this section with the information I give you in the next prompt. There you should extract the functions from the modules and add these to the Readme section in the same original style. Do you understand?
+
+This is the original Readme section:
+
+3. Further instructions based on output GPT.
+
+ChatGPT prompt for refactoring:
+
+
+
+
+
+[python] Here is an overview of the instructions used to refactor the code, ensuring consistency and clarity across all functions:
+
+### Instructions for Refactoring the Code:
+
+1. **Function Name and Description**:
+   - Follow PEP-8 naming conventions.
+   - Include a descriptive docstring detailing the function's purpose, parameters, usage example, and return values.
+   - Start the docstring with a brief description of the indicator's purpose and functionality.
+
+2. **Parameters**:
+   - Clearly define parameters with default values where appropriate.
+   - Explain each parameter in the docstring, including the data type and purpose.
+
+3. **Input Validation**:
+   - Ensure the input DataFrame contains the required columns.
+   - Raise a `KeyError` if any required columns are missing.
+
+4. **Calculations**:
+   - Perform calculations step-by-step, with clear comments if necessary.
+   - Use appropriate methods for moving averages (e.g., rolling mean for SMA, exponential weighted mean for EMA).
+
+5. **Output**:
+   - Return a DataFrame containing the new indicator columns.
+   - Ensure all DataFrame column names are in lowercase.
+   - Limit the output values to two decimal places using `.round(2)`.
+
+6. **Example Calls**:
+   - Include example calls in the docstring, showing how to use the function.
+   - Demonstrate how to add the new columns to the original DataFrame.
+
+### Example of a Refactored Function:
+
+#### Heikin Ashi (HA) with Optional Pre and Post Smoothing:
+
+```python
+def heikin_ashi(df, pre_smoothing_period=None, post_smoothing_period=None):
+    """
+    Heikin Ashi (HA) with Optional Pre and Post Smoothing
+
+    Heikin Ashi is a type of price chart that shares some characteristics with candlestick charts but differs due to the values used to plot them. 
+    This modified version allows for optional smoothing of the original data before the Heikin Ashi calculation and/or smoothing of the Heikin Ashi values themselves, 
+    aiming to provide a more refined and smoother representation of price action, making it easier to identify the trend.
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'open', 'high', 'low', and 'close'.
+    - pre_smoothing_period (int, optional): Period for EMA pre-smoothing of the original data. If provided, original price bars are smoothed before Heikin Ashi calculations.
+    - post_smoothing_period (int, optional): Period for EMA post-smoothing of Heikin Ashi values. If provided, Heikin Ashi values are smoothed post calculations.
+
+    Call with:
+        ha_df = bta.heikin_ashi(df)
+        df['ha_close'] = ha_df['ha_close']
+        df['ha_open'] = ha_df['ha_open']
+        df['ha_high'] = ha_df['ha_high']
+        df['ha_low'] = ha_df['ha_low']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'ha_open', 'ha_high', 'ha_low', and 'ha_close' columns.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['open', 'high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    # If pre-smoothing is required
+    if pre_smoothing_period:
+        df_copy['open'] = ema(df_copy, 'open', pre_smoothing_period)
+        df_copy['close'] = ema(df_copy, 'close', pre_smoothing_period)
+        df_copy['high'] = ema(df_copy, 'high', pre_smoothing_period)
+        df_copy['low'] = ema(df_copy, 'low', pre_smoothing_period)
+
+    # Regular Heikin Ashi calculations
+    df_copy['ha_close'] = (df_copy['open'] + df_copy['high'] +
+                           df_copy['low'] + df_copy['close']) / 4
+    df_copy.reset_index(inplace=True)
+    ha_open = [(df_copy['open'][0] + df_copy['close'][0]) / 2]
+    [ha_open.append((ha_open[i] + df_copy['ha_close'].values[i]) / 2)
+     for i in range(0, len(df_copy) - 1)]
+    df_copy['ha_open'] = ha_open
+    df_copy.set_index('index', inplace=True)
+    df_copy['ha_high'] = df_copy[['ha_open', 'ha_close', 'high']].max(axis=1)
+    df_copy['ha_low'] = df_copy[['ha_open', 'ha_close', 'low']].min(axis=1)
+
+    # If post-smoothing is required
+    if post_smoothing_period:
+        df_copy['ha_open'] = ema(df_copy, 'ha_open', post_smoothing_period)
+        df_copy['ha_high'] = ema(df_copy, 'ha_high', post_smoothing_period)
+        df_copy['ha_low'] = ema(df_copy, 'ha_low', post_smoothing_period)
+        df_copy['ha_close'] = ema(df_copy, 'ha_close', post_smoothing_period)
+
+    # Limit to two decimal places
+    df_copy['ha_open'] = df_copy['ha_open'].round(2)
+    df_copy['ha_high'] = df_copy['ha_high'].round(2)
+    df_copy['ha_low'] = df_copy['ha_low'].round(2)
+    df_copy['ha_close'] = df_copy['ha_close'].round(2)
+
+    return df_copy[['ha_open', 'ha_high', 'ha_low', 'ha_close']]
+```
+
+#### Awesome Oscillator (AO):
+
+```python
+def awesome_oscillator(df, window1=5, window2=34, fillna=False):
+    """
+    Awesome Oscillator (AO)
+
+    The Awesome Oscillator is a momentum indicator used to measure market momentum.
+    It is calculated by subtracting a 34-period simple moving average (SMA) of the
+    median price from a 5-period SMA of the median price.
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'high' and 'low'.
+    - window1 (int, optional): Short period. Default is 5.
+    - window2 (int, optional): Long period. Default is 34.
+    - fillna (bool, optional): If True, fill nan values with 0. Default is False.
+
+    Call with:
+        df['ao'] = bta.awesome_oscillator(df)
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'ao' column.
+    """
+    df_copy = df.copy()
+
+    median_price = 0.5 * (df['high'] + df['low'])
+    min_periods_s = 0 if fillna else window1
+    min_periods_l = 0 if fillna else window2
+    df_copy['ao'] = (
+        median_price.rolling(window1, min_periods=min_periods_s).mean()
+        - median_price.rolling(window2, min_periods=min_periods_l).mean()
+    )
+    if fillna:
+        df_copy['ao'] = df_copy['ao'].fillna(0)
+
+    df_copy['ao'] = df_copy['ao'].round(2)
+    return df_copy[['ao']]
+```
+
+#### Chande Momentum Oscillator (CMO):
+
+```python
+def chande_momentum_oscillator(df, length=14):
+    """
+    Chande Momentum Oscillator (CMO)
+
+    The Chande Momentum Oscillator (CMO) is a technical momentum indicator developed by Tushar Chande. 
+    It measures the amount that an asset's price has changed over a specified period of time.
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
+    - length (int): Length for the CMO calculation. Default is 14.
+
+    Call with:
+        df['cmo'] = bta.chande_momentum_oscillator(df)
+
+    For Signal line:
+        df['cmo_signal'] = df['cmo'].rolling(window=10).mean().round(2)  # Using SMA for signal
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'cmo' column.
+    """
+    df_copy = df.copy()
+
+    mom = df['close'].diff()
+    pos_mom = mom.where(mom > 0, 0)
+    neg_mom = -mom.where(mom < 0, 0)
+    sm1 = pos_mom.rolling(window=length).sum()
+    sm2 = neg_mom.rolling(window=length).sum()
+    df_copy['cmo'] = 100 * (sm1 - sm2) / (sm1 + sm2)
+
+    df_copy['cmo'] = df_copy['cmo'].round(2)
+    return df_copy[['cmo']]
+```
+
+### General Refactoring Steps:
+
+1. **Rename Functions and Columns to Lowercase**:
+   - Ensure function names and DataFrame columns are in lowercase.
+
+2. **Add Detailed Descriptions**:
+   - Add a brief description of the indicator's purpose at the start of the docstring.
+   - Include parameters, usage examples, and return types in the docstring.
+
+3. **Ensure Consistent Output Format**:
+   - Ensure that all functions return a DataFrame with the new indicator columns.
+   - Limit numeric output to two decimal places using `.round(2)`.
+
+By following these steps, you can ensure that all functions are refactored consistently, making it easier to maintain and understand the code in the future
+
+
+# Another refactoring prompt:
+Sure! Here is a comprehensive prompt you can use to repeat this refactoring exercise in the future:
+
+---
+
+**Refactoring Prompt for Trading Technical Analysis Indicators**
+
+### Objective:
+Refactor the code for trading technical analysis indicators to ensure consistency in function structure, input methods, calculation methods, and output methods. Pay special attention to naming conventions, descriptions, and formatting. All functions should return a DataFrame with the new indicator columns, and all column names should be in lowercase. Numeric outputs should be limited to two decimal places.
+
+### Instructions:
+
+1. **Function Name and Description**:
+   - Follow PEP-8 naming conventions (e.g., `snake_case` for function names).
+   - Include a descriptive docstring detailing the function's purpose, parameters, usage example, and return values.
+   - Start the docstring with a brief description of the indicator's purpose and functionality.
+
+2. **Parameters**:
+   - Clearly define parameters with default values where appropriate.
+   - Explain each parameter in the docstring, including the data type and purpose.
+
+3. **Input Validation**:
+   - Ensure the input DataFrame contains the required columns.
+   - Raise a `KeyError` if any required columns are missing.
+
+4. **Calculations**:
+   - Perform calculations step-by-step, with clear comments if necessary.
+   - Use appropriate methods for moving averages (e.g., rolling mean for SMA, exponential weighted mean for EMA).
+
+5. **Output**:
+   - Return a DataFrame containing the new indicator columns.
+   - Ensure all DataFrame column names are in lowercase.
+   - Limit the output values to two decimal places using `.round(2)`.
+
+6. **Example Calls**:
+   - Include example calls in the docstring, showing how to use the function.
+   - Demonstrate how to add the new columns to the original DataFrame.
+
+### Example Refactored Function:
+
+#### Heikin Ashi (HA) with Optional Pre and Post Smoothing:
+
+```python
+def heikin_ashi(df, pre_smoothing_period=None, post_smoothing_period=None):
+    """
+    Heikin Ashi (HA) with Optional Pre and Post Smoothing
+
+    Heikin Ashi is a type of price chart that shares some characteristics with candlestick charts but differs due to the values used to plot them. 
+    This modified version allows for optional smoothing of the original data before the Heikin Ashi calculation and/or smoothing of the Heikin Ashi values themselves, 
+    aiming to provide a more refined and smoother representation of price action, making it easier to identify the trend.
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'open', 'high', 'low', and 'close'.
+    - pre_smoothing_period (int, optional): Period for EMA pre-smoothing of the original data. If provided, original price bars are smoothed before Heikin Ashi calculations.
+    - post_smoothing_period (int, optional): Period for EMA post-smoothing of Heikin Ashi values. If provided, Heikin Ashi values are smoothed post calculations.
+
+    Call with:
+        ha_df = bta.heikin_ashi(df)
+        df['ha_close'] = ha_df['ha_close']
+        df['ha_open'] = ha_df['ha_open']
+        df['ha_high'] = ha_df['ha_high']
+        df['ha_low'] = ha_df['ha_low']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'ha_open', 'ha_high', 'ha_low', and 'ha_close' columns.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['open', 'high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    # If pre-smoothing is required
+    if pre_smoothing_period:
+        df_copy['open'] = ema(df_copy, 'open', pre_smoothing_period)
+        df_copy['close'] = ema(df_copy, 'close', pre_smoothing_period)
+        df_copy['high'] = ema(df_copy, 'high', pre_smoothing_period)
+        df_copy['low'] = ema(df_copy, 'low', pre_smoothing_period)
+
+    # Regular Heikin Ashi calculations
+    df_copy['ha_close'] = (df_copy['open'] + df_copy['high'] +
+                           df_copy['low'] + df_copy['close']) / 4
+    df_copy.reset_index(inplace=True)
+    ha_open = [(df_copy['open'][0] + df_copy['close'][0]) / 2]
+    [ha_open.append((ha_open[i] + df_copy['ha_close'].values[i]) / 2)
+     for i in range(0, len(df_copy) - 1)]
+    df_copy['ha_open'] = ha_open
+    df_copy.set_index('index', inplace=True)
+    df_copy['ha_high'] = df_copy[['ha_open', 'ha_close', 'high']].max(axis=1)
+    df_copy['ha_low'] = df_copy[['ha_open', 'ha_close', 'low']].min(axis=1)
+
+    # If post-smoothing is required
+    if post_smoothing_period:
+        df_copy['ha_open'] = ema(df_copy, 'ha_open', post_smoothing_period)
+        df_copy['ha_high'] = ema(df_copy, 'ha_high', post_smoothing_period)
+        df_copy['ha_low'] = ema(df_copy, 'ha_low', post_smoothing_period)
+        df_copy['ha_close'] = ema(df_copy, 'ha_close', post_smoothing_period)
+
+    # Limit to two decimal places
+    df_copy['ha_open'] = df_copy['ha_open'].round(2)
+    df_copy['ha_high'] = df_copy['ha_high'].round(2)
+    df_copy['ha_low'] = df_copy['ha_low'].round(2)
+    df_copy['ha_close'] = df_copy['ha_close'].round(2)
+
+    return df_copy[['ha_open', 'ha_high', 'ha_low', 'ha_close']]
+```
+
+#### Awesome Oscillator (AO):
+
+```python
+def awesome_oscillator(df, window1=5, window2=34, fillna=False):
+    """
+    Awesome Oscillator (AO)
+
+    The Awesome Oscillator is a momentum indicator used to measure market momentum.
+    It is calculated by subtracting a 34-period simple moving average (SMA) of the
+    median price from a 5-period SMA of the median price.
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'high' and 'low'.
+    - window1 (int, optional): Short period. Default is 5.
+    - window2 (int, optional): Long period. Default is 34.
+    - fillna (bool, optional): If True, fill nan values with 0. Default is False.
+
+    Call with:
+        df['ao'] = bta.awesome_oscillator(df)
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'ao' column.
+    """
+    df_copy = df.copy()
+
+    median_price = 0.5 * (df['high'] + df['low'])
+    min_periods_s = 0 if fillna else window1
+    min_periods_l = 0 if fillna else window2
+    df_copy['ao'] = (
+        median_price.rolling(window1, min_periods=min_periods_s).mean()
+        - median_price.rolling(window2, min_periods=min_periods_l).mean()
+    )
+    if fillna:
+        df_copy['ao'] = df_copy['ao'].fillna(0)
+
+    df_copy['ao'] = df_copy['ao'].round(2)
+    return df_copy[['ao']]
+```
+
+#### Chande Momentum Oscillator (CMO):
+
+```python
+def chande_momentum_oscillator(df, length=14):
+    """
+    Chande Momentum Oscillator (CMO)
+
+    The Chande Momentum Oscillator (CMO) is a technical momentum indicator developed by Tushar Chande. 
+    It measures the amount that an asset's price has changed over a specified period of time.
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
+    - length (int): Length for the CMO calculation. Default is 14.
+
+    Call with:
+        df['cmo'] = bta.chande_momentum_oscillator(df)
+
+    For Signal line:
+        df['cmo_signal'] = df['cmo'].rolling(window=10).mean().round(2)  # Using SMA for signal
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'cmo' column.
+    """
+    df_copy = df.copy()
+
+    mom = df['close'].diff()
+    pos_mom = mom.where(mom > 0, 0)
+    neg_mom = -mom.where(mom < 0, 0)
+    sm1 = pos_mom.rolling(window=length).sum()
+    sm2 = neg_mom.rolling(window=length).sum()
+    df_copy['cmo'] = 100 * (sm1 - sm2) / (sm1 + sm2)
+
+    df_copy['cmo'] = df_copy['cmo'].round(2)
+    return df_copy[['cmo']]
+```
+
+### General Refactoring Steps:
+
+1. **Rename Functions and Columns to Lowercase**:
+   - Ensure function names and DataFrame columns are in lowercase.
+
+2. **Add Detailed Descriptions**:
+   - Add a brief description of the indicator's purpose at the start of the docstring.
+   - Include parameters
+
+, usage examples, and return types in the docstring.
+
+3. **Ensure Consistent Output Format**:
+   - Ensure that all functions return a DataFrame with the new indicator columns.
+   - Limit numeric output to two decimal places using `.round(2)`.
+
+By following these steps and examples, you can ensure that all functions are refactored consistently, making it easier to maintain and understand the code in the future.
+
+---
+
+Feel free to adjust the prompt and instructions as needed for your specific requirements.
+
+
+    ----- End of prompts.md -----
+
     bamboo_ta/
         __init__.py
 
@@ -133,29 +1170,17 @@ from.momentum import *
 
 def Exhaustion_Bars(df, maj_qual=6, maj_len=12, min_qual=6, min_len=12, core_length=4):
     """
-    Leledc Exhaustion Bars - Extended
+    Leledc Exhaustion Bars
     
-    Leledc Exhaustion Bars - Extended
     Infamous S/R Reversal Indicator
-
-    leledc_major (Trend): 
-     1 Up
-    -1 Down
-    
-    leledc_minor: 
-    1 Sellers exhausted
-    0 Neutral / Hold
-    -1 Buyers exhausted 
-
-    Original (MT4) https://www.abundancetradinggroup.com/leledc-exhaustion-bar-mt4-indicator/
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain 'open', 'high', 'low', and 'close' columns.
-    - maj_qual (int): Major quality parameter.
-    - maj_len (int): Major length parameter.
-    - min_qual (int): Minor quality parameter.
-    - min_len (int): Minor length parameter.
-    - core_length (int): Core length parameter.
+    - maj_qual (int): Major quality parameter. Default is 6.
+    - maj_len (int): Major length parameter. Default is 12.
+    - min_qual (int): Minor quality parameter. Default is 6.
+    - min_len (int): Minor length parameter. Default is 12.
+    - core_length (int): Core length parameter. Default is 4.
 
     Call with:
         exhaustion = bta.Exhaustion_Bars(df)
@@ -163,7 +1188,7 @@ def Exhaustion_Bars(df, maj_qual=6, maj_len=12, min_qual=6, min_len=12, core_len
         df['leledc_minor'] = exhaustion['leledc_minor']
 
     Returns:
-    - pd.DataFrame: DataFrame with columns populated.
+    - pd.DataFrame: DataFrame with 'leledc_major' and 'leledc_minor' columns.
     """
     df_copy = df.copy()
 
@@ -216,21 +1241,15 @@ def Exhaustion_Bars(df, maj_qual=6, maj_len=12, min_qual=6, min_len=12, core_len
 
 def Dynamic_Exhaustion_Bars(df, window=500):
     """
-    Dynamic Leledc Exhaustion Bars -  By nilux
-    The lookback length and exhaustion bars adjust dynamically to the market.
-    
-    leledc_major (Trend): 
-     1 Up
-    -1 Down
-    
-    leledc_minor: 
-    1 Sellers exhausted
-    0 Neutral / Hold
-    -1 Buyers exhausted 
-        
+    Dynamic Leledc Exhaustion Bars
+    The lookback length and exhaustion bars adjust dynamically to the market conditions.
+
+    This indicator dynamically adjusts the lookback length and the exhaustion bars based on the market's behavior,
+    helping to identify potential reversals and trend strength.
+
     Parameters:
-    - df (pandas.DataFrame): Input DataFrame.
-    - window (int): Lookback window for z-score calculation.
+    - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
+    - window (int): Lookback window for z-score calculation. Default is 500.
 
     Call with:
         dynamic_exhaustion = bta.Dynamic_Exhaustion_Bars(df)
@@ -238,7 +1257,7 @@ def Dynamic_Exhaustion_Bars(df, window=500):
         df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
 
     Returns:
-    - pd.DataFrame: DataFrame with columns populated.
+    - pd.DataFrame: DataFrame with 'leledc_major' and 'leledc_minor' columns.
     """
     df_copy = df.copy()
 
@@ -272,19 +1291,15 @@ def Dynamic_Exhaustion_Bars(df, window=500):
 
 
 def Pinbar(df, smi=None):
-    """ 
+    """
     Pinbar - Price Action Indicator
 
-    Pinbars are an easy but sure indication
-    of incoming price reversal. 
-    Signal confirmation with SMI.
-    
-    Pinescript Source by PeterO - Thx!
-    https://tradingview.com/script/aSJnbGnI-PivotPoints-with-Momentum-confirmation-by-PeterO/
+    Pinbars are an easy but sure indication of incoming price reversal.
+    Signal confirmation with SMI (Stochastic Momentum Index) can enhance the accuracy of the signals.
 
     Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', 'close' columns.
-    - smi: Optional Series for SMI.
+    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'close' columns.
+    - smi (pandas.Series, optional): Optional Series for SMI. If not provided, it will be calculated internally.
 
     Call with:
         pin = bta.Pinbar(df)
@@ -292,7 +1307,7 @@ def Pinbar(df, smi=None):
         df['pinbar_buy'] = pin['pinbar_buy']
 
     Returns:
-    - pd.DataFrame: DataFrame with buy / sell signals columns populated.
+    - pd.DataFrame: DataFrame with 'pinbar_sell' and 'pinbar_buy' columns populated.
     """
     df_copy = df.copy()
 
@@ -335,34 +1350,32 @@ def HeikinAshi(df, pre_smoothing_period=None, post_smoothing_period=None):
     """
     Heikin Ashi (HA) with Optional Pre and Post Smoothing
 
-    Call with:
-    - Regular Heiken Ashi:
-        ha_df = bta.HeikinAshi(df)
-
-    - With pre-smoothing of the original data:
-        ha_df = bta.HeikinAshi(df, pre_smoothing_period=14)
-
-    - With both pre and post smoothing:
-        ha_df = bta.HeikinAshi(df, pre_smoothing_period=14, post_smoothing_period=14)
-
-    After calling, the following columns can be extracted:
-        df['HA_Close'] = ha_df['HA_Close']
-        df['HA_Open'] = ha_df['HA_Open']
-        df['HA_High'] = ha_df['HA_High']
-        df['HA_Low'] = ha_df['HA_Low']
+    Heikin Ashi is a type of price chart that shares some characteristics with candlestick charts but differs due to the values used to plot them. 
+    This modified version allows for optional smoothing of the original data before the Heikin Ashi calculation and/or smoothing of the Heikin Ashi values themselves, 
+    aiming to provide a more refined and smoother representation of price action, making it easier to identify the trend.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain columns: 'open', 'high', 'low', and 'close'.
     - pre_smoothing_period (int, optional): Period for EMA pre-smoothing of the original data. If provided, original price bars are smoothed before Heikin Ashi calculations.
     - post_smoothing_period (int, optional): Period for EMA post-smoothing of Heikin Ashi values. If provided, Heikin Ashi values are smoothed post calculations.
 
-    Returns:
-    - pd.DataFrame: DataFrame with 'HA_Close', 'HA_Open', 'HA_High', 'HA_Low' columns.
+    Call with:
+        ha_df = bta.HeikinAshi(df)
+        df['ha_close'] = ha_df['ha_close']
+        df['ha_open'] = ha_df['ha_open']
+        df['ha_high'] = ha_df['ha_high']
+        df['ha_low'] = ha_df['ha_low']
 
-    Description:
-    Heikin Ashi is a type of price chart that shares some characteristics with candlestick charts but differs due to the values used to plot them. This modified version allows for optional smoothing of the original data before the Heikin Ashi calculation and/or smoothing of the Heikin Ashi values themselves, aiming to provide a more refined and smoother representation of price action, making it easier to identify the trend.
+    Returns:
+    - pd.DataFrame: DataFrame with 'ha_open', 'ha_high', 'ha_low', and 'ha_close' columns.
     """
     df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['open', 'high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
 
     # If pre-smoothing is required
     if pre_smoothing_period:
@@ -372,47 +1385,41 @@ def HeikinAshi(df, pre_smoothing_period=None, post_smoothing_period=None):
         df_copy['low'] = EMA(df_copy, 'low', pre_smoothing_period)
 
     # Regular Heikin Ashi calculations
-    df_copy['HA_Close'] = (df_copy['open'] + df_copy['high'] +
+    df_copy['ha_close'] = (df_copy['open'] + df_copy['high'] +
                            df_copy['low'] + df_copy['close']) / 4
     df_copy.reset_index(inplace=True)
     ha_open = [(df_copy['open'][0] + df_copy['close'][0]) / 2]
-    [ha_open.append((ha_open[i] + df_copy['HA_Close'].values[i]) / 2)
+    [ha_open.append((ha_open[i] + df_copy['ha_close'].values[i]) / 2)
      for i in range(0, len(df_copy) - 1)]
-    df_copy['HA_Open'] = ha_open
+    df_copy['ha_open'] = ha_open
     df_copy.set_index('index', inplace=True)
-    df_copy['HA_High'] = df_copy[['HA_Open', 'HA_Close', 'high']].max(axis=1)
-    df_copy['HA_Low'] = df_copy[['HA_Open', 'HA_Close', 'low']].min(axis=1)
+    df_copy['ha_high'] = df_copy[['ha_open', 'ha_close', 'high']].max(axis=1)
+    df_copy['ha_low'] = df_copy[['ha_open', 'ha_close', 'low']].min(axis=1)
 
     # If post-smoothing is required
     if post_smoothing_period:
-        df_copy['HA_Open'] = EMA(df_copy, 'HA_Open', post_smoothing_period)
-        df_copy['HA_High'] = EMA(df_copy, 'HA_High', post_smoothing_period)
-        df_copy['HA_Low'] = EMA(df_copy, 'HA_Low', post_smoothing_period)
-        df_copy['HA_Close'] = EMA(df_copy, 'HA_Close', post_smoothing_period)
+        df_copy['ha_open'] = EMA(df_copy, 'ha_open', post_smoothing_period)
+        df_copy['ha_high'] = EMA(df_copy, 'ha_high', post_smoothing_period)
+        df_copy['ha_low'] = EMA(df_copy, 'ha_low', post_smoothing_period)
+        df_copy['ha_close'] = EMA(df_copy, 'ha_close', post_smoothing_period)
 
-    return df_copy[['HA_Open', 'HA_High', 'HA_Low', 'HA_Close']]
+    # Limit to two decimal places
+    df_copy['ha_open'] = df_copy['ha_open'].round(2)
+    df_copy['ha_high'] = df_copy['ha_high'].round(2)
+    df_copy['ha_low'] = df_copy['ha_low'].round(2)
+    df_copy['ha_close'] = df_copy['ha_close'].round(2)
+
+    return df_copy[['ha_open', 'ha_high', 'ha_low', 'ha_close']]
 
 
 def LinRegCandles(df, linreg_length=11, sma_signal=True, signal_length=11):
     """
     Linear Regression Candles with Optional Signal Line
 
-    Call with:
-    - Regular Linear Regression Candles with SMA signal line:
-        lr_df = bta.LinRegCandles(df)
-
-    - With EMA signal line:
-        lr_df = bta.LinRegCandles(df, sma_signal=False)
-
-    - With SMA signal line:
-        lr_df = bta.LinRegCandles(df, sma_signal=True)
-
-    After calling, the following columns can be extracted:
-        df['LRC_Open'] = lr_df['bopen']
-        df['LRC_High'] = lr_df['bhigh']
-        df['LRC_Low'] = lr_df['blow']
-        df['LRC_Close'] = lr_df['bclose']
-        df['LRC_Signal'] = lr_df['signal']
+    The Linear Regression Candles transform the traditional OHLC bars using a linear regression algorithm, 
+    providing a smoothed representation of price action. The function also provides an optional signal line, 
+    which can be either an SMA or an EMA of the Linear Regression Candle close. This signal line can help to 
+    identify trends and potential trading signals.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain columns: 'open', 'high', 'low', and 'close'.
@@ -420,48 +1427,60 @@ def LinRegCandles(df, linreg_length=11, sma_signal=True, signal_length=11):
     - sma_signal (bool, optional): If True, uses SMA for the signal line. If False, uses EMA. Default is True.
     - signal_length (int, optional): Period for the moving average signal line. Default is 11.
 
+    Call with:
+        lr_df = bta.LinRegCandles(df)
+        df['lrc_open'] = lr_df['bopen']
+        df['lrc_high'] = lr_df['bhigh']
+        df['lrc_low'] = lr_df['blow']
+        df['lrc_close'] = lr_df['bclose']
+        df['lrc_signal'] = lr_df['signal']
+
     Returns:
     - pd.DataFrame: DataFrame with 'bopen', 'bhigh', 'blow', 'bclose' as the Linear Regression Candles, and 'signal' as the signal line.
-
-    Description:
-    The Linear Regression Candles transform the traditional OHLC bars using a linear regression algorithm, providing a smoothed representation of price action. The function also provides an optional signal line, which can be either an SMA or an EMA of the Linear Regression Candle close. This signal line can help to identify trends and potential trading signals.
     """
     df_copy = df.copy()
 
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['open', 'high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
     # Calculate linear regression coefficients for open, high, low, and close
     df_copy['bopen'] = df_copy['open'].rolling(window=linreg_length).apply(
-        lambda x: np.polyfit(np.arange(len(x)), x, 1)[
-            1] + np.polyfit(np.arange(len(x)), x, 1)[0] * (len(x) - 1),
+        lambda x: np.polyfit(np.arange(len(x)), x, 1)[1] + np.polyfit(np.arange(len(x)), x, 1)[0] * (len(x) - 1),
         raw=True
     )
 
     df_copy['bhigh'] = df_copy['high'].rolling(window=linreg_length).apply(
-        lambda x: np.polyfit(np.arange(len(x)), x, 1)[
-            1] + np.polyfit(np.arange(len(x)), x, 1)[0] * (len(x) - 1),
+        lambda x: np.polyfit(np.arange(len(x)), x, 1)[1] + np.polyfit(np.arange(len(x)), x, 1)[0] * (len(x) - 1),
         raw=True
     )
 
     df_copy['blow'] = df_copy['low'].rolling(window=linreg_length).apply(
-        lambda x: np.polyfit(np.arange(len(x)), x, 1)[
-            1] + np.polyfit(np.arange(len(x)), x, 1)[0] * (len(x) - 1),
+        lambda x: np.polyfit(np.arange(len(x)), x, 1)[1] + np.polyfit(np.arange(len(x)), x, 1)[0] * (len(x) - 1),
         raw=True
     )
 
     df_copy['bclose'] = df_copy['close'].rolling(window=linreg_length).apply(
-        lambda x: np.polyfit(np.arange(len(x)), x, 1)[
-            1] + np.polyfit(np.arange(len(x)), x, 1)[0] * (len(x) - 1),
+        lambda x: np.polyfit(np.arange(len(x)), x, 1)[1] + np.polyfit(np.arange(len(x)), x, 1)[0] * (len(x) - 1),
         raw=True
     )
 
     # Calculate the signal line using SMA or EMA
     if sma_signal:
-        df_copy['signal'] = df_copy['bclose'].rolling(
-            window=signal_length).mean()
+        df_copy['signal'] = df_copy['bclose'].rolling(window=signal_length).mean()
     else:
-        df_copy['signal'] = df_copy['bclose'].ewm(
-            span=signal_length, adjust=False).mean()
+        df_copy['signal'] = df_copy['bclose'].ewm(span=signal_length, adjust=False).mean()
 
-    return df_copy
+    # Limit to two decimal places
+    df_copy['bopen'] = df_copy['bopen'].round(2)
+    df_copy['bhigh'] = df_copy['bhigh'].round(2)
+    df_copy['blow'] = df_copy['blow'].round(2)
+    df_copy['bclose'] = df_copy['bclose'].round(2)
+    df_copy['signal'] = df_copy['signal'].round(2)
+
+    return df_copy[['bopen', 'bhigh', 'blow', 'bclose', 'signal']]
 
         ----- End of candles.py -----
 
@@ -1908,54 +2927,58 @@ from .volatility import *
 from .utility import *
 
 
-def AwesomeOscillator(
-    high: pd.Series,
-    low: pd.Series,
-    window1: int = 5,
-    window2: int = 34,
-    fillna: bool = False,
-) -> pd.Series:
-    """Awesome Oscillator
+def Awesome_Oscillator(df, window1=5, window2=34, fillna=False):
+    """
+    Awesome Oscillator (AO)
+
+    The Awesome Oscillator is a momentum indicator used to measure market momentum.
+    It is calculated by subtracting a 34-period simple moving average (SMA) of the
+    median price from a 5-period SMA of the median price.
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'high' and 'low'.
+    - window1 (int, optional): Short period. Default is 5.
+    - window2 (int, optional): Long period. Default is 34.
+    - fillna (bool, optional): If True, fill nan values with 0. Default is False.
 
     Call with:
-        df['ao'] = bta.AwesomeOscillator(df['high'], df['low'], 5, 34)
-
-    Args:
-        high(pandas.Series): dataset 'High' column.
-        low(pandas.Series): dataset 'Low' column.
-        window1(int): short period.
-        window2(int): long period.
-        fillna(bool): if True, fill nan values with -50.
+        df['ao'] = bta.Awesome_Oscillator(df)
 
     Returns:
-        pandas.Series: New feature generated.
+    - pd.DataFrame: DataFrame with 'ao' column.
     """
-    median_price = 0.5 * (high + low)
+    df_copy = df.copy()
+
+    median_price = 0.5 * (df['high'] + df['low'])
     min_periods_s = 0 if fillna else window1
     min_periods_l = 0 if fillna else window2
-    ao = (
+    df_copy['ao'] = (
         median_price.rolling(window1, min_periods=min_periods_s).mean()
         - median_price.rolling(window2, min_periods=min_periods_l).mean()
     )
     if fillna:
-        ao = ao.fillna(0)
-    return ao
+        df_copy['ao'] = df_copy['ao'].fillna(0)
+
+    df_copy['ao'] = df_copy['ao'].round(2)
+    return df_copy[['ao']]
 
 
-def CMO(df, length=14):
+def Chande_Momentum_Oscillator(df, length=14):
     """
     Chande Momentum Oscillator (CMO)
+
+    The Chande Momentum Oscillator (CMO) is a technical momentum indicator developed by Tushar Chande. 
+    It measures the amount that an asset's price has changed over a specified period of time.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
     - length (int): Length for the CMO calculation. Default is 14.
 
     Call with:
-        cmo = CMO(df)
-        df['cmo'] = cmo['cmo']
+        df['cmo'] = bta.Chande_Momentum_Oscillator(df)
 
     For Signal line:
-        df['CMO_Signal'] = df['CMO'].rolling(window=10).mean().round(2)  # Using SMA for signal
+        df['cmo_signal'] = df['cmo'].rolling(window=10).mean().round(2)  # Using SMA for signal
 
     Returns:
     - pd.DataFrame: DataFrame with 'cmo' column.
@@ -1967,19 +2990,18 @@ def CMO(df, length=14):
     neg_mom = -mom.where(mom < 0, 0)
     sm1 = pos_mom.rolling(window=length).sum()
     sm2 = neg_mom.rolling(window=length).sum()
-    cmo = 100 * (sm1 - sm2) / (sm1 + sm2)
+    df_copy['cmo'] = 100 * (sm1 - sm2) / (sm1 + sm2)
 
-    df_copy['cmo'] = cmo.round(2)
-    
+    df_copy['cmo'] = df_copy['cmo'].round(2)
     return df_copy[['cmo']]
 
 
-def EWO(df, column="close", sma1_period=5, sma2_period=35):
+def Elliott_Wave_Oscillator(df, column="close", sma1_period=5, sma2_period=35):
     """
     Elliott Wave Oscillator (EWO)
 
-    Call with:
-        df['ewo'] = bta.EWO(df, "close", 5, 35)
+    The Elliott Wave Oscillator (EWO) is a specific tool to help you identify the trend and the overall market pattern to assist in finding future trading opportunities.
+    It is derived by calculating the difference between a short and long period simple moving average, then normalizing the result with the close price.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
@@ -1987,38 +3009,42 @@ def EWO(df, column="close", sma1_period=5, sma2_period=35):
     - sma1_period (int): The period for the shorter SMA used in EWO calculation. Default is 5.
     - sma2_period (int): The period for the longer SMA used in EWO calculation. Default is 35.
 
-    Returns:
-    - pandas.Series: A series of EWO values.
+    Call with:
+        df['ewo'] = bta.Elliott_Wave_Oscillator(df, "close", 5, 35)
 
-    Description:
-    The Elliott Wave Oscillator (EWO) is a specific tool to help you identify the trend and the overall market pattern to assist in finding future trading opportunities. It is derived by calculating the difference between a short and long period simple moving average, then normalizing the result with the close price.
+    Returns:
+    - pd.DataFrame: DataFrame with 'ewo' column.
     """
+    df_copy = df.copy()
+
     sma1 = df[column].rolling(window=sma1_period).mean()
     sma2 = df[column].rolling(window=sma2_period).mean()
-    ewo = (sma1 - sma2) / df[column] * 100
+    df_copy['ewo'] = ((sma1 - sma2) / df[column] * 100).round(2)
 
-    return ewo
+    return df_copy[['ewo']]
 
 
-def Fisher_cg(df, length=20, min_period=10):
-    """ 
+def Fisher_Center_Of_Gravity(df, length=20, min_period=10):
+    """
     Fisher Stochastic Center of Gravity
-    
+
     Original Pinescript by dasanc
     https://tradingview.com/script/5BT3a9mJ-Fisher-Stochastic-Center-of-Gravity/
 
+    The Fisher Stochastic Center of Gravity is an indicator that aims to identify the center of gravity of the market.
+
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain 'high' and 'low' columns.
-    - length (int): Lookback period.
-    - min_period (int): Minimum lookback period.
+    - length (int): Lookback period. Default is 20.
+    - min_period (int): Minimum lookback period. Default is 10.
 
     Call with:
-        fisher = bta.Fisher_cg(df)
+        fisher = bta.Fisher_Center_Of_Gravity(df)
         df['fisher_cg'] = fisher['fisher_cg']
         df['fisher_sig'] = fisher['fisher_sig']
 
     Returns:
-    - pd.DataFrame: DataFrame with fisher_cg and fisher_sig columns populated.
+    - pd.DataFrame: DataFrame with 'fisher_cg' and 'fisher_sig' columns populated.
     """
     df_copy = df.copy()
 
@@ -2036,16 +3062,16 @@ def Fisher_cg(df, length=20, min_period=10):
     num = sum((1 + i) * df_copy['hl2'].shift(i) for i in range(length))
     denom = sum(df_copy['hl2'].shift(i) for i in range(length))
 
-    CG = -num / denom + (length + 1) / 2
-    MaxCG = CG.rolling(window=length).max()
-    MinCG = CG.rolling(window=length).min()
+    cg = -num / denom + (length + 1) / 2
+    max_cg = cg.rolling(window=length).max()
+    min_cg = cg.rolling(window=length).min()
 
-    Value1 = np.where(MaxCG != MinCG, (CG - MinCG) / (MaxCG - MinCG), 0)
-    Value2 = (4 * Value1 + 3 * np.roll(Value1, 1) + 2 * np.roll(Value1, 2) + np.roll(Value1, 3)) / 10
-    Value3 = 0.5 * np.log((1 + 1.98 * (Value2 - 0.5)) / (1 - 1.98 * (Value2 - 0.5)))
+    value1 = np.where(max_cg != min_cg, (cg - min_cg) / (max_cg - min_cg), 0)
+    value2 = (4 * value1 + 3 * np.roll(value1, 1) + 2 * np.roll(value1, 2) + np.roll(value1, 3)) / 10
+    value3 = 0.5 * np.log((1 + 1.98 * (value2 - 0.5)) / (1 - 1.98 * (value2 - 0.5)))
 
-    df_copy['fisher_cg'] = pd.Series(Value3, index=df_copy.index)  # Center of Gravity
-    df_copy['fisher_sig'] = df_copy['fisher_cg'].shift(1)  # Signal / Trigger
+    df_copy['fisher_cg'] = pd.Series(value3, index=df_copy.index).round(2)  # Center of Gravity
+    df_copy['fisher_sig'] = df_copy['fisher_cg'].shift(1).round(2)  # Signal / Trigger
 
     return df_copy[['fisher_cg', 'fisher_sig']]
 
@@ -2054,16 +3080,18 @@ def Inverse_Fisher_Transform(df, src='close', rsi_length=10, rsi_smoothing=5, e_
     """
     Inverse Fisher Transform
 
+    The Inverse Fisher Transform is a technical indicator used to amplify price movements and identify potential buy and sell signals.
+    It applies an inverse Fisher transform to a smoothed RSI to highlight changes in price momentum.
+
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
-    - src (str): Source column to calculate the indicator.
+    - src (str): Source column to calculate the indicator. Default is 'close'.
     - rsi_length (int): Length for the RSI calculation. Default is 10.
     - rsi_smoothing (int): Length for the RSI smoothing (EMA). Default is 5.
     - e_value (float): E value for the inverse fisher transform. Default is 2.71.
 
     Call with:
-        ift = Inverse_Fisher_Transform(df)
-        df['ift'] = ift['ift']
+        df['ift'] = bta.Inverse_Fisher_Transform(df)['ift']
 
     Use additional levels in your dataframe for 
         # Add horizontal levels
@@ -2092,14 +3120,16 @@ def Inverse_Fisher_Transform(df, src='close', rsi_length=10, rsi_smoothing=5, e_
     return df_copy[['ift']]
 
 
-def KAMA(
-    close: pd.Series,
+def Kaufmans_Adaptive_Moving_Average(
+    df: pd.DataFrame,
+    close_col: str = 'close',
     window: int = 10,
     pow1: int = 2,
     pow2: int = 30,
     fillna: bool = False,
-) -> pd.Series:
-    """Kaufman's Adaptive Moving Average (KAMA)
+) -> pd.DataFrame:
+    """
+    Kaufman's Adaptive Moving Average (KAMA)
 
     Moving average designed to account for market noise or volatility. KAMA
     will closely follow prices when the price swings are relatively small and
@@ -2108,19 +3138,21 @@ def KAMA(
     used to identify the overall trend, time turning points and filter price
     movements.
 
-    Call with:
-        df['kama'] = bta.KAMA(df['close'], 10, 2, 30)
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
+    - close_col (str): Column name for the close prices. Default is 'close'.
+    - window (int): Number of periods for the efficiency ratio. Default is 10.
+    - pow1 (int): Number of periods for the fastest EMA constant. Default is 2.
+    - pow2 (int): Number of periods for the slowest EMA constant. Default is 30.
+    - fillna (bool): If True, fill nan values with the close prices. Default is False.
 
-    Args:
-        close(pandas.Series): dataset 'Close' column.
-        window(int): n number of periods for the efficiency ratio.
-        pow1(int): number of periods for the fastest EMA constant.
-        pow2(int): number of periods for the slowest EMA constant.
-        fillna(bool): if True, fill nan values.
+    Call with:
+        df['kama'] = bta.Kaufmans_Adaptive_Moving_Average(df)['kama']
 
     Returns:
-        pandas.Series: New feature generated.
+    - pd.DataFrame: DataFrame with 'kama' column.
     """
+    close = df[close_col]
     close_values = close.values
     vol = pd.Series(abs(close - np.roll(close, 1)))
 
@@ -2154,33 +3186,37 @@ def KAMA(
                 close_values[i] - kama[i - 1]
             )
     
-    kama_series = pd.Series(kama, index=close.index)
+    kama_series = pd.Series(kama, index=close.index).round(2)
     if fillna:
         kama_series = kama_series.fillna(close)
-    return kama_series
+
+    df_copy = df.copy()
+    df_copy['kama'] = kama_series
+
+    return df_copy[['kama']]
 
 
-def MACD(df, column="close", short_window=12, long_window=26, signal_window=9):
+def macd(df, column="close", short_window=12, long_window=26, signal_window=9):
     """
     Moving Average Convergence Divergence (MACD)
 
-    Call with:
-        macd_result = bta.MACD(df, "close", 12, 26, 9)
-        df['macd'] = macd_result['MACD']
-        df['macd_signal'] = macd_result['MACD_signal']
-        df['macd_histogram'] = macd_result['MACD_histogram']
+    MACD is a trend-following momentum indicator that shows the relationship between two moving averages of a security’s price.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain at least the "close" column.
+    - column (str): The column on which MACD is to be calculated. Default is "close".
     - short_window (int): The short-term period for EMA. Default is 12.
     - long_window (int): The long-term period for EMA. Default is 26.
     - signal_window (int): The signal line period for EMA. Default is 9.
 
-    Returns:
-    - pd.DataFrame: DataFrame with 'MACD', 'Signal', and 'Histogram' columns.
+    Call with:
+        macd_result = bta.macd(df, "close", 12, 26, 9)
+        df['macd'] = macd_result['macd']
+        df['macd_signal'] = macd_result['macd_signal']
+        df['macd_histogram'] = macd_result['macd_histogram']
 
-    Description:
-    MACD is a trend-following momentum indicator that shows the relationship between two moving averages of a security’s price.
+    Returns:
+    - pd.DataFrame: DataFrame with 'macd', 'macd_signal', and 'macd_histogram' columns.
     """
     short_ema = EMA(df, column=column, period=short_window)
     long_ema = EMA(df, column=column, period=long_window)
@@ -2188,34 +3224,33 @@ def MACD(df, column="close", short_window=12, long_window=26, signal_window=9):
     signal = macd.ewm(span=signal_window, adjust=False).mean()
     histogram = macd - signal
 
-    # Returning as DataFrame
-    return pd.DataFrame({
-        'MACD': macd,
-        'MACD_signal': signal,
-        'MACD_histogram': histogram
-    })
+    df_copy = df.copy()
+    df_copy['macd'] = macd.round(2)
+    df_copy['macd_signal'] = signal.round(2)
+    df_copy['macd_histogram'] = histogram.round(2)
+
+    return df_copy[['macd', 'macd_signal', 'macd_histogram']]
 
 
-def MACD_Leader(df, src, fast_length=12, slow_length=26, signal_length=9):
+def MACD_Leader(df, src='close', fast_length=12, slow_length=26, signal_length=9):
     """
     MACD Leader
 
+    The MACD Leader is a variation of the standard MACD that aims to provide an earlier signal by using a different calculation method.
+
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain the source column.
-    - src (str): The column to use for calculations.
+    - src (str): The column to use for calculations. Default is 'close'.
     - fast_length (int): Length for the fast EMA. Default is 12.
     - slow_length (int): Length for the slow EMA. Default is 26.
     - signal_length (int): Length for the signal EMA. Default is 9.
 
     Call with:
-        macd_leader = MACD_Leader(df, 'close')
-        df['macd_leader'] = macd_leader['macd_leader']
+        df['macd_leader'] = bta.MACD_Leader(df, 'close')
 
     Returns:
     - pd.DataFrame: DataFrame with 'macd_leader' column.
     """
-    df_copy = df.copy()
-
     src_series = df[src]
     sema = EMA(df.assign(src_series=src_series), 'src_series', fast_length)
     lema = EMA(df.assign(src_series=src_series), 'src_series', slow_length)
@@ -2223,26 +3258,30 @@ def MACD_Leader(df, src, fast_length=12, slow_length=26, signal_length=9):
     i2 = lema + EMA(df.assign(diff=src_series - lema), 'diff', slow_length)
     macd_leader = ((i1 - i2) / 10) * 100
 
+    df_copy = df.copy()
     df_copy['macd_leader'] = macd_leader.round(2)
     
     return df_copy[['macd_leader']]
 
 
-def MAStreak(df, period=4, column='close'):
+def MA_Streak(df, period=4, column='close'):
     """
     MA Streak
-    Port of: https://www.tradingview.com/script/Yq1z7cIv-MA-Streak-Can-Show-When-a-Run-Is-Getting-Long-in-the-Tooth/
-    
-    Call with:
-        df['mastreak'] = bta.MAStreak(df, period=4, column='close')
 
-    Args:
-    df (pd.DataFrame): DataFrame containing the data.
-    period (int): Period for the ZEMA calculation. Default is 4.
-    column (str): The column name on which the ZEMA is to be applied. Default is "close".
+    Port of: https://www.tradingview.com/script/Yq1z7cIv-MA-Streak-Can-Show-When-a-Run-Is-Getting-Long-in-the-Tooth/
+
+    The MA Streak indicator shows the length of consecutive periods where the moving average is increasing or decreasing.
+
+    Parameters:
+    - df (pd.DataFrame): DataFrame containing the data.
+    - period (int): Period for the ZEMA calculation. Default is 4.
+    - column (str): The column name on which the ZEMA is to be applied. Default is "close".
+
+    Call with:
+        df['mastreak'] = bta.MA_Streak(df, period=4, column='close')['mastreak']
 
     Returns:
-    pd.Series: Series of MA Streak values.
+    - pd.DataFrame: DataFrame with 'mastreak' column.
     """
     df_copy = df.copy()
 
@@ -2252,11 +3291,14 @@ def MAStreak(df, period=4, column='close'):
     neg = np.clip(arr, -1, 0).astype(bool).cumsum()
     streak = np.where(arr >= 0, pos - np.maximum.accumulate(np.where(arr <= 0, pos, 0)),
                       -neg + np.maximum.accumulate(np.where(arr >= 0, neg, 0)))
+
+    streak_series = SameLength(df_copy['close'], streak)
+    df_copy['mastreak'] = streak_series.round(2)
     
-    return SameLength(df_copy['close'], streak)
+    return df_copy[['mastreak']]
 
 
-def PPO(
+def Percentage_Price_Oscillator(
     df: pd.DataFrame,
     close_col: str = 'close',
     window_slow: int = 26,
@@ -2271,14 +3313,14 @@ def PPO(
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain the close column.
-    - close_col (str): Name of the column containing close price data.
-    - window_slow (int): n period long-term.
-    - window_fast (int): n period short-term.
-    - window_sign (int): n period to signal.
-    - fillna (bool): if True, fill nan values.
+    - close_col (str): Name of the column containing close price data. Default is 'close'.
+    - window_slow (int): n period long-term. Default is 26.
+    - window_fast (int): n period short-term. Default is 12.
+    - window_sign (int): n period to signal. Default is 9.
+    - fillna (bool): if True, fill nan values. Default is False.
 
     Call with:
-        ppo = bta.PPO(df)
+        ppo = bta.Percentage_Price_Oscillator(df)
         df['ppo'] = ppo['ppo']
         df['ppo_signal'] = ppo['ppo_signal']
         df['ppo_hist'] = ppo['ppo_hist']
@@ -2307,9 +3349,9 @@ def PPO(
         ppo_signal = ppo_signal.fillna(0)
         ppo_hist = ppo_hist.fillna(0)
 
-    df_copy['ppo'] = ppo
-    df_copy['ppo_signal'] = ppo_signal
-    df_copy['ppo_hist'] = ppo_hist
+    df_copy['ppo'] = ppo.round(2)
+    df_copy['ppo_signal'] = ppo_signal.round(2)
+    df_copy['ppo_hist'] = ppo_hist.round(2)
 
     return df_copy[['ppo', 'ppo_signal', 'ppo_hist']]
 

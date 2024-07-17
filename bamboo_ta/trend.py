@@ -4,41 +4,55 @@ import math
 import numpy as np
 import pandas as pd
 # from .bamboo_ta import *
-from .volatility import BollingerBands
+from .volatility import *
 # from .trend import SMA, EMA, LSMA, HMA, WMA
 from .utility import *
 
-def AlligatorBands(df, column="close", jaw_period=13, teeth_period=8, lips_period=5, jaw_shift=8, teeth_shift=5, lips_shift=3):
+def Alligator_Bands(
+    df: pd.DataFrame,
+    column: str = 'close',
+    jaw_period: int = 13,
+    teeth_period: int = 8,
+    lips_period: int = 5,
+    jaw_shift: int = 8,
+    teeth_shift: int = 5,
+    lips_shift: int = 3
+) -> pd.DataFrame:
     """
     Bill Williams Alligator Indicator
 
+    The Alligator Indicator is used to identify trends and their direction in the market. It consists of three smoothed moving averages known as the Jaw, Teeth, and Lips.
+
+    Parameters:
+    - df (pandas.DataFrame): DataFrame containing the data.
+    - column (str): The column name on which the Alligator is to be applied. Default is 'close'.
+    - jaw_period (int): Period for the Alligator's Jaw (blue line). Default is 13.
+    - teeth_period (int): Period for the Alligator's Teeth (red line). Default is 8.
+    - lips_period (int): Period for the Alligator's Lips (green line). Default is 5.
+    - jaw_shift (int): Number of periods to shift the Jaw line into the future. Default is 8.
+    - teeth_shift (int): Number of periods to shift the Teeth line into the future. Default is 5.
+    - lips_shift (int): Number of periods to shift the Lips line into the future. Default is 3.
+
     Call with:
-        alligator_result = bta.AlligatorBands(df, "high", 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
+        alligator_result = bta.Alligator_Bands(df, 'close', 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
         df['jaw'] = alligator_result['jaw']
         df['teeth'] = alligator_result['teeth']
         df['lips'] = alligator_result['lips']
 
-    Args:
-    df (pd.DataFrame): DataFrame containing the data.
-    column (str): The column name on which the Alligator is to be applied. Default is "close".
-    jaw_period (int): Period for the Alligator's Jaw (blue line). Default is 13.
-    teeth_period (int): Period for the Alligator's Teeth (red line). Default is 8.
-    lips_period (int): Period for the Alligator's Lips (green line). Default is 5.
-    jaw_shift (int): Number of periods to shift the Jaw line into the future. Default is 8.
-    teeth_shift (int): Number of periods to shift the Teeth line into the future. Default is 5.
-    lips_shift (int): Number of periods to shift the Lips line into the future. Default is 3.
-
     Returns:
-    pd.DataFrame: DataFrame with 'jaw', 'teeth', and 'lips' columns added, optionally shifted into the future.
+    - pd.DataFrame: DataFrame with 'jaw', 'teeth', and 'lips' columns.
     """
+    df_copy = df.copy()
 
-    df['jaw'] = df[column].rolling(window=jaw_period).mean().shift(jaw_shift)
-    df['teeth'] = df[column].rolling(
-        window=teeth_period).mean().shift(teeth_shift)
-    df['lips'] = df[column].rolling(
-        window=lips_period).mean().shift(lips_shift)
+    df_copy['jaw'] = df_copy[column].rolling(window=jaw_period).mean().shift(jaw_shift)
+    df_copy['teeth'] = df_copy[column].rolling(window=teeth_period).mean().shift(teeth_shift)
+    df_copy['lips'] = df_copy[column].rolling(window=lips_period).mean().shift(lips_shift)
 
-    return df[['jaw', 'teeth', 'lips']]
+    df_copy['jaw'] = df_copy['jaw'].round(2)
+    df_copy['teeth'] = df_copy['teeth'].round(2)
+    df_copy['lips'] = df_copy['lips'].round(2)
+
+    return df_copy[['jaw', 'teeth', 'lips']]
 
 
 def BollingerTrend(df, column="close", short_length=20, long_length=50, std_dev=2.0):
@@ -59,13 +73,13 @@ def BollingerTrend(df, column="close", short_length=20, long_length=50, std_dev=
     - pandas.Series: A series of BBTrend values.
     """
     # Calculate short Bollinger Bands
-    short_bb = BollingerBands(df, column=column, period=short_length, std_dev=std_dev)
+    short_bb = Bollinger_Bands(df, column=column, period=short_length, std_dev=std_dev)
     short_middle = short_bb['BB_middle']
     short_upper = short_bb['BB_upper']
     short_lower = short_bb['BB_lower']
 
     # Calculate long Bollinger Bands
-    long_bb = BollingerBands(df, column=column, period=long_length, std_dev=std_dev)
+    long_bb = Bollinger_Bands(df, column=column, period=long_length, std_dev=std_dev)
     long_middle = long_bb['BB_middle']
     long_upper = long_bb['BB_upper']
     long_lower = long_bb['BB_lower']
@@ -147,7 +161,7 @@ def BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50
 
 
 def Breakouts(df, length=20):
-    """ 
+    """
     S/R Breakouts and Retests
 
     Makes it easy to work with Support and Resistance.
@@ -158,7 +172,7 @@ def Breakouts(df, length=20):
     - length (int): Lookback period.
 
     Call with:
-        breakout = bta.Breakouts(df)
+        breakout = bta.Breakouts(df, length=20)
         df['support_level'] = breakout['support_level']
         df['resistance_level'] = breakout['resistance_level']
         df['support_breakout'] = breakout['support_breakout']
@@ -183,8 +197,8 @@ def Breakouts(df, length=20):
     low = df_copy['low']
     close = df_copy['close']
 
-    pl = low.rolling(window=length*2+1).min()
-    ph = high.rolling(window=length*2+1).max()
+    pl = low.rolling(window=length * 2 + 1).min()
+    ph = high.rolling(window=length * 2 + 1).max()
     
     s_yLoc = low.shift(length + 1).where(low.shift(length + 1) > low.shift(length - 1), low.shift(length - 1))
     r_yLoc = high.shift(length + 1).where(high.shift(length + 1) > high.shift(length - 1), high.shift(length + 1))
@@ -210,12 +224,13 @@ def Breakouts(df, length=20):
     
     df_copy['support_breakout'] = cu
     df_copy['resistance_breakout'] = co
-    df_copy['support_retest'] = s1 | s2 | s3 | s4
-    df_copy['potential_support_retest'] = s1 | s2 | s3
-    df_copy['resistance_retest'] = r1 | r2 | r3 | r4
-    df_copy['potential_resistance_retest'] = r1 | r2 | r3
+    df_copy['support_retest'] = (s1 | s2 | s3 | s4).astype(int)
+    df_copy['potential_support_retest'] = (s1 | s2 | s3).astype(int)
+    df_copy['resistance_retest'] = (r1 | r2 | r3 | r4).astype(int)
+    df_copy['potential_resistance_retest'] = (r1 | r2 | r3).astype(int)
     
     return df_copy[['support_level', 'resistance_level', 'support_breakout', 'resistance_breakout', 'support_retest', 'potential_support_retest', 'resistance_retest', 'potential_resistance_retest']]
+
 
 
 def EMA(df, column="close", period=21):

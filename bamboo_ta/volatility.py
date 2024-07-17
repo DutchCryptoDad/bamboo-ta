@@ -30,12 +30,12 @@ def Average_True_Range(df, period=14):
     return df_copy['atr']
 
 
-def BollingerBands(df, column="close", period=20, std_dev=2, ddof=0):
+def Bollinger_Bands(df, column="close", period=20, std_dev=2, ddof=0):
     """
     Bollinger Bands (BBANDS)
 
     Call with:
-        bb_result = bta.BollingerBands(df, "close", 21, 2, 0)
+        bb_result = bta.Bollinger_Bands(df, "close", 21, 2, 0)
         df['bb_upper'] = bb_result['BB_upper']
         df['bb_middle'] = bb_result['BB_middle']
         df['bb_lower'] = bb_result['BB_lower']
