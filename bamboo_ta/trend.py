@@ -8,7 +8,7 @@ from .volatility import *
 # from .trend import SMA, EMA, LSMA, HMA, WMA
 from .utility import *
 
-def Alligator_Bands(
+def AlligatorBands(
     df: pd.DataFrame,
     column: str = 'close',
     jaw_period: int = 13,
@@ -34,7 +34,7 @@ def Alligator_Bands(
     - lips_shift (int): Number of periods to shift the Lips line into the future. Default is 3.
 
     Call with:
-        alligator_result = bta.Alligator_Bands(df, 'close', 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
+        alligator_result = bta.AlligatorBands(df, 'close', 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
         df['jaw'] = alligator_result['jaw']
         df['teeth'] = alligator_result['teeth']
         df['lips'] = alligator_result['lips']
@@ -55,112 +55,125 @@ def Alligator_Bands(
     return df_copy[['jaw', 'teeth', 'lips']]
 
 
-def BollingerTrend(df, column="close", short_length=20, long_length=50, std_dev=2.0):
+def BollingerTrend(df: pd.DataFrame, column: str = 'close', short_length: int = 20, long_length: int = 50, std_dev: float = 2.0) -> pd.DataFrame:
     """
     Bollinger Trend Indicator
 
-    Call with:
-        df['BBTrend'] = bta.BollingerTrend(df, "close", 20, 50, 2.0)
+    The Bollinger Trend Indicator calculates the trend based on the difference between short and long Bollinger Bands.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
-    - column (str): The column on which BBTrend is to be calculated. Default is "close".
+    - column (str): The column on which BBTrend is to be calculated. Default is 'close'.
     - short_length (int): The period for the short Bollinger Bands. Default is 20.
     - long_length (int): The period for the long Bollinger Bands. Default is 50.
-    - stddev (float): The standard deviation multiplier for the Bollinger Bands. Default is 2.0.
+    - std_dev (float): The standard deviation multiplier for the Bollinger Bands. Default is 2.0.
+
+    Call with:
+        df['bbtrend'] = bta.BollingerTrend(df, 'close', 20, 50, 2.0)['bbtrend']
 
     Returns:
-    - pandas.Series: A series of BBTrend values.
+    - pd.DataFrame: DataFrame with 'bbtrend' column.
     """
+    df_copy = df.copy()
+
     # Calculate short Bollinger Bands
-    short_bb = Bollinger_Bands(df, column=column, period=short_length, std_dev=std_dev)
-    short_middle = short_bb['BB_middle']
-    short_upper = short_bb['BB_upper']
-    short_lower = short_bb['BB_lower']
+    short_bb = BollingerBands(df, column=column, period=short_length, std_dev=std_dev)
+    short_middle = short_bb['bb_middle']
+    short_upper = short_bb['bb_upper']
+    short_lower = short_bb['bb_lower']
 
     # Calculate long Bollinger Bands
-    long_bb = Bollinger_Bands(df, column=column, period=long_length, std_dev=std_dev)
-    long_middle = long_bb['BB_middle']
-    long_upper = long_bb['BB_upper']
-    long_lower = long_bb['BB_lower']
+    long_bb = BollingerBands(df, column=column, period=long_length, std_dev=std_dev)
+    long_middle = long_bb['bb_middle']
+    long_upper = long_bb['bb_upper']
+    long_lower = long_bb['bb_lower']
 
     # Calculate BBTrend
     bbtrend = (np.abs(short_lower - long_lower) - np.abs(short_upper - long_upper)) / short_middle * 100
-    bbtrend = bbtrend.round(2)
-    
-    return bbtrend
+
+    # Fill NaN values that may arise from the calculation
+    bbtrend = bbtrend.fillna(0)
+
+    df_copy['bbtrend'] = bbtrend.round(2)
+
+    return df_copy[['bbtrend']]
 
 
-def BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14):
+def bollinger_trend_fast_with_ma(
+    df: pd.DataFrame,
+    column: str = 'close',
+    short_length: int = 10,
+    long_length: int = 50,
+    short_stddev: float = 1.0,
+    long_stddev: float = 2.0,
+    ma_type: str = 'SMA',
+    ma_length: int = 14
+) -> pd.DataFrame:
     """
-    Bollinger Trend Indicator with selectable Moving Average
+    Bollinger Trend Indicator with Selectable Moving Average
 
     This function calculates the Bollinger Trend (BBTrend) and applies a selected moving average to the BBTrend.
 
-    Usage:
-        BollingerTrendFast = bta.BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14)
-        
-        df['BollingerTrendFast'] = BollingerTrendFast['BBTrend']
-        df['BollingerTrendFastMA'] = BollingerTrendFast['BBTrendMA']
-
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
-    - column (str): The column on which BBTrend is to be calculated. Default is "close".
+    - column (str): The column on which BBTrend is to be calculated. Default is 'close'.
     - short_length (int): The period for the short Bollinger Bands. Default is 10.
     - long_length (int): The period for the long Bollinger Bands. Default is 50.
     - short_stddev (float): The standard deviation multiplier for the short Bollinger Bands. Default is 1.0.
     - long_stddev (float): The standard deviation multiplier for the long Bollinger Bands. Default is 2.0.
-    - ma_type (str): The type of moving average to use ("SMA", "EMA", "LSMA", "HMA", "WMA"). Default is "SMA".
+    - ma_type (str): The type of moving average to use ('SMA', 'EMA', 'LSMA', 'HMA', 'WMA'). Default is 'SMA'.
     - ma_length (int): The period for the moving average. Default is 14.
 
+    Call with:
+        result = bta.bollinger_trend_fast_with_ma(df, 'close', 10, 50, 1.0, 2.0, 'SMA', 14)
+        df['bollinger_trend_fast'] = result['bbtrend']
+        df['bollinger_trend_fast_ma'] = result['bbtrend_ma']
+
     Returns:
-    - pandas.DataFrame: DataFrame with 'BBTrend' and 'MA' columns.
-    
-    Example:
-        result = BollingerTrendWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14)
-        df['BBTrend'] = result['BBTrend']
-        df['MA'] = result['MA']
+    - pd.DataFrame: DataFrame with 'bbtrend' and 'bbtrend_ma' columns.
     """
+    df_copy = df.copy()
 
     # Calculate short Bollinger Bands
     short_bb = BollingerBands(df, column=column, period=short_length, std_dev=short_stddev)
-    short_middle = short_bb['BB_middle']
-    short_upper = short_bb['BB_upper']
-    short_lower = short_bb['BB_lower']
+    short_middle = short_bb['bb_middle']
+    short_upper = short_bb['bb_upper']
+    short_lower = short_bb['bb_lower']
 
     # Calculate long Bollinger Bands
     long_bb = BollingerBands(df, column=column, period=long_length, std_dev=long_stddev)
-    long_middle = long_bb['BB_middle']
-    long_upper = long_bb['BB_upper']
-    long_lower = long_bb['BB_lower']
+    long_middle = long_bb['bb_middle']
+    long_upper = long_bb['bb_upper']
+    long_lower = long_bb['bb_lower']
 
     # Calculate BBTrend
     bbtrend = (np.abs(short_lower - long_lower) - np.abs(short_upper - long_upper)) / short_middle * 100
     bbtrend = bbtrend.round(2)
 
     # Select and calculate the moving average
-    if ma_type == "SMA":
-        ma = SMA(df.assign(BBTrend=bbtrend), column="BBTrend", period=ma_length)
-    elif ma_type == "EMA":
-        ma = EMA(df.assign(BBTrend=bbtrend), column="BBTrend", period=ma_length)
-    elif ma_type == "LSMA":
-        ma = LSMA(df.assign(BBTrend=bbtrend), column="BBTrend", period=ma_length)
-    elif ma_type == "HMA":
-        ma = HMA(df.assign(BBTrend=bbtrend), column="BBTrend", period=ma_length)
-    elif ma_type == "WMA":
-        ma = WMA(df.assign(BBTrend=bbtrend), column="BBTrend", period=ma_length)
+    bbtrend_df = df.assign(bbtrend=bbtrend)
+    if ma_type == 'SMA':
+        ma = SMA(bbtrend_df, column='bbtrend', period=ma_length)
+    elif ma_type == 'EMA':
+        ma = EMA(bbtrend_df, column='bbtrend', period=ma_length)
+    elif ma_type == 'LSMA':
+        ma = LSMA(bbtrend_df, column='bbtrend', period=ma_length)
+    elif ma_type == 'HMA':
+        ma = HMA(bbtrend_df, column='bbtrend', period=ma_length)
+    elif ma_type == 'WMA':
+        ma = WMA(bbtrend_df, column='bbtrend', period=ma_length)
     else:
         raise ValueError("Unsupported moving average type")
 
     # Returning as DataFrame
     result = df.copy()
-    result['BBTrend'] = bbtrend.round(2)
-    result['BBTrendMA'] = ma.round(2)
+    result['bbtrend'] = bbtrend.round(2)
+    result['bbtrend_ma'] = ma.round(2)
 
-    return result[['BBTrend', 'BBTrendMA']]
+    return result[['bbtrend', 'bbtrend_ma']]
 
 
-def Breakouts(df, length=20):
+def Breakouts(df: pd.DataFrame, length: int = 20) -> pd.DataFrame:
     """
     S/R Breakouts and Retests
 
@@ -229,84 +242,82 @@ def Breakouts(df, length=20):
     df_copy['resistance_retest'] = (r1 | r2 | r3 | r4).astype(int)
     df_copy['potential_resistance_retest'] = (r1 | r2 | r3).astype(int)
     
-    return df_copy[['support_level', 'resistance_level', 'support_breakout', 'resistance_breakout', 'support_retest', 'potential_support_retest', 'resistance_retest', 'potential_resistance_retest']]
+    return df_copy[['support_level', 'resistance_level', 'support_breakout', 'resistance_breakout', 'support_retest', 'potential_support_retest', 'resistance_retest', 'potential_resistance_retest']].round(2)
 
 
-
-def EMA(df, column="close", period=21):
+def EMA(df: pd.DataFrame, column: str = 'close', period: int = 21) -> pd.DataFrame:
     """
     Exponential Moving Average (EMA)
 
-    Call with:
-        df['ema'] = bta.EMA(df, "close", 50)
+    The Exponential Moving Average gives more weight to recent prices and thus reacts more quickly to price changes than the Simple Moving Average.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
-    - column (str): The column on which EMA is to be calculated. Default is "close".
-    - period (int): The period over which EMA is to be calculated. Default is 30.
+    - column (str): The column on which EMA is to be calculated. Default is 'close'.
+    - period (int): The period over which EMA is to be calculated. Default is 21.
+
+    Call with:
+        df['ema'] = bta.EMA(df, 'close', 50)['ema']
 
     Returns:
-    - pandas.Series: A series of EMA values.
-
-    Description:
-    The Exponential Moving Average gives more weight to recent prices and thus reacts more quickly to price changes than the Simple Moving Average.
+    - pd.DataFrame: DataFrame with 'ema' column.
     """
-
-    ema = df[column].ewm(span=period, adjust=False).mean()
+    df_copy = df.copy()
+    df_copy['ema'] = df_copy[column].ewm(span=period, adjust=False).mean().round(2)
     
-    return ema
+    return df_copy[['ema']]
 
 
-def HMA(df, column="close", period=9):
+def HMA(df: pd.DataFrame, column: str = 'close', period: int = 9) -> pd.DataFrame:
     """
     Hull Moving Average (HMA)
 
-    Call with:
-        df['hma'] = bta.HMA(df, "close", 9)
+    The Hull Moving Average (HMA) is an improved moving average that is responsive and has minimal lag. It involves the combination of WMA (Weighted Moving Average) with different periods.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
-    - column (str): The column on which HMA is to be calculated. Default is "close".
+    - column (str): The column on which HMA is to be calculated. Default is 'close'.
     - period (int): The period over which HMA is to be calculated. Default is 9.
 
+    Call with:
+        df['hma'] = bta.HMA(df, 'close', 9)['hma']
+
     Returns:
-    - pandas.Series: A series of HMA values.
-
-    Description:
-    Hull Moving Average (HMA) is an improved moving average, responsive and with minimal lag. It involves the combination of WMA (Weighted Moving Average) with different periods.
+    - pd.DataFrame: DataFrame with 'hma' column.
     """
+    df_copy = df.copy()
 
-    # We're assuming that WMA is defined in the same file and thus is accessible here.
     half_length = math.floor(period / 2)
     sqrt_length = math.floor(math.sqrt(period))
 
-    wma_half = WMA(df, column=column, period=half_length)
-    wma_full = WMA(df, column=column, period=period)
+    wma_half = WMA(df_copy, column=column, period=half_length)['wma']
+    wma_full = WMA(df_copy, column=column, period=period)['wma']
 
     h = 2 * wma_half - wma_full
-    h_df = DataFrame(h, columns=[column])
-    hma = WMA(h_df, column=column, period=sqrt_length)
+    h_df = pd.DataFrame(h, columns=[column])
+    hma = WMA(h_df.assign(close=h), column='close', period=sqrt_length)['wma'].round(2)
 
-    return hma
+    df_copy['hma'] = hma
+
+    return df_copy[['hma']]
 
 
-def LSMA(df, column="close", period=21):
+def LSMA(df: pd.DataFrame, column: str = 'close', period: int = 21) -> pd.DataFrame:
     """
     Least Squares Moving Average (LSMA)
 
-    Call with:
-        df['lsma'] = bta.LSMA(df, "close", 50)
+    LSMA uses linear regression to compute the trend of the data over a specified period. It fits a straight line to the data points using the method of least squares to depict the direction of movement.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
-    - column (str): The column on which LSMA is to be calculated. Default is "close".
+    - column (str): The column on which LSMA is to be calculated. Default is 'close'.
     - period (int): The period over which LSMA is to be calculated. Default is 21.
 
-    Returns:
-    - pandas.Series: A series of LSMA values.
+    Call with:
+        df['lsma'] = bta.LSMA(df, 'close', 50)['lsma']
 
-    Description:
-    LSMA uses linear regression to compute the trend of the data over a specified period. It fits a straight line to the data points using the method of least squares to depict the direction of movement.
+    Returns:
+    - pd.DataFrame: DataFrame with 'lsma' column.
     """
     lsma_values = []
 
@@ -323,186 +334,189 @@ def LSMA(df, column="close", period=21):
         lsma = intercept + slope * (period - 1)
         lsma_values.append(lsma)
 
-    lsma = pd.Series(lsma_values, index=df.index[period - 1:])
+    lsma_series = pd.Series(lsma_values, index=df.index[period - 1:]).round(2)
 
-    return lsma
+    df_copy = df.copy()
+    df_copy['lsma'] = lsma_series
+
+    return df_copy[['lsma']]
 
 
-def PCC(df, period=20, mult=2):
+def PercentPriceChannel(df: pd.DataFrame, period: int = 20, mult: int = 2) -> pd.DataFrame:
     """
     Percent Change Channel (PCC)
     PCC is like KC unless it uses percentage changes in price to set channel distance.
     https://www.tradingview.com/script/6wwAWXA1-MA-Streak-Change-Channel/
 
-    Call with:
-        upper, rangema, lower = bta.PCC(df, period=20, mult=2)
-        df['pcc_upper'] = upper
-        df['pcc_rangema'] = rangema
-        df['pcc_lower'] = lower
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame containing the data.
+    - period (int): Period for the ZEMA calculation. Default is 20.
+    - mult (int): Multiplier for the range. Default is 2.
 
-    Args:
-    df (pd.DataFrame): DataFrame containing the data.
-    period (int): Period for the ZEMA calculation. Default is 20.
-    mult (int): Multiplier for the range. Default is 2.
+    Call with:
+        pcc_result = bta.PercentPriceChannel(df, period=20, mult=2)
+        df['pcc_upper'] = pcc_result['pcc_upper']
+        df['pcc_rangema'] = pcc_result['pcc_rangema']
+        df['pcc_lower'] = pcc_result['pcc_lower']
 
     Returns:
-    tuple: Upper, RangeMA, and Lower bands as Series.
+    - pd.DataFrame: DataFrame with 'pcc_upper', 'pcc_rangema', and 'pcc_lower' columns.
     """
     df_copy = df.copy()
 
     df_copy['previous_close'] = df_copy['close'].shift()
-    df_copy['close_change'] = (df_copy['close'] - df_copy['previous_close']) / df_copy['previous_close'] * 100
-    df_copy['high_change'] = (df_copy['high'] - df_copy['close']) / df_copy['close'] * 100
-    df_copy['low_change'] = (df_copy['low'] - df_copy['close']) / df_copy['close'] * 100
-    df_copy['delta'] = df_copy['high_change'] - df_copy['low_change']
-    mid = ZEMA(df_copy, period, 'close_change')
-    rangema = ZEMA(df_copy, period, 'delta')
-    upper = mid + rangema * mult
-    lower = mid - rangema * mult
-    
-    return upper, rangema, lower
+    df_copy['close_change'] = ((df_copy['close'] - df_copy['previous_close']) / df_copy['previous_close'] * 100).round(2)
+    df_copy['high_change'] = ((df_copy['high'] - df_copy['close']) / df_copy['close'] * 100).round(2)
+    df_copy['low_change'] = ((df_copy['low'] - df_copy['close']) / df_copy['close'] * 100).round(2)
+    df_copy['delta'] = (df_copy['high_change'] - df_copy['low_change']).round(2)
+
+    mid = ZEMA(df_copy, column='close_change', period=period)['zema']
+    rangema = ZEMA(df_copy, column='delta', period=period)['zema']
+
+    df_copy['pcc_upper'] = (mid + rangema * mult).round(2)
+    df_copy['pcc_rangema'] = rangema.round(2)
+    df_copy['pcc_lower'] = (mid - rangema * mult).round(2)
+
+    return df_copy[['pcc_upper', 'pcc_rangema', 'pcc_lower']]
 
 
-def RMA(series, period):
+def RMA(df: pd.DataFrame, column: str = 'close', period: int = 14) -> pd.DataFrame:
     """
     Relative Moving Average (RMA) calculation.
-    
+
     Parameters:
-    - series (pandas.Series): Input series on which RMA is to be calculated.
+    - df (pandas.DataFrame): Input DataFrame which should contain the specified column.
+    - column (str): The column on which RMA is to be calculated.
     - period (int): The period over which RMA is to be calculated.
-    
+
+    Call with:
+        df['rma'] = bta.RMA(df, 'close', 14)['rma']
+
     Returns:
-    - pandas.Series: A series of RMA values.
+    - pd.DataFrame: DataFrame with 'rma' column.
     """
-    return series.ewm(alpha=1/period, adjust=False).mean()
+    df_copy = df.copy()
+    df_copy['rma'] = df_copy[column].ewm(alpha=1/period, adjust=False).mean().round(2)
+
+    return df_copy[['rma']]
 
 
-def SMA(df, column="close", period=21):
+def SMA(df: pd.DataFrame, column: str = 'close', period: int = 21) -> pd.DataFrame:
     """
     Simple Moving Average (SMA)
 
-    Call with:
-        df['sma'] = bta.SMA(df, "close", 50)
+    The Simple Moving Average is the unweighted mean of the previous 'period' data points.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
-    - column (str): The column on which SMA is to be calculated. Default is "close".
-    - period (int): The period over which SMA is to be calculated. Default is 30.
-
-    Returns:
-    - pandas.Series: A series of SMA values.
-
-    Description:
-    The Simple Moving Average is the unweighted mean of the previous 'period' data points.
-    """
-
-    sma = df[column].rolling(window=period).mean()
-    
-    return sma
-
-
-def SSLChannels(df, length=10, mode='sma'):
-    """
-    SSL Channels
-    Source: https://www.tradingview.com/script/xzIoaIJC-SSL-channel/
-    Source: https://github.com/freqtrade/technical/blob/master/technical/indicators/indicators.py#L1025
+    - column (str): The column on which SMA is to be calculated. Default is 'close'.
+    - period (int): The period over which SMA is to be calculated. Default is 21.
 
     Call with:
-        ssl_down, ssl_up = bta.SSLChannels(df, length=10, mode='sma')
-        df['ssl_down'] = ssl_down
-        df['ssl_up'] = ssl_up
-
-    Args:
-    df (pd.DataFrame): DataFrame containing the data.
-    length (int): Period for the SMA calculation. Default is 10.
-    mode (str): Type of moving average to use. Currently only 'sma' is supported.
+        df['sma'] = bta.SMA(df, 'close', 50)['sma']
 
     Returns:
-    tuple: SSL Down and SSL Up series.
+    - pd.DataFrame: DataFrame with 'sma' column.
+    """
+    df_copy = df.copy()
+    df_copy['sma'] = df_copy[column].rolling(window=period).mean().round(2)
+
+    return df_copy[['sma']]
+
+
+def SSLChannels(df: pd.DataFrame, length: int = 10, mode: str = 'sma') -> pd.DataFrame:
+    """
+    SSL Channels
+
+    SSL Channels is an indicator based on the concept of using different moving averages to identify trends. This function calculates the SSL Down and SSL Up series.
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame containing the data.
+    - length (int): Period for the SMA calculation. Default is 10.
+    - mode (str): Type of moving average to use. Currently only 'sma' is supported.
+
+    Call with:
+        ssl_result = bta.SSLChannels(df, length=10, mode='sma')
+        df['ssl_down'] = ssl_result['ssl_down']
+        df['ssl_up'] = ssl_result['ssl_up']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'ssl_down' and 'ssl_up' columns.
     """
     df_copy = df.copy()
 
     if mode not in ('sma'):
         raise ValueError(f"Mode {mode} not supported yet")
     
-    df_copy['smaHigh'] = df_copy['high'].rolling(length).mean()
-    df_copy['smaLow'] = df_copy['low'].rolling(length).mean()
-    df_copy['hlv'] = np.where(df_copy['close'] > df_copy['smaHigh'], 1,
-                              np.where(df_copy['close'] < df_copy['smaLow'], -1, np.NAN))
+    df_copy['sma_high'] = df_copy['high'].rolling(length).mean()
+    df_copy['sma_low'] = df_copy['low'].rolling(length).mean()
+    df_copy['hlv'] = np.where(df_copy['close'] > df_copy['sma_high'], 1,
+                              np.where(df_copy['close'] < df_copy['sma_low'], -1, np.NAN))
     df_copy['hlv'] = df_copy['hlv'].ffill()
-    df_copy['sslDown'] = np.where(df_copy['hlv'] < 0, df_copy['smaHigh'], df_copy['smaLow'])
-    df_copy['sslUp'] = np.where(df_copy['hlv'] < 0, df_copy['smaLow'], df_copy['smaHigh'])
+    df_copy['ssl_down'] = np.where(df_copy['hlv'] < 0, df_copy['sma_high'], df_copy['sma_low'])
+    df_copy['ssl_up'] = np.where(df_copy['hlv'] < 0, df_copy['sma_low'], df_copy['sma_high'])
 
-    return df_copy['sslDown'], df_copy['sslUp']
+    df_copy['ssl_down'] = df_copy['ssl_down'].round(2)
+    df_copy['ssl_up'] = df_copy['ssl_up'].round(2)
+
+    return df_copy[['ssl_down', 'ssl_up']]
 
 
-def SSLChannelsATR(df, length=7):
+def SSLChannelsATR(df: pd.DataFrame, length: int = 7) -> pd.DataFrame:
     """
     SSL Channels with ATR
-    SSL Channels with ATR: https://www.tradingview.com/script/SKHqWzql-SSL-ATR-channel/
+
+    SSL Channels with ATR indicator calculates the SSL Down and SSL Up series using ATR.
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame containing the data.
+    - length (int): Period for the SMA calculation. Default is 7.
 
     Call with:
-        ssl_down, ssl_up = bta.SSLChannelsATR(df, length=7)
-        df['ssl_atr_down'] = ssl_down
-        df['ssl_atr_up'] = ssl_up
-
-    Args:
-    df (pd.DataFrame): DataFrame containing the data.
-    length (int): Period for the SMA calculation. Default is 7.
+        ssl_result = bta.SSLChannelsATR(df, length=7)
+        df['ssl_atr_down'] = ssl_result['ssl_atr_down']
+        df['ssl_atr_up'] = ssl_result['ssl_atr_up']
 
     Returns:
-    tuple: SSL Down and SSL Up series.
+    - pd.DataFrame: DataFrame with 'ssl_atr_down' and 'ssl_atr_up' columns.
     """
     df_copy = df.copy()
 
-    df_copy['ATR'] = ATR(df_copy, period=14)
-    df_copy['smaHigh'] = df_copy['high'].rolling(length).mean() + df_copy['ATR']
-    df_copy['smaLow'] = df_copy['low'].rolling(length).mean() - df_copy['ATR']
-    df_copy['hlv'] = np.where(df_copy['close'] > df_copy['smaHigh'], 1, np.where(df_copy['close'] < df_copy['smaLow'], -1, np.NAN))
+    df_copy['atr'] = AverageTrueRange(df, period=14)
+    df_copy['sma_high'] = (df_copy['high'].rolling(length).mean() + df_copy['atr']).round(2)
+    df_copy['sma_low'] = (df_copy['low'].rolling(length).mean() - df_copy['atr']).round(2)
+    df_copy['hlv'] = np.where(df_copy['close'] > df_copy['sma_high'], 1, 
+                              np.where(df_copy['close'] < df_copy['sma_low'], -1, np.nan))
     df_copy['hlv'] = df_copy['hlv'].ffill()
-    df_copy['sslDown'] = np.where(df_copy['hlv'] < 0, df_copy['smaHigh'], df_copy['smaLow'])
-    df_copy['sslUp'] = np.where(df_copy['hlv'] < 0, df_copy['smaLow'], df_copy['smaHigh'])
-    
-    return df_copy['sslDown'], df_copy['sslUp']
+    df_copy['ssl_atr_down'] = np.where(df_copy['hlv'] < 0, df_copy['sma_high'], df_copy['sma_low'])
+    df_copy['ssl_atr_up'] = np.where(df_copy['hlv'] < 0, df_copy['sma_low'], df_copy['sma_high'])
+
+    return df_copy[['ssl_atr_down', 'ssl_atr_up']]
 
 
-def STDEV(series, period):
-    """
-    Calculate the standard deviation over a specified period.
-
-    Parameters:
-    - series (pd.Series): The data series to calculate the standard deviation for.
-    - period (int): The period over which to calculate the standard deviation.
-
-    Returns:
-    - pd.Series: The standard deviation of the series.
-    """
-    return series.rolling(window=period).std()
-
-
-def T3(df, length=5):
+def T3(df: pd.DataFrame, length: int = 5) -> pd.DataFrame:
     """
     T3 Average by HPotter
     https://www.tradingview.com/script/qzoC9H1I-T3-Average/
 
-    Call with:
-        df['t3_average'] = bta.T3(df, length=5)
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame containing the data.
+    - length (int): Period for the EMA calculation. Default is 5.
 
-    Args:
-    df (pd.DataFrame): DataFrame containing the data.
-    length (int): Period for the EMA calculation. Default is 5.
+    Call with:
+        df['t3_average'] = bta.T3(df, length=5)['t3_average']
 
     Returns:
-    pd.Series: Series of T3 Average values.
+    - pd.DataFrame: DataFrame with 't3_average' column.
     """
     df_copy = df.copy()
 
-    df_copy['xe1'] = EMA(df_copy, column='close', period=length)
-    df_copy['xe2'] = EMA(df_copy, column='xe1', period=length)
-    df_copy['xe3'] = EMA(df_copy, column='xe2', period=length)
-    df_copy['xe4'] = EMA(df_copy, column='xe3', period=length)
-    df_copy['xe5'] = EMA(df_copy, column='xe4', period=length)
-    df_copy['xe6'] = EMA(df_copy, column='xe5', period=length)
+    df_copy['xe1'] = EMA(df_copy, column='close', period=length)['ema']
+    df_copy['xe2'] = EMA(df_copy, column='xe1', period=length)['ema']
+    df_copy['xe3'] = EMA(df_copy, column='xe2', period=length)['ema']
+    df_copy['xe4'] = EMA(df_copy, column='xe3', period=length)['ema']
+    df_copy['xe5'] = EMA(df_copy, column='xe4', period=length)['ema']
+    df_copy['xe6'] = EMA(df_copy, column='xe5', period=length)['ema']
     
     b = 0.7
     c1 = -b*b*b
@@ -510,80 +524,77 @@ def T3(df, length=5):
     c3 = -6*b*b-3*b-3*b*b*b
     c4 = 1+3*b+b*b*b+3*b*b
     
-    df_copy['T3Average'] = c1 * df_copy['xe6'] + c2 * df_copy['xe5'] + c3 * df_copy['xe4'] + c4 * df_copy['xe3']
+    df_copy['t3_average'] = (c1 * df_copy['xe6'] + 
+                             c2 * df_copy['xe5'] + 
+                             c3 * df_copy['xe4'] + 
+                             c4 * df_copy['xe3']).round(2)
     
-    return df_copy['T3Average']
+    return df_copy[['t3_average']]
 
 
-def WMA(df, column="close", period=9):
+def WMA(df: pd.DataFrame, column: str = 'close', period: int = 10) -> pd.DataFrame:
     """
-    TradingView-Style Weighted Moving Average (WMA)
+    Weighted Moving Average (WMA)
+    
+    The Weighted Moving Average (WMA) gives more weight to recent data points and less weight to older data points.
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame.
+    - column (str): The column to calculate the WMA on.
+    - period (int): The period for the WMA calculation.
 
     Call with:
-        df['wma'] = bta.WMA(df, "close", 9)
+        df['wma'] = bta.WMA(df, 'close', 10)['wma']
+    
+    Returns:
+    - pd.DataFrame: DataFrame with 'wma' column.
+    """
+    df_copy = df.copy()
+    weights = pd.Series(range(1, period + 1))
+    df_copy['wma'] = df_copy[column].rolling(period).apply(lambda prices: (prices * weights).sum() / weights.sum(), raw=True).round(2)
+    
+    return df_copy[['wma']]
+
+
+def ZEMA(df: pd.DataFrame, column: str = 'close', period: int = 21) -> pd.DataFrame:
+    """
+    Zero Lag Exponential Moving Average (ZEMA)
+
+    The Zero Lag Exponential Moving Average (ZEMA) is an improved version of the Exponential Moving Average (EMA) that reduces lag by incorporating a zero lag component.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
-    - column (str): The column on which WMA is to be calculated. Default is "close".
-    - period (int): The period over which WMA is to be calculated. Default is 9.
-
-    Returns:
-    - pandas.Series: A series of WMA values.
-
-    Description:
-    The Weighted Moving Average assigns weights linearly. The most recent data gets the highest weight.
-    """
-    weights = range(1, period + 1)
-    numerator = df[column].rolling(window=period).apply(
-        lambda x: sum(weights * x), raw=True)
-    denominator = sum(weights)
-
-    wma = numerator / denominator
-    
-    return wma
-
-
-def ZEMA(df, period, column='close'):
-    """
-    Zero Lag Exponential Moving Average (ZEMA)
-    Source: https://github.com/freqtrade/technical/blob/master/technical/indicators/overlap_studies.py#L79
-    Modified slightly to use ta.EMA instead of technical ema
+    - column (str): The column on which ZEMA is to be calculated. Default is 'close'.
+    - period (int): The period over which ZEMA is to be calculated. Default is 21.
 
     Call with:
-        df['zema'] = bta.ZEMA(df, period=21, column='close')
-
-    Args:
-    df (pd.DataFrame): DataFrame containing the data.
-    period (int): Period for the EMA calculation.
-    column (str): The column name on which the ZEMA is to be applied. Default is "close".
+        df['zema'] = bta.ZEMA(df, 'close', 21)['zema']
 
     Returns:
-    pd.Series: Series of ZEMA values.
+    - pd.DataFrame: DataFrame with 'zema' column.
     """
     df_copy = df.copy()
+    ema1 = df_copy[column].ewm(span=period, adjust=False).mean()
+    ema2 = ema1.ewm(span=period, adjust=False).mean()
+    df_copy['zema'] = (2 * ema1 - ema2).round(2)
 
-    df_copy['ema1'] = EMA(df_copy, column=column, period=period)
-    df_copy['ema2'] = EMA(df_copy, column='ema1', period=period)
-    df_copy['d'] = df_copy['ema1'] - df_copy['ema2']
-    df_copy['zema'] = df_copy['ema1'] + df_copy['d']
-    
-    return df_copy['zema']
+    return df_copy[['zema']]
 
 
-def ZLEMA(df, column="close", period=21):
+def ZLEMA(df: pd.DataFrame, column: str = 'close', period: int = 21) -> pd.DataFrame:
     """
     Zero Lag Exponential Moving Average (ZLEMA)
 
     Call with:
-        df['zlema'] = bta.ZLEMA(df, "close", 21)
+        df['zlema'] = bta.ZLEMA(df, 'close', 21)['zlema']
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
-    - column (str): The column on which ZLEMA is to be calculated. Default is "close".
+    - column (str): The column on which ZLEMA is to be calculated. Default is 'close'.
     - period (int): The period over which ZLEMA is to be calculated. Default is 21.
 
     Returns:
-    - pandas.Series: A series of ZLEMA values.
+    - pd.DataFrame: DataFrame with 'zlema' column.
 
     Description:
     Zero Lag Exponential Moving Average (ZLEMA) is an EMA that adjusts for lag, making it more responsive to recent price changes. It uses lagged data differences to adjust the EMA calculation, thereby supposedly removing the inherent lag of EMA.
@@ -594,8 +605,9 @@ def ZLEMA(df, column="close", period=21):
     ema_data = df[column] + (df[column] - df[column].shift(lag))
 
     # Computing the EMA of the adjusted data series
-    zlema = ema_data.ewm(span=period, adjust=False).mean()
+    zlema = ema_data.ewm(span=period, adjust=False).mean().round(2)
 
-    return zlema
+    df_copy = df.copy()
+    df_copy['zlema'] = zlema
 
-
+    return df_copy[['zlema']]

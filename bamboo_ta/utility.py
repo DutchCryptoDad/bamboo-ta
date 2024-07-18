@@ -322,6 +322,18 @@ def _ema(series, periods: int, fillna: bool = False):
     min_periods = 0 if fillna else periods
     return series.ewm(span=periods, min_periods=min_periods, adjust=False).mean()
 
+def STDEV(series, period):
+    """
+    Calculate the standard deviation over a specified period.
+
+    Parameters:
+    - series (pd.Series): The data series to calculate the standard deviation for.
+    - period (int): The period over which to calculate the standard deviation.
+
+    Returns:
+    - pd.Series: The standard deviation of the series.
+    """
+    return series.rolling(window=period).std()
 
 def get_min_max(series1: pd.Series, series2: pd.Series, function: str = "min"):
     """

@@ -7,7 +7,7 @@ from .volatility import *
 from .utility import *
 
 
-def Awesome_Oscillator(df, window1=5, window2=34, fillna=False):
+def AwesomeOscillator(df: pd.DataFrame, high_col: str = 'high', low_col: str = 'low', window1: int = 5, window2: int = 34, fillna: bool = False) -> pd.DataFrame:
     """
     Awesome Oscillator (AO)
 
@@ -16,22 +16,25 @@ def Awesome_Oscillator(df, window1=5, window2=34, fillna=False):
     median price from a 5-period SMA of the median price.
 
     Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'high' and 'low'.
+    - df (pandas.DataFrame): Input DataFrame containing 'high' and 'low' columns.
+    - high_col (str): The name of the 'high' column. Default is 'high'.
+    - low_col (str): The name of the 'low' column. Default is 'low'.
     - window1 (int, optional): Short period. Default is 5.
     - window2 (int, optional): Long period. Default is 34.
     - fillna (bool, optional): If True, fill nan values with 0. Default is False.
 
     Call with:
-        df['ao'] = bta.Awesome_Oscillator(df)
+        df['ao'] = bta.AwesomeOscillator(df, 'high', 'low', 5, 34)['ao']
 
     Returns:
-    - pd.DataFrame: DataFrame with 'ao' column.
+    - pd.DataFrame: DataFrame with the 'ao' column.
     """
     df_copy = df.copy()
 
-    median_price = 0.5 * (df['high'] + df['low'])
+    median_price = 0.5 * (df_copy[high_col] + df_copy[low_col])
     min_periods_s = 0 if fillna else window1
     min_periods_l = 0 if fillna else window2
+
     df_copy['ao'] = (
         median_price.rolling(window1, min_periods=min_periods_s).mean()
         - median_price.rolling(window2, min_periods=min_periods_l).mean()
@@ -40,10 +43,11 @@ def Awesome_Oscillator(df, window1=5, window2=34, fillna=False):
         df_copy['ao'] = df_copy['ao'].fillna(0)
 
     df_copy['ao'] = df_copy['ao'].round(2)
+    
     return df_copy[['ao']]
 
 
-def Chande_Momentum_Oscillator(df, length=14):
+def ChandeMomentumOscillator(df, length: int = 14) -> pd.DataFrame:
     """
     Chande Momentum Oscillator (CMO)
 
@@ -55,7 +59,7 @@ def Chande_Momentum_Oscillator(df, length=14):
     - length (int): Length for the CMO calculation. Default is 14.
 
     Call with:
-        df['cmo'] = bta.Chande_Momentum_Oscillator(df)
+        df['cmo'] = bta.ChandeMomentumOscillator(df)
 
     For Signal line:
         df['cmo_signal'] = df['cmo'].rolling(window=10).mean().round(2)  # Using SMA for signal
@@ -76,7 +80,7 @@ def Chande_Momentum_Oscillator(df, length=14):
     return df_copy[['cmo']]
 
 
-def Elliott_Wave_Oscillator(df, column="close", sma1_period=5, sma2_period=35):
+def ElliottWaveOscillator(df, column: str = 'close', sma1_period: int = 5, sma2_period: int = 35) -> pd.DataFrame:
     """
     Elliott Wave Oscillator (EWO)
 
@@ -90,7 +94,7 @@ def Elliott_Wave_Oscillator(df, column="close", sma1_period=5, sma2_period=35):
     - sma2_period (int): The period for the longer SMA used in EWO calculation. Default is 35.
 
     Call with:
-        df['ewo'] = bta.Elliott_Wave_Oscillator(df, "close", 5, 35)
+        df['ewo'] = bta.ElliottWaveOscillator(df, "close", 5, 35)
 
     Returns:
     - pd.DataFrame: DataFrame with 'ewo' column.
@@ -104,7 +108,7 @@ def Elliott_Wave_Oscillator(df, column="close", sma1_period=5, sma2_period=35):
     return df_copy[['ewo']]
 
 
-def Fisher_Center_Of_Gravity(df, length=20, min_period=10):
+def FisherCenterOfGravity(df, length: str = 20, min_period: str = 10) -> pd.DataFrame:
     """
     Fisher Stochastic Center of Gravity
 
@@ -119,7 +123,7 @@ def Fisher_Center_Of_Gravity(df, length=20, min_period=10):
     - min_period (int): Minimum lookback period. Default is 10.
 
     Call with:
-        fisher = bta.Fisher_Center_Of_Gravity(df)
+        fisher = bta.FisherCenterOfGravity(df)
         df['fisher_cg'] = fisher['fisher_cg']
         df['fisher_sig'] = fisher['fisher_sig']
 
@@ -156,7 +160,7 @@ def Fisher_Center_Of_Gravity(df, length=20, min_period=10):
     return df_copy[['fisher_cg', 'fisher_sig']]
 
 
-def Inverse_Fisher_Transform(df, src='close', rsi_length=10, rsi_smoothing=5, e_value=2.71):
+def InverseFisherTransform(df, column: str = 'close', rsi_length: int = 10, rsi_smoothing: int = 5, e_value: float = 2.71) -> pd.DataFrame:
     """
     Inverse Fisher Transform
 
@@ -165,13 +169,13 @@ def Inverse_Fisher_Transform(df, src='close', rsi_length=10, rsi_smoothing=5, e_
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
-    - src (str): Source column to calculate the indicator. Default is 'close'.
+    - column (str): Source column to calculate the indicator. Default is 'close'.
     - rsi_length (int): Length for the RSI calculation. Default is 10.
     - rsi_smoothing (int): Length for the RSI smoothing (EMA). Default is 5.
     - e_value (float): E value for the inverse fisher transform. Default is 2.71.
 
     Call with:
-        df['ift'] = bta.Inverse_Fisher_Transform(df)['ift']
+        df['ift'] = bta.InverseFisherTransform(df)['ift']
 
     Use additional levels in your dataframe for 
         # Add horizontal levels
@@ -187,7 +191,7 @@ def Inverse_Fisher_Transform(df, src='close', rsi_length=10, rsi_smoothing=5, e_
     df_copy = df.copy()
 
     # Calculate RSI values
-    rsi_values = RSI(df, column=src, period=rsi_length)
+    rsi_values = RelativeStrengthIndex(df, column=column, period=rsi_length)
     
     # Smooth RSI values with EMA
     rsi_ema_values = EMA(df.assign(rsi_values=rsi_values), 'rsi_values', rsi_smoothing)
@@ -200,7 +204,7 @@ def Inverse_Fisher_Transform(df, src='close', rsi_length=10, rsi_smoothing=5, e_
     return df_copy[['ift']]
 
 
-def Kaufmans_Adaptive_Moving_Average(
+def KaufmansAdaptiveMovingAverage(
     df: pd.DataFrame,
     close_col: str = 'close',
     window: int = 10,
@@ -227,7 +231,7 @@ def Kaufmans_Adaptive_Moving_Average(
     - fillna (bool): If True, fill nan values with the close prices. Default is False.
 
     Call with:
-        df['kama'] = bta.Kaufmans_Adaptive_Moving_Average(df)['kama']
+        df['kama'] = bta.KaufmansAdaptiveMovingAverage(df)['kama']
 
     Returns:
     - pd.DataFrame: DataFrame with 'kama' column.
@@ -276,7 +280,7 @@ def Kaufmans_Adaptive_Moving_Average(
     return df_copy[['kama']]
 
 
-def macd(df, column="close", short_window=12, long_window=26, signal_window=9):
+def MACD(df, column: str = 'close', short_window: int = 12, long_window: int = 26, signal_window: str = 9) -> pd.DataFrame:
     """
     Moving Average Convergence Divergence (MACD)
 
@@ -290,7 +294,7 @@ def macd(df, column="close", short_window=12, long_window=26, signal_window=9):
     - signal_window (int): The signal line period for EMA. Default is 9.
 
     Call with:
-        macd_result = bta.macd(df, "close", 12, 26, 9)
+        macd_result = bta.MACD(df, "close", 12, 26, 9)
         df['macd'] = macd_result['macd']
         df['macd_signal'] = macd_result['macd_signal']
         df['macd_histogram'] = macd_result['macd_histogram']
@@ -312,7 +316,7 @@ def macd(df, column="close", short_window=12, long_window=26, signal_window=9):
     return df_copy[['macd', 'macd_signal', 'macd_histogram']]
 
 
-def MACD_Leader(df, src='close', fast_length=12, slow_length=26, signal_length=9):
+def MACDLeader(df: pd.DataFrame, src: str = 'close', fast_length: int = 12, slow_length: int = 26, signal_length: int = 9) -> pd.DataFrame:
     """
     MACD Leader
 
@@ -326,25 +330,28 @@ def MACD_Leader(df, src='close', fast_length=12, slow_length=26, signal_length=9
     - signal_length (int): Length for the signal EMA. Default is 9.
 
     Call with:
-        df['macd_leader'] = bta.MACD_Leader(df, 'close')
+        df['macd_leader'] = bta.MACDLeader(df, 'close')['macd_leader']
 
     Returns:
     - pd.DataFrame: DataFrame with 'macd_leader' column.
     """
+    df_copy = df.copy()
     src_series = df[src]
-    sema = EMA(df.assign(src_series=src_series), 'src_series', fast_length)
-    lema = EMA(df.assign(src_series=src_series), 'src_series', slow_length)
-    i1 = sema + EMA(df.assign(diff=src_series - sema), 'diff', fast_length)
-    i2 = lema + EMA(df.assign(diff=src_series - lema), 'diff', slow_length)
+
+    sema = EMA(df, column=src, period=fast_length)['ema']
+    lema = EMA(df, column=src, period=slow_length)['ema']
+    diff_sema = src_series - sema
+    diff_lema = src_series - lema
+    i1 = sema + EMA(df.assign(diff=diff_sema), column='diff', period=fast_length)['ema']
+    i2 = lema + EMA(df.assign(diff=diff_lema), column='diff', period=slow_length)['ema']
     macd_leader = ((i1 - i2) / 10) * 100
 
-    df_copy = df.copy()
     df_copy['macd_leader'] = macd_leader.round(2)
     
     return df_copy[['macd_leader']]
 
 
-def MA_Streak(df, period=4, column='close'):
+def MAStreak(df: pd.DataFrame, period: int = 4, column: str = 'close') -> pd.DataFrame:
     """
     MA Streak
 
@@ -358,14 +365,14 @@ def MA_Streak(df, period=4, column='close'):
     - column (str): The column name on which the ZEMA is to be applied. Default is "close".
 
     Call with:
-        df['mastreak'] = bta.MA_Streak(df, period=4, column='close')['mastreak']
+        df['mastreak'] = bta.MAStreak(df, period=4, column='close')['mastreak']
 
     Returns:
     - pd.DataFrame: DataFrame with 'mastreak' column.
     """
     df_copy = df.copy()
 
-    avgval = ZEMA(df_copy, period, column)
+    avgval = ZEMA(df_copy, column=column, period=period)['zema']
     arr = np.diff(avgval)
     pos = np.clip(arr, 0, 1).astype(bool).cumsum()
     neg = np.clip(arr, -1, 0).astype(bool).cumsum()
@@ -378,7 +385,7 @@ def MA_Streak(df, period=4, column='close'):
     return df_copy[['mastreak']]
 
 
-def Percentage_Price_Oscillator(
+def PercentagePriceOscillator(
     df: pd.DataFrame,
     close_col: str = 'close',
     window_slow: int = 26,
@@ -400,7 +407,7 @@ def Percentage_Price_Oscillator(
     - fillna (bool): if True, fill nan values. Default is False.
 
     Call with:
-        ppo = bta.Percentage_Price_Oscillator(df)
+        ppo = bta.PercentagePriceOscillator(df)
         df['ppo'] = ppo['ppo']
         df['ppo_signal'] = ppo['ppo_signal']
         df['ppo_hist'] = ppo['ppo_hist']
@@ -436,7 +443,7 @@ def Percentage_Price_Oscillator(
     return df_copy[['ppo', 'ppo_signal', 'ppo_hist']]
 
 
-def Percentage_Volume_Oscillator(
+def PercentageVolumeOscillator(
     df: pd.DataFrame,
     volume_col: str = 'volume',
     window_slow: int = 26,
@@ -458,7 +465,7 @@ def Percentage_Volume_Oscillator(
     - fillna (bool): if True, fill nan values. Default is False.
 
     Call with:
-        pvo = bta.Percentage_Volume_Oscillator(df)
+        pvo = bta.PercentageVolumeOscillator(df)
         df['pvo'] = pvo['pvo']
         df['pvo_signal'] = pvo['pvo_signal']
         df['pvo_hist'] = pvo['pvo_hist']
@@ -494,7 +501,7 @@ def Percentage_Volume_Oscillator(
     return df_copy[['pvo', 'pvo_signal', 'pvo_hist']]
 
 
-def Relative_Momentum_Index(df, length=20, mom=5):
+def RelativeMomentumIndex(df, length: int = 20, mom: int = 5) -> pd.DataFrame:
     """
     Relative Momentum Index (RMI)
 
@@ -508,7 +515,7 @@ def Relative_Momentum_Index(df, length=20, mom=5):
     - mom (int): Momentum period. Default is 5.
 
     Call with:
-        df['rmi'] = bta.Relative_Momentum_Index(df, length=20, mom=5)['rmi']
+        df['rmi'] = bta.RelativeMomentumIndex(df, length=20, mom=5)['rmi']
 
     Returns:
     - pd.DataFrame: DataFrame with 'rmi' column.
@@ -527,8 +534,7 @@ def Relative_Momentum_Index(df, length=20, mom=5):
     return df_copy[['rmi']]
 
 
-
-def Rate_Of_Change(df, column='close', period=21):
+def RateOfChange(df, column: str = 'close', period: int = 21) -> pd.DataFrame:
     """
     Rate of Change (ROC)
 
@@ -540,7 +546,7 @@ def Rate_Of_Change(df, column='close', period=21):
     - period (int): Period for the ROC calculation. Default is 21.
 
     Call with:
-        df['roc'] = bta.Rate_Of_Change(df, column='close', period=21)['roc']
+        df['roc'] = bta.RateOfChange(df, column='close', period=21)['roc']
 
     Returns:
     - pd.DataFrame: DataFrame with 'roc' column.
@@ -553,8 +559,7 @@ def Rate_Of_Change(df, column='close', period=21):
     return df_copy[['roc']]
 
 
-
-def Smoothed_Rate_Of_Change(df, roclen=21, emalen=13, smooth=21):
+def SmoothedRateOfChange(df, roclen: int = 21, emalen: int = 13, smooth: int = 21) -> pd.DataFrame:
     """
     Smoothed Rate of Change (SROC)
 
@@ -567,7 +572,7 @@ def Smoothed_Rate_Of_Change(df, roclen=21, emalen=13, smooth=21):
     - smooth (int): Smoothing period for the ROC calculation. Default is 21.
 
     Call with:
-        df['sroc'] = bta.Smoothed_Rate_Of_Change(df, roclen=21, emalen=13, smooth=21)['sroc']
+        df['sroc'] = bta.SmoothedRateOfChange(df, roclen=21, emalen=13, smooth=21)['sroc']
 
     Returns:
     - pd.DataFrame: DataFrame with 'sroc' column.
@@ -588,7 +593,7 @@ def Smoothed_Rate_Of_Change(df, roclen=21, emalen=13, smooth=21):
     return df_copy[['sroc']]
 
 
-def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0):
+def WaddahAttarExplosion(df, sensitivity: int = 150, fast_length: int = 20, slow_length: int = 40, channel_length: int = 20, mult: float = 2.0) -> pd.DataFrame:
     """
     Waddah Attar Explosion Indicator
 
@@ -603,7 +608,7 @@ def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, 
     - mult (float): Standard deviation multiplier for the Bollinger Bands. Default is 2.0.
 
     Call with:
-        wae = bta.Waddah_Attar_Explosion(df)
+        wae = bta.WaddahAttarExplosion(df)
         df['trend_up'] = wae['trend_up']
         df['trend_down'] = wae['trend_down']
         df['explosion_line'] = wae['explosion_line']
@@ -621,17 +626,23 @@ def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, 
             raise KeyError(f"DataFrame must contain '{col}' column")
 
     # Calculate DEAD_ZONE
-    dead_zone = RMA(True_Range(df), 100) * 3.7
+    true_range = pd.DataFrame({
+        'high_low': df['high'] - df['low'],
+        'high_close': (df['high'] - df['close'].shift()).abs(),
+        'low_close': (df['low'] - df['close'].shift()).abs()
+    })
+    true_range['true_range'] = true_range[['high_low', 'high_close', 'low_close']].max(axis=1)
+    dead_zone = RMA(pd.DataFrame(true_range), 'true_range', 100)['rma'] * 3.7
 
     # Calculate MACD
-    macd_fast = EMA(df, 'close', fast_length)
-    macd_slow = EMA(df, 'close', slow_length)
+    macd_fast = EMA(df, 'close', fast_length)['ema']
+    macd_slow = EMA(df, 'close', slow_length)['ema']
     macd_diff = macd_fast - macd_slow
     t1 = (macd_diff - macd_diff.shift(1)) * sensitivity
 
     # Calculate Bollinger Bands
-    bb = Bollinger_Bands(df, column='close', period=channel_length, std_dev=mult)
-    e1 = bb['BB_upper'] - bb['BB_lower']
+    bb = BollingerBands(df, column='close', period=channel_length, std_dev=mult)
+    e1 = bb['bb_upper'] - bb['bb_lower']
 
     trend_up = np.where(t1 >= 0, t1, 0)
     trend_down = np.where(t1 < 0, -t1, 0)
@@ -639,12 +650,13 @@ def Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, 
     df_copy['trend_up'] = trend_up.round(2)
     df_copy['trend_down'] = trend_down.round(2)
     df_copy['explosion_line'] = e1.round(2)
-    df_copy['dead_zone_line'] = dead_zone.round(2)
+    df_copy['dead_zone_line'] = dead_zone.values.round(2)
 
     return df_copy[['trend_up', 'trend_down', 'explosion_line', 'dead_zone_line']]
 
 
-def Wave_Trend(df, chlen=10, avg=21, smalen=4):
+
+def WaveTrend(df, chlen: int = 10, avg: int = 21, smalen: int = 4) -> pd.DataFrame:
     """
     WaveTrend Oscillator by LazyBear
     https://www.tradingview.com/script/2KE8wTuF-Indicator-WaveTrend-Oscillator-WT/
@@ -658,7 +670,7 @@ def Wave_Trend(df, chlen=10, avg=21, smalen=4):
     - smalen (int): Period for the SMA calculation. Default is 4.
 
     Call with:
-        wt = bta.Wave_Trend(df, chlen=10, avg=21, smalen=4)
+        wt = bta.WaveTrend(df, chlen=10, avg=21, smalen=4)
         df['wt1'] = wt['wt1']
         df['wt2'] = wt['wt2']
 
@@ -681,7 +693,7 @@ def Wave_Trend(df, chlen=10, avg=21, smalen=4):
 
     return df_copy[['wt1', 'wt2']]
 
-def Wave_Trend_Oscillator(df, src='close', n1=8, n2=12):
+def WaveTrendOscillator(df: pd.DataFrame, src: str = 'close', n1: int = 8, n2: int = 12) -> pd.DataFrame:
     """
     WaveTrend Oscillator
 
@@ -694,7 +706,7 @@ def Wave_Trend_Oscillator(df, src='close', n1=8, n2=12):
     - n2 (int): Length for the second EMA. Default is 12.
 
     Call with:
-        df['wto'] = bta.Wave_Trend_Oscillator(df, 'close')['wavetrend']
+        df['wto'] = bta.WaveTrendOscillator(df, 'close')['wavetrend']
 
     Returns:
     - pd.DataFrame: DataFrame with 'wavetrend' column.
@@ -702,19 +714,19 @@ def Wave_Trend_Oscillator(df, src='close', n1=8, n2=12):
     df_copy = df.copy()
 
     src_series = df[src]
-    ema_src = EMA(df.assign(src_series=src_series), 'src_series', n1)
-    d = EMA(df.assign(diff=np.abs(src_series - ema_src)), 'diff', n1)
+    ema_src = EMA(df, column=src, period=n1)['ema']
+    diff_series = np.abs(src_series - ema_src)
+    d = EMA(pd.DataFrame({'diff': diff_series}), column='diff', period=n1)['ema']
     ci = (src_series - ema_src) / (0.015 * d)
-    tci = EMA(df.assign(ci=ci), 'ci', n2)
-    wavetrend = tci - SMA(df.assign(tci=tci), 'tci', 4)
+    tci = EMA(pd.DataFrame({'ci': ci}), column='ci', period=n2)['ema']
+    wavetrend = tci - SMA(pd.DataFrame({'tci': tci}), column='tci', period=4)['sma']
 
     df_copy['wavetrend'] = wavetrend.round(2)
     
     return df_copy[['wavetrend']]
 
 
-def QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollinger_length=50, bb_multiplier=0.35,
-            rsi_period2=6, rsi_smoothing2=5, qqe_factor2=1.61, threshold2=3):
+def QQEMod(df, rsi_period: int = 6, rsi_smoothing: int = 5, qqe_factor: int = 3, threshold: int = 3, bollinger_length: int = 50, bb_multiplier: float = 0.35, rsi_period2: int = 6, rsi_smoothing2: int = 5, qqe_factor2: float = 1.61, threshold2: int = 3) -> pd.DataFrame:
     """
     QQE Mod Indicator
 
@@ -732,7 +744,7 @@ def QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollin
     - threshold2 (int): Threshold value for the second QQE. Default is 3.
 
     Call with:
-        qqe_mod = bta.QQE_Mod(df)
+        qqe_mod = bta.QQEMod(df)
         df['qqe_line'] = qqe_mod['qqe_line']
         df['histo2'] = qqe_mod['histo2']
         df['qqe_up'] = qqe_mod['qqe_up']
@@ -750,8 +762,8 @@ def QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollin
     src = df_copy['close']
     wilders_period = rsi_period * 2 - 1
 
-    rsi = RSI(df_copy, column='close', period=rsi_period)
-    rsi_ma = EMA(df_copy.assign(rsi=rsi), column='rsi', period=rsi_smoothing)
+    rsi = RelativeStrengthIndex(df_copy, column='close', period=rsi_period)
+    rsi_ma = EMA(df_copy.assign(rsi=rsi), column='rsi', period=rsi_smoothing)['ema']
     atr_rsi = abs(rsi_ma.shift(1) - rsi_ma)
     ma_atr_rsi = wilders_ema(atr_rsi, wilders_period)
     dar = wilders_ema(ma_atr_rsi, wilders_period) * qqe_factor
@@ -777,7 +789,7 @@ def QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollin
             shortband[i] = newshortband.iloc[i]
 
         cross_1 = (longband[i - 1] > rsindex.iloc[i]) and (longband[i - 1] <= rsindex.iloc[i - 1])
-        if (rsindex.iloc[i] > shortband[i - 1]):
+        if rsindex.iloc[i] > shortband[i - 1]:
             trend[i] = 1
         elif cross_1:
             trend[i] = -1
@@ -787,16 +799,16 @@ def QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollin
     fast_atr_rsi_tl = np.where(trend == 1, longband, shortband)
 
     # Bollinger Bands on FastATRRSI TL
-    basis = SMA(pd.DataFrame(fast_atr_rsi_tl - 50), column=0, period=bollinger_length)
-    dev = bb_multiplier * STDEV(pd.Series(fast_atr_rsi_tl - 50), bollinger_length)
+    basis = SMA(pd.DataFrame(fast_atr_rsi_tl - 50), column=0, period=bollinger_length)['sma']
+    dev = bb_multiplier * (pd.Series(fast_atr_rsi_tl - 50).rolling(window=bollinger_length).std())
     upper = basis + dev
     lower = basis - dev
 
     # Second QQE Calculation
     wilders_period2 = rsi_period2 * 2 - 1
 
-    rsi2 = RSI(df_copy, column='close', period=rsi_period2)
-    rsi_ma2 = EMA(df_copy.assign(rsi2=rsi2), column='rsi2', period=rsi_smoothing2)
+    rsi2 = RelativeStrengthIndex(df_copy, column='close', period=rsi_period2)
+    rsi_ma2 = EMA(df_copy.assign(rsi2=rsi2), column='rsi2', period=rsi_smoothing2)['ema']
     atr_rsi2 = abs(rsi_ma2.shift(1) - rsi_ma2)
     ma_atr_rsi2 = wilders_ema(atr_rsi2, wilders_period2)
     dar2 = wilders_ema(ma_atr_rsi2, wilders_period2) * qqe_factor2
@@ -822,7 +834,7 @@ def QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollin
             shortband2[i] = newshortband2.iloc[i]
 
         cross_2 = (longband2[i - 1] > rsindex2.iloc[i]) and (longband2[i - 1] <= rsindex2.iloc[i - 1])
-        if (rsindex2.iloc[i] > shortband2[i - 1]):
+        if rsindex2.iloc[i] > shortband2[i - 1]:
             trend2[i] = 1
         elif cross_2:
             trend2[i] = -1
@@ -830,8 +842,6 @@ def QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollin
             trend2[i] = trend2[i - 1]
 
     fast_atr_rsi2_tl = np.where(trend2 == 1, longband2, shortband2)
-
-    hcolor2 = np.where(rsi_ma2 - 50 > threshold2, 'silver', np.where(rsi_ma2 - 50 < -threshold2, 'silver', np.nan))
 
     df_copy['qqe_line'] = (fast_atr_rsi2_tl - 50).round(2)
     df_copy['histo2'] = (rsi_ma2 - 50).round(2)
@@ -848,32 +858,8 @@ def QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollin
     return df_copy[['qqe_line', 'histo2', 'qqe_up', 'qqe_down']]
 
 
-def Rate_Of_Change(df, column='close', period=21):
-    """
-    Rate of Change (ROC)
 
-    The Rate-of-Change (ROC) indicator, also referred to as Momentum, measures the percent change in price from one period to the next. It compares the current price with the price "n" periods ago, forming an oscillator that fluctuates above and below the zero line.
-
-    Parameters:
-    - df (pd.DataFrame): DataFrame containing the data.
-    - column (str): The column name on which the ROC is to be applied. Default is 'close'.
-    - period (int): Period for the ROC calculation. Default is 21.
-
-    Call with:
-        df['roc'] = bta.Rate_Of_Change(df, column='close', period=21)['roc']
-
-    Returns:
-    - pd.DataFrame: DataFrame with 'roc' column.
-    """
-    df_copy = df.copy()
-
-    df_copy['roc'] = df_copy[column].diff(period) / df_copy[column].shift(period) * 100
-    df_copy['roc'] = df_copy['roc'].round(2)
-    
-    return df_copy[['roc']]
-
-
-def Relative_Strength_Index(df, column="close", period=14):
+def RelativeStrengthIndex(df, column: str = 'close', period: int = 14) -> pd.DataFrame:
     """
     Relative Strength Index (RSI)
 
@@ -885,7 +871,7 @@ def Relative_Strength_Index(df, column="close", period=14):
     - period (int): The period over which RSI is to be calculated. Default is 14.
 
     Call with:
-        df['rsi'] = bta.Relative_Strength_Index(df, column='close', period=14)['rsi']
+        df['rsi'] = bta.RelativeStrengthIndex(df, column='close', period=14)['rsi']
 
     Returns:
     - pd.DataFrame: DataFrame with 'rsi' column.
@@ -911,7 +897,7 @@ def Relative_Strength_Index(df, column="close", period=14):
     return df_copy[['rsi']]
 
 
-def Stochastic_Momentum_Index(df, k_length=9, d_length=3):
+def StochasticMomentumIndex(df, k_length=9, d_length=3):
     """
     The Stochastic Momentum Index (SMI) Indicator
 
@@ -925,7 +911,7 @@ def Stochastic_Momentum_Index(df, k_length=9, d_length=3):
     - d_length (int): Period for %D. Default is 3.
 
     Call with:
-        df['smi'] = bta.Stochastic_Momentum_Index(df, k_length=9, d_length=3)['smi']
+        df['smi'] = bta.StochasticMomentumIndex(df, k_length=9, d_length=3)['smi']
 
     Returns:
     - pd.DataFrame: DataFrame with 'smi' column populated.
@@ -952,7 +938,7 @@ def Stochastic_Momentum_Index(df, k_length=9, d_length=3):
     return df_copy[['smi']]
 
 
-def Stochastic_RSI(
+def StochasticRSI(
     df: pd.DataFrame,
     close_col: str = 'close',
     window: int = 14,
@@ -974,7 +960,7 @@ def Stochastic_RSI(
     - fillna (bool): If True, fill nan values. Default is False.
 
     Call with:
-        stoch_rsi = bta.Stochastic_RSI(df, 'close', 14, 3, 3)
+        stoch_rsi = bta.StochasticRSI(df, 'close', 14, 3, 3)
         df['stoch_rsi'] = stoch_rsi['stoch_rsi']
         df['stoch_rsi_k'] = stoch_rsi['stoch_rsi_k']
         df['stoch_rsi_d'] = stoch_rsi['stoch_rsi_d']
@@ -988,7 +974,7 @@ def Stochastic_RSI(
     if close_col not in df.columns:
         raise KeyError(f"DataFrame must contain '{close_col}' column")
 
-    rsi = Relative_Strength_Index(df, column=close_col, period=window)
+    rsi = RelativeStrengthIndex(df, column=close_col, period=window)
     lowest_low_rsi = rsi.rolling(window).min()
     highest_high_rsi = rsi.rolling(window).max()
     stoch_rsi = (rsi - lowest_low_rsi) / (highest_high_rsi - lowest_low_rsi)
@@ -1007,7 +993,7 @@ def Stochastic_RSI(
     return df_copy[['stoch_rsi', 'stoch_rsi_k', 'stoch_rsi_d']]
 
 
-def True_Strength_Index(df, close_col='close', window_slow=25, window_fast=13, fillna=False):
+def TrueStrengthIndex(df, close_col: str ='close', window_slow: int = 25, window_fast: int = 13, fillna: bool = False) -> pd.DataFrame:
     """
     True Strength Index (TSI)
 
@@ -1021,7 +1007,7 @@ def True_Strength_Index(df, close_col='close', window_slow=25, window_fast=13, f
     - fillna (bool): If True, fill nan values. Default is False.
 
     Call with:
-        df['tsi'] = bta.True_Strength_Index(df, 'close', 25, 13)['tsi']
+        df['tsi'] = bta.TrueStrengthIndex(df, 'close', 25, 13)['tsi']
 
     Returns:
     - pd.DataFrame: DataFrame with 'tsi' column.
@@ -1053,7 +1039,7 @@ def True_Strength_Index(df, close_col='close', window_slow=25, window_fast=13, f
     return df_copy[['tsi']]
 
 
-def Ultimate_Oscillator(
+def UltimateOscillator(
     df: pd.DataFrame,
     high_col: str = 'high',
     low_col: str = 'low',
@@ -1085,7 +1071,7 @@ def Ultimate_Oscillator(
     - fillna (bool): If True, fill nan values. Default is False.
 
     Call with:
-        df['uo'] = bta.Ultimate_Oscillator(df, 'high', 'low', 'close', 7, 14, 28)['uo']
+        df['uo'] = bta.UltimateOscillator(df, 'high', 'low', 'close', 7, 14, 28)['uo']
 
     Returns:
     - pd.DataFrame: DataFrame with 'uo' column.
@@ -1116,7 +1102,7 @@ def Ultimate_Oscillator(
     return df_copy[['uo']]
 
 
-def Stochastics_Oscillator(
+def StochasticsOscillator(
     df: pd.DataFrame,
     high_col: str = 'high',
     low_col: str = 'low',
@@ -1140,7 +1126,7 @@ def Stochastics_Oscillator(
     - fillna (bool): If True, fill nan values. Default is False.
 
     Call with:
-        stoch = bta.Stochastics_Oscillator(df, 'high', 'low', 'close', 14, 3)
+        stoch = bta.StochasticsOscillator(df, 'high', 'low', 'close', 14, 3)
         df['stoch'] = stoch['stoch']
         df['stoch_signal'] = stoch['stoch_signal']
         df['stoch_hist'] = stoch['stoch_hist']
@@ -1177,7 +1163,7 @@ def Stochastics_Oscillator(
     return df_copy[['stoch', 'stoch_signal', 'stoch_hist']]
 
 
-def Williams_R(
+def WilliamsR(
     df: pd.DataFrame,
     high_col: str = 'high',
     low_col: str = 'low',
@@ -1199,7 +1185,7 @@ def Williams_R(
     - fillna (bool): If True, fill nan values. Default is False.
 
     Call with:
-        df['williams_r'] = bta.Williams_R(df, 'high', 'low', 'close', 14)['williams_r']
+        df['williams_r'] = bta.WilliamsR(df, 'high', 'low', 'close', 14)['williams_r']
 
     Returns:
     - pd.DataFrame: DataFrame with 'williams_r' column.

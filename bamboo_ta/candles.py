@@ -7,7 +7,7 @@ from .utility import *
 from.momentum import *
 
 
-def Exhaustion_Bars(df, maj_qual=6, maj_len=12, min_qual=6, min_len=12, core_length=4):
+def ExhaustionBars(df, maj_qual=6, maj_len=12, min_qual=6, min_len=12, core_length=4):
     """
     Leledc Exhaustion Bars
     
@@ -22,7 +22,7 @@ def Exhaustion_Bars(df, maj_qual=6, maj_len=12, min_qual=6, min_len=12, core_len
     - core_length (int): Core length parameter. Default is 4.
 
     Call with:
-        exhaustion = bta.Exhaustion_Bars(df)
+        exhaustion = bta.ExhaustionBars(df)
         df['leledc_major'] = exhaustion['leledc_major']
         df['leledc_minor'] = exhaustion['leledc_minor']
 
@@ -78,7 +78,7 @@ def Exhaustion_Bars(df, maj_qual=6, maj_len=12, min_qual=6, min_len=12, core_len
     return df_copy[['leledc_major', 'leledc_minor']]
 
 
-def Dynamic_Exhaustion_Bars(df, window=500):
+def DynamicExhaustionBars(df, window=500):
     """
     Dynamic Leledc Exhaustion Bars
     The lookback length and exhaustion bars adjust dynamically to the market conditions.
@@ -91,7 +91,7 @@ def Dynamic_Exhaustion_Bars(df, window=500):
     - window (int): Lookback window for z-score calculation. Default is 500.
 
     Call with:
-        dynamic_exhaustion = bta.Dynamic_Exhaustion_Bars(df)
+        dynamic_exhaustion = bta.DynamicExhaustionBars(df)
         df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
         df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
 
@@ -129,7 +129,7 @@ def Dynamic_Exhaustion_Bars(df, window=500):
     return df_copy[['leledc_major', 'leledc_minor']]
 
 
-def Pinbar(df, smi=None):
+def Pinbar(df: pd.DataFrame, smi: pd.Series = None) -> pd.DataFrame:
     """
     Pinbar - Price Action Indicator
 
@@ -160,15 +160,15 @@ def Pinbar(df, smi=None):
     high = df_copy['high']
     close = df_copy['close']
     
-    tr = True_Range(df_copy)
+    tr = TrueRange(df_copy)['true_range']
     
     if smi is None:
-        df_copy = SMI_Momentum(df_copy)
+        df_copy = StochasticMomentumIndex(df_copy)
         smi = df_copy['smi']
     
     df_copy['pinbar_sell'] = (
         (high < high.shift(1)) &
-        (close < high - (tr * 2 / 3)) &
+        (close < high - (tr * 2 / 3).iloc[:]) &
         (smi < smi.shift(1)) &
         (smi.shift(1) > 40) &
         (smi.shift(1) < smi.shift(2))
@@ -176,7 +176,7 @@ def Pinbar(df, smi=None):
 
     df_copy['pinbar_buy'] = (
         (low > low.shift(1)) &
-        (close > low + (tr * 2 / 3)) &
+        (close > low + (tr * 2 / 3).iloc[:]) &
         (smi.shift(1) < -40) &
         (smi > smi.shift(1)) &
         (smi.shift(1) > smi.shift(2))
