@@ -18,9 +18,9 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # ========================================
 ### After refactoring:
 
-# exhaustion = bta.ExhaustionBars(df)
-# df['leledc_major'] = exhaustion['leledc_major']
-# df['leledc_minor'] = exhaustion['leledc_minor']
+exhaustion = bta.ExhaustionBars(df)
+df['leledc_major'] = exhaustion['leledc_major']
+df['leledc_minor'] = exhaustion['leledc_minor']
 
 # dynamic_exhaustion = bta.DynamicExhaustionBars(df)
 # df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']

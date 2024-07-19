@@ -7,7 +7,7 @@
 </p>
 
 
-The Bamboo TA Indicators module provides a comprehensive suite of technical analysis tools for trading. This module imports various submodules, each dedicated to a specific category of technical indicators.
+The Bamboo TA Indicators module provides (yet another) comprehensive suite of technical analysis tools for (automatic & algorithmic) trading. This module imports various submodules, each dedicated to a specific category of technical indicators.
 
 [![license](https://img.shields.io/github/license/DutchCryptoDad/bamboo-ta)](#license)
 [![Python Version](https://img.shields.io/pypi/pyversions/bamboo-ta?style=flat)](https://pypi.org/project/bamboo-ta/)
@@ -25,6 +25,23 @@ The Bamboo TA Indicators module provides a comprehensive suite of technical anal
 ](https://www.youtube.com/@dutchalgotrading)
 [![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UC-AOcefy1x7lTc17JiqaxqA)](https://www.youtube.com/@dutchalgotrading)
 
+
+## Why this library
+
+This is a personal pet project to hoard all kinds of Technical Analysis Indicators for trading to one single library. It is primarily build for personal use, but if other people can use this to their own benefit as well, then that's a nice additional benefit.
+
+The indicators this library are not only some of the the most popular (like MACD, RSI, SMA, EMA and more) but also contain more obscure (and possibly brand new) indicators like Waddah Attar Explosion, Bollinger Bands Trend Indicator too. 
+
+This library should be a welcome addition to other popular TA libraries like TA-lib, Pandas-ta, qtpylib and others but will not replace them. There will probably be a lot of indicators that will be served better with these other libaries. Bamboo-ta is written with simplicity in mind. And it should be more simple to use and maintain by me and other users. 
+
+### Disclaimer
+
+Most of the indicators I configured are tested agains a dataset from Binance (BTC/USDT) and verified with the same indicators on [Tradingview](tradingview.com/?aff_id=139223). However I will and cannot guarantee the workings and accuracy. 
+
+I will use these indicators to build my own trading strategies for backtesting and manual & bot trading using the [Freqtrade trading bot](https://www.youtube.com/watch?v=VHvikJmQrVM&list=PL8gq8aFDPpbNEx4lUvpmRjxtCkjvX-Jpg). So it is in my own personal best interest to make these indicators work as accurately as possible.
+
+You are welcome to do suggestions and report bugs if you find these. But I will handle these on a 'best effort' base. I believe that the pressure of maintaining larger and popular libraries will lead to abandonment of the project by the original developer(s) at some point in time. And I do not want this to happen with this project. So be patient and the proposed suggestions will be handled all in good time.
+
 ## Social
 
 See my [Youtube channel](youtube.com/channel/UC-AOcefy1x7lTc17JiqaxqA?sub_confirmation=1) for [Freqtrade tutorials](https://www.youtube.com/watch?v=VHvikJmQrVM&list=PL8gq8aFDPpbNEx4lUvpmRjxtCkjvX-Jpg), [Tradingview knowledge](https://www.youtube.com/watch?v=aQSC-W8oYdw&list=PL8gq8aFDPpbNyIFWaQMovp9dSjDhAQcsd) and [video's about trading strategies and algorithms I tested](https://www.youtube.com/watch?v=Jj9MSzHwa44&list=PL8gq8aFDPpbNthwcFtdTjt6i9zoLmq6zO).
@@ -34,6 +51,8 @@ See my [Patreon page](https://www.patreon.com/dutchalgotrading) for all the algo
 For the Strategy League (an overview of all the trading strategies/algorithms I tested) go to [dutchalgotrading.com](https://www.dutchalgotrading.com/). Ths league contains a ranked list with all the tested strategies I present on my [Youtube channel](youtube.com/channel/UC-AOcefy1x7lTc17JiqaxqA?sub_confirmation=1) and [Patreon page](https://www.patreon.com/dutchalgotrading)
 
 ## Support and donations
+
+Sometimes, the best motivation a person can receive is a small contribution that shows appreciation for their work.
 
 You can support my work by becoming a Patron on [Patreon](https://www.patreon.com/dutchalgotrading). 
 
@@ -75,27 +94,52 @@ Using the complete module all at once.
    import bamboo_ta as bta
    ```
 
-2. **Applying Indicators**: Use the imported indicators on your data.
+   Additionally import Pandas and Numpy too:
+
    ```python
-   df['lsma'] = bta.calculate_lsma(df, 14)
+   import pandas as pd
+   from pandas import DataFrame
+   import numpy as np
+   ```
+
+2. **Build the dataframe**: The dataframe should be build as follows for the fastest results. 
+
+    ```python
+    df = pd.read_json("./BTC_USDT-1d.json")
+    df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
+    df['date'] = (pd.to_datetime(df['date'], unit='ms'))
+   ```
+
+3. **Applying Indicators**: Use the imported indicators on your data.
+
+   ```python
+   df['ao'] = bta.AwesomeOscillator(df, 'high', 'low', 5, 34)['ao']
+   ```
+
+   Or
+
+   ```python
+   lr_df = bta.LinRegCandles(df)
+   df['lrc_open'] = lr_df['bopen']
+   df['lrc_high'] = lr_df['bhigh']
+   df['lrc_low'] = lr_df['blow']
+   df['lrc_close'] = lr_df['bclose']
+   df['lrc_signal'] = lr_df['signal']
    ```
 
 Or individual indicators.
 
 1. **Importing Indicators**: Import the necessary submodules or individual indicators directly from `bamboo_ta`.
    ```python
-   from bamboo_ta.trend import AlligatorBands, BollingerTrend, EMA, HMA, LSMA, SMA, WMA, ZLEMA
+   from bamboo_ta.trend import AlligatorBands
    ```
 
 2. **Applying Indicators**: Use the imported indicators on your data.
    ```python
-   result = AlligatorBands(df, "high", 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
-   ```
-
-3. **Combining Indicators**: Combine multiple indicators for comprehensive analysis.
-   ```python
-   df['ema'] = EMA(df, "close", 21)
-   df['sma'] = SMA(df, "close", 50)
+    alligator_result = bta.AlligatorBands(df, 'close', 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
+    df['jaw'] = alligator_result['jaw']
+    df['teeth'] = alligator_result['teeth']
+    df['lips'] = alligator_result['lips']
    ```
 
 ## Bamboo TA Indicators Module
