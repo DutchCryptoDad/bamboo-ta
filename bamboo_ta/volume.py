@@ -11,6 +11,8 @@ def AccumulationDistributionIndex(df: pd.DataFrame, fillna: bool = False) -> pd.
 
     Acts as a leading indicator of price movements.
 
+    Inspired by: https://www.tradingview.com/script/uRMAN1ho-ADL-Accumulation-Distribution-Line-UTS/
+
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', 'close', and 'volume' columns.
     - fillna (bool): if True, fill nan values.
@@ -81,22 +83,26 @@ def ChaikinMoneyFlow(df: pd.DataFrame, window: int = 20, fillna: bool = False) -
     return df_copy[['cmf']]
 
 
-def EaseOfMovement(df: pd.DataFrame, window: int = 14, fillna: bool = False) -> pd.DataFrame:
+def EaseOfMovement(df: pd.DataFrame, eom_length: int = 14, seom_length: int = 14, fillna: bool = False) -> pd.DataFrame:
     """
-    Ease of Movement (EoM, EMV)
+    Ease of Movement (EoM, EMV) and Signal Ease of Movement (SMA of EoM)
 
     Relates an asset's price change to its volume and is useful for assessing trend strength.
+    The SMA of the EoM serves as a signal line for the indicator.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'volume' columns.
-    - window (int): n period. Default is 14.
+    - eom_length (int): n period for the EoM calculation. Default is 14.
+    - seom_length (int): n period for the SMA of EoM calculation. Default is 14.
     - fillna (bool): if True, fill nan values.
 
     Call with:
-        df['eom'] = bta.EaseOfMovement(df, window=14, fillna=True)['eom']
+        eom_df = bta.EaseOfMovement(df, eom_length=14, seom_length=14, fillna=True)
+        df['eom'] = eom_df['eom']
+        df['eom_ma'] = eom_df['eom_ma']
 
     Returns:
-    - pd.DataFrame: DataFrame with 'eom' column.
+    - pd.DataFrame: DataFrame with 'eom' and 'seom' columns.
     """
     df_copy = df.copy()
 
@@ -106,43 +112,23 @@ def EaseOfMovement(df: pd.DataFrame, window: int = 14, fillna: bool = False) -> 
         if col not in df.columns:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
-    # Calculate the Ease of Movement values
+    # Calculate the Ease of Movement (EoM) values
     emv = ((df_copy['high'].diff(1) + df_copy['low'].diff(1)) * (df_copy['high'] - df_copy['low'])) / (2 * df_copy['volume'])
     emv *= 100000000
     if fillna:
         emv = emv.fillna(0)
 
-    df_copy['eom'] = emv.round(2)
+    df_copy['eom'] = emv.round(2) / 100000
 
-    return df_copy[['eom']]
-
-
-def EaseOfMovementSMA(df: pd.DataFrame, window: int = 14, fillna: bool = False) -> pd.DataFrame:
-    """
-    Signal Ease of Movement (EoM, EMV)
-
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'volume' columns.
-    - window (int): n period. Default is 14.
-    - fillna (bool): if True, fill nan values.
-
-    Call with:
-        df['seom'] = bta.EaseOfMovementSMA(df, window=14, fillna=True)['seom']
-
-    Returns:
-    - pd.DataFrame: DataFrame with 'seom' column.
-    """
-    # Calculate the Ease of Movement values
-    emv_df = EaseOfMovement(df, window=window, fillna=fillna)
-    min_periods = 0 if fillna else window
-    sma_emv = emv_df['eom'].rolling(window, min_periods=min_periods).mean()
+    # Calculate the Signal Ease of Movement (SMA of EoM)
+    min_periods = 0 if fillna else seom_length
+    sma_emv = df_copy['eom'].rolling(seom_length, min_periods=min_periods).mean()
     if fillna:
         sma_emv = sma_emv.fillna(0)
 
-    df_copy = df.copy()
-    df_copy['seom'] = sma_emv.round(2)
+    df_copy['seom'] = sma_emv.round(2) * 10
 
-    return df_copy[['seom']]
+    return df_copy[['eom', 'seom']]
 
 
 def ForceIndex(df: pd.DataFrame, window: int = 13, fillna: bool = False) -> pd.DataFrame:
@@ -359,44 +345,89 @@ def OnBalanceVolumeOscillator(df: pd.DataFrame, channel: int = 10, average: int 
     return df_copy[['obv_oscillator']]
 
 
-def VolumePriceTrend(df: pd.DataFrame, fillna: bool = False, smoothing_factor: int = None, dropnans: bool = False) -> pd.DataFrame:
-    """
-    Volume-price trend (VPT)
+# def VolumePriceTrend(df: pd.DataFrame, fillna: bool = False, smoothing_factor: int = None, dropnans: bool = False) -> pd.DataFrame:
+#     """
+#     Volume-price trend (VPT)
 
+#     Based on cumulative volume that adds or subtracts a multiple of the percentage change in share price trend.
+
+#     Parameters:
+#     - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
+#     - fillna (bool): If True, fill nan values.
+#     - smoothing_factor (int, optional): Will smooth VPT implementation with SMA.
+#     - dropnans (bool): Drop nans after indicator calculated.
+
+#     Call with:
+#         df['vpt'] = bta.VolumePriceTrend(df, fillna=True, smoothing_factor=10, dropnans=True)['volume_price_trend']
+
+#     Returns:
+#     - pd.DataFrame: DataFrame with 'volume_price_trend' column.
+#     """
+#     df_copy = df.copy()
+
+#     # Ensure the DataFrame contains the required columns
+#     required_columns = ['close', 'volume']
+#     for col in required_columns:
+#         if col not in df.columns:
+#             raise KeyError(f"DataFrame must contain '{col}' column")
+
+#     # Calculate VPT
+#     vpt = (df_copy['close'].pct_change() * df_copy['volume']).cumsum()
+#     if smoothing_factor:
+#         min_periods = 0 if fillna else smoothing_factor
+#         vpt = vpt.rolling(smoothing_factor, min_periods=min_periods).mean()
+#     if dropnans:
+#         vpt = vpt.dropna()
+#     if fillna:
+#         vpt = vpt.fillna(0)
+
+#     df_copy['volume_price_trend'] = vpt.round(2)
+#     return df_copy[['volume_price_trend']]
+
+import pandas as pd
+
+def VolumePriceTrend(df: pd.DataFrame, src_cols=('close', 'volume'), fillna=False, smoothing_factor=None, dropnans=False) -> pd.DataFrame:
+    """
+    Volume Price Trend (VPT)
     Based on cumulative volume that adds or subtracts a multiple of the percentage change in share price trend.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
+    - src_cols (tuple): Tuple containing column names for 'close' and 'volume'. Default is ('close', 'volume').
     - fillna (bool): If True, fill nan values.
     - smoothing_factor (int, optional): Will smooth VPT implementation with SMA.
     - dropnans (bool): Drop nans after indicator calculated.
 
     Call with:
-        df['vpt'] = bta.VolumePriceTrend(df, fillna=True, smoothing_factor=10, dropnans=True)['volume_price_trend']
+        df['vpt'] = VolumePriceTrend(df, src_cols=('close', 'volume'), fillna=True, smoothing_factor=10, dropnans=True)['Volume_Price_Trend']
 
     Returns:
-    - pd.DataFrame: DataFrame with 'volume_price_trend' column.
+    - pd.DataFrame: DataFrame with 'Volume_Price_Trend' column.
     """
+    close_col, volume_col = src_cols
     df_copy = df.copy()
 
-    # Ensure the DataFrame contains the required columns
-    required_columns = ['close', 'volume']
-    for col in required_columns:
-        if col not in df.columns:
-            raise KeyError(f"DataFrame must contain '{col}' column")
-
     # Calculate VPT
-    vpt = (df_copy['close'].pct_change() * df_copy['volume']).cumsum()
+    vpt = (df_copy[close_col].pct_change() * df_copy[volume_col]).cumsum()
+
     if smoothing_factor:
         min_periods = 0 if fillna else smoothing_factor
         vpt = vpt.rolling(smoothing_factor, min_periods=min_periods).mean()
+    
     if dropnans:
         vpt = vpt.dropna()
+    
     if fillna:
         vpt = vpt.fillna(0)
 
-    df_copy['volume_price_trend'] = vpt.round(2)
-    return df_copy[['volume_price_trend']]
+    df_copy['Volume_Price_Trend'] = vpt
+
+    return df_copy[['Volume_Price_Trend']]
+
+# Usage example
+# df = pd.DataFrame(data)
+# vpt_df = VolumePriceTrend(df, src_cols=('close', 'volume'), fillna=True, smoothing_factor=10, dropnans=True)
+# df['Volume_Price_Trend'] = vpt_df['Volume_Price_Trend']
 
 
 def VolumeWeightedAveragePrice(df: pd.DataFrame, window: int = 14, fillna: bool = False) -> pd.DataFrame:
@@ -437,3 +468,47 @@ def VolumeWeightedAveragePrice(df: pd.DataFrame, window: int = 14, fillna: bool 
 
     df_copy['volume_weighted_average_price'] = vwap.round(2)
     return df_copy[['volume_weighted_average_price']]
+
+import pandas as pd
+
+def VolumeWeightedAveragePrice2(df: pd.DataFrame, window: int = 14, fillna: bool = False) -> pd.DataFrame:
+    """
+    Volume Weighted Average Price (VWAP)
+    Equals the dollar value of all trading periods divided by the total trading volume for the current day.
+
+    Call with:
+        df['VWAP'] = bta.VolumeWeightedAveragePrice2(df, window=14, fillna=True)['VWAP']
+
+    Args:
+        df (pd.DataFrame): Input DataFrame which should contain 'high', 'low', 'close', and 'volume' columns.
+        window (int): n period.
+        fillna (bool): If True, fill nan values.
+
+    Returns:
+        pd.DataFrame: DataFrame with 'VWAP' column.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['high', 'low', 'close', 'volume']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    # Calculate Typical Price
+    typical_price = (df_copy['high'] + df_copy['low'] + df_copy['close']) / 3.0
+    # Calculate Typical Price * Volume
+    typical_price_volume = typical_price * df_copy['volume']
+
+    # Calculate cumulative sums of Typical Price * Volume and Volume
+    cumulative_total_pv = typical_price_volume.cumsum()
+    cumulative_total_volume = df_copy['volume'].cumsum()
+
+    # Calculate VWAP
+    vwap = cumulative_total_pv / cumulative_total_volume
+
+    if fillna:
+        vwap = vwap.fillna(0).round(2)
+
+    df_copy['VWAP'] = vwap
+    return df_copy[['VWAP']]

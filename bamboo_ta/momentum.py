@@ -160,7 +160,7 @@ def FisherCenterOfGravity(df, length: str = 20, min_period: str = 10) -> pd.Data
     return df_copy[['fisher_cg', 'fisher_sig']]
 
 
-def InverseFisherTransform(df, column: str = 'close', rsi_length: int = 10, rsi_smoothing: int = 5, e_value: float = 2.71) -> pd.DataFrame:
+def InverseFisherTransform(df, column: str = 'close', rsi_length: int = 14, rsi_smoothing: int = 9) -> pd.DataFrame:
     """
     Inverse Fisher Transform
 
@@ -207,7 +207,7 @@ def InverseFisherTransform(df, column: str = 'close', rsi_length: int = 10, rsi_
 def KaufmansAdaptiveMovingAverage(
     df: pd.DataFrame,
     close_col: str = 'close',
-    window: int = 10,
+    window: int = 14,
     pow1: int = 2,
     pow2: int = 30,
     fillna: bool = False,
@@ -344,14 +344,14 @@ def MACDLeader(df: pd.DataFrame, src: str = 'close', fast_length: int = 12, slow
     diff_lema = src_series - lema
     i1 = sema + EMA(df.assign(diff=diff_sema), column='diff', period=fast_length)['ema']
     i2 = lema + EMA(df.assign(diff=diff_lema), column='diff', period=slow_length)['ema']
-    macd_leader = ((i1 - i2) / 10) * 100
+    macd_leader = ((i1 - i2) / 10) * 10
 
     df_copy['macd_leader'] = macd_leader.round(2)
     
     return df_copy[['macd_leader']]
 
 
-def MAStreak(df: pd.DataFrame, period: int = 4, column: str = 'close') -> pd.DataFrame:
+def MAStreak(df: pd.DataFrame, period: int = 10, column: str = 'close') -> pd.DataFrame:
     """
     MA Streak
 
@@ -361,7 +361,7 @@ def MAStreak(df: pd.DataFrame, period: int = 4, column: str = 'close') -> pd.Dat
 
     Parameters:
     - df (pd.DataFrame): DataFrame containing the data.
-    - period (int): Period for the ZEMA calculation. Default is 4.
+    - period (int): Period for the ZEMA calculation. Default is 10.
     - column (str): The column name on which the ZEMA is to be applied. Default is "close".
 
     Call with:
@@ -507,7 +507,7 @@ def RelativeMomentumIndex(df, length: int = 20, mom: int = 5) -> pd.DataFrame:
 
     The Relative Momentum Index (RMI) is an oscillator that applies the RSI formula to momentum rather than price.
 
-    Source: https://github.com/freqtrade/technical/blob/master/technical/indicators/indicators.py#L912
+    Source: https://www.tradingview.com/script/DdT7MmPa/ and https://github.com/freqtrade/technical/blob/master/technical/indicators/indicators.py#L912  
 
     Parameters:
     - df (pd.DataFrame): DataFrame containing the data.
@@ -599,6 +599,8 @@ def WaddahAttarExplosion(df, sensitivity: int = 150, fast_length: int = 20, slow
 
     The Waddah Attar Explosion indicator is used to identify potential breakout opportunities by combining the MACD and Bollinger Bands.
 
+    Inspired by: https://www.tradingview.com/script/d9IjcYyS-Waddah-Attar-Explosion-V2-SHK/
+
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain columns: 'open', 'high', 'low', and 'close'.
     - sensitivity (int): Sensitivity factor for the indicator. Default is 150.
@@ -625,6 +627,14 @@ def WaddahAttarExplosion(df, sensitivity: int = 150, fast_length: int = 20, slow
         if col not in df.columns:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
+    # Calculate EMA
+    def calculate_ema(series, period):
+        return series.ewm(span=period, adjust=False).mean()
+    
+    # Calculate RMA
+    def calculate_rma(series, period):
+        return series.ewm(alpha=1/period, adjust=False).mean()
+
     # Calculate DEAD_ZONE
     true_range = pd.DataFrame({
         'high_low': df['high'] - df['low'],
@@ -632,11 +642,12 @@ def WaddahAttarExplosion(df, sensitivity: int = 150, fast_length: int = 20, slow
         'low_close': (df['low'] - df['close'].shift()).abs()
     })
     true_range['true_range'] = true_range[['high_low', 'high_close', 'low_close']].max(axis=1)
-    dead_zone = RMA(pd.DataFrame(true_range), 'true_range', 100)['rma'] * 3.7
+    # dead_zone = RMA(pd.DataFrame(true_range), 'true_range', 100)['rma'] * 3.7
+    dead_zone = calculate_rma(true_range['true_range'], 100) * 3.7
 
     # Calculate MACD
-    macd_fast = EMA(df, 'close', fast_length)['ema']
-    macd_slow = EMA(df, 'close', slow_length)['ema']
+    macd_fast = calculate_ema(df['close'], fast_length)
+    macd_slow = calculate_ema(df['close'], slow_length)
     macd_diff = macd_fast - macd_slow
     t1 = (macd_diff - macd_diff.shift(1)) * sensitivity
 
@@ -655,12 +666,12 @@ def WaddahAttarExplosion(df, sensitivity: int = 150, fast_length: int = 20, slow
     return df_copy[['trend_up', 'trend_down', 'explosion_line', 'dead_zone_line']]
 
 
-
 def WaveTrend(df, chlen: int = 10, avg: int = 21, smalen: int = 4) -> pd.DataFrame:
     """
     WaveTrend Oscillator by LazyBear
     https://www.tradingview.com/script/2KE8wTuF-Indicator-WaveTrend-Oscillator-WT/
-
+    https://www.tradingview.com/script/jFQn4jYZ-WaveTrend-with-Crosses-LazyBear/
+    
     The WaveTrend Oscillator is used to identify overbought and oversold conditions in the market.
 
     Parameters:
@@ -729,6 +740,10 @@ def WaveTrendOscillator(df: pd.DataFrame, src: str = 'close', n1: int = 8, n2: i
 def QQEMod(df, rsi_period: int = 6, rsi_smoothing: int = 5, qqe_factor: int = 3, threshold: int = 3, bollinger_length: int = 50, bb_multiplier: float = 0.35, rsi_period2: int = 6, rsi_smoothing2: int = 5, qqe_factor2: float = 1.61, threshold2: int = 3) -> pd.DataFrame:
     """
     QQE Mod Indicator
+
+    The QQE (Quantitative Qualitative Estimation) is a technical analysis indicator that combines the Relative Strength Index (RSI) with a smoothing technique to generate buy and sell signals. The QQE indicator helps traders to identify trends, potential breakouts, and changes in market momentum by providing an enhanced visualization of the underlying price dynamics.
+
+    Inspired by: https://www.tradingview.com/script/TpUW4muw-QQE-MOD/
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain a 'close' column.
@@ -858,7 +873,6 @@ def QQEMod(df, rsi_period: int = 6, rsi_smoothing: int = 5, qqe_factor: int = 3,
     return df_copy[['qqe_line', 'histo2', 'qqe_up', 'qqe_down']]
 
 
-
 def RelativeStrengthIndex(df, column: str = 'close', period: int = 14) -> pd.DataFrame:
     """
     Relative Strength Index (RSI)
@@ -986,9 +1000,9 @@ def StochasticRSI(
         stoch_rsi_k = stoch_rsi_k.fillna(0)
         stoch_rsi_d = stoch_rsi_d.fillna(0)
 
-    df_copy['stoch_rsi'] = stoch_rsi.round(2)
-    df_copy['stoch_rsi_k'] = stoch_rsi_k.round(2)
-    df_copy['stoch_rsi_d'] = stoch_rsi_d.round(2)
+    df_copy['stoch_rsi'] = stoch_rsi.round(3)
+    df_copy['stoch_rsi_k'] = stoch_rsi_k.round(3)
+    df_copy['stoch_rsi_d'] = stoch_rsi_d.round(3)
 
     return df_copy[['stoch_rsi', 'stoch_rsi_k', 'stoch_rsi_d']]
 
@@ -1175,6 +1189,8 @@ def WilliamsR(
     Williams %R
 
     The Williams %R is a momentum indicator that measures overbought and oversold levels.
+
+    Inspired by: https://www.tradingview.com/script/REGZq58T-Williams-R/
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain the high, low, and close columns.

@@ -8,7 +8,7 @@ def AverageTrueRange(df: pd.DataFrame, period: int = 14) -> pd.DataFrame:
     """
     Average True Range (ATR)
 
-    The Average True Range (ATR) is a measure of volatility. It was introduced by Welles Wilder in his book 'New Concepts in Technical Trading Systems'.
+    The Average True Range (ATR), smoothed by the Moving Average, is a measure of volatility. It was introduced by Welles Wilder in his book 'New Concepts in Technical Trading Systems'.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain columns 'high', 'low', and 'close'.
@@ -44,7 +44,7 @@ def BollingerBands(df: pd.DataFrame, column: str = 'close', period: int = 20, st
     - ddof (int): Degrees of Freedom to use in standard deviation calculation. Default is 0.
 
     Call with:
-        bb_result = bta.BollingerBands(df, 'close', 21, 2, 0)
+        bb_result = bta.BollingerBands(df, 'close', 20, 2, 0)
         df['bb_upper'] = bb_result['bb_upper']
         df['bb_middle'] = bb_result['bb_middle']
         df['bb_lower'] = bb_result['bb_lower']

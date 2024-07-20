@@ -112,7 +112,9 @@ def bollinger_trend_fast_with_ma(
     """
     Bollinger Trend Indicator with Selectable Moving Average
 
-    This function calculates the Bollinger Trend (BBTrend) and applies a selected moving average to the BBTrend.
+    From: https://www.tradingview.com/script/rI3zj2j6-Bollinger-Bands-Fast-Trend-Indicator-DCD/
+
+    This function calculates a more responsive Bollinger Trend (BBTrend) and applies a selected moving average to the BBTrend.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
@@ -462,11 +464,13 @@ def SSLChannels(df: pd.DataFrame, length: int = 10, mode: str = 'sma') -> pd.Dat
     return df_copy[['ssl_down', 'ssl_up']]
 
 
-def SSLChannelsATR(df: pd.DataFrame, length: int = 7) -> pd.DataFrame:
+def SSLChannelsATR(df: pd.DataFrame, length: int = 21) -> pd.DataFrame:
     """
     SSL Channels with ATR
 
     SSL Channels with ATR indicator calculates the SSL Down and SSL Up series using ATR.
+
+    Inspired by: https://www.tradingview.com/script/SKHqWzql-SSL-ATR-channel/
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame containing the data.
@@ -496,8 +500,9 @@ def SSLChannelsATR(df: pd.DataFrame, length: int = 7) -> pd.DataFrame:
 
 def T3(df: pd.DataFrame, length: int = 5) -> pd.DataFrame:
     """
-    T3 Average by HPotter
-    https://www.tradingview.com/script/qzoC9H1I-T3-Average/
+    T3 Average 
+    
+    Inspired by: https://www.tradingview.com/script/qzoC9H1I-T3-Average/
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame containing the data.
@@ -584,6 +589,8 @@ def ZEMA(df: pd.DataFrame, column: str = 'close', period: int = 21) -> pd.DataFr
 def ZLEMA(df: pd.DataFrame, column: str = 'close', period: int = 21) -> pd.DataFrame:
     """
     Zero Lag Exponential Moving Average (ZLEMA)
+
+    Inspired by: https://www.tradingview.com/script/Oxizu1k7-Zero-Lag-Exponential-Moving-Average/
 
     Call with:
         df['zlema'] = bta.ZLEMA(df, 'close', 21)['zlema']

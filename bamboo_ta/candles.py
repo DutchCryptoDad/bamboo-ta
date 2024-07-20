@@ -7,18 +7,22 @@ from .utility import *
 from.momentum import *
 
 
-def ExhaustionBars(df, maj_qual=6, maj_len=12, min_qual=6, min_len=12, core_length=4):
+def ExhaustionBars(df, maj_qual=6, maj_len=30, min_qual=5, min_len=5, core_length=4):
     """
     Leledc Exhaustion Bars
-    
+
     Infamous S/R Reversal Indicator
 
+    Leledc exhaustion bars are a specific type of price action pattern used in technical analysis to identify potential reversals in the market trend. These bars are characterized by a sharp move in price with an increase in volume, often indicating that the current trend is losing momentum and may reverse direction soon. Traders use them to pinpoint the end of a trend and the beginning of a new one, thereby making more informed trading decisions.
+
+    For more information, see: https://www.abundancetradinggroup.com/leledc-exhaustion-bar-mt4-indicator/
+    
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain 'open', 'high', 'low', and 'close' columns.
     - maj_qual (int): Major quality parameter. Default is 6.
-    - maj_len (int): Major length parameter. Default is 12.
-    - min_qual (int): Minor quality parameter. Default is 6.
-    - min_len (int): Minor length parameter. Default is 12.
+    - maj_len (int): Major length parameter. Default is 30.
+    - min_qual (int): Minor quality parameter. Default is 5.
+    - min_len (int): Minor length parameter. Default is 5.
     - core_length (int): Core length parameter. Default is 4.
 
     Call with:
@@ -83,8 +87,7 @@ def DynamicExhaustionBars(df, window=500):
     Dynamic Leledc Exhaustion Bars
     The lookback length and exhaustion bars adjust dynamically to the market conditions.
 
-    This indicator dynamically adjusts the lookback length and the exhaustion bars based on the market's behavior,
-    helping to identify potential reversals and trend strength.
+    This indicator dynamically adjusts the lookback length and the exhaustion bars based on the market's behavior, helping to identify potential reversals and trend strength.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
@@ -200,10 +203,10 @@ def HeikinAshi(df, pre_smoothing_period=None, post_smoothing_period=None):
 
     Call with:
         ha_df = bta.HeikinAshi(df)
-        df['ha_close'] = ha_df['ha_close']
         df['ha_open'] = ha_df['ha_open']
         df['ha_high'] = ha_df['ha_high']
         df['ha_low'] = ha_df['ha_low']
+        df['ha_close'] = ha_df['ha_close']
 
     Returns:
     - pd.DataFrame: DataFrame with 'ha_open', 'ha_high', 'ha_low', and 'ha_close' columns.
@@ -255,10 +258,7 @@ def LinRegCandles(df, linreg_length=11, sma_signal=True, signal_length=11):
     """
     Linear Regression Candles with Optional Signal Line
 
-    The Linear Regression Candles transform the traditional OHLC bars using a linear regression algorithm, 
-    providing a smoothed representation of price action. The function also provides an optional signal line, 
-    which can be either an SMA or an EMA of the Linear Regression Candle close. This signal line can help to 
-    identify trends and potential trading signals.
+    The Linear Regression Candles transform the traditional OHLC bars using a linear regression algorithm, providing a smoothed representation of price action. The function also provides an optional signal line, which can be either an SMA or an EMA of the Linear Regression Candle close. This signal line can help to identify trends and potential trading signals.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain columns: 'open', 'high', 'low', and 'close'.

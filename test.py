@@ -18,20 +18,32 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # ========================================
 ### After refactoring:
 
-exhaustion = bta.ExhaustionBars(df)
-df['leledc_major'] = exhaustion['leledc_major']
-df['leledc_minor'] = exhaustion['leledc_minor']
+### CANDLES.PY FUNCTIES ###
 
+# VERDER UIT TE VINDEN WAT DEZE INDICATOR DOET...
+# exhaustion = bta.ExhaustionBars(df)
+# df['leledc_major'] = exhaustion['leledc_major']
+# df['leledc_minor'] = exhaustion['leledc_minor']
+
+# VERDER UIT TE VINDEN WAT DEZE INDICATOR DOET...
 # dynamic_exhaustion = bta.DynamicExhaustionBars(df)
 # df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
 # df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
 
+## TWIJFELACHTIG, KOMT NIET OVEREEN MET https://www.tradingview.com/script/RF6to9Nk-PINBAR-By-Bhajanpreet/ of https://www.tradingview.com/script/JO3S0SLV/
+# FUNCTIE LIJKT ANDERS TE WERKEN MET STOCHASTICS< VERDER TE ANALYSEREN
+# pin = bta.Pinbar(df)
+# df['pinbar_sell'] = pin['pinbar_sell']
+# df['pinbar_buy'] = pin['pinbar_buy']
+
+# # WERKT GOED!!!
 # ha_df = bta.HeikinAshi(df)
-# df['ha_close'] = ha_df['ha_close']
 # df['ha_open'] = ha_df['ha_open']
 # df['ha_high'] = ha_df['ha_high']
 # df['ha_low'] = ha_df['ha_low']
+# df['ha_close'] = ha_df['ha_close']
 
+# # # WERKT GOED!!!
 # lr_df = bta.LinRegCandles(df)
 # df['lrc_open'] = lr_df['bopen']
 # df['lrc_high'] = lr_df['bhigh']
@@ -39,87 +51,124 @@ df['leledc_minor'] = exhaustion['leledc_minor']
 # df['lrc_close'] = lr_df['bclose']
 # df['lrc_signal'] = lr_df['signal']
 
+### MOMENTUM.PY FUNCTIES ###
+
+# # # WERKT GOED!!!
 # df['ao'] = bta.AwesomeOscillator(df, 'high', 'low', 5, 34)['ao']
-
+# # # WERKT GOED!!!
 # df['cmo'] = bta.ChandeMomentumOscillator(df)
-
+# # # WERKT GOED!!!
 # df['ewo'] = bta.ElliottWaveOscillator(df, "close", 5, 35)
 
+## DOES NOT HAVE SAME VALUES AS https://tradingview.com/script/5BT3a9mJ-Fisher-Stochastic-Center-of-Gravity/
 # fisher = bta.FisherCenterOfGravity(df)
 # df['fisher_cg'] = fisher['fisher_cg']
 # df['fisher_sig'] = fisher['fisher_sig']
 
+## DOES NOT HAVE SAME VALUES AS https://www.tradingview.com/script/8OxW1SF4-3-more-indicators-Inverse-Fisher-on-RSI-MFI-and-CyberCycle/
 # df['ift'] = bta.InverseFisherTransform(df)['ift']
 
+# # WERKT GOED!!!
 # df['kama'] = bta.KaufmansAdaptiveMovingAverage(df)['kama']
 
+# # WERKT GOED!!!
 # macd_result = bta.MACD(df, "close", 12, 26, 9)
 # df['macd'] = macd_result['macd']
 # df['macd_signal'] = macd_result['macd_signal']
 # df['macd_histogram'] = macd_result['macd_histogram']
 
+# # WERKT GOED!!!
 # df['macd_leader'] = bta.MACDLeader(df, 'close')['macd_leader']
 
-# df['mastreak'] = bta.MAStreak(df, period=4, column='close')['mastreak']
+## WERKT NIET GOED CONFORM https://www.tradingview.com/script/Yq1z7cIv-MA-Streak-Can-Show-When-a-Run-Is-Getting-Long-in-the-Tooth/
+# df['mastreak'] = bta.MAStreak(df, period=10, column='close')['mastreak']
 
-# df['mastreak'] = bta.MAStreak(df, period=4, column='close')['mastreak']
-
+# # WERKT GOED!!!
 # ppo = bta.PercentagePriceOscillator(df)
 # df['ppo'] = ppo['ppo']
 # df['ppo_signal'] = ppo['ppo_signal']
 # df['ppo_hist'] = ppo['ppo_hist']
 
+# GOED VOLGENS https://www.tradingview.com/script/DdT7MmPa/
+# Maar liever ombouwen naar: https://www.tradingview.com/script/kwIt9OgQ-Relative-Momentum-Index/
 # df['rmi'] = bta.RelativeMomentumIndex(df, length=20, mom=5)['rmi']
 
+# # WERKT GOED!!!
 # df['roc'] = bta.RateOfChange(df, column='close', period=21)['roc']
 
+# # WERKT GOED!!!
 # df['sroc'] = bta.SmoothedRateOfChange(df, roclen=21, emalen=13, smooth=21)['sroc']
 
+# # # WERKT GOED!!!
+# # https://www.tradingview.com/script/jFQn4jYZ-WaveTrend-with-Crosses-LazyBear/
 # wt = bta.WaveTrend(df, chlen=10, avg=21, smalen=4)
 # df['wt1'] = wt['wt1']
 # df['wt2'] = wt['wt2']
 
+# # WERKT GOED!!!
 # df['rsi'] = bta.RelativeStrengthIndex(df, column='close', period=14)['rsi']
 
+# # WERKT GOED!!!
 # df['smi'] = bta.StochasticMomentumIndex(df, k_length=9, d_length=3)['smi']
 
+# FOUTIEF EN MOET UITGEZOCHT WORDEN!!!!
 # stoch_rsi = bta.StochasticRSI(df, 'close', 14, 3, 3)
 # df['stoch_rsi'] = stoch_rsi['stoch_rsi']
 # df['stoch_rsi_k'] = stoch_rsi['stoch_rsi_k']
 # df['stoch_rsi_d'] = stoch_rsi['stoch_rsi_d']
 
+# # # WERKT GOED!!!
 # df['tsi'] = bta.TrueStrengthIndex(df, 'close', 25, 13)['tsi']
-
+# # # WERKT GOED!!!
 # df['uo'] = bta.UltimateOscillator(df, 'high', 'low', 'close', 7, 14, 28)['uo']
 
+# # WERKT CONFORM https://www.tradingview.com/script/REGZq58T-Williams-R/
 # df['williams_r'] = bta.WilliamsR(df, 'high', 'low', 'close', 14)['williams_r']
 
-# df['ema'] = bta.EMA(df, 'close', 50)['ema']
-# df['hma'] = bta.HMA(df, 'close', 9)['hma']
-# df['wma'] = bta.WMA(df, 'close', 10)['wma']
-# df['lsma'] = bta.LSMA(df, 'close', 50)['lsma']
+#### TREND.PY ####
 
+# # # WERKT GOED!!!
+# df['ema'] = bta.EMA(df, 'close', 9)['ema']
+# # # WERKT GOED!!!
+# df['hma'] = bta.HMA(df, 'close', 9)['hma']
+# # # WERKT GOED!!!
+# df['wma'] = bta.WMA(df, 'close', 30)['wma']
+# # # WERKT GOED!!!
+# df['lsma'] = bta.LSMA(df, 'close', 25)['lsma']
+
+## KLOPT NIET MET DE OPGEGEVEN INDICATOR: https://www.tradingview.com/script/6wwAWXA1-MA-Streak-Change-Channel/
 # pcc_result = bta.PercentPriceChannel(df, period=20, mult=2)
 # df['pcc_upper'] = pcc_result['pcc_upper']
 # df['pcc_rangema'] = pcc_result['pcc_rangema']
 # df['pcc_lower'] = pcc_result['pcc_lower']
+
+# # # # WERKT GOED!!!
 # df['zema'] = bta.ZEMA(df, 'close', 21)['zema']
 
+## UITZOEKEN OF DEZE GOED WERKT, GEEN INDICATOR HIERVAN TE VINDEN VREEMD GENOEG
 # df['rma'] = bta.RMA(df, 'close', 14)['rma']
+
+# # # WERKT GOED!!!
 # df['sma'] = bta.SMA(df, 'close', 50)['sma']
 
+# # # # # WERKT GOED!!!
 # ssl_result = bta.SSLChannels(df, length=10, mode='sma')
 # df['ssl_down'] = ssl_result['ssl_down']
 # df['ssl_up'] = ssl_result['ssl_up']
 
-# ssl_result = bta.SSLChannelsATR(df, length=7)
+
+# ## KLOPT NIET MET DE OPGEGEVEN INDICATOR: https://www.tradingview.com/script/SKHqWzql-SSL-ATR-channel/
+# ssl_result = bta.SSLChannelsATR(df, length=21)
 # df['ssl_atr_down'] = ssl_result['ssl_atr_down']
 # df['ssl_atr_up'] = ssl_result['ssl_atr_up']
 
+# # WERKT GOED!!!
 # df['t3_average'] = bta.T3(df, length=5)['t3_average']
 
+# # WERKT GOED!!!
 # df['zlema'] = bta.ZLEMA(df, 'close', 21)['zlema']
 
+## CANNOT VERIFY THIS - HAVE TO TRUST THE BUILDER
 # breakout = bta.Breakouts(df, length=20)
 # df['support_level'] = breakout['support_level']
 # df['resistance_level'] = breakout['resistance_level']
@@ -130,61 +179,89 @@ df['leledc_minor'] = exhaustion['leledc_minor']
 # df['resistance_retest'] = breakout['resistance_retest']
 # df['potential_resistance_retest'] = breakout['potential_resistance_retest']
 
+## WERKT GOED!!! TESTED AGAINST THE DEFAULTBUILDIN TV Stochastic (STOCH) https://www.tradingview.com/chart/?symbol=BINANCE%3ABTCUSDT&solution=43000502332
 # stoch = bta.StochasticsOscillator(df, 'high', 'low', 'close', 14, 3)
 # df['stoch'] = stoch['stoch']
 # df['stoch_signal'] = stoch['stoch_signal']
 # df['stoch_hist'] = stoch['stoch_hist']
 
-# df['wto'] = bta.WaveTrendOscillator(df, 'close')['wavetrend']
+# ## KLOPT NIET ONDUIDELIJK WELKE OSCILLATOR HIER NU WORDT GEBRUIKT
+# df['wto'] = bta.WaveTrendOscillator(df, 'close', 10, 21)['wavetrend']
 
+# ## WERKT GOED!!! 
 # df['atr'] = bta.AverageTrueRange(df, 14)['atr']
 
-# bb_result = bta.BollingerBands(df, 'close', 21, 2, 0)
+# ## WERKT GOED!!! 
+# bb_result = bta.BollingerBands(df, 'close', 20, 2, 0)
 # df['bb_upper'] = bb_result['bb_upper']
 # df['bb_middle'] = bb_result['bb_middle']
 # df['bb_lower'] = bb_result['bb_lower']
 
+# ## WERKT GOED!!! 
 # df['true_range'] = bta.TrueRange(df)['true_range']
 
+# # ## WERKT GOED!!! 
 # df['bbtrend'] = bta.BollingerTrend(df, 'close', 20, 50, 2.0)['bbtrend']
 
+# # ## WERKT GOED!!! 
 # result = bta.bollinger_trend_fast_with_ma(df, 'close', 10, 50, 1.0, 2.0, 'SMA', 14)
 # df['bollinger_trend_fast'] = result['bbtrend']
 # df['bollinger_trend_fast_ma'] = result['bbtrend_ma']
 
+## WERKT GOED!!! 
 # wae = bta.WaddahAttarExplosion(df)
 # df['trend_up'] = wae['trend_up']
 # df['trend_down'] = wae['trend_down']
 # df['explosion_line'] = wae['explosion_line']
 # df['dead_zone_line'] = wae['dead_zone_line']
 
+## WERKT BIJNA GOED, ALLEEN DE QQE LIJN VERTOONT AFWIJKINGEN TOV https://www.tradingview.com/script/TpUW4muw-QQE-MOD/
 # qqe_mod = bta.QQEMod(df)
 # df['qqe_line'] = qqe_mod['qqe_line']
 # df['histo2'] = qqe_mod['histo2']
 # df['qqe_up'] = qqe_mod['qqe_up']
 # df['qqe_down'] = qqe_mod['qqe_down']
 
-# pin = bta.Pinbar(df)
-# df['pinbar_sell'] = pin['pinbar_sell']
-# df['pinbar_buy'] = pin['pinbar_buy']
-
 
 # ### VOLUME INDICATORS TEST
-# df['adi'] = bta.AccumulationDistributionIndex(df, fillna=True)['adi']
-# df['cmf'] = bta.ChaikinMoneyFlow(df, window=20, fillna=True)['cmf']
-# df['eom'] = bta.EaseOfMovement(df, window=14, fillna=True)['eom']
-# df['seom'] = bta.EaseOfMovementSMA(df, window=14, fillna=True)['seom']
-# df['fi'] = bta.ForceIndex(df, window=13, fillna=True)['fi']
-# df['mfi']  = bta.MoneyFlowIndex(df, window=14, fillna=True)['mfi']
-# df['nvi'] = bta.NegativeVolumeIndex(df, fillna=True)['nvi']
-# df['obv'] = bta.OnBalanceVolume(df, fillna=True)['obv']
-# df['obv_osc'] = bta.OnBalanceVolumeOscillator(df, channel=10, average=21, fillna=True)['obv_oscillator']
-# df['vpt'] = bta.VolumePriceTrend(df, fillna=True, smoothing_factor=10, dropnans=True)['volume_price_trend']
-# df['vwap'] = bta.VolumeWeightedAveragePrice(df, window=14, fillna=True)['volume_weighted_average_price']
-# ###
 
+## WERKT GOED!!!
+# df['adi'] = bta.AccumulationDistributionIndex(df, fillna=True)['adi']
+
+## WERKT GOED!!!
+# df['cmf'] = bta.ChaikinMoneyFlow(df, window=20, fillna=True)['cmf']
+
+## WERKT GOED!!!
+# eom_df = bta.EaseOfMovement(df, eom_length=14, seom_length=14, fillna=True)
+# df['eom'] = eom_df['eom']
+# df['eom_ma'] = eom_df['eom_ma']
+
+# ## WERKT GOED!!!
+# df['fi'] = bta.ForceIndex(df, window=13, fillna=True)['fi']
+
+# ## WERKT GOED!!!
+# df['mfi']  = bta.MoneyFlowIndex(df, window=14, fillna=True)['mfi']
+
+## Onduidelijke werking
+# df['nvi'] = bta.NegativeVolumeIndex(df, fillna=True)['nvi']
+
+# # CONTROLEREN WERKT NIET
+# df['obv'] = bta.OnBalanceVolume(df, fillna=True)['obv']
+
+# # CONTROLEREN WERKT NIET
+# df['obv_osc'] = bta.OnBalanceVolumeOscillator(df, channel=10, average=21, fillna=True)['obv_oscillator']
+
+# # CONTROLEREN WERKT NIET
+# df['vpt'] = bta.VolumePriceTrend(df, fillna=True, smoothing_factor=10, dropnans=True)['volume_price_trend']
+# df['vpt'] = bta.VolumePriceTrend(df, src_cols=('close', 'volume'), fillna=True, smoothing_factor=10, dropnans=True)['Volume_Price_Trend']
+
+# # CONTROLEREN WERKT NIET
+# df['vwap'] = bta.VolumeWeightedAveragePrice(df, window=14, fillna=True)['volume_weighted_average_price']
+# df['VWAP'] = bta.VolumeWeightedAveragePrice2(df, window=14, fillna=True)['VWAP']
+
+# ###
 #  TOT HIER GOED ++++++++++
 
 
-print(df.tail(25))
+print(df.tail(40))
 
