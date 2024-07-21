@@ -268,21 +268,27 @@ def NegativeVolumeIndex(df: pd.DataFrame, fillna: bool = False) -> pd.DataFrame:
     return df_copy[['nvi']]
 
 
-def OnBalanceVolume(df: pd.DataFrame, fillna: bool = False) -> pd.DataFrame:
+def OnBalanceVolume(df: pd.DataFrame, signal_type: str = 'SMA', signal_length: int = 21, 
+                    show_signal: bool = True, fillna: bool = False) -> pd.DataFrame:
     """
-    On-balance volume (OBV)
+    On Balance Volume (OBV) with Signal Smoothing
 
-    Relates price and volume in the stock market. OBV is based on a cumulative total volume.
+    The On Balance Volume (OBV) indicator is a momentum-based technical analysis tool that measures buying and selling pressure. It accumulates volume based on price movements: when the closing price is higher than the previous close, the volume is added to the OBV; when the closing price is lower, the volume is subtracted. This helps to identify trends and confirm price movements, with rising OBV indicating strong buying pressure and falling OBV indicating selling pressure.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
-    - fillna (bool): if True, fill nan values.
+    - signal_type (str): Type of signal smoothing ('EMA' or 'SMA'). Default is 'SMA'.
+    - signal_length (int): Length for the signal smoothing. Default is 21.
+    - show_signal (bool): If True, plot the signal line. Default is True.
+    - fillna (bool): If True, fill nan values.
 
     Call with:
-        df['obv'] = bta.OnBalanceVolume(df, fillna=True)['obv']
+        obv_df = bta.OnBalanceVolume(df, signal_type='SMA', signal_length=21, show_signal=True, fillna=True)
+        df['obv'] = obv_df['obv']
+        df['signal'] = obv_df['signal']
 
     Returns:
-    - pd.DataFrame: DataFrame with 'obv' column.
+    - pd.DataFrame: DataFrame with 'obv' and 'signal' columns.
     """
     df_copy = df.copy()
 
@@ -293,29 +299,41 @@ def OnBalanceVolume(df: pd.DataFrame, fillna: bool = False) -> pd.DataFrame:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
     # Calculate OBV
-    obv = np.where(df_copy['close'] < df_copy['close'].shift(1), -df_copy['volume'], df_copy['volume'])
-    obv = pd.Series(obv, index=df_copy.index).cumsum()
+    df_copy['change'] = df_copy['close'].diff()
+    df_copy['obv'] = np.where(df_copy['change'] > 0, df_copy['volume'], 
+                              np.where(df_copy['change'] < 0, -df_copy['volume'], 0))
+    df_copy['obv'] = df_copy['obv'].cumsum()
+
+    # Calculate Signal
+    if signal_type == 'EMA':
+        df_copy['signal'] = df_copy['obv'].ewm(span=signal_length, adjust=False).mean()
+    elif signal_type == 'SMA':
+        df_copy['signal'] = df_copy['obv'].rolling(window=signal_length, min_periods=1).mean()
+    else:
+        raise ValueError(f"Invalid signal_type: {signal_type}. Use 'EMA' or 'SMA'.")
 
     if fillna:
-        obv = obv.fillna(0)
+        df_copy['obv'] = df_copy['obv'].fillna(0)
+        df_copy['signal'] = df_copy['signal'].fillna(0)
 
-    df_copy['obv'] = obv.round(2)
-
-    return df_copy[['obv']]
+    return df_copy[['obv', 'signal']]
 
 
-def OnBalanceVolumeOscillator(df: pd.DataFrame, channel: int = 10, average: int = 21, fillna: bool = False) -> pd.DataFrame:
+def OnBalanceVolumeOscillator(df: pd.DataFrame, length: int = 20, fillna: bool = False) -> pd.DataFrame:
     """
     On Balance Volume (OBV) Oscillator
 
+    The On Balance Volume (OBV) is a technical analysis indicator that measures buying and selling pressure by accumulating volume based on price movements. When the price closes higher than the previous close, the volume is added to the OBV, and when the price closes lower, the volume is subtracted. This helps to identify trends and confirm price movements, with increasing OBV indicating strong buying pressure and decreasing OBV indicating selling pressure.
+
+    Inspired by: https://www.tradingview.com/script/Ox9gyUFA-Indicator-OBV-Oscillator/
+
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
-    - channel (int): OBV Channel Length. Default is 10.
-    - average (int): OBV Average Length. Default is 21.
+    - length (int): Length for the EMA calculation. Default is 20.
     - fillna (bool): If True, fill nan values.
 
     Call with:
-        df['obv_osc'] = bta.OnBalanceVolumeOscillator(df, channel=10, average=21, fillna=True)['obv_oscillator']
+        df['obv_osc'] = bta.OnBalanceVolumeOscillator(df, length=20, fillna=True)['obv_oscillator']
 
     Returns:
     - pd.DataFrame: DataFrame with 'obv_oscillator' column.
@@ -330,19 +348,22 @@ def OnBalanceVolumeOscillator(df: pd.DataFrame, channel: int = 10, average: int 
 
     # Calculate OBV
     df_copy['change'] = df_copy['close'].diff()
-    df_copy['obv'] = np.where(df_copy['change'] > 0, df_copy['volume'] * df_copy['change'], 
-                              np.where(df_copy['change'] < 0, df_copy['volume'] * df_copy['change'], 0))
+    df_copy['obv'] = np.where(df_copy['change'] > 0, df_copy['volume'], 
+                              np.where(df_copy['change'] < 0, -df_copy['volume'], 0))
     df_copy['obv'] = df_copy['obv'].cumsum()
 
     # Calculate OBV Oscillator
-    ema_obv_channel = df_copy['obv'].ewm(span=channel, adjust=False).mean()
-    ema_abs_obv_channel = (df_copy['obv'] - ema_obv_channel).abs().ewm(span=channel, adjust=False).mean()
-    df_copy['obv_oscillator'] = ((df_copy['obv'] - ema_obv_channel) / (0.015 * ema_abs_obv_channel)).ewm(span=average, adjust=False).mean()
+    df_copy['ema_obv'] = df_copy['obv'].ewm(span=length, adjust=False).mean()
+    df_copy['obv_oscillator'] = df_copy['obv'] - df_copy['ema_obv']
 
     if fillna:
         df_copy['obv_oscillator'] = df_copy['obv_oscillator'].fillna(0)
 
-    return df_copy[['obv_oscillator']]
+    return df_copy[['obv_oscillator']].round(2)
+
+# Example usage:
+# 
+
 
 
 def PriceVolumeTrend(df: pd.DataFrame, fillna: bool = False, smoothing_factor: int = None, signal_type: str = 'SMA', signal_length: int = 21, dropnans: bool = False) -> pd.DataFrame:

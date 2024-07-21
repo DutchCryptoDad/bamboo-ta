@@ -245,11 +245,16 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 ## Onduidelijke werking
 # df['nvi'] = bta.NegativeVolumeIndex(df, fillna=True)['nvi']
 
-# # CONTROLEREN WERKT NIET
-# df['obv'] = bta.OnBalanceVolume(df, fillna=True)['obv']
+# ## WERKT GOED!!
+# obv_df = bta.OnBalanceVolume(df, signal_type='SMA', signal_length=21, show_signal=True, fillna=True)
+# df['obv'] = obv_df['obv']
+# df['signal'] = obv_df['signal']
 
 # # CONTROLEREN WERKT NIET
-df['obv_osc'] = bta.OnBalanceVolumeOscillator(df, channel=10, average=21, fillna=True)['obv_oscillator']
+# df['obv_osc'] = bta.OnBalanceVolumeOscillator(df, channel=10, average=21, fillna=True)['obv_oscillator']
+# ## WERKT GOED!!!
+# df['obv_osc'] = bta.OnBalanceVolumeOscillator(df, length=20, fillna=True)['obv_oscillator']
+
 
 # # # WERKT BIJNA HETZELFDE ALS https://www.tradingview.com/script/3Ah2ALck-Price-Volume-Trend/
 # pvt_df = bta.PriceVolumeTrend(df, fillna=True, signal_type='SMA', signal_length=21, dropnans=True)
