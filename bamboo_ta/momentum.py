@@ -668,12 +668,13 @@ def WaddahAttarExplosion(df, sensitivity: int = 150, fast_length: int = 20, slow
 
 def WaveTrend(df, chlen: int = 10, avg: int = 21, smalen: int = 4) -> pd.DataFrame:
     """
-    WaveTrend Oscillator by LazyBear
-    https://www.tradingview.com/script/2KE8wTuF-Indicator-WaveTrend-Oscillator-WT/
-    https://www.tradingview.com/script/jFQn4jYZ-WaveTrend-with-Crosses-LazyBear/
-    
+    WaveTrend Oscillator
+
     The WaveTrend Oscillator is used to identify overbought and oversold conditions in the market.
 
+    Inspired by:  https://www.tradingview.com/script/2KE8wTuF-Indicator-WaveTrend-Oscillator-WT/ 
+    and: https://www.tradingview.com/script/jFQn4jYZ-WaveTrend-with-Crosses-LazyBear/
+    
     Parameters:
     - df (pd.DataFrame): DataFrame containing the data.
     - chlen (int): Channel length for the EMA calculation. Default is 10.
@@ -703,6 +704,7 @@ def WaveTrend(df, chlen: int = 10, avg: int = 21, smalen: int = 4) -> pd.DataFra
     df_copy['wt2'] = df_copy['wt2'].round(2)
 
     return df_copy[['wt1', 'wt2']]
+
 
 def WaveTrendOscillator(df: pd.DataFrame, src: str = 'close', n1: int = 8, n2: int = 12) -> pd.DataFrame:
     """

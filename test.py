@@ -100,7 +100,7 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['sroc'] = bta.SmoothedRateOfChange(df, roclen=21, emalen=13, smooth=21)['sroc']
 
 # # # WERKT GOED!!!
-# # https://www.tradingview.com/script/jFQn4jYZ-WaveTrend-with-Crosses-LazyBear/
+# https://www.tradingview.com/script/jFQn4jYZ-WaveTrend-with-Crosses-LazyBear/
 # wt = bta.WaveTrend(df, chlen=10, avg=21, smalen=4)
 # df['wt1'] = wt['wt1']
 # df['wt2'] = wt['wt2']
@@ -185,8 +185,8 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['stoch_signal'] = stoch['stoch_signal']
 # df['stoch_hist'] = stoch['stoch_hist']
 
-# ## KLOPT NIET ONDUIDELIJK WELKE OSCILLATOR HIER NU WORDT GEBRUIKT
-df['wto'] = bta.WaveTrendOscillator(df, 'close', 10, 21)['wavetrend']
+# ## ONDUIDELIJK WELKE OSCILLATOR HIER NU WORDT GEBRUIKT NIET TE CONTROLEREN
+# df['wto'] = bta.WaveTrendOscillator(df, 'close', 10, 21)['wavetrend']
 
 # ## WERKT GOED!!! 
 # df['atr'] = bta.AverageTrueRange(df, 14)['atr']
