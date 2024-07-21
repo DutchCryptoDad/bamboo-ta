@@ -108,100 +108,198 @@ def ElliottWaveOscillator(df, column: str = 'close', sma1_period: int = 5, sma2_
     return df_copy[['ewo']]
 
 
-def FisherCenterOfGravity(df, length: str = 20, min_period: str = 10) -> pd.DataFrame:
-    """
-    Fisher Stochastic Center of Gravity
+# def FisherCenterOfGravity(df, length: str = 20, min_period: str = 10) -> pd.DataFrame:
+#     """
+#     Fisher Stochastic Center of Gravity
 
-    Original Pinescript by dasanc
-    https://tradingview.com/script/5BT3a9mJ-Fisher-Stochastic-Center-of-Gravity/
+#     Original Pinescript by dasanc
+#     https://tradingview.com/script/5BT3a9mJ-Fisher-Stochastic-Center-of-Gravity/
 
-    The Fisher Stochastic Center of Gravity is an indicator that aims to identify the center of gravity of the market.
+#     The Fisher Stochastic Center of Gravity is an indicator that aims to identify the center of gravity of the market.
 
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high' and 'low' columns.
-    - length (int): Lookback period. Default is 20.
-    - min_period (int): Minimum lookback period. Default is 10.
+#     Parameters:
+#     - df (pandas.DataFrame): Input DataFrame which should contain 'high' and 'low' columns.
+#     - length (int): Lookback period. Default is 20.
+#     - min_period (int): Minimum lookback period. Default is 10.
 
-    Call with:
-        fisher = bta.FisherCenterOfGravity(df)
-        df['fisher_cg'] = fisher['fisher_cg']
-        df['fisher_sig'] = fisher['fisher_sig']
+#     Call with:
+#         fisher = bta.FisherCenterOfGravity(df)
+#         df['fisher_cg'] = fisher['fisher_cg']
+#         df['fisher_sig'] = fisher['fisher_sig']
 
-    Returns:
-    - pd.DataFrame: DataFrame with 'fisher_cg' and 'fisher_sig' columns populated.
-    """
-    df_copy = df.copy()
+#     Returns:
+#     - pd.DataFrame: DataFrame with 'fisher_cg' and 'fisher_sig' columns populated.
+#     """
+#     df_copy = df.copy()
 
-    # Ensure the DataFrame contains the required columns
-    required_columns = ['high', 'low']
-    for col in required_columns:
-        if col not in df.columns:
-            raise KeyError(f"DataFrame must contain '{col}' column")
+#     # Ensure the DataFrame contains the required columns
+#     required_columns = ['high', 'low']
+#     for col in required_columns:
+#         if col not in df.columns:
+#             raise KeyError(f"DataFrame must contain '{col}' column")
 
-    df_copy['hl2'] = (df_copy['high'] + df_copy['low']) / 2
+#     df_copy['hl2'] = (df_copy['high'] + df_copy['low']) / 2
 
-    if length < min_period:
-        length = min_period
+#     if length < min_period:
+#         length = min_period
 
-    num = sum((1 + i) * df_copy['hl2'].shift(i) for i in range(length))
-    denom = sum(df_copy['hl2'].shift(i) for i in range(length))
+#     num = sum((1 + i) * df_copy['hl2'].shift(i) for i in range(length))
+#     denom = sum(df_copy['hl2'].shift(i) for i in range(length))
 
-    cg = -num / denom + (length + 1) / 2
-    max_cg = cg.rolling(window=length).max()
-    min_cg = cg.rolling(window=length).min()
+#     cg = -num / denom + (length + 1) / 2
+#     max_cg = cg.rolling(window=length).max()
+#     min_cg = cg.rolling(window=length).min()
 
-    value1 = np.where(max_cg != min_cg, (cg - min_cg) / (max_cg - min_cg), 0)
-    value2 = (4 * value1 + 3 * np.roll(value1, 1) + 2 * np.roll(value1, 2) + np.roll(value1, 3)) / 10
-    value3 = 0.5 * np.log((1 + 1.98 * (value2 - 0.5)) / (1 - 1.98 * (value2 - 0.5)))
+#     value1 = np.where(max_cg != min_cg, (cg - min_cg) / (max_cg - min_cg), 0)
+#     value2 = (4 * value1 + 3 * np.roll(value1, 1) + 2 * np.roll(value1, 2) + np.roll(value1, 3)) / 10
+#     value3 = 0.5 * np.log((1 + 1.98 * (value2 - 0.5)) / (1 - 1.98 * (value2 - 0.5)))
 
-    df_copy['fisher_cg'] = pd.Series(value3, index=df_copy.index).round(2)  # Center of Gravity
-    df_copy['fisher_sig'] = df_copy['fisher_cg'].shift(1).round(2)  # Signal / Trigger
+#     df_copy['fisher_cg'] = pd.Series(value3, index=df_copy.index).round(2)  # Center of Gravity
+#     df_copy['fisher_sig'] = df_copy['fisher_cg'].shift(1).round(2)  # Signal / Trigger
 
-    return df_copy[['fisher_cg', 'fisher_sig']]
+#     return df_copy[['fisher_cg', 'fisher_sig']]
 
 
-def InverseFisherTransform(df, column: str = 'close', rsi_length: int = 14, rsi_smoothing: int = 9) -> pd.DataFrame:
-    """
-    Inverse Fisher Transform
+# def InverseFisherTransform(df, column: str = 'close', rsi_length: int = 14, rsi_smoothing: int = 9) -> pd.DataFrame:
+#     """
+#     Inverse Fisher Transform
 
-    The Inverse Fisher Transform is a technical indicator used to amplify price movements and identify potential buy and sell signals.
-    It applies an inverse Fisher transform to a smoothed RSI to highlight changes in price momentum.
+#     The Inverse Fisher Transform is a technical indicator used to amplify price movements and identify potential buy and sell signals.
+#     It applies an inverse Fisher transform to a smoothed RSI to highlight changes in price momentum.
 
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
-    - column (str): Source column to calculate the indicator. Default is 'close'.
-    - rsi_length (int): Length for the RSI calculation. Default is 10.
-    - rsi_smoothing (int): Length for the RSI smoothing (EMA). Default is 5.
-    - e_value (float): E value for the inverse fisher transform. Default is 2.71.
+#     Parameters:
+#     - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
+#     - column (str): Source column to calculate the indicator. Default is 'close'.
+#     - rsi_length (int): Length for the RSI calculation. Default is 10.
+#     - rsi_smoothing (int): Length for the RSI smoothing (EMA). Default is 5.
+#     - e_value (float): E value for the inverse fisher transform. Default is 2.71.
 
-    Call with:
-        df['ift'] = bta.InverseFisherTransform(df)['ift']
+#     Call with:
+#         df['ift'] = bta.InverseFisherTransform(df)['ift']
 
-    Use additional levels in your dataframe for 
-        # Add horizontal levels
-        df['level_1_35'] = 1.35
-        df['level_0_5'] = 0.5
-        df['level_0'] = 0
-        df['level_minus_0_5'] = -0.5
-        df['level_minus_1'] = -1
+#     Use additional levels in your dataframe for 
+#         # Add horizontal levels
+#         df['level_1_35'] = 1.35
+#         df['level_0_5'] = 0.5
+#         df['level_0'] = 0
+#         df['level_minus_0_5'] = -0.5
+#         df['level_minus_1'] = -1
 
-    Returns:
-    - pd.DataFrame: DataFrame with 'ift' column.
-    """
-    df_copy = df.copy()
+#     Returns:
+#     - pd.DataFrame: DataFrame with 'ift' column.
+#     """
+#     df_copy = df.copy()
 
-    # Calculate RSI values
-    rsi_values = RelativeStrengthIndex(df, column=column, period=rsi_length)
+#     # Calculate RSI values
+#     rsi_values = RelativeStrengthIndex(df, column=column, period=rsi_length)
     
-    # Smooth RSI values with EMA
-    rsi_ema_values = EMA(df.assign(rsi_values=rsi_values), 'rsi_values', rsi_smoothing)
+#     # Smooth RSI values with EMA
+#     rsi_ema_values = EMA(df.assign(rsi_values=rsi_values), 'rsi_values', rsi_smoothing)
     
-    # Apply Inverse Fisher Transform
-    inv_fisher = (np.exp(2.0 * (rsi_ema_values - 50) * 0.1) - 1) / (np.exp(2.0 * (rsi_ema_values - 50) * 0.1) + 1)
+#     # Apply Inverse Fisher Transform
+#     inv_fisher = (np.exp(2.0 * (rsi_ema_values - 50) * 0.1) - 1) / (np.exp(2.0 * (rsi_ema_values - 50) * 0.1) + 1)
 
-    df_copy['ift'] = inv_fisher.round(2)
+#     df_copy['ift'] = inv_fisher.round(2)
     
-    return df_copy[['ift']]
+#     return df_copy[['ift']]
+
+# def inverse_fisher_transform(df, column: str = 'close', indicator: str = 'cci', length: int = 9) -> pd.DataFrame:
+#     """
+#     Inverse Fisher Transform COMBO
+    
+#     Parameters:
+#     - df (pandas.DataFrame): Input DataFrame which should contain at least the "open", "high", "low", "close", and "volume" columns.
+#     - column (str): The column on which to calculate the Inverse Fisher Transform. Default is "close".
+#     - indicator (str): The indicator on which to calculate the Inverse Fisher Transform. Options: 'cci', 'cciv2', 'mfi', 'rsi', 'stoch', 'smi', 'average'.
+#     - length (int): The period for the calculations. Default is 9.
+
+#     Call with:
+#         df['ift'] = bta.inverse_fisher_transform(df, "close", "rsi", 9)['IFT_RSI']
+
+#     Returns:
+#     - pd.DataFrame: DataFrame with the Inverse Fisher Transform values for the selected indicator.
+#     """
+#     def wma(series, length):
+#         weights = np.arange(1, length + 1)
+#         return series.rolling(length).apply(lambda prices: np.dot(prices, weights) / weights.sum(), raw=True)
+
+#     def cci(df, length):
+#         tp = (df['high'] + df['low'] + df['close']) / 3
+#         sma = tp.rolling(window=length).mean()
+#         mad = tp.rolling(window=length).apply(lambda x: np.mean(np.abs(x - np.mean(x))))
+#         cci = (tp - sma) / (0.015 * mad)
+#         return cci
+
+#     def mfi(df, length):
+#         typical_price = (df['high'] + df['low'] + df['close']) / 3
+#         money_flow = typical_price * df['volume']
+#         positive_flow = money_flow.where(typical_price > typical_price.shift(1), 0)
+#         negative_flow = money_flow.where(typical_price < typical_price.shift(1), 0)
+#         positive_mf = positive_flow.rolling(window=length).sum()
+#         negative_mf = negative_flow.rolling(window=length).sum()
+#         mfi = 100 - (100 / (1 + positive_mf / negative_mf))
+#         return mfi
+
+#     def rsi(series, length):
+#         delta = series.diff(1)
+#         gain = (delta.where(delta > 0, 0)).rolling(window=length).mean()
+#         loss = (-delta.where(delta < 0, 0)).rolling(window=length).mean()
+#         rs = gain / loss
+#         rsi = 100 - (100 / (1 + rs))
+#         return rsi
+
+#     def stoch(df, length):
+#         low_min = df['low'].rolling(window=length).min()
+#         high_max = df['high'].rolling(window=length).max()
+#         stoch_k = 100 * ((df['close'] - low_min) / (high_max - low_min))
+#         return stoch_k
+
+#     def ema(series, length):
+#         return series.ewm(span=length, adjust=False).mean()
+
+#     def smi(df, smi_length, inner_ema_length, outer_ema_length):
+#         llow = df['low'].rolling(window=smi_length).min()
+#         hhigh = df['high'].rolling(window=smi_length).max()
+#         sm = df['close'] - 0.5 * (hhigh + llow)
+#         avgsm = ema(ema(sm, inner_ema_length), outer_ema_length)
+#         diff = hhigh - llow
+#         avgdiff = ema(ema(diff, inner_ema_length), outer_ema_length)
+#         smi = np.where(avgdiff != 0, 100 * (avgsm / (0.5 * avgdiff)), 0)
+#         return smi
+
+#     def inverse_fisher_transform(series):
+#         return (np.exp(2 * series) - 1) / (np.exp(2 * series) + 1)
+
+#     if indicator == 'cci':
+#         values = 0.1 * cci(df, length)
+#     elif indicator == 'cciv2':
+#         values = 0.1 * (cci(df, length) / 4)
+#     elif indicator == 'mfi':
+#         values = 0.1 * (mfi(df, length) - 50)
+#     elif indicator == 'rsi':
+#         values = 0.1 * (rsi(df[column], length) - 50)
+#     elif indicator == 'stoch':
+#         values = 0.1 * (stoch(df, length) - 50)
+#     elif indicator == 'smi':
+#         values = 0.1 * smi(df, length, length, length)
+#     elif indicator == 'average':
+#         cci_values = 0.1 * cci(df, length)
+#         cciv2_values = 0.1 * (cci(df, length) / 4)
+#         mfi_values = 0.1 * (mfi(df, length) - 50)
+#         rsi_values = 0.1 * (rsi(df[column], length) - 50)
+#         stoch_values = 0.1 * (stoch(df, length) - 50)
+#         smi_values = 0.1 * smi(df, length, length, length)
+#         avg_values = (cci_values + cciv2_values + mfi_values + rsi_values + stoch_values + smi_values) / 6
+#         values = avg_values
+#     else:
+#         raise ValueError("Invalid indicator specified")
+
+#     transformed_values = inverse_fisher_transform(wma(values, length))
+
+#     df_copy = df.copy()
+#     df_copy[f'IFT_{indicator.upper()}'] = transformed_values
+
+#     return df_copy[[f'IFT_{indicator.upper()}']]
 
 
 def KaufmansAdaptiveMovingAverage(
@@ -280,7 +378,7 @@ def KaufmansAdaptiveMovingAverage(
     return df_copy[['kama']]
 
 
-def MACD(df, column: str = 'close', short_window: int = 12, long_window: int = 26, signal_window: str = 9) -> pd.DataFrame:
+def MACD(df, column: str = 'close', short_window: int = 12, long_window: int = 26, signal_window: int = 9) -> pd.DataFrame:
     """
     Moving Average Convergence Divergence (MACD)
 
@@ -294,7 +392,7 @@ def MACD(df, column: str = 'close', short_window: int = 12, long_window: int = 2
     - signal_window (int): The signal line period for EMA. Default is 9.
 
     Call with:
-        macd_result = bta.MACD(df, "close", 12, 26, 9)
+        macd_result = bta.MACD(df, 'close', 12, 26, 9)
         df['macd'] = macd_result['macd']
         df['macd_signal'] = macd_result['macd_signal']
         df['macd_histogram'] = macd_result['macd_histogram']
@@ -302,10 +400,13 @@ def MACD(df, column: str = 'close', short_window: int = 12, long_window: int = 2
     Returns:
     - pd.DataFrame: DataFrame with 'macd', 'macd_signal', and 'macd_histogram' columns.
     """
-    short_ema = EMA(df, column=column, period=short_window)
-    long_ema = EMA(df, column=column, period=long_window)
+    def ema_calculation(series, span):
+        return series.ewm(span=span, adjust=False).mean()
+
+    short_ema = ema_calculation(df[column], span=short_window)
+    long_ema = ema_calculation(df[column], span=long_window)
     macd = short_ema - long_ema
-    signal = macd.ewm(span=signal_window, adjust=False).mean()
+    signal = ema_calculation(macd, span=signal_window)
     histogram = macd - signal
 
     df_copy = df.copy()
@@ -335,54 +436,97 @@ def MACDLeader(df: pd.DataFrame, src: str = 'close', fast_length: int = 12, slow
     Returns:
     - pd.DataFrame: DataFrame with 'macd_leader' column.
     """
+    def ema_calculation(series, span):
+        return series.ewm(span=span, adjust=False).mean()
+
     df_copy = df.copy()
     src_series = df[src]
 
-    sema = EMA(df, column=src, period=fast_length)['ema']
-    lema = EMA(df, column=src, period=slow_length)['ema']
+    sema = ema_calculation(src_series, span=fast_length)
+    lema = ema_calculation(src_series, span=slow_length)
     diff_sema = src_series - sema
     diff_lema = src_series - lema
-    i1 = sema + EMA(df.assign(diff=diff_sema), column='diff', period=fast_length)['ema']
-    i2 = lema + EMA(df.assign(diff=diff_lema), column='diff', period=slow_length)['ema']
+    i1 = sema + ema_calculation(diff_sema, span=fast_length)
+    i2 = lema + ema_calculation(diff_lema, span=slow_length)
     macd_leader = ((i1 - i2) / 10) * 10
 
     df_copy['macd_leader'] = macd_leader.round(2)
     
     return df_copy[['macd_leader']]
 
-
-def MAStreak(df: pd.DataFrame, period: int = 10, column: str = 'close') -> pd.DataFrame:
+def MAStreak(df: pd.DataFrame, length: int = 10, src: str = 'close', matype: int = 1) -> pd.DataFrame:
     """
-    MA Streak
+    MA Streak Indicator
 
-    Port of: https://www.tradingview.com/script/Yq1z7cIv-MA-Streak-Can-Show-When-a-Run-Is-Getting-Long-in-the-Tooth/
+    This indicator tracks how many bars a given moving average is rising or falling. 
+    It's color-coded green (positive) or red (negative).
 
-    The MA Streak indicator shows the length of consecutive periods where the moving average is increasing or decreasing.
-
-    Parameters:
-    - df (pd.DataFrame): DataFrame containing the data.
-    - period (int): Period for the ZEMA calculation. Default is 10.
-    - column (str): The column name on which the ZEMA is to be applied. Default is "close".
+    Inspired by: https://www.tradingview.com/script/Yq1z7cIv-MA-Streak-Can-Show-When-a-Run-Is-Getting-Long-in-the-Tooth/
 
     Call with:
-        df['mastreak'] = bta.MAStreak(df, period=4, column='close')['mastreak']
+        df['ma_streak'] = bta.MAStreak(df, length=10, src='close', matype=1)['ma_streak']
+
+    MA types:
+    1 - Simple Moving Average (SMA)
+    2 - Exponential Moving Average (EMA)
+    3 - Hull Moving Average (HMA)
+    4 - Weighted Moving Average (WMA)
+    5 - Volume Weighted Moving Average (VWMA)
+
+    Parameters:
+    - df (pd.DataFrame): Input DataFrame containing the data.
+    - length (int): Period for the moving average calculation. Default is 10.
+    - src (str): The column name to use for the moving average calculation. Default is 'close'.
+    - matype (int): Type of moving average to use. Default is 1 (SMA).
 
     Returns:
-    - pd.DataFrame: DataFrame with 'mastreak' column.
+    - pd.DataFrame: DataFrame with 'ma_streak' column.
     """
     df_copy = df.copy()
 
-    avgval = ZEMA(df_copy, column=column, period=period)['zema']
-    arr = np.diff(avgval)
-    pos = np.clip(arr, 0, 1).astype(bool).cumsum()
-    neg = np.clip(arr, -1, 0).astype(bool).cumsum()
-    streak = np.where(arr >= 0, pos - np.maximum.accumulate(np.where(arr <= 0, pos, 0)),
-                      -neg + np.maximum.accumulate(np.where(arr >= 0, neg, 0)))
-
-    streak_series = SameLength(df_copy['close'], streak)
-    df_copy['mastreak'] = streak_series.round(2)
+    # Calculate different types of moving averages
+    df_copy['sma'] = df_copy[src].rolling(window=length).mean()
+    df_copy['ema'] = df_copy[src].ewm(span=length, adjust=False).mean()
+    df_copy['wma'] = df_copy[src].rolling(window=length).apply(lambda prices: np.dot(prices, np.arange(1, length+1))/np.arange(1, length+1).sum(), raw=True)
+    df_copy['vwma'] = (df_copy[src] * df_copy['volume']).rolling(window=length).sum() / df_copy['volume'].rolling(window=length).sum()
     
-    return df_copy[['mastreak']]
+    # Calculate Hull Moving Average (HMA)
+    half_length = int(length / 2)
+    sqrt_length = int(np.sqrt(length))
+    df_copy['hma'] = df_copy[src].rolling(window=half_length).mean()
+    df_copy['hma'] = 2 * df_copy['hma'] - df_copy[src].rolling(window=length).mean()
+    df_copy['hma'] = df_copy['hma'].rolling(window=sqrt_length).mean()
+
+    # Select the appropriate moving average
+    if matype == 1:
+        df_copy['avgval'] = df_copy['sma']
+    elif matype == 2:
+        df_copy['avgval'] = df_copy['ema']
+    elif matype == 3:
+        df_copy['avgval'] = df_copy['hma']
+    elif matype == 4:
+        df_copy['avgval'] = df_copy['wma']
+    elif matype == 5:
+        df_copy['avgval'] = df_copy['vwma']
+    else:
+        raise ValueError("Invalid moving average type. Choose a value between 1 and 5.")
+
+    # Initialize the streak columns
+    df_copy['upcount'] = 0
+    df_copy['dncount'] = 0
+    df_copy['ma_streak'] = 0
+
+    # Calculate the streak
+    for i in range(1, len(df_copy)):
+        if df_copy['avgval'].iloc[i] > df_copy['avgval'].iloc[i - 1]:
+            df_copy.at[i, 'upcount'] = df_copy.at[i - 1, 'upcount'] + 1
+            df_copy.at[i, 'dncount'] = 0
+        elif df_copy['avgval'].iloc[i] < df_copy['avgval'].iloc[i - 1]:
+            df_copy.at[i, 'dncount'] = df_copy.at[i - 1, 'dncount'] - 1
+            df_copy.at[i, 'upcount'] = 0
+        df_copy.at[i, 'ma_streak'] = df_copy.at[i, 'upcount'] + df_copy.at[i, 'dncount']
+
+    return df_copy[['ma_streak']]
 
 
 def PercentagePriceOscillator(
@@ -954,59 +1098,50 @@ def StochasticMomentumIndex(df, k_length=9, d_length=3):
     return df_copy[['smi']]
 
 
-def StochasticRSI(
-    df: pd.DataFrame,
-    close_col: str = 'close',
-    window: int = 14,
-    smooth1: int = 3,
-    smooth2: int = 3,
-    fillna: bool = False
-) -> pd.DataFrame:
+def StochasticRSI(df, lengthRSI: int = 14, lengthStoch: int = 14, smoothK: int = 3, smoothD: int = 3) -> pd.DataFrame:
     """
-    Stochastic RSI
-
-    The Stochastic RSI is an indicator used in technical analysis that ranges between 0 and 1 and is created by applying the Stochastic oscillator formula to a set of Relative Strength Index (RSI) values.
-
+    Stochastic RSI (StochasticRSI)
+    
+    The Stochastic RSI is used to identify overbought and oversold conditions in the market.
+    
     Parameters:
-    - df (pd.DataFrame): Input DataFrame which should contain the close column.
-    - close_col (str): Name of the column containing close price data. Default is 'close'.
-    - window (int): Lookback period for RSI. Default is 14.
-    - smooth1 (int): Smoothing period for %K line. Default is 3.
-    - smooth2 (int): Smoothing period for %D line. Default is 3.
-    - fillna (bool): If True, fill nan values. Default is False.
-
+    - df (pd.DataFrame): DataFrame containing the data with a 'close' column.
+    - lengthRSI (int): Period for the RSI calculation. Default is 14.
+    - lengthStoch (int): Period for the Stochastic calculation. Default is 14.
+    - smoothK (int): Smoothing period for %K line. Default is 3.
+    - smoothD (int): Smoothing period for %D line. Default is 3.
+    
     Call with:
-        stoch_rsi = bta.StochasticRSI(df, 'close', 14, 3, 3)
-        df['stoch_rsi'] = stoch_rsi['stoch_rsi']
-        df['stoch_rsi_k'] = stoch_rsi['stoch_rsi_k']
-        df['stoch_rsi_d'] = stoch_rsi['stoch_rsi_d']
-
+        stoch_rsi = bta.StochasticRSI(df, lengthRSI=14, lengthStoch=14, smoothK=3, smoothD=3)
+        df['StochasticRSI_K'] = stoch_rsi['stoch_rsi_k']
+        df['StochasticRSI_D'] = stoch_rsi['stoch_rsi_d']
+    
     Returns:
-    - pd.DataFrame: DataFrame with columns ['stoch_rsi', 'stoch_rsi_k', 'stoch_rsi_d'].
+    - pd.DataFrame: DataFrame with 'stoch_rsi_k' and 'stoch_rsi_d' columns.
     """
     df_copy = df.copy()
-
-    # Ensure the DataFrame contains the required column
-    if close_col not in df.columns:
-        raise KeyError(f"DataFrame must contain '{close_col}' column")
-
-    rsi = RelativeStrengthIndex(df, column=close_col, period=window)
-    lowest_low_rsi = rsi.rolling(window).min()
-    highest_high_rsi = rsi.rolling(window).max()
-    stoch_rsi = (rsi - lowest_low_rsi) / (highest_high_rsi - lowest_low_rsi)
-    stoch_rsi_k = stoch_rsi.rolling(smooth1).mean()
-    stoch_rsi_d = stoch_rsi_k.rolling(smooth2).mean()
-
-    if fillna:
-        stoch_rsi = stoch_rsi.fillna(0)
-        stoch_rsi_k = stoch_rsi_k.fillna(0)
-        stoch_rsi_d = stoch_rsi_d.fillna(0)
-
-    df_copy['stoch_rsi'] = stoch_rsi.round(3)
-    df_copy['stoch_rsi_k'] = stoch_rsi_k.round(3)
-    df_copy['stoch_rsi_d'] = stoch_rsi_d.round(3)
-
-    return df_copy[['stoch_rsi', 'stoch_rsi_k', 'stoch_rsi_d']]
+    
+    # Step 1: Calculate RSI
+    delta = df_copy['close'].diff()
+    gain = (delta.where(delta > 0, 0)).rolling(window=lengthRSI).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(window=lengthRSI).mean()
+    rs = gain / loss
+    df_copy['rsi'] = 100 - (100 / (1 + rs))
+    
+    # Step 2: Calculate the Stochastic Oscillator on RSI
+    df_copy['min_rsi'] = df_copy['rsi'].rolling(window=lengthStoch).min()
+    df_copy['max_rsi'] = df_copy['rsi'].rolling(window=lengthStoch).max()
+    df_copy['stoch_rsi'] = (df_copy['rsi'] - df_copy['min_rsi']) / (df_copy['max_rsi'] - df_copy['min_rsi']) * 100
+    
+    # Step 3: Smooth the Stochastic RSI values
+    df_copy['stoch_rsi_k'] = df_copy['stoch_rsi'].rolling(window=smoothK).mean()
+    df_copy['stoch_rsi_d'] = df_copy['stoch_rsi_k'].rolling(window=smoothD).mean()
+    
+    # Round the results to 2 decimal places
+    df_copy['stoch_rsi_k'] = df_copy['stoch_rsi_k'].round(2)
+    df_copy['stoch_rsi_d'] = df_copy['stoch_rsi_d'].round(2)
+    
+    return df_copy[['stoch_rsi_k', 'stoch_rsi_d']]
 
 
 def TrueStrengthIndex(df, close_col: str ='close', window_slow: int = 25, window_fast: int = 13, fillna: bool = False) -> pd.DataFrame:

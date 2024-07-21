@@ -30,12 +30,6 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
 # df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
 
-## TWIJFELACHTIG, KOMT NIET OVEREEN MET https://www.tradingview.com/script/RF6to9Nk-PINBAR-By-Bhajanpreet/ of https://www.tradingview.com/script/JO3S0SLV/
-# FUNCTIE LIJKT ANDERS TE WERKEN MET STOCHASTICS< VERDER TE ANALYSEREN
-# pin = bta.Pinbar(df)
-# df['pinbar_sell'] = pin['pinbar_sell']
-# df['pinbar_buy'] = pin['pinbar_buy']
-
 # # WERKT GOED!!!
 # ha_df = bta.HeikinAshi(df)
 # df['ha_open'] = ha_df['ha_open']
@@ -60,28 +54,20 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # # # WERKT GOED!!!
 # df['ewo'] = bta.ElliottWaveOscillator(df, "close", 5, 35)
 
-## DOES NOT HAVE SAME VALUES AS https://tradingview.com/script/5BT3a9mJ-Fisher-Stochastic-Center-of-Gravity/
-# fisher = bta.FisherCenterOfGravity(df)
-# df['fisher_cg'] = fisher['fisher_cg']
-# df['fisher_sig'] = fisher['fisher_sig']
-
-## DOES NOT HAVE SAME VALUES AS https://www.tradingview.com/script/8OxW1SF4-3-more-indicators-Inverse-Fisher-on-RSI-MFI-and-CyberCycle/
-# df['ift'] = bta.InverseFisherTransform(df)['ift']
-
 # # WERKT GOED!!!
 # df['kama'] = bta.KaufmansAdaptiveMovingAverage(df)['kama']
 
 # # WERKT GOED!!!
-# macd_result = bta.MACD(df, "close", 12, 26, 9)
+# macd_result = bta.MACD(df, 'close', 12, 30, 9)
 # df['macd'] = macd_result['macd']
 # df['macd_signal'] = macd_result['macd_signal']
 # df['macd_histogram'] = macd_result['macd_histogram']
 
-# # WERKT GOED!!!
-# df['macd_leader'] = bta.MACDLeader(df, 'close')['macd_leader']
+# # # WERKT GOED!!!
+# df['macd_leader'] = bta.MACDLeader(df, 'close', 12, 30, 9)['macd_leader']
 
-## WERKT NIET GOED CONFORM https://www.tradingview.com/script/Yq1z7cIv-MA-Streak-Can-Show-When-a-Run-Is-Getting-Long-in-the-Tooth/
-# df['mastreak'] = bta.MAStreak(df, period=10, column='close')['mastreak']
+# # WERKT GOED!!! https://www.tradingview.com/script/Yq1z7cIv-MA-Streak-Can-Show-When-a-Run-Is-Getting-Long-in-the-Tooth/
+# df['ma_streak'] = bta.MAStreak(df, length=10, src='close', matype=1)['ma_streak']
 
 # # WERKT GOED!!!
 # ppo = bta.PercentagePriceOscillator(df)
@@ -111,11 +97,10 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # # WERKT GOED!!!
 # df['smi'] = bta.StochasticMomentumIndex(df, k_length=9, d_length=3)['smi']
 
-# FOUTIEF EN MOET UITGEZOCHT WORDEN!!!!
-# stoch_rsi = bta.StochasticRSI(df, 'close', 14, 3, 3)
-# df['stoch_rsi'] = stoch_rsi['stoch_rsi']
-# df['stoch_rsi_k'] = stoch_rsi['stoch_rsi_k']
-# df['stoch_rsi_d'] = stoch_rsi['stoch_rsi_d']
+# # WERKT GOED!!!
+# stoch_rsi = bta.StochasticRSI(df, lengthRSI=14, lengthStoch=14, smoothK=3, smoothD=3)
+# df['StochRSI_K'] = stoch_rsi['stoch_rsi_k']
+# df['StochRSI_D'] = stoch_rsi['stoch_rsi_d']
 
 # # # WERKT GOED!!!
 # df['tsi'] = bta.TrueStrengthIndex(df, 'close', 25, 13)['tsi']
@@ -136,16 +121,17 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # # # WERKT GOED!!!
 # df['lsma'] = bta.LSMA(df, 'close', 25)['lsma']
 
-## KLOPT NIET MET DE OPGEGEVEN INDICATOR: https://www.tradingview.com/script/6wwAWXA1-MA-Streak-Change-Channel/
-# pcc_result = bta.PercentPriceChannel(df, period=20, mult=2)
-# df['pcc_upper'] = pcc_result['pcc_upper']
-# df['pcc_rangema'] = pcc_result['pcc_rangema']
-# df['pcc_lower'] = pcc_result['pcc_lower']
+# # # # WERKT GOED!!! # https://help.tradestation.com/10_00/eng/tradestationhelp/elanalysis/indicator/price_channel__percent_pc_indicator_.htm
+# ppc_result = bta.PriceChannel(df, period=20)
+# df['ppc_upper'] = ppc_result['ppc_upper']
+# df['ppc_mid'] = ppc_result['ppc_mid']
+# df['ppc_lower'] = ppc_result['ppc_lower']
+# df['percent_p'] = ppc_result['percent_p']
 
 # # # # WERKT GOED!!!
 # df['zema'] = bta.ZEMA(df, 'close', 21)['zema']
 
-## UITZOEKEN OF DEZE GOED WERKT, GEEN INDICATOR HIERVAN TE VINDEN VREEMD GENOEG
+## # # WERKT GOED!!!
 # df['rma'] = bta.RMA(df, 'close', 14)['rma']
 
 # # # WERKT GOED!!!
@@ -156,9 +142,8 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['ssl_down'] = ssl_result['ssl_down']
 # df['ssl_up'] = ssl_result['ssl_up']
 
-
-# ## KLOPT NIET MET DE OPGEGEVEN INDICATOR: https://www.tradingview.com/script/SKHqWzql-SSL-ATR-channel/
-# ssl_result = bta.SSLChannelsATR(df, length=21)
+# ## KLOPT NIET HELEMAAL< MAAR WEL BIJNA MET DE OPGEGEVEN INDICATOR: https://www.tradingview.com/script/SKHqWzql-SSL-ATR-channel/ GEACCEPTEERD RISICO HIER
+# ssl_result = bta.SSLChannelsATR(df, column='open', length=14, atr_period=7)
 # df['ssl_atr_down'] = ssl_result['ssl_atr_down']
 # df['ssl_atr_up'] = ssl_result['ssl_atr_up']
 
@@ -229,7 +214,6 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['fast_atr_rsi_tl'] = qqe_df['fast_atr_rsi_tl']
 # df['histogram'] = qqe_df['histogram']
 
-
 # ### VOLUME INDICATORS TEST
 
 ## WERKT GOED!!!
@@ -283,3 +267,23 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 print(df.tail(40))
 
+
+
+# TODO: 
+
+## DOES NOT HAVE SAME VALUES AS https://tradingview.com/script/5BT3a9mJ-Fisher-Stochastic-Center-of-Gravity/
+# fisher = bta.FisherCenterOfGravity(df)
+# df['fisher_cg'] = fisher['fisher_cg']
+# df['fisher_sig'] = fisher['fisher_sig']
+
+## DOES NOT HAVE SAME VALUES AS https://www.tradingview.com/script/8OxW1SF4-3-more-indicators-Inverse-Fisher-on-RSI-MFI-and-CyberCycle/
+# # df['ift'] = bta.InverseFisherTransform(df)['ift']
+# df['inv_fisher'] = bta.InverseFisherTransform(df, 'close', 14, 9)['inv_fisher']
+
+# df['ift'] = bta.inverse_fisher_transform(df, "close", "rsi", 9)['IFT_RSI']
+
+## TWIJFELACHTIG, KOMT NIET OVEREEN MET https://www.tradingview.com/script/RF6to9Nk-PINBAR-By-Bhajanpreet/ of https://www.tradingview.com/script/JO3S0SLV/
+# FUNCTIE LIJKT ANDERS TE WERKEN MET STOCHASTICS< VERDER TE ANALYSEREN
+# pin = bta.Pinbar(df)
+# df['pinbar_sell'] = pin['pinbar_sell']
+# df['pinbar_buy'] = pin['pinbar_buy']

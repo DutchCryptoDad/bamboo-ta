@@ -132,60 +132,60 @@ def DynamicExhaustionBars(df, window=500):
     return df_copy[['leledc_major', 'leledc_minor']]
 
 
-def Pinbar(df: pd.DataFrame, smi: pd.Series = None) -> pd.DataFrame:
-    """
-    Pinbar - Price Action Indicator
+# def Pinbar(df: pd.DataFrame, smi: pd.Series = None) -> pd.DataFrame:
+#     """
+#     Pinbar - Price Action Indicator
 
-    Pinbars are an easy but sure indication of incoming price reversal.
-    Signal confirmation with SMI (Stochastic Momentum Index) can enhance the accuracy of the signals.
+#     Pinbars are an easy but sure indication of incoming price reversal.
+#     Signal confirmation with SMI (Stochastic Momentum Index) can enhance the accuracy of the signals.
 
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'close' columns.
-    - smi (pandas.Series, optional): Optional Series for SMI. If not provided, it will be calculated internally.
+#     Parameters:
+#     - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'close' columns.
+#     - smi (pandas.Series, optional): Optional Series for SMI. If not provided, it will be calculated internally.
 
-    Call with:
-        pin = bta.Pinbar(df)
-        df['pinbar_sell'] = pin['pinbar_sell']
-        df['pinbar_buy'] = pin['pinbar_buy']
+#     Call with:
+#         pin = bta.Pinbar(df)
+#         df['pinbar_sell'] = pin['pinbar_sell']
+#         df['pinbar_buy'] = pin['pinbar_buy']
 
-    Returns:
-    - pd.DataFrame: DataFrame with 'pinbar_sell' and 'pinbar_buy' columns populated.
-    """
-    df_copy = df.copy()
+#     Returns:
+#     - pd.DataFrame: DataFrame with 'pinbar_sell' and 'pinbar_buy' columns populated.
+#     """
+#     df_copy = df.copy()
 
-    # Ensure the DataFrame contains the required columns
-    required_columns = ['high', 'low', 'close']
-    for col in required_columns:
-        if col not in df.columns:
-            raise KeyError(f"DataFrame must contain '{col}' column")
+#     # Ensure the DataFrame contains the required columns
+#     required_columns = ['high', 'low', 'close']
+#     for col in required_columns:
+#         if col not in df.columns:
+#             raise KeyError(f"DataFrame must contain '{col}' column")
 
-    low = df_copy['low']
-    high = df_copy['high']
-    close = df_copy['close']
+#     low = df_copy['low']
+#     high = df_copy['high']
+#     close = df_copy['close']
     
-    tr = TrueRange(df_copy)['true_range']
+#     tr = TrueRange(df_copy)['true_range']
     
-    if smi is None:
-        df_copy = StochasticMomentumIndex(df_copy)
-        smi = df_copy['smi']
+#     if smi is None:
+#         df_copy = StochasticMomentumIndex(df_copy)
+#         smi = df_copy['smi']
     
-    df_copy['pinbar_sell'] = (
-        (high < high.shift(1)) &
-        (close < high - (tr * 2 / 3).iloc[:]) &
-        (smi < smi.shift(1)) &
-        (smi.shift(1) > 40) &
-        (smi.shift(1) < smi.shift(2))
-    )
+#     df_copy['pinbar_sell'] = (
+#         (high < high.shift(1)) &
+#         (close < high - (tr * 2 / 3).iloc[:]) &
+#         (smi < smi.shift(1)) &
+#         (smi.shift(1) > 40) &
+#         (smi.shift(1) < smi.shift(2))
+#     )
 
-    df_copy['pinbar_buy'] = (
-        (low > low.shift(1)) &
-        (close > low + (tr * 2 / 3).iloc[:]) &
-        (smi.shift(1) < -40) &
-        (smi > smi.shift(1)) &
-        (smi.shift(1) > smi.shift(2))
-    )
+#     df_copy['pinbar_buy'] = (
+#         (low > low.shift(1)) &
+#         (close > low + (tr * 2 / 3).iloc[:]) &
+#         (smi.shift(1) < -40) &
+#         (smi > smi.shift(1)) &
+#         (smi.shift(1) > smi.shift(2))
+#     )
     
-    return df_copy[['pinbar_sell', 'pinbar_buy']]
+#     return df_copy[['pinbar_sell', 'pinbar_buy']]
 
 
 def HeikinAshi(df, pre_smoothing_period=None, post_smoothing_period=None):

@@ -382,9 +382,74 @@ def PercentPriceChannel(df: pd.DataFrame, period: int = 20, mult: int = 2) -> pd
     return df_copy[['pcc_upper', 'pcc_rangema', 'pcc_lower']]
 
 
+def PriceChannel(df: pd.DataFrame, period: int = 20) -> pd.DataFrame:
+    """
+    Percent Price Channel (PPC)
+    
+    The Price Channel % PC indicator calculates the percent change of the price channel.
+    It calculates the highest high and lowest low of the trailing number of bars specified by the input period. The price channel calculates the highest high and lowest low of the trailing number of bars specified by the input Length. When a market moves above the upper band, it is a sign of market strength. Conversely, when a market moves below the lower band, it is a sign of market weakness. A sustained move above or below the channel lines may indicate a significant breakout.
+
+    The percent_p column in the PercentPriceChannel function represents the percentage position of the current closing price within the price channel defined by the highest high and lowest low over a specified period. It shows where the current closing price stands relative to the recent highest and lowest prices.
+
+    Value Range:
+
+    The percent_p values range from 0 to 100.
+    A value of 0 indicates that the closing price is at the lowest low of the specified period.
+    A value of 100 indicates that the closing price is at the highest high of the specified period.
+
+    Trend Strength and Position:
+
+    Above 50%: When percent_p is above 50%, the closing price is closer to the highest high. This suggests that the price is relatively strong and trading in the upper part of the range.
+    Below 50%: When percent_p is below 50%, the closing price is closer to the lowest low. This suggests that the price is relatively weak and trading in the lower part of the range.
+
+    Overbought and Oversold Conditions:
+
+    Near 100%: When percent_p approaches 100%, it indicates that the price is near its recent peak, which might suggest an overbought condition.
+    Near 0%: When percent_p approaches 0%, it indicates that the price is near its recent bottom, which might suggest an oversold condition.
+
+    Breakout Indications:
+
+    Sustained High Values: A sustained percent_p value above 80% could indicate strong upward momentum and a potential bullish breakout.
+    Sustained Low Values: A sustained percent_p value below 20% could indicate strong downward momentum and a potential bearish breakout.
+
+    Inspired by: https://www.tradingview.com/script/bQ2sg8b7-Price-Channel/
+    and: https://help.tradestation.com/10_00/eng/tradestationhelp/elanalysis/indicator/price_channel__percent_pc_indicator_.htm
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame containing the data.
+    - period (int): Period for the highest high and lowest low calculation. Default is 20.
+
+    Call with:
+        ppc_result = PriceChannel(df, period=20)
+        df['ppc_upper'] = ppc_result['ppc_upper']
+        df['ppc_mid'] = ppc_result['ppc_mid']
+        df['ppc_lower'] = ppc_result['ppc_lower']
+        df['percent_p'] = ppc_result['percent_p']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'ppc_upper', 'ppc_mid', 'ppc_lower', and 'percent_p' columns.
+    """
+    df_copy = df.copy()
+
+    df_copy['highest_high'] = df_copy['high'].rolling(window=period, min_periods=1).max()
+    df_copy['lowest_low'] = df_copy['low'].rolling(window=period, min_periods=1).min()
+
+    df_copy['ppc_upper'] = df_copy['highest_high'].round(2)
+    df_copy['ppc_lower'] = df_copy['lowest_low'].round(2)
+    df_copy['ppc_mid'] = ((df_copy['ppc_upper'] + df_copy['ppc_lower']) / 2).round(2)
+
+    df_copy['percent_p'] = ((df_copy['close'] - df_copy['ppc_lower']) / (df_copy['ppc_upper'] - df_copy['ppc_lower']) * 100).round(2)
+
+    return df_copy[['ppc_upper', 'ppc_mid', 'ppc_lower', 'percent_p']]
+
+
 def RMA(df: pd.DataFrame, column: str = 'close', period: int = 14) -> pd.DataFrame:
     """
-    Relative Moving Average (RMA) calculation.
+    Rolling Moving Average (RMA) calculation.
+
+    The RMA function calculates the Rolling Moving Average (RMA) of a specified column in a DataFrame over a given period. It uses an exponential moving average (EMA) calculation with a specified smoothing factor (alpha) and returns a DataFrame containing the RMA values rounded to two decimal places. This function allows for flexible moving average calculations based on any column in the input DataFrame
+
+    Inspired by: https://www.tradingview.com/script/5BUyR2JA-rolling-moving-average/
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain the specified column.
@@ -464,36 +529,49 @@ def SSLChannels(df: pd.DataFrame, length: int = 10, mode: str = 'sma') -> pd.Dat
     return df_copy[['ssl_down', 'ssl_up']]
 
 
-def SSLChannelsATR(df: pd.DataFrame, length: int = 21) -> pd.DataFrame:
+def SSLChannelsATR(df: pd.DataFrame, column: str = 'close', length: int = 21, atr_period: int = 14) -> pd.DataFrame:
     """
     SSL Channels with ATR
 
-    SSL Channels with ATR indicator calculates the SSL Down and SSL Up series using ATR.
+    The SSLChannelsATR function calculates the SSL (Safe and Secure Levels) channels using the Average True Range (ATR) to adjust the Simple Moving Averages (SMA) of the high and low prices over a specified period. It determines the trend direction based on the comparison of a chosen price column with these adjusted SMAs and generates the SSL ATR Down and Up levels accordingly. This indicator helps identify potential trend reversals and continuations by providing dynamic support and resistance levels.
 
     Inspired by: https://www.tradingview.com/script/SKHqWzql-SSL-ATR-channel/
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame containing the data.
-    - length (int): Period for the SMA calculation. Default is 7.
+    - length (int): Period for the SMA calculation. Default is 21.
+    - atr_period (int): Period for the ATR calculation. Default is 14.
+    - column (str): The column to use for the moving average calculations. Default is 'close'.
 
     Call with:
-        ssl_result = bta.SSLChannelsATR(df, length=7)
+        ssl_result = bta.SSLChannelsATR(df, column='close', length=14, atr_period=7)
         df['ssl_atr_down'] = ssl_result['ssl_atr_down']
         df['ssl_atr_up'] = ssl_result['ssl_atr_up']
 
     Returns:
     - pd.DataFrame: DataFrame with 'ssl_atr_down' and 'ssl_atr_up' columns.
     """
+    def calculate_atr(df, period):
+        high_low = df['high'] - df['low']
+        high_close = np.abs(df['high'] - df['close'].shift())
+        low_close = np.abs(df['low'] - df['close'].shift())
+        tr = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
+        atr = tr.rolling(window=period, min_periods=1).mean()
+        return atr
+
     df_copy = df.copy()
 
-    df_copy['atr'] = AverageTrueRange(df, period=14)
+    df_copy['atr'] = calculate_atr(df_copy, atr_period)
     df_copy['sma_high'] = (df_copy['high'].rolling(length).mean() + df_copy['atr']).round(2)
     df_copy['sma_low'] = (df_copy['low'].rolling(length).mean() - df_copy['atr']).round(2)
-    df_copy['hlv'] = np.where(df_copy['close'] > df_copy['sma_high'], 1, 
-                              np.where(df_copy['close'] < df_copy['sma_low'], -1, np.nan))
+    df_copy['hlv'] = np.where(df_copy[column] > df_copy['sma_high'], 1, 
+                              np.where(df_copy[column] < df_copy['sma_low'], -1, np.nan))
     df_copy['hlv'] = df_copy['hlv'].ffill()
     df_copy['ssl_atr_down'] = np.where(df_copy['hlv'] < 0, df_copy['sma_high'], df_copy['sma_low'])
     df_copy['ssl_atr_up'] = np.where(df_copy['hlv'] < 0, df_copy['sma_low'], df_copy['sma_high'])
+
+    df_copy['ssl_atr_down'] = df_copy['ssl_atr_down'].round(2)
+    df_copy['ssl_atr_up'] = df_copy['ssl_atr_up'].round(2)
 
     return df_copy[['ssl_atr_down', 'ssl_atr_up']]
 
