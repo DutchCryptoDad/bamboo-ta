@@ -249,15 +249,16 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['obv'] = bta.OnBalanceVolume(df, fillna=True)['obv']
 
 # # CONTROLEREN WERKT NIET
-# df['obv_osc'] = bta.OnBalanceVolumeOscillator(df, channel=10, average=21, fillna=True)['obv_oscillator']
+df['obv_osc'] = bta.OnBalanceVolumeOscillator(df, channel=10, average=21, fillna=True)['obv_oscillator']
 
-# # CONTROLEREN WERKT NIET
-# df['vpt'] = bta.VolumePriceTrend(df, fillna=True, smoothing_factor=10, dropnans=True)['volume_price_trend']
-# df['vpt'] = bta.VolumePriceTrend(df, src_cols=('close', 'volume'), fillna=True, smoothing_factor=10, dropnans=True)['Volume_Price_Trend']
+# # # WERKT BIJNA HETZELFDE ALS https://www.tradingview.com/script/3Ah2ALck-Price-Volume-Trend/
+# pvt_df = bta.PriceVolumeTrend(df, fillna=True, signal_type='SMA', signal_length=21, dropnans=True)
+# df['pvt'] = pvt_df['price_volume_trend']
+# df['pvt_signal'] = pvt_df['signal']
 
-# # CONTROLEREN WERKT NIET
+# ## WERKT GOED conform https://www.tradingview.com/script/rSTNnV6B-VWAP-with-period/!!!
 # df['vwap'] = bta.VolumeWeightedAveragePrice(df, window=14, fillna=True)['volume_weighted_average_price']
-# df['VWAP'] = bta.VolumeWeightedAveragePrice2(df, window=14, fillna=True)['VWAP']
+
 
 # ###
 #  TOT HIER GOED ++++++++++

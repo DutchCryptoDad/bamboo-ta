@@ -345,95 +345,80 @@ def OnBalanceVolumeOscillator(df: pd.DataFrame, channel: int = 10, average: int 
     return df_copy[['obv_oscillator']]
 
 
-# def VolumePriceTrend(df: pd.DataFrame, fillna: bool = False, smoothing_factor: int = None, dropnans: bool = False) -> pd.DataFrame:
-#     """
-#     Volume-price trend (VPT)
-
-#     Based on cumulative volume that adds or subtracts a multiple of the percentage change in share price trend.
-
-#     Parameters:
-#     - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
-#     - fillna (bool): If True, fill nan values.
-#     - smoothing_factor (int, optional): Will smooth VPT implementation with SMA.
-#     - dropnans (bool): Drop nans after indicator calculated.
-
-#     Call with:
-#         df['vpt'] = bta.VolumePriceTrend(df, fillna=True, smoothing_factor=10, dropnans=True)['volume_price_trend']
-
-#     Returns:
-#     - pd.DataFrame: DataFrame with 'volume_price_trend' column.
-#     """
-#     df_copy = df.copy()
-
-#     # Ensure the DataFrame contains the required columns
-#     required_columns = ['close', 'volume']
-#     for col in required_columns:
-#         if col not in df.columns:
-#             raise KeyError(f"DataFrame must contain '{col}' column")
-
-#     # Calculate VPT
-#     vpt = (df_copy['close'].pct_change() * df_copy['volume']).cumsum()
-#     if smoothing_factor:
-#         min_periods = 0 if fillna else smoothing_factor
-#         vpt = vpt.rolling(smoothing_factor, min_periods=min_periods).mean()
-#     if dropnans:
-#         vpt = vpt.dropna()
-#     if fillna:
-#         vpt = vpt.fillna(0)
-
-#     df_copy['volume_price_trend'] = vpt.round(2)
-#     return df_copy[['volume_price_trend']]
-
-import pandas as pd
-
-def VolumePriceTrend(df: pd.DataFrame, src_cols=('close', 'volume'), fillna=False, smoothing_factor=None, dropnans=False) -> pd.DataFrame:
+def PriceVolumeTrend(df: pd.DataFrame, fillna: bool = False, smoothing_factor: int = None, signal_type: str = 'SMA', signal_length: int = 21, dropnans: bool = False) -> pd.DataFrame:
     """
-    Volume Price Trend (VPT)
-    Based on cumulative volume that adds or subtracts a multiple of the percentage change in share price trend.
+    Price Volume trend (PVT)
+
+    Based on cumulative volume that adds or subtracts a multiple of the percentage change in share price trend. 
+    PVT = [((CurrentClose - PreviousClose) / PreviousClose) x Volume] + PreviousPVT
+    Inspired by: https://www.tradingview.com/script/3Ah2ALck-Price-Volume-Trend/
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
-    - src_cols (tuple): Tuple containing column names for 'close' and 'volume'. Default is ('close', 'volume').
     - fillna (bool): If True, fill nan values.
-    - smoothing_factor (int, optional): Will smooth VPT implementation with SMA.
+    - smoothing_factor (int, optional): Will smooth PVT implementation with SMA.
+    - signal_type (str): Type of signal smoothing ('SMA' or 'EMA').
+    - signal_length (int): Length of the signal smoothing.
     - dropnans (bool): Drop nans after indicator calculated.
 
     Call with:
-        df['vpt'] = VolumePriceTrend(df, src_cols=('close', 'volume'), fillna=True, smoothing_factor=10, dropnans=True)['Volume_Price_Trend']
+        pvt_df = bta.PriceVolumeTrend(df, fillna=True, signal_type='EMA', signal_length=21, dropnans=True)
+        df['pvt'] = pvt_df['price_volume_trend']
+        df['pvt_signal'] = pvt_df['signal']
 
     Returns:
-    - pd.DataFrame: DataFrame with 'Volume_Price_Trend' column.
+    - pd.DataFrame: DataFrame with 'price_volume_trend' and 'signal' columns.
     """
-    close_col, volume_col = src_cols
     df_copy = df.copy()
 
-    # Calculate VPT
-    vpt = (df_copy[close_col].pct_change() * df_copy[volume_col]).cumsum()
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['close', 'volume']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    # Initialize PVT column
+    df_copy['price_volume_trend'] = 0.0
+
+    # Calculate PVT iteratively
+    for i in range(1, len(df_copy)):
+        prev_pvt = df_copy.at[i-1, 'price_volume_trend']
+        price_change = (df_copy.at[i, 'close'] - df_copy.at[i-1, 'close']) / df_copy.at[i-1, 'close']
+        df_copy.at[i, 'price_volume_trend'] = price_change * df_copy.at[i, 'volume'] + prev_pvt
 
     if smoothing_factor:
         min_periods = 0 if fillna else smoothing_factor
-        vpt = vpt.rolling(smoothing_factor, min_periods=min_periods).mean()
-    
+        df_copy['price_volume_trend'] = df_copy['price_volume_trend'].rolling(smoothing_factor, min_periods=min_periods).mean()
     if dropnans:
-        vpt = vpt.dropna()
-    
+        df_copy['price_volume_trend'] = df_copy['price_volume_trend'].dropna()
     if fillna:
-        vpt = vpt.fillna(0)
+        df_copy['price_volume_trend'] = df_copy['price_volume_trend'].fillna(0)
 
-    df_copy['Volume_Price_Trend'] = vpt
+    # Calculate signal
+    if signal_type == 'SMA':
+        df_copy['signal'] = df_copy['price_volume_trend'].rolling(window=signal_length, min_periods=1 if fillna else signal_length).mean()
+    elif signal_type == 'EMA':
+        df_copy['signal'] = df_copy['price_volume_trend'].ewm(span=signal_length, adjust=False, min_periods=1 if fillna else signal_length).mean()
+    else:
+        raise ValueError("signal_type must be either 'SMA' or 'EMA'")
 
-    return df_copy[['Volume_Price_Trend']]
+    if dropnans:
+        df_copy['signal'] = df_copy['signal'].dropna()
+    if fillna:
+        df_copy['signal'] = df_copy['signal'].fillna(0)
 
-# Usage example
-# df = pd.DataFrame(data)
-# vpt_df = VolumePriceTrend(df, src_cols=('close', 'volume'), fillna=True, smoothing_factor=10, dropnans=True)
-# df['Volume_Price_Trend'] = vpt_df['Volume_Price_Trend']
+    df_copy['price_volume_trend'] = df_copy['price_volume_trend'].round(2)
+    df_copy['signal'] = df_copy['signal'].round(2)
+
+    return df_copy[['price_volume_trend', 'signal']]
 
 
 def VolumeWeightedAveragePrice(df: pd.DataFrame, window: int = 14, fillna: bool = False) -> pd.DataFrame:
     """
     Volume Weighted Average Price (VWAP)
     Equals the dollar value of all trading periods divided by the total trading volume for the current day.
+
+    Inspired by: https://www.tradingview.com/script/rSTNnV6B-VWAP-with-period/
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', 'close', and 'volume' columns.
@@ -469,46 +454,3 @@ def VolumeWeightedAveragePrice(df: pd.DataFrame, window: int = 14, fillna: bool 
     df_copy['volume_weighted_average_price'] = vwap.round(2)
     return df_copy[['volume_weighted_average_price']]
 
-import pandas as pd
-
-def VolumeWeightedAveragePrice2(df: pd.DataFrame, window: int = 14, fillna: bool = False) -> pd.DataFrame:
-    """
-    Volume Weighted Average Price (VWAP)
-    Equals the dollar value of all trading periods divided by the total trading volume for the current day.
-
-    Call with:
-        df['VWAP'] = bta.VolumeWeightedAveragePrice2(df, window=14, fillna=True)['VWAP']
-
-    Args:
-        df (pd.DataFrame): Input DataFrame which should contain 'high', 'low', 'close', and 'volume' columns.
-        window (int): n period.
-        fillna (bool): If True, fill nan values.
-
-    Returns:
-        pd.DataFrame: DataFrame with 'VWAP' column.
-    """
-    df_copy = df.copy()
-
-    # Ensure the DataFrame contains the required columns
-    required_columns = ['high', 'low', 'close', 'volume']
-    for col in required_columns:
-        if col not in df.columns:
-            raise KeyError(f"DataFrame must contain '{col}' column")
-
-    # Calculate Typical Price
-    typical_price = (df_copy['high'] + df_copy['low'] + df_copy['close']) / 3.0
-    # Calculate Typical Price * Volume
-    typical_price_volume = typical_price * df_copy['volume']
-
-    # Calculate cumulative sums of Typical Price * Volume and Volume
-    cumulative_total_pv = typical_price_volume.cumsum()
-    cumulative_total_volume = df_copy['volume'].cumsum()
-
-    # Calculate VWAP
-    vwap = cumulative_total_pv / cumulative_total_volume
-
-    if fillna:
-        vwap = vwap.fillna(0).round(2)
-
-    df_copy['VWAP'] = vwap
-    return df_copy[['VWAP']]
