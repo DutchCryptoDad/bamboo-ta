@@ -186,7 +186,7 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['stoch_hist'] = stoch['stoch_hist']
 
 # ## KLOPT NIET ONDUIDELIJK WELKE OSCILLATOR HIER NU WORDT GEBRUIKT
-# df['wto'] = bta.WaveTrendOscillator(df, 'close', 10, 21)['wavetrend']
+df['wto'] = bta.WaveTrendOscillator(df, 'close', 10, 21)['wavetrend']
 
 # ## WERKT GOED!!! 
 # df['atr'] = bta.AverageTrueRange(df, 14)['atr']
@@ -217,10 +217,17 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 ## WERKT BIJNA GOED, ALLEEN DE QQE LIJN VERTOONT AFWIJKINGEN TOV https://www.tradingview.com/script/TpUW4muw-QQE-MOD/
 # qqe_mod = bta.QQEMod(df)
+# qqe_mod = bta.QQEMod(df, 6, 5, 3, 3, 50, 0.35, 6, 5, 1.61, 3)
 # df['qqe_line'] = qqe_mod['qqe_line']
 # df['histo2'] = qqe_mod['histo2']
 # df['qqe_up'] = qqe_mod['qqe_up']
 # df['qqe_down'] = qqe_mod['qqe_down']
+
+
+# qqe_df = bta.QQE(df, rsi_period=6, sf=5, qqe_factor=4.238, threshold=10, fillna=True)
+# df['rsi_ma'] = qqe_df['rsi_ma']
+# df['fast_atr_rsi_tl'] = qqe_df['fast_atr_rsi_tl']
+# df['histogram'] = qqe_df['histogram']
 
 
 # ### VOLUME INDICATORS TEST
@@ -242,19 +249,24 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # ## WERKT GOED!!!
 # df['mfi']  = bta.MoneyFlowIndex(df, window=14, fillna=True)['mfi']
 
-## Onduidelijke werking
-# df['nvi'] = bta.NegativeVolumeIndex(df, fillna=True)['nvi']
+# ## WERKT GOED!!!
+# nvi_df = bta.NegativeVolumeIndex(df, signal_type='EMA', signal_length=255, fillna=True)
+# df['nvi'] = nvi_df['nvi']
+# df['nvi_signal'] = nvi_df['nvi_signal']
+
+# ## WERKT GOED!!!
+# pvi_df = bta.PositiveVolumeIndex(df, signal_type='EMA', signal_length=255, fillna=True)
+# df['pvi'] = pvi_df['pvi']
+# df['pvi_signal'] = pvi_df['pvi_signal']
+
 
 # ## WERKT GOED!!
 # obv_df = bta.OnBalanceVolume(df, signal_type='SMA', signal_length=21, show_signal=True, fillna=True)
 # df['obv'] = obv_df['obv']
 # df['signal'] = obv_df['signal']
 
-# # CONTROLEREN WERKT NIET
-# df['obv_osc'] = bta.OnBalanceVolumeOscillator(df, channel=10, average=21, fillna=True)['obv_oscillator']
 # ## WERKT GOED!!!
 # df['obv_osc'] = bta.OnBalanceVolumeOscillator(df, length=20, fillna=True)['obv_oscillator']
-
 
 # # # WERKT BIJNA HETZELFDE ALS https://www.tradingview.com/script/3Ah2ALck-Price-Volume-Trend/
 # pvt_df = bta.PriceVolumeTrend(df, fillna=True, signal_type='SMA', signal_length=21, dropnans=True)

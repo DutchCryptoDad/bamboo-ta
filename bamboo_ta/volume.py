@@ -221,21 +221,27 @@ def MoneyFlowIndex(df: pd.DataFrame, window: int = 14, fillna: bool = False) -> 
     return df_copy[['mfi']]
 
 
-def NegativeVolumeIndex(df: pd.DataFrame, fillna: bool = False) -> pd.DataFrame:
+def NegativeVolumeIndex(df: pd.DataFrame, signal_type: str = 'EMA', signal_length: int = 255, fillna: bool = False) -> pd.DataFrame:
     """
-    Negative Volume Index (NVI)
+    Negative Volume Index (NVI) with Signal Smoothing
 
-    Uses volume changes to decide when the smart money is active.
+    The Negative Volume Index (NVI) is a technical analysis indicator that measures price changes on days when trading volume decreases compared to the previous day. The theory behind NVI is that prices tend to rise on low volume days as informed traders are more active. The NVI accumulates price rate of change only on days when the volume is lower than the previous day's volume.
+
+    Inspired by: https://www.tradingview.com/script/3Xs25FQc-Negative-Volume-Index-NVI/
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
-    - fillna (bool): if True, fill nan values.
+    - signal_type (str): Type of signal smoothing ('EMA' or 'SMA'). Default is 'EMA'.
+    - signal_length (int): Length for the EMA/SMA calculation. Default is 255.
+    - fillna (bool): If True, fill nan values.
 
     Call with:
-        df['nvi'] = bta.NegativeVolumeIndex(df, fillna=True)['nvi']
+        nvi_df = NegativeVolumeIndex(df, signal_type='EMA', signal_length=255, fillna=True)
+        df['nvi'] = nvi_df['nvi']
+        df['nvi_signal'] = nvi_df['nvi_signal']
 
     Returns:
-    - pd.DataFrame: DataFrame with 'nvi' column.
+    - pd.DataFrame: DataFrame with 'nvi' and 'nvi_signal' columns.
     """
     df_copy = df.copy()
 
@@ -245,27 +251,30 @@ def NegativeVolumeIndex(df: pd.DataFrame, fillna: bool = False) -> pd.DataFrame:
         if col not in df.columns:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
-    # Calculate price change and volume decrease
-    price_change = df_copy['close'].pct_change()
-    vol_decrease = df_copy['volume'].shift(1) > df_copy['volume']
+    # Calculate Rate of Change (ROC)
+    df_copy['roc'] = df_copy['close'].pct_change() * 100
 
-    # Initialize NVI series
-    nvi = pd.Series(data=np.nan, index=df_copy.index, dtype="float64", name="nvi")
-    nvi.iloc[0] = 1000
+    # Initialize NVI column with appropriate dtype
+    df_copy['nvi'] = 0.0
 
     # Calculate NVI
-    for i in range(1, len(nvi)):
-        if vol_decrease.iloc[i]:
-            nvi.iloc[i] = nvi.iloc[i - 1] * (1.0 + price_change.iloc[i])
-        else:
-            nvi.iloc[i] = nvi.iloc[i - 1]
+    nvi_condition = df_copy['volume'] < df_copy['volume'].shift(1)
+    df_copy.loc[nvi_condition, 'nvi'] = df_copy['roc']
+    df_copy['nvi'] = df_copy['nvi'].cumsum().shift(1).fillna(0)
+
+    # Calculate NVI Signal
+    if signal_type == 'EMA':
+        df_copy['nvi_signal'] = df_copy['nvi'].ewm(span=signal_length, adjust=False).mean()
+    elif signal_type == 'SMA':
+        df_copy['nvi_signal'] = df_copy['nvi'].rolling(window=signal_length, min_periods=1).mean()
+    else:
+        raise ValueError(f"Invalid signal_type: {signal_type}. Use 'EMA' or 'SMA'.")
 
     if fillna:
-        nvi = nvi.fillna(1000)
+        df_copy['nvi'] = df_copy['nvi'].fillna(0)
+        df_copy['nvi_signal'] = df_copy['nvi_signal'].fillna(0)
 
-    df_copy['nvi'] = nvi.round(2)
-
-    return df_copy[['nvi']]
+    return df_copy[['nvi', 'nvi_signal']]
 
 
 def OnBalanceVolume(df: pd.DataFrame, signal_type: str = 'SMA', signal_length: int = 21, 
@@ -361,9 +370,59 @@ def OnBalanceVolumeOscillator(df: pd.DataFrame, length: int = 20, fillna: bool =
 
     return df_copy[['obv_oscillator']].round(2)
 
-# Example usage:
-# 
 
+def PositiveVolumeIndex(df: pd.DataFrame, signal_type: str = 'EMA', signal_length: int = 255, fillna: bool = False) -> pd.DataFrame:
+    """
+    Positive Volume Index (PVI) with Signal Smoothing
+
+    The Positive Volume Index (PVI) is a technical analysis indicator that measures price changes on days when trading volume increases compared to the previous day. The theory behind PVI suggests that prices tend to rise on high volume days as uninformed traders are more active. The PVI accumulates the price rate of change only on days when the volume is higher than the previous day's volume, helping to identify trends driven by high-volume activity.
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
+    - signal_type (str): Type of signal smoothing ('EMA' or 'SMA'). Default is 'EMA'.
+    - signal_length (int): Length for the EMA/SMA calculation. Default is 255.
+    - fillna (bool): If True, fill nan values.
+
+    Call with:
+        pvi_df = PositiveVolumeIndex(df, signal_type='EMA', signal_length=255, fillna=True)
+        df['pvi'] = pvi_df['pvi']
+        df['pvi_signal'] = pvi_df['pvi_signal']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'pvi' and 'pvi_signal' columns.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['close', 'volume']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    # Calculate Rate of Change (ROC)
+    df_copy['roc'] = df_copy['close'].pct_change() * 100
+
+    # Initialize PVI column with appropriate dtype
+    df_copy['pvi'] = 0.0
+
+    # Calculate PVI
+    pvi_condition = df_copy['volume'] > df_copy['volume'].shift(1)
+    df_copy.loc[pvi_condition, 'pvi'] = df_copy['roc']
+    df_copy['pvi'] = df_copy['pvi'].cumsum().shift(1).fillna(0)
+
+    # Calculate PVI Signal
+    if signal_type == 'EMA':
+        df_copy['pvi_signal'] = df_copy['pvi'].ewm(span=signal_length, adjust=False).mean()
+    elif signal_type == 'SMA':
+        df_copy['pvi_signal'] = df_copy['pvi'].rolling(window=signal_length, min_periods=1).mean()
+    else:
+        raise ValueError(f"Invalid signal_type: {signal_type}. Use 'EMA' or 'SMA'.")
+
+    if fillna:
+        df_copy['pvi'] = df_copy['pvi'].fillna(0)
+        df_copy['pvi_signal'] = df_copy['pvi_signal'].fillna(0)
+
+    return df_copy[['pvi', 'pvi_signal']]
 
 
 def PriceVolumeTrend(df: pd.DataFrame, fillna: bool = False, smoothing_factor: int = None, signal_type: str = 'SMA', signal_length: int = 21, dropnans: bool = False) -> pd.DataFrame:

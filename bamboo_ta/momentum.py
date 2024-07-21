@@ -759,7 +759,7 @@ def QQEMod(df, rsi_period: int = 6, rsi_smoothing: int = 5, qqe_factor: int = 3,
     - threshold2 (int): Threshold value for the second QQE. Default is 3.
 
     Call with:
-        qqe_mod = bta.QQEMod(df)
+        qqe_mod = bta.QQEMod(df, 6, 5, 3, 3, 50, 0.35, 6, 5, 1.61, 3)
         df['qqe_line'] = qqe_mod['qqe_line']
         df['histo2'] = qqe_mod['histo2']
         df['qqe_up'] = qqe_mod['qqe_up']
