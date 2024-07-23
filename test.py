@@ -57,6 +57,11 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # # WERKT GOED!!!
 # df['kama'] = bta.KaufmansAdaptiveMovingAverage(df)['kama']
 
+# # # WERKT GOED!!!
+# fscg = bta.EhlersFisherStochasticCenterOfGravity(df)
+# df['CG'] = fscg['CG']
+# df['Trigger'] = fscg['Trigger']
+
 # # WERKT GOED!!!
 # macd_result = bta.MACD(df, 'close', 12, 30, 9)
 # df['macd'] = macd_result['macd']
@@ -265,25 +270,11 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 #  TOT HIER GOED ++++++++++
 
 
-print(df.tail(40))
+# print(df.tail(40))
 
 
 
 # TODO: 
 
-## DOES NOT HAVE SAME VALUES AS https://tradingview.com/script/5BT3a9mJ-Fisher-Stochastic-Center-of-Gravity/
-# fisher = bta.FisherCenterOfGravity(df)
-# df['fisher_cg'] = fisher['fisher_cg']
-# df['fisher_sig'] = fisher['fisher_sig']
 
-## DOES NOT HAVE SAME VALUES AS https://www.tradingview.com/script/8OxW1SF4-3-more-indicators-Inverse-Fisher-on-RSI-MFI-and-CyberCycle/
-# # df['ift'] = bta.InverseFisherTransform(df)['ift']
-# df['inv_fisher'] = bta.InverseFisherTransform(df, 'close', 14, 9)['inv_fisher']
-
-# df['ift'] = bta.inverse_fisher_transform(df, "close", "rsi", 9)['IFT_RSI']
-
-## TWIJFELACHTIG, KOMT NIET OVEREEN MET https://www.tradingview.com/script/RF6to9Nk-PINBAR-By-Bhajanpreet/ of https://www.tradingview.com/script/JO3S0SLV/
-# FUNCTIE LIJKT ANDERS TE WERKEN MET STOCHASTICS< VERDER TE ANALYSEREN
-# pin = bta.Pinbar(df)
-# df['pinbar_sell'] = pin['pinbar_sell']
-# df['pinbar_buy'] = pin['pinbar_buy']
+print(df.tail(40))

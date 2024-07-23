@@ -108,198 +108,79 @@ def ElliottWaveOscillator(df, column: str = 'close', sma1_period: int = 5, sma2_
     return df_copy[['ewo']]
 
 
-# def FisherCenterOfGravity(df, length: str = 20, min_period: str = 10) -> pd.DataFrame:
-#     """
-#     Fisher Stochastic Center of Gravity
+def EhlersFisherStochasticCenterOfGravity(df, length: int = 8) -> pd.DataFrame:
+    """
+    Ehlers Fisher Stochastic Center of Gravity Indicator
 
-#     Original Pinescript by dasanc
-#     https://tradingview.com/script/5BT3a9mJ-Fisher-Stochastic-Center-of-Gravity/
+    The Fisher Stochastic Center of Gravity indicator, developed by John Ehlers, is used to identify potential
+    turning points in the market by calculating the center of gravity of price movements.
 
-#     The Fisher Stochastic Center of Gravity is an indicator that aims to identify the center of gravity of the market.
+    Inspired by: https://ninjatraderecosystem.com/user-app-share-download/john-ehlers-the-fisher-stochastic-center-of-gravity/
+    and: https://fxstill.com/indikators/the-fisher-stochastic-center-of-gravity
+    and: https://viewer.mathworks.com/?viewer=plain_code&url=https%3A%2F%2Fes.mathworks.com%2Fmatlabcentral%2Fmlc-downloads%2Fdownloads%2F5a9e5f01-906c-4152-98c6-87484eed86bf%2F853ab8ad-8751-4bcd-ae00-60a9444e9182%2Ffiles%2Fmatlab%2FChapter4-Ehlers%2FEhlerStochCG.m&embed=web
+    and: https://www.tradingview.com/script/TLjl71aL-Ehlers-Fisher-Stochastic-Center-Of-Gravity-CC/
 
-#     Parameters:
-#     - df (pandas.DataFrame): Input DataFrame which should contain 'high' and 'low' columns.
-#     - length (int): Lookback period. Default is 20.
-#     - min_period (int): Minimum lookback period. Default is 10.
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'high', 'low'.
+    - length (int): Period for the indicator. Default is 8.
 
-#     Call with:
-#         fisher = bta.FisherCenterOfGravity(df)
-#         df['fisher_cg'] = fisher['fisher_cg']
-#         df['fisher_sig'] = fisher['fisher_sig']
+    Call with:
+        fscg = EhlersFisherStochasticCenterOfGravity(df)
+        df['CG'] = fscg['CG']
+        df['Trigger'] = fscg['Trigger']
 
-#     Returns:
-#     - pd.DataFrame: DataFrame with 'fisher_cg' and 'fisher_sig' columns populated.
-#     """
-#     df_copy = df.copy()
+    Returns:
+    - pd.DataFrame: DataFrame with 'CG' and 'Trigger' columns.
+    """
+    df_copy = df.copy()
 
-#     # Ensure the DataFrame contains the required columns
-#     required_columns = ['high', 'low']
-#     for col in required_columns:
-#         if col not in df.columns:
-#             raise KeyError(f"DataFrame must contain '{col}' column")
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['high', 'low']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
 
-#     df_copy['hl2'] = (df_copy['high'] + df_copy['low']) / 2
+    Price = (df['high'] + df['low']) / 2
 
-#     if length < min_period:
-#         length = min_period
+    # Initialize series
+    Num = pd.Series([0.0] * len(df), index=df.index)
+    Denom = pd.Series([0.0] * len(df), index=df.index)
+    sg = pd.Series([0.0] * len(df), index=df.index)
 
-#     num = sum((1 + i) * df_copy['hl2'].shift(i) for i in range(length))
-#     denom = sum(df_copy['hl2'].shift(i) for i in range(length))
+    MINBAR = length + 1
+    l = (length + 1) / 2
 
-#     cg = -num / denom + (length + 1) / 2
-#     max_cg = cg.rolling(window=length).max()
-#     min_cg = cg.rolling(window=length).min()
+    # Calculate CG
+    for i in range(MINBAR, len(df)):
+        num = 0.0
+        denom = 0.0
+        for count in range(length):
+            num += (1 + count) * Price.iloc[i - count]
+            denom += Price.iloc[i - count]
+        
+        if denom != 0:
+            sg.iloc[i] = l - num / denom
+        else:
+            sg.iloc[i] = 0.0
 
-#     value1 = np.where(max_cg != min_cg, (cg - min_cg) / (max_cg - min_cg), 0)
-#     value2 = (4 * value1 + 3 * np.roll(value1, 1) + 2 * np.roll(value1, 2) + np.roll(value1, 3)) / 10
-#     value3 = 0.5 * np.log((1 + 1.98 * (value2 - 0.5)) / (1 - 1.98 * (value2 - 0.5)))
+        max_cg = sg.iloc[i-length+1:i+1].max()
+        min_cg = sg.iloc[i-length+1:i+1].min()
 
-#     df_copy['fisher_cg'] = pd.Series(value3, index=df_copy.index).round(2)  # Center of Gravity
-#     df_copy['fisher_sig'] = df_copy['fisher_cg'].shift(1).round(2)  # Signal / Trigger
+        if max_cg != min_cg:
+            Num.iloc[i] = (sg.iloc[i] - min_cg) / (max_cg - min_cg)
+        else:
+            Num.iloc[i] = 0.0
 
-#     return df_copy[['fisher_cg', 'fisher_sig']]
+        Denom.iloc[i] = (4 * Num.iloc[i] + 3 * Num.iloc[i - 1] + 2 * Num.iloc[i - 2] + Num.iloc[i - 3]) / 10
 
+    # Calculate Value3 (V3) and Trigger
+    V3 = 0.5 * np.log((1 + 1.98 * (Denom - 0.5)) / (1 - 1.98 * (Denom - 0.5)))
+    Trigger = V3.shift(1)
 
-# def InverseFisherTransform(df, column: str = 'close', rsi_length: int = 14, rsi_smoothing: int = 9) -> pd.DataFrame:
-#     """
-#     Inverse Fisher Transform
+    df_copy['CG'] = V3.round(2)
+    df_copy['Trigger'] = Trigger.round(2)
 
-#     The Inverse Fisher Transform is a technical indicator used to amplify price movements and identify potential buy and sell signals.
-#     It applies an inverse Fisher transform to a smoothed RSI to highlight changes in price momentum.
-
-#     Parameters:
-#     - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
-#     - column (str): Source column to calculate the indicator. Default is 'close'.
-#     - rsi_length (int): Length for the RSI calculation. Default is 10.
-#     - rsi_smoothing (int): Length for the RSI smoothing (EMA). Default is 5.
-#     - e_value (float): E value for the inverse fisher transform. Default is 2.71.
-
-#     Call with:
-#         df['ift'] = bta.InverseFisherTransform(df)['ift']
-
-#     Use additional levels in your dataframe for 
-#         # Add horizontal levels
-#         df['level_1_35'] = 1.35
-#         df['level_0_5'] = 0.5
-#         df['level_0'] = 0
-#         df['level_minus_0_5'] = -0.5
-#         df['level_minus_1'] = -1
-
-#     Returns:
-#     - pd.DataFrame: DataFrame with 'ift' column.
-#     """
-#     df_copy = df.copy()
-
-#     # Calculate RSI values
-#     rsi_values = RelativeStrengthIndex(df, column=column, period=rsi_length)
-    
-#     # Smooth RSI values with EMA
-#     rsi_ema_values = EMA(df.assign(rsi_values=rsi_values), 'rsi_values', rsi_smoothing)
-    
-#     # Apply Inverse Fisher Transform
-#     inv_fisher = (np.exp(2.0 * (rsi_ema_values - 50) * 0.1) - 1) / (np.exp(2.0 * (rsi_ema_values - 50) * 0.1) + 1)
-
-#     df_copy['ift'] = inv_fisher.round(2)
-    
-#     return df_copy[['ift']]
-
-# def inverse_fisher_transform(df, column: str = 'close', indicator: str = 'cci', length: int = 9) -> pd.DataFrame:
-#     """
-#     Inverse Fisher Transform COMBO
-    
-#     Parameters:
-#     - df (pandas.DataFrame): Input DataFrame which should contain at least the "open", "high", "low", "close", and "volume" columns.
-#     - column (str): The column on which to calculate the Inverse Fisher Transform. Default is "close".
-#     - indicator (str): The indicator on which to calculate the Inverse Fisher Transform. Options: 'cci', 'cciv2', 'mfi', 'rsi', 'stoch', 'smi', 'average'.
-#     - length (int): The period for the calculations. Default is 9.
-
-#     Call with:
-#         df['ift'] = bta.inverse_fisher_transform(df, "close", "rsi", 9)['IFT_RSI']
-
-#     Returns:
-#     - pd.DataFrame: DataFrame with the Inverse Fisher Transform values for the selected indicator.
-#     """
-#     def wma(series, length):
-#         weights = np.arange(1, length + 1)
-#         return series.rolling(length).apply(lambda prices: np.dot(prices, weights) / weights.sum(), raw=True)
-
-#     def cci(df, length):
-#         tp = (df['high'] + df['low'] + df['close']) / 3
-#         sma = tp.rolling(window=length).mean()
-#         mad = tp.rolling(window=length).apply(lambda x: np.mean(np.abs(x - np.mean(x))))
-#         cci = (tp - sma) / (0.015 * mad)
-#         return cci
-
-#     def mfi(df, length):
-#         typical_price = (df['high'] + df['low'] + df['close']) / 3
-#         money_flow = typical_price * df['volume']
-#         positive_flow = money_flow.where(typical_price > typical_price.shift(1), 0)
-#         negative_flow = money_flow.where(typical_price < typical_price.shift(1), 0)
-#         positive_mf = positive_flow.rolling(window=length).sum()
-#         negative_mf = negative_flow.rolling(window=length).sum()
-#         mfi = 100 - (100 / (1 + positive_mf / negative_mf))
-#         return mfi
-
-#     def rsi(series, length):
-#         delta = series.diff(1)
-#         gain = (delta.where(delta > 0, 0)).rolling(window=length).mean()
-#         loss = (-delta.where(delta < 0, 0)).rolling(window=length).mean()
-#         rs = gain / loss
-#         rsi = 100 - (100 / (1 + rs))
-#         return rsi
-
-#     def stoch(df, length):
-#         low_min = df['low'].rolling(window=length).min()
-#         high_max = df['high'].rolling(window=length).max()
-#         stoch_k = 100 * ((df['close'] - low_min) / (high_max - low_min))
-#         return stoch_k
-
-#     def ema(series, length):
-#         return series.ewm(span=length, adjust=False).mean()
-
-#     def smi(df, smi_length, inner_ema_length, outer_ema_length):
-#         llow = df['low'].rolling(window=smi_length).min()
-#         hhigh = df['high'].rolling(window=smi_length).max()
-#         sm = df['close'] - 0.5 * (hhigh + llow)
-#         avgsm = ema(ema(sm, inner_ema_length), outer_ema_length)
-#         diff = hhigh - llow
-#         avgdiff = ema(ema(diff, inner_ema_length), outer_ema_length)
-#         smi = np.where(avgdiff != 0, 100 * (avgsm / (0.5 * avgdiff)), 0)
-#         return smi
-
-#     def inverse_fisher_transform(series):
-#         return (np.exp(2 * series) - 1) / (np.exp(2 * series) + 1)
-
-#     if indicator == 'cci':
-#         values = 0.1 * cci(df, length)
-#     elif indicator == 'cciv2':
-#         values = 0.1 * (cci(df, length) / 4)
-#     elif indicator == 'mfi':
-#         values = 0.1 * (mfi(df, length) - 50)
-#     elif indicator == 'rsi':
-#         values = 0.1 * (rsi(df[column], length) - 50)
-#     elif indicator == 'stoch':
-#         values = 0.1 * (stoch(df, length) - 50)
-#     elif indicator == 'smi':
-#         values = 0.1 * smi(df, length, length, length)
-#     elif indicator == 'average':
-#         cci_values = 0.1 * cci(df, length)
-#         cciv2_values = 0.1 * (cci(df, length) / 4)
-#         mfi_values = 0.1 * (mfi(df, length) - 50)
-#         rsi_values = 0.1 * (rsi(df[column], length) - 50)
-#         stoch_values = 0.1 * (stoch(df, length) - 50)
-#         smi_values = 0.1 * smi(df, length, length, length)
-#         avg_values = (cci_values + cciv2_values + mfi_values + rsi_values + stoch_values + smi_values) / 6
-#         values = avg_values
-#     else:
-#         raise ValueError("Invalid indicator specified")
-
-#     transformed_values = inverse_fisher_transform(wma(values, length))
-
-#     df_copy = df.copy()
-#     df_copy[f'IFT_{indicator.upper()}'] = transformed_values
-
-#     return df_copy[[f'IFT_{indicator.upper()}']]
+    return df_copy[['CG', 'Trigger']]
 
 
 def KaufmansAdaptiveMovingAverage(

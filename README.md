@@ -622,3 +622,8 @@ Now you an upload libraries without having to use the password.
 * [ThinkOrSwim Tech indicators](https://tlc.thinkorswim.com/center/reference/Tech-Indicators)
 * [Legendary TA](https://github.com/just-nilux/legendary_ta)
 * [CryptoFrog Custom Indicators](https://github.com/froggleston/cryptofrog-strategies/blob/main/custom_indicators.py)
+* [Linnsoft](https://www.linnsoft.com/techind/accumulation-distribution)
+* [Profitspi](https://www.profitspi.com/stock/view.aspx?v=stock-chart-library)
+* [Cybernetic Analysis](https://www.neuroshell.com/manuals/cyber/index.html)
+* [TRradeStation](https://help.tradestation.com/10_00/eng/tradestationhelp/elanalysis/indicator/price_channel__percent_pc_indicator_.htm)
+* [Sierra Chart](https://www.sierrachart.com/index.php?page=doc/TechnicalStudiesReference.php)
