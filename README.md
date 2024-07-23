@@ -7,8 +7,6 @@
 </p>
 
 
-The Bamboo TA Indicators module provides (yet another) comprehensive suite of technical analysis tools for (automatic & algorithmic) trading. This module imports various submodules, each dedicated to a specific category of technical indicators.
-
 [![license](https://img.shields.io/github/license/DutchCryptoDad/bamboo-ta)](#license)
 [![Python Version](https://img.shields.io/pypi/pyversions/bamboo-ta?style=flat)](https://pypi.org/project/bamboo-ta/)
 [![PyPi Version](https://img.shields.io/pypi/v/bamboo-ta?style=flat)](https://pypi.org/project/bamboo-ta/)
@@ -25,22 +23,15 @@ The Bamboo TA Indicators module provides (yet another) comprehensive suite of te
 ](https://www.youtube.com/@dutchalgotrading)
 [![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UC-AOcefy1x7lTc17JiqaxqA)](https://www.youtube.com/@dutchalgotrading)
 
-
 ## Why this library
 
-This is a personal pet project to hoard all kinds of Technical Analysis Indicators for trading to one single library. It is primarily build for personal use, but if other people can use this to their own benefit as well, then that's a nice additional benefit.
+Bamboo-ta is a personal project that consolidates various Technical Analysis Indicators for trading into a single library. It’s primarily built for personal use, with a focus on data analysis of candlestick data to develop new (algorithmic) trading strategies. It can also serve as an auxiliary library for indicators in trading bots.
 
-The indicators this library are not only some of the the most popular (like MACD, RSI, SMA, EMA and more) but also contain more obscure (and possibly brand new) indicators like Waddah Attar Explosion, Bollinger Bands Trend Indicator too. 
+This library includes not only some of the most popular indicators (like MACD, RSI, SMA, EMA, and more), but also more obscure (and possibly brand new) indicators such as ‘Waddah Attar Explosion’ and ‘Bollinger Bands Trend Indicator’. For more information on the available indicators, please refer to the indicator category pages.
 
-This library should be a welcome addition to other popular TA libraries like TA-lib, Pandas-ta, qtpylib and others but will not replace them. There will probably be a lot of indicators that will be served better with these other libaries. Bamboo-ta is written with simplicity in mind. And it should be more simple to use and maintain by me and other users. 
+While Bamboo-ta complements other popular TA libraries like TA-lib, Pandas-ta, qtpylib, and others, it is not intended to replace them. There will likely be many indicators that are better served by these other libraries. 
 
-### Disclaimer
-
-Most of the indicators I configured are tested agains a dataset from Binance (BTC/USDT) and verified with the same indicators on [Tradingview](tradingview.com/?aff_id=139223). However I will and cannot guarantee the workings and accuracy. 
-
-I will use these indicators to build my own trading strategies for backtesting and manual & bot trading using the [Freqtrade trading bot](https://www.youtube.com/watch?v=VHvikJmQrVM&list=PL8gq8aFDPpbNEx4lUvpmRjxtCkjvX-Jpg). So it is in my own personal best interest to make these indicators work as accurately as possible.
-
-You are welcome to do suggestions and report bugs if you find these. But I will handle these on a 'best effort' base. I believe that the pressure of maintaining larger and popular libraries will lead to abandonment of the project by the original developer(s) at some point in time. And I do not want this to happen with this project. So be patient and the proposed suggestions will be handled all in good time.
+Bamboo-ta is designed with a focus on simplicity and modularity. It aims to be easy to use and maintain. If you’re seeking a library for complex indicator applications, you might want to consider other options.
 
 ## Social
 
@@ -85,7 +76,7 @@ The bleeding edge development version can be installed with:
 
 ``$ pip install -U git+https://github.com/DutchCryptoDad/bamboo-ta.git@development``
 
-### How to Use This Module
+## How to Use This Module
 
 Using the complete module all at once.
 
@@ -142,482 +133,64 @@ Or individual indicators.
     df['lips'] = alligator_result['lips']
    ```
 
-## Bamboo TA Indicators Module
-
-### Submodules
-
-1. **candles**
-   - **Description**: Contains indicators related to candlestick patterns.
-   - **Indicators**:
-     - **HeikinAshi**: Heikin Ashi candlesticks with optional pre and post smoothing.
-       - **Usage**: 
-         ```python
-         ha_df = HeikinAshi(df, pre_smoothing_period=14, post_smoothing_period=14)
-         df['HA_Close'] = ha_df['HA_Close']
-         df['HA_Open'] = ha_df['HA_Open']
-         df['HA_High'] = ha_df['HA_High']
-         df['HA_Low'] = ha_df['HA_Low']
-         ```
-     - **LinRegCandles**: Linear Regression Candles with optional signal line.
-       - **Usage**: 
-         ```python
-         lr_df = LinRegCandles(df, linreg_length=11, sma_signal=True, signal_length=11)
-         df['LRC_Open'] = lr_df['bopen']
-         df['LRC_High'] = lr_df['bhigh']
-         df['LRC_Low'] = lr_df['blow']
-         df['LRC_Close'] = lr_df['bclose']
-         df['LRC_Signal'] = lr_df['signal']
-         ```
-     - **Exhaustion_Bars**: Leledc Exhaustion Bars - Extended.
-       - **Usage**: 
-         ```python
-         exhaustion = Exhaustion_Bars(df)
-         df['leledc_major'] = exhaustion['leledc_major']
-         df['leledc_minor'] = exhaustion['leledc_minor']
-         ```
-     - **Dynamic_Exhaustion_Bars**: Dynamic Leledc Exhaustion Bars.
-       - **Usage**: 
-         ```python
-         dynamic_exhaustion = Dynamic_Exhaustion_Bars(df)
-         df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
-         df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
-         ```
-     - **Pinbar**: Price Action Indicator.
-       - **Usage**: 
-         ```python
-         pin = Pinbar(df)
-         df['pinbar_sell'] = pin['pinbar_sell']
-         df['pinbar_buy'] = pin['pinbar_buy']
-         ```
-
-2. **cycles**
-   - **Description**: Includes indicators for cycle analysis.
-
-3. **momentum**
-   - **Description**: Provides momentum-based indicators.
-   - **Indicators**:
-     - **CMO**: Chande Momentum Oscillator.
-       - **Usage**: 
-         ```python
-         cmo = CMO(df, length=14)
-         df['cmo'] = cmo['cmo']
-         ```
-     - **EWO**: Elliott Wave Oscillator.
-       - **Usage**: 
-         ```python
-         df['ewo'] = EWO(df, "close", 5, 35)
-         ```
-     - **MACD**: Moving Average Convergence Divergence.
-       - **Usage**: 
-         ```python
-         macd_result = MACD(df, "close", 12, 26, 9)
-         df['macd'] = macd_result['MACD']
-         df['macd_signal'] = macd_result['MACD_signal']
-         df['macd_histogram'] = macd_result['MACD_histogram']
-         ```
-     - **MACD_Leader**: MACD Leader.
-       - **Usage**: 
-         ```python
-         macd_leader = MACD_Leader(df, 'close')
-         df['macd_leader'] = macd_leader['macd_leader']
-         ```
-     - **Inverse_Fisher_Transform**: Inverse Fisher Transform.
-       - **Usage**: 
-         ```python
-         ift = Inverse_Fisher_Transform(df)
-         df['ift'] = ift['ift']
-         # Optional levels
-         df['level_1_35'] = 1.35
-         df['level_0_5'] = 0.5
-         df['level_0'] = 0
-         df['level_minus_0_5'] = -0.5
-         df['level_minus_1'] = -1
-         ```
-     - **Waddah_Attar_Explosion**: Waddah Attar Explosion Indicator.
-       - **Usage**: 
-         ```python
-         WAE = Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0)
-         df['trend_up'] = WAE['trend_up']
-         df['trend_down'] = WAE['trend_down']
-         df['explosion_line'] = WAE['explosion_line']
-         df['dead_zone_line'] = WAE['dead_zone_line']
-         ```
-     - **WaveTrend_Oscillator**: WaveTrend Oscillator.
-       - **Usage**: 
-         ```python
-         wt = WaveTrend_Oscillator(df, 'close', n1=8, n2=12)
-         df['wavetrend'] = wt['wavetrend']
-         ```
-     - **RSI**: Relative Strength Index.
-       - **Usage**: 
-         ```python
-         df['rsi'] = RSI(df, "close", 14)
-         ```
-     - **Fisher_cg**: Fisher Stochastic Center of Gravity.
-       - **Usage**: 
-         ```python
-         fisher = Fisher_cg(df)
-         df['fisher_cg'] = fisher['fisher_cg']
-         df['fisher_sig'] = fisher['fisher_sig']
-         ```
-     - **QQE_Mod**: QQE Mod Indicator.
-       - **Usage**: 
-         ```python
-         qqe_mod = QQE_Mod(df, rsi_period=6, rsi_smoothing=5, qqe_factor=3, threshold=3, bollinger_length=50, bb_multiplier=0.35,
-                           rsi_period2=6, rsi_smoothing2=5, qqe_factor2=1.61, threshold2=3)
-         df['QQE_Line'] = qqe_mod['QQE_Line']
-         df['Histo2'] = qqe_mod['Histo2']
-         df['QQE_Up'] = qqe_mod['QQE_Up']
-         df['QQE_Down'] = qqe_mod['QQE_Down']
-         ```
-     - **MAStreak**: MA Streak Indicator.
-       - **Usage**: 
-         ```python
-         df['mastreak'] = MAStreak(df, period=4, column='close')
-         ```
-     - **RMI**: Relative Momentum Index.
-       - **Usage**: 
-         ```python
-         df['rmi'] = RMI(df, length=20, mom=5)
-         ```
-     - **ROC**: Rate of Change.
-       - **Usage**: 
-         ```python
-         df['roc'] = ROC(df, column='close', period=21)
-         ```
-     - **SROC**: Smoothed Rate of Change.
-       - **Usage**: 
-         ```python
-         df['sroc'] = SROC(df, roclen=21, emalen=13, smooth=21)
-         ```
-
-4. **performance**
-   - **Description**: Contains performance-related indicators.
-
-5. **statistics**
-   - **Description**: Statistical indicators for trading analysis.
-
-6. **trend**
-   - **Description**: Includes trend-based indicators.
-   - **Indicators**:
-     - **AlligatorBands**: Bill Williams Alligator Indicator.
-       - **Usage**: 
-         ```python
-         alligator_result = AlligatorBands(df, "high", 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
-         df['jaw'] = alligator_result['jaw']
-         df['teeth'] = alligator_result['teeth']
-         df['lips'] = alligator_result['lips']
-         ```
-     - **BollingerTrend**: Bollinger Trend Indicator.
-       - **Usage**: 
-         ```python
-         df['BBTrend'] = BollingerTrend(df, "close", 20, 50, 2.0)
-         ```
-     - **BollingerTrendFastWithMA**: Bollinger Trend Indicator with selectable Moving Average.
-       - **Usage**: 
-         ```python
-         result = BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14)
-         df['BBTrend'] = result['BBTrend']
-         df['BBTrendMA'] = result['BBTrendMA']
-         ```
-     - **EMA**: Exponential Moving Average.
-       - **Usage**: 
-         ```python
-         df['ema'] = EMA(df, "close", 21)
-         ```
-     - **HMA**: Hull Moving Average.
-       - **Usage**: 
-         ```python
-         df['hma'] = HMA(df, "close", 9)
-         ```
-     - **LSMA**: Least Squares Moving Average.
-       - **Usage**: 
-         ```python
-         df['lsma'] = LSMA(df, "close", 50)
-         ```
-     - **SMA**: Simple Moving Average.
-       - **Usage**: 
-         ```python
-         df['sma'] = SMA(df, "close", 50)
-         ```
-     - **WMA**: Weighted Moving Average.
-       - **Usage**: 
-         ```python
-         df['wma'] = WMA(df, "close", 9)
-         ```
-     - **ZLEMA**: Zero Lag Exponential Moving Average.
-       - **Usage**: 
-         ```python
-         df['zlema'] = ZLEMA(df, "close", 21)
-         ```
-     - **Breakouts**: S/R Breakouts and Retests.
-       - **Usage**: 
-         ```python
-         breakout = Breakouts(df)
-         df['support_level'] = breakout['support_level']
-         df['resistance_level'] = breakout['resistance_level']
-         df['support_breakout'] = breakout['support_breakout']
-         df['resistance_breakout'] = breakout['resistance_breakout']
-         df['support_retest'] = breakout['support_retest']
-         df['potential_support_retest'] = breakout['potential_support_retest']
-         df['resistance_retest'] = breakout['resistance_retest']
-         df['potential_resistance_retest'] = breakout['potential_resistance_retest']
-         ```
-     - **SSLChannels**: SSL Channels.
-       - **Usage**: 
-         ```python
-         ssl_down, ssl_up = SSLChannels(df, length=10, mode='sma')
-         df['ssl_down'] = ssl_down
-         df['ssl_up'] = ssl_up
-         ```
-     - **SSLChannelsATR**: SSL Channels with ATR.
-       - **Usage**: 
-         ```python
-         ssl_down, ssl_up = SSLChannelsATR(df, length=7)
-         df['ssl_atr_down'] = ssl_down
-         df['ssl_atr_up'] = ssl_up
-         ```
-     - **PCC**: Percent Change Channel.
-       - **Usage**: 
-         ```python
-         upper, rangema, lower = PCC(df, period=20, mult=2)
-         df['pcc_upper'] = upper
-         df['pcc_rangema'] = rangema
-         df['pcc_lower'] = lower
-         ```
-     - **T3**: T3 Average.
-       - **Usage**: 
-         ```python
-         df['t3_average'] = T3(df, length=5)
-         ```
-
-7. **utility**
-   - **Description**: Utility functions and helper methods for technical analysis.
-   - **Functions**:
-     - **Calculate_Exhaustion_Candles**: Calculate the average consecutive length of ups and downs.
-       - **Usage**:
-         ```python
-         maj_qual, min_qual = Calculate_Exhaustion_Candles(df, window, zscore_multi)
-         ```
-     - **Calculate_Exhaustion_Lengths**: Calculate the average length of peaks and valleys.
-       - **Usage**:
-         ```python
-         maj_len, min_len = Calculate_Exhaustion_Lengths(df)
-         ```
-     - **Consecutive_Count**: Calculate the average consecutive count of non-zero differences.
-       - **Usage**:
-         ```python
-         avg_consecutive = Consecutive_Count(consecutive_diff)
-         ```
-     - **Linear_Growth**: Simple linear growth function.
-       - **Usage**:
-         ```python
-         growth_value = Linear_Growth(start, end, start_time, end_time, trade_time)
-         ```
-     - **Linear_Decay**: Simple linear decay function.
-       - **Usage**:
-         ```python
-         decay_value = Linear_Decay(start, end, start_time, end_time, trade_time)
-         ```
-     - **populate_leledc_major_minor**: Populate Leledc Major and Minor columns.
-       - **Usage**:
-         ```python
-         df = populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len)
-         ```
-     - **True_Range**: Calculate True Range (TR).
-       - **Usage**:
-         ```python
-         tr = True_Range(df)
-         ```
-     - **ZScore**: Calculate the z-score of a series.
-       - **Usage**:
-         ```python
-         zscore = ZScore(series, window=500)
-         ```
-     - **ATR**: Calculate the Average True Range (ATR).
-       - **Usage**:
-         ```python
-         atr = ATR(df, period=14)
-         ```
-     - **RMA**: Calculate the Relative Moving Average (RMA).
-       - **Usage**:
-         ```python
-         rma = RMA(series, period)
-         ```
-
-8. **volatility**
-   - **Description**: Volatility indicators.
-   - **Indicators**:
-     - **BollingerBands**: Calculates Bollinger Bands (upper, middle, lower bands).
-       - **Usage**: 
-         ```python
-         bb_result = BollingerBands(df, "close", 21, 2, 0)
-         df['bb_upper'] = bb_result['BB_upper']
-         df['bb_middle'] = bb_result['BB_middle']
-         df['bb_lower'] = bb_result['BB_lower']
-         ```
-     - **TR**: True Range (TR) calculation.
-       - **Usage**: 
-         ```python
-         tr = TR(df)
-         ```
-
-9. **volume**
-   - **Description**: Provides volume-based indicators.
-   - **Indicators**:
-     - **OBV_Oscillator**: On Balance Volume Oscillator.
-       - **Usage**:
-         ```python
-         obv_osc = OBV_Oscillator(df, n1=10, n2=21)
-         df['OBV_Oscillator'] = obv_osc['OBV_Oscillator']
-         ```
-
-#### Practical example
+### Practical example
 
 Example script:
 
 ```
 # -*- coding: utf-8 -*-
 # Import necessary libraries
-import pandas_ta as pta
-import bamboo_ta as bta
+# Importeer necessary libraries
+import bamboo_ta.bamboo_ta as bta
+#import pandas_ta as pta
 import pandas as pd
 from pandas import DataFrame
 import numpy as np
 
+# Create dataframe
 # create dataframe and read the json data in the datasets directory
-df = pd.read_json("./testdata/BTC_USDT-1d.json")
+df = pd.read_json("./BTC_USDT-1d.json")
 # name the columns that are loaded into the dataframe
 df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
 # the date column consists of unix time in milliseconds, so this command changes this data into human readable form.
 df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
-print(df)  # This command outputs the dataframe
+fscg = bta.EhlersFisherStochasticCenterOfGravity(df)
+df['CG'] = fscg['CG']
+df['Trigger'] = fscg['Trigger']
 
-# Using the pandas_ta library
-df['imi_ema'] = pta.ema(close=df['close'], length=7)
-
-df['lsma'] = bta.calculate_lsma(df, 14)  # Using the bamboo_ta library
-
-print(df)
+print(df.tail(40))
 ```
 
 Output:
 
 ```
-➜  python test.py 
-           date      open      high       low     close         volume
-0    2017-08-17   4261.48   4485.39   4200.74   4285.08     795.150377
-1    2017-08-18   4285.08   4371.52   3938.77   4108.37    1199.888264
-2    2017-08-19   4108.37   4184.69   3850.00   4139.98     381.309763
-3    2017-08-20   4120.98   4211.08   4032.62   4086.29     467.083022
-4    2017-08-21   4069.13   4119.62   3911.79   4016.00     691.743060
-...         ...       ...       ...       ...       ...            ...
-1967 2023-01-05  16850.36  16879.82  16753.00  16831.85  163473.566410
-1968 2023-01-06  16831.85  17041.00  16679.00  16950.65  207401.284150
-1969 2023-01-07  16950.31  16981.91  16908.00  16943.57  104526.568800
-1970 2023-01-08  16943.83  17176.99  16911.00  17127.83  135155.896950
-1971 2023-01-09  17127.83  17398.80  17104.66  17178.26  266211.527230
-
-[1972 rows x 6 columns]
-           date      open      high       low     close         volume       imi_ema          lsma
-0    2017-08-17   4261.48   4485.39   4200.74   4285.08     795.150377           NaN           NaN
-1    2017-08-18   4285.08   4371.52   3938.77   4108.37    1199.888264           NaN           NaN
-2    2017-08-19   4108.37   4184.69   3850.00   4139.98     381.309763           NaN           NaN
-3    2017-08-20   4120.98   4211.08   4032.62   4086.29     467.083022           NaN           NaN
-4    2017-08-21   4069.13   4119.62   3911.79   4016.00     691.743060           NaN           NaN
-...         ...       ...       ...       ...       ...            ...           ...           ...
-1967 2023-01-05  16850.36  16879.82  16753.00  16831.85  163473.566410  16737.537534  16633.800286
-1968 2023-01-06  16831.85  17041.00  16679.00  16950.65  207401.284150  16790.815651  16678.202286
-1969 2023-01-07  16950.31  16981.91  16908.00  16943.57  104526.568800  16829.004238  16746.722286
-1970 2023-01-08  16943.83  17176.99  16911.00  17127.83  135155.896950  16903.710678  16816.734571
-1971 2023-01-09  17127.83  17398.80  17104.66  17178.26  266211.527230  16972.348009  16930.485143
-
-[1972 rows x 8 columns]
+ python test.py
+1962 2022-12-31  16607.48  16644.09  16470.00  16542.40  114490.42864 -0.75    -0.21
+1963 2023-01-01  16541.77  16628.00  16499.01  16616.75   96925.41374 -1.28    -0.75
+1964 2023-01-02  16617.17  16799.23  16548.70  16672.87  121888.57191 -1.07    -1.28
+1965 2023-01-03  16672.78  16778.40  16605.28  16675.18  159541.53733 -0.23    -1.07
+1966 2023-01-04  16675.65  16991.87  16652.66  16850.36  220362.18862  0.37    -0.23
+1967 2023-01-05  16850.36  16879.82  16753.00  16831.85  163473.56641  0.96     0.37
+1968 2023-01-06  16831.85  17041.00  16679.00  16950.65  207401.28415  1.78     0.96
+1969 2023-01-07  16950.31  16981.91  16908.00  16943.57  104526.56880  2.65     1.78
+1970 2023-01-08  16943.83  17176.99  16911.00  17127.83  135155.89695  2.65     2.65
+1971 2023-01-09  17127.83  17398.80  17104.66  17178.26  266211.52723  2.65     2.65
 ```
 
+## Indicator categories
 
-## Creating the Python pip package (personal notes)
+* [Candles](./docs/candles.md)
+* [Cycles](./docs/cycles.md)
+* [Momentum](./docs/momentum.md)
+* [Performance](./docs/performance.md)
+* [Statistics](./docs/statistics.md)
+* [Trend](./docs/trend.md)
+* [Utility](./docs/utility.md)
+* [Volatility](./docs/volatility.md)
+* [Volume](./docs/volume.md)
 
-After creating and testing the code, make a Python pip package as follows:
-
-Update the file ``setup.py`` and update version number.
-
-In the library folder, create the package
-
-``python3 setup.py sdist bdist_wheel``
-
-Before uploading the package to Pypi it is wise to test the package on your system.
-
-Load the package to the system with:
-
-``pip install .``
-
-After you've checked that everything is worknig correctly, then use the following command to upload to Pypi.
-You'll have to install twine for this (``pip install twine`` or ``sudo apt install twine``)
-
-When you get the error:
-
-```
-ImportError: cannot import name 'appengine' from 'requests.packages.urllib3.contrib' (/home/user/.local/lib/python3.10/site-packages/urllib3/contrib/__init__.py)
-```
-
-You should do a ``pip install --upgrade twine requests-toolbelt``.
-
-### Before uploading
-
-```
-# Check first
-
-twine check dist/*
-
-# Test upload first
-
-twine upload -r testpypi dist/*
-
-# Upload to Pypi
-
-twine upload dist/*
-```
-
-Note: uploading new versions requires to delete the older versions from the /dist folder.
-
-Another option is to use the ``--skip-existing`` option like this:
-
-```
-# Testpypi
-twine upload -r testpypi dist/* --skip-existing 
-
-# ProductionPypi
-twine upload -r pypi dist/* --skip-existing
-```
-
-### Uploading with 2FA enabled
-
-First create an API token (at https://test.pypi.org/manage/account/token/).
-
-Create a file .pypirc in your home folder (e.g. ``nano $HOME/.pypirc``)
-
-Add the given token to the file like this:
-
-```
-[testpypi]
-  username = __token__
-  password =
-pypi-AgENdGVzdC5weXtMjBjOS00ZjgxLWIyZDMtYWViMDAwOTk3MWZmAAIqWzMsImU3YjkzMGVmLWQzMGItNGFhYi1iNB6NZ-rSrzc8UXHRmWp5fzZwP
-
-
-[pypi]
-  username = __token__
-  password =
-pypi-AgEIcHlwaS5vcmcCJDgxYWFiYjYwLTMxYmUtNDczZC1hNjBhLTU0MDJhNmQ2NmZhMgAQ3NTAtOGVkNy0xN2U0NmU0MjEzMQFAYWNj0FcsP-Slnj9-wkEWWwQXkaw
-```
-
-Save the file and reload environment if necessary.
-
-Now you an upload libraries without having to use the password.
-
-## Other sources on which some indicators are based on
+## Sources on which some indicators are based on
 
 * [ThinkOrSwim Tech indicators](https://tlc.thinkorswim.com/center/reference/Tech-Indicators)
 * [Legendary TA](https://github.com/just-nilux/legendary_ta)
@@ -627,3 +200,12 @@ Now you an upload libraries without having to use the password.
 * [Cybernetic Analysis](https://www.neuroshell.com/manuals/cyber/index.html)
 * [TRradeStation](https://help.tradestation.com/10_00/eng/tradestationhelp/elanalysis/indicator/price_channel__percent_pc_indicator_.htm)
 * [Sierra Chart](https://www.sierrachart.com/index.php?page=doc/TechnicalStudiesReference.php)
+
+## Disclaimer !!!
+
+Most of the indicators I configured are tested agains a dataset from Binance (BTC/USDT) and verified with the same indicators on [Tradingview](tradingview.com/?aff_id=139223). However I will and cannot guarantee the workings and accuracy. 
+
+I personally use these indicators to build my own trading strategies, for backtesting and manual & bot trading using the [Freqtrade trading bot](https://www.youtube.com/watch?v=VHvikJmQrVM&list=PL8gq8aFDPpbNEx4lUvpmRjxtCkjvX-Jpg). So it is in my own personal best interest to make these indicators work as accurately as possible.
+
+You are welcome to do suggestions and report bugs if you find these. But I will handle these on a 'best effort' base. I believe that the pressure of maintaining larger and popular libraries will lead to abandonment of the project by the original developer(s) at some point in time. And I do not want this to happen with this project (although no guarantees here too...).  
+So be patient and the proposed suggestions might be handled all in good time.
