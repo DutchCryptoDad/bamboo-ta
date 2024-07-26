@@ -99,7 +99,7 @@ def BollingerTrend(df: pd.DataFrame, column: str = 'close', short_length: int = 
     return df_copy[['bbtrend']]
 
 
-def bollinger_trend_fast_with_ma(
+def BollingerTrendFastWithMA(
     df: pd.DataFrame,
     column: str = 'close',
     short_length: int = 10,
@@ -127,7 +127,7 @@ def bollinger_trend_fast_with_ma(
     - ma_length (int): The period for the moving average. Default is 14.
 
     Call with:
-        result = bta.bollinger_trend_fast_with_ma(df, 'close', 10, 50, 1.0, 2.0, 'SMA', 14)
+        result = bta.BollingerTrendFastWithMA(df, 'close', 10, 50, 1.0, 2.0, 'SMA', 14)
         df['bollinger_trend_fast'] = result['bbtrend']
         df['bollinger_trend_fast_ma'] = result['bbtrend_ma']
 

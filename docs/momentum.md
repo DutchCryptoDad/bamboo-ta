@@ -21,9 +21,9 @@ Provides momentum-based indicators.
 - **Usage**: 
     ```python
     macd_result = MACD(df, "close", 12, 26, 9)
-    df['macd'] = macd_result['MACD']
-    df['macd_signal'] = macd_result['MACD_signal']
-    df['macd_histogram'] = macd_result['MACD_histogram']
+    df['macd'] = macd_result['macd']
+    df['macd_signal'] = macd_result['macd_signal']
+    df['macd_histogram'] = macd_result['macd_histogram']
     ```
 - **MACD_Leader**: MACD Leader.
 - **Usage**: 

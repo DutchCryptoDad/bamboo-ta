@@ -23,8 +23,8 @@ Includes trend-based indicators.
 - **Usage**: 
     ```python
     result = BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14)
-    df['BBTrend'] = result['BBTrend']
-    df['BBTrendMA'] = result['BBTrendMA']
+    df['BBTrend'] = result['bbtrend']
+    df['BBTrendMA'] = result['bbtrend_ma']
     ```
 - **EMA**: Exponential Moving Average.
 - **Usage**: 
