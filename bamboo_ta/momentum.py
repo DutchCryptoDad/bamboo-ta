@@ -618,11 +618,12 @@ def SmoothedRateOfChange(df, roclen: int = 21, emalen: int = 13, smooth: int = 2
     return df_copy[['sroc']]
 
 
-def WaddahAttarExplosion(df, sensitivity: int = 150, fast_length: int = 20, slow_length: int = 40, channel_length: int = 20, mult: float = 2.0) -> pd.DataFrame:
+def WaddahAttarExplosionAtr(df, sensitivity: int = 150, fast_length: int = 20, slow_length: int = 40, channel_length: int = 20, mult: float = 2.0) -> pd.DataFrame:
     """
     Waddah Attar Explosion Indicator
 
     The Waddah Attar Explosion indicator is used to identify potential breakout opportunities by combining the MACD and Bollinger Bands.
+    The dead zone line is based on ATR in this indicator.
 
     Inspired by: https://www.tradingview.com/script/d9IjcYyS-Waddah-Attar-Explosion-V2-SHK/
 
@@ -689,6 +690,80 @@ def WaddahAttarExplosion(df, sensitivity: int = 150, fast_length: int = 20, slow
     df_copy['dead_zone_line'] = dead_zone.values.round(2)
 
     return df_copy[['trend_up', 'trend_down', 'explosion_line', 'dead_zone_line']]
+
+
+def WaddahAttarExplosion(df, sensitivity: int = 150, fast_length: int = 20, slow_length: int = 40, channel_length: int = 20, dead_zone: int = 20, mult: float = 2.0) -> pd.DataFrame:
+    """
+    Waddah Attar Explosion Indicator
+
+    The Waddah Attar Explosion indicator is used to identify potential breakout opportunities by combining the MACD and Bollinger Bands.
+
+    Inspired by: https://www.tradingview.com/script/iu3kKWDI-Waddah-Attar-Explosion-LazyBear/
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'open', 'high', 'low', and 'close'.
+    - sensitivity (int): Sensitivity factor for the indicator. Default is 150.
+    - fast_length (int): Length for the fast EMA. Default is 20.
+    - slow_length (int): Length for the slow EMA. Default is 40.
+    - channel_length (int): Length for the Bollinger Bands. Default is 20.
+    - mult (float): Standard deviation multiplier for the Bollinger Bands. Default is 2.0.
+
+    Call with:
+        wae = bta.WaddahAttarExplosion(df)
+        df['trend_up'] = wae['trend_up']
+        df['trend_down'] = wae['trend_down']
+        df['explosion_line'] = wae['explosion_line']
+        df['dead_zone_line'] = wae['dead_zone_line']
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'trend_up', 'trend_down', 'explosion_line', and 'dead_zone_line' columns.
+    """
+    df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['open', 'high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    # Calculate EMA
+    def calculate_ema(series, period):
+        return series.ewm(span=period, adjust=False).mean()
+    
+    # Calculate RMA
+    # def calculate_rma(series, period):
+    #     return series.ewm(alpha=1/period, adjust=False).mean()
+
+    # Calculate DEAD_ZONE
+    # true_range = pd.DataFrame({
+    #     'high_low': df['high'] - df['low'],
+    #     'high_close': (df['high'] - df['close'].shift()).abs(),
+    #     'low_close': (df['low'] - df['close'].shift()).abs()
+    # })
+    # true_range['true_range'] = true_range[['high_low', 'high_close', 'low_close']].max(axis=1)
+    # dead_zone = RMA(pd.DataFrame(true_range), 'true_range', 100)['rma'] * 3.7
+    # dead_zone = calculate_rma(true_range['true_range'], 100) * 3.7
+
+    # Calculate MACD
+    macd_fast = calculate_ema(df['close'], fast_length)
+    macd_slow = calculate_ema(df['close'], slow_length)
+    macd_diff = macd_fast - macd_slow
+    t1 = (macd_diff - macd_diff.shift(1)) * sensitivity
+
+    # Calculate Bollinger Bands
+    bb = BollingerBands(df, column='close', period=channel_length, std_dev=mult)
+    e1 = bb['bb_upper'] - bb['bb_lower']
+
+    trend_up = np.where(t1 >= 0, t1, 0)
+    trend_down = np.where(t1 < 0, -t1, 0)
+
+    df_copy['trend_up'] = trend_up.round(2)
+    df_copy['trend_down'] = trend_down.round(2)
+    df_copy['explosion_line'] = e1.round(2)
+    df_copy['dead_zone_line'] = dead_zone
+
+    return df_copy[['trend_up', 'trend_down', 'explosion_line', 'dead_zone_line']]
+
 
 
 def WaveTrend(df, chlen: int = 10, avg: int = 21, smalen: int = 4) -> pd.DataFrame:
