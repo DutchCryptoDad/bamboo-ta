@@ -43,10 +43,19 @@ Provides momentum-based indicators.
     df['level_minus_0_5'] = -0.5
     df['level_minus_1'] = -1
     ```
-- **Waddah_Attar_Explosion**: Waddah Attar Explosion Indicator.
+- **WaddahAttarExplosion**: Waddah Attar Explosion Indicator witn Manual Dead zone.
 - **Usage**: 
     ```python
-    WAE = Waddah_Attar_Explosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0)
+    WAE = WaddahAttarExplosion(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, dead_zone=20, mult=2.0)
+    df['trend_up'] = WAE['trend_up']
+    df['trend_down'] = WAE['trend_down']
+    df['explosion_line'] = WAE['explosion_line']
+    df['dead_zone_line'] = WAE['dead_zone_line']
+    ```
+- **WaddahAttarExplosionAtr**: Waddah Attar Explosion Indicator with ATR based Dead zone.
+- **Usage**: 
+    ```python
+    WAE = WaddahAttarExplosionAtr(df, sensitivity=150, fast_length=20, slow_length=40, channel_length=20, mult=2.0)
     df['trend_up'] = WAE['trend_up']
     df['trend_down'] = WAE['trend_down']
     df['explosion_line'] = WAE['explosion_line']

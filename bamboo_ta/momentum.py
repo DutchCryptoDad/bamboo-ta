@@ -730,20 +730,6 @@ def WaddahAttarExplosion(df, sensitivity: int = 150, fast_length: int = 20, slow
     def calculate_ema(series, period):
         return series.ewm(span=period, adjust=False).mean()
     
-    # Calculate RMA
-    # def calculate_rma(series, period):
-    #     return series.ewm(alpha=1/period, adjust=False).mean()
-
-    # Calculate DEAD_ZONE
-    # true_range = pd.DataFrame({
-    #     'high_low': df['high'] - df['low'],
-    #     'high_close': (df['high'] - df['close'].shift()).abs(),
-    #     'low_close': (df['low'] - df['close'].shift()).abs()
-    # })
-    # true_range['true_range'] = true_range[['high_low', 'high_close', 'low_close']].max(axis=1)
-    # dead_zone = RMA(pd.DataFrame(true_range), 'true_range', 100)['rma'] * 3.7
-    # dead_zone = calculate_rma(true_range['true_range'], 100) * 3.7
-
     # Calculate MACD
     macd_fast = calculate_ema(df['close'], fast_length)
     macd_slow = calculate_ema(df['close'], slow_length)
