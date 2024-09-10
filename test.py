@@ -198,12 +198,19 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['bollinger_trend_fast'] = result['bbtrend']
 # df['bollinger_trend_fast_ma'] = result['bbtrend_ma']
 
-## WERKT GOED!!! 
+# WERKT GOED!!! 
 # wae = bta.WaddahAttarExplosion(df)
 # df['trend_up'] = wae['trend_up']
 # df['trend_down'] = wae['trend_down']
 # df['explosion_line'] = wae['explosion_line']
 # df['dead_zone_line'] = wae['dead_zone_line']
+
+# WERKT GOED!!! 
+wae_atr = bta.WaddahAttarExplosionAtr(df)
+df['trend_up'] = wae_atr['trend_up']
+df['trend_down'] = wae_atr['trend_down']
+df['explosion_line'] = wae_atr['explosion_line']
+df['dead_zone_line'] = wae_atr['dead_zone_line']
 
 ## WERKT BIJNA GOED, ALLEEN DE QQE LIJN VERTOONT AFWIJKINGEN TOV https://www.tradingview.com/script/TpUW4muw-QQE-MOD/
 # qqe_mod = bta.QQEMod(df)
