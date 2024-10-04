@@ -6,6 +6,24 @@ Utility functions and helper methods for technical analysis.
 
 ### Indicators
 
+- **CalculateStopLossTakeProfit**: Calculates stop loss, entry price, and take profit levels based on trade signals
+ - **Usage**:
+   ```
+   trade_cols = CalculateStopLossTakeProfit(
+    dataframe, 
+    signal_column='my_signal_column',  # Custom signal column
+    long_trade_signal='buy',           # Custom long signal
+    short_trade_signal='sell',         # Custom short signal
+    no_trade_signal='hold',            # Custom no trade signal
+    lookback_period=5, 
+    long_reward_ratio=2, 
+    short_reward_ratio=1.5, 
+    buffer=0.5
+    )
+    df[['stop_loss', 'entry_price', 'take_profit', 'exit_reason']] = trade_cols
+   ```
+
+
 - **CalculateFixedStopLossTakeProfitWithSignal**: Calculates stop loss, entry price, and take profit levels based on trade signals (long, short, or no trade).
   - **Usage**:
     ```python
