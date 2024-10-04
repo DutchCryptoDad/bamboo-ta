@@ -6,53 +6,137 @@ Utility functions and helper methods for technical analysis.
 
 ### Indicators
 
-- **Calculate_Exhaustion_Candles**: Calculate the average consecutive length of ups and downs.
-- **Usage**:
+- **CalculateFixedStopLossTakeProfitWithSignal**: Calculates stop loss, entry price, and take profit levels based on trade signals (long, short, or no trade).
+  - **Usage**:
     ```python
-    maj_qual, min_qual = Calculate_Exhaustion_Candles(df, window, zscore_multi)
+    trade_cols = CalculateFixedStopLossTakeProfitWithSignal(
+        df, 
+        signal_column='trade_signal', 
+        long_trade_signal='long_trade', 
+        short_trade_signal='short_trade', 
+        no_trade_signal='no_trade', 
+        lookback_period=5, 
+        long_risk_reward_ratio=2, 
+        short_risk_reward_ratio=2, 
+        buffer=0
+    )
+    df[['stop_loss', 'entry_price', 'take_profit', 'trade_active', 'exit_reason']] = trade_cols
     ```
-- **Calculate_Exhaustion_Lengths**: Calculate the average length of peaks and valleys.
-- **Usage**:
+
+- **ExhaustionCandles**: Calculate the average consecutive length of ups and downs.
+  - **Usage**:
     ```python
-    maj_len, min_len = Calculate_Exhaustion_Lengths(df)
+    maj_qual, min_qual = ExhaustionCandles(df, window=1, multiplier=1)
     ```
-- **Consecutive_Count**: Calculate the average consecutive count of non-zero differences.
-- **Usage**:
+
+- **ExhaustionLengths**: Calculate the average length of peaks and valleys.
+  - **Usage**:
     ```python
-    avg_consecutive = Consecutive_Count(consecutive_diff)
+    maj_len, min_len = ExhaustionLengths(df)
     ```
-- **Linear_Growth**: Simple linear growth function.
-- **Usage**:
+
+- **ConsecutiveCount**: Calculate the average consecutive count of non-zero differences.
+  - **Usage**:
     ```python
-    growth_value = Linear_Growth(start, end, start_time, end_time, trade_time)
+    avg_consecutive = ConsecutiveCount(consecutive_diff)
     ```
-- **Linear_Decay**: Simple linear decay function.
-- **Usage**:
+
+- **CrossedAbove**: Check if one series crosses above another series.
+  - **Usage**:
     ```python
-    decay_value = Linear_Decay(start, end, start_time, end_time, trade_time)
+    crossover = CrossedAbove(series1, series2)
+    df['crossed_above'] = crossover
     ```
-- **populate_leledc_major_minor**: Populate Leledc Major and Minor columns.
-- **Usage**:
+
+- **CrossedBelow**: Check if one series crosses below another series.
+  - **Usage**:
     ```python
-    df = populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len)
+    crossover = CrossedBelow(series1, series2)
+    df['crossed_below'] = crossover
     ```
-- **True_Range**: Calculate True Range (TR).
-- **Usage**:
+
+- **LinearGrowth**: Simple linear growth function.
+  - **Usage**:
     ```python
-    tr = True_Range(df)
+    growth_value = LinearGrowth(start, end, start_time, end_time, trade_time)
     ```
+
+- **LinearDecay**: Simple linear decay function.
+  - **Usage**:
+    ```python
+    decay_value = LinearDecay(start, end, start_time, end_time, trade_time)
+    ```
+
+- **PopulateLeledcMajorMinor**: Populate Leledc Major and Minor columns.
+  - **Usage**:
+    ```python
+    df = PopulateLeledcMajorMinor(df, maj_qual, min_qual, maj_len, min_len)
+    ```
+
+- **CumulativeReturn**: Calculate cumulative return of a column.
+  - **Usage**:
+    ```python
+    cr = CumulativeReturn(df, column='close', fillna=False)
+    df['cumulative_return'] = cr
+    ```
+
+- **DailyReturn**: Calculate daily return of a column.
+  - **Usage**:
+    ```python
+    dr = DailyReturn(df, column='close', fillna=False)
+    df['daily_return'] = dr
+    ```
+
+- **DailyLogReturn**: Calculate daily log return of a column.
+  - **Usage**:
+    ```python
+    dlr = DailyLogReturn(df, column='close', fillna=False)
+    df['daily_log_return'] = dlr
+    ```
+
 - **ZScore**: Calculate the z-score of a series.
-- **Usage**:
+  - **Usage**:
     ```python
     zscore = ZScore(series, window=500)
+    df['zscore'] = zscore
     ```
-- **ATR**: Calculate the Average True Range (ATR).
-- **Usage**:
+
+- **RegressionSlope**: Calculate the slope of a linear regression for a given lookback period.
+  - **Usage**:
     ```python
-    atr = ATR(df, period=14)
+    slope = RegressionSlope(df, lookback_period=20)
+    df['slope'] = slope
     ```
-- **RMA**: Calculate the Relative Moving Average (RMA).
-- **Usage**:
+
+- **StDev**: Calculate the standard deviation over a specified period.
+  - **Usage**:
     ```python
-    rma = RMA(series, period)
+    stdev = StDev(df['close'], period=20)
+    df['stdev'] = stdev
+    ```
+
+- **GetMinMax**: Find the min or max value between two series for each index.
+  - **Usage**:
+    ```python
+    min_max_series = GetMinMax(df['high'], df['low'], function="min")
+    df['min_max'] = min_max_series
+    ```
+
+- **SameLength**: Ensures that the shorter array has the same length as the bigger array by padding with NaN values.
+  - **Usage**:
+    ```python
+    padded_series = SameLength(df['high'].values, df['low'].values)
+    df['padded_series'] = padded_series
+    ```
+
+- **DropNa**: Drop rows with 'NaN' values.
+  - **Usage**:
+    ```python
+    df_clean = DropNa(df)
+    ```
+
+- **TrueRange**: Calculate True Range (TR).
+  - **Usage**:
+    ```python
+    tr = IndicatorMixin._true_range(df['high'], df['low'], df['close'].shift(1))
     ```
