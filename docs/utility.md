@@ -23,6 +23,18 @@ Utility functions and helper methods for technical analysis.
     df[['stop_loss', 'entry_price', 'take_profit', 'trade_active', 'exit_reason']] = trade_cols
     ```
 
+- **CalculateATRStopLossTakeProfit**: Calculates take profit, stop loss, and buy price based on ATR values, buy/sell signals, and changes in trading advice.
+  - **Usage**:
+    ```python
+    df = CalculateATRStopLossTakeProfit(
+        df, 
+        signal_column='signal', 
+        atr_column='atr', 
+        atr_sl_mult=1, 
+        atr_tp_mult=2
+    )
+    ```
+
 - **ExhaustionCandles**: Calculate the average consecutive length of ups and downs.
   - **Usage**:
     ```python

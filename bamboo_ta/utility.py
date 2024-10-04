@@ -7,6 +7,64 @@ from scipy.signal import argrelextrema
 from scipy.stats import linregress
 
 
+def CalculateATRStopLossTakeProfit(
+    df: pd.DataFrame,
+    signal_column: str = 'signal',
+    atr_column: str = 'atr',
+    atr_sl_mult: float = 1,
+    atr_tp_mult: float = 2
+) -> pd.DataFrame:
+    """
+    Calculate take profit, stop loss, and buy price based on ATR, signal, and advice changes.
+
+    This version includes an internal logic that calculates 'advice_changed' based on whether
+    the current signal differs from the previous signal.
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame with columns 'signal', 'close', and 'atr'.
+    - signal_column (str): Column with buy/sell signals. Default is 'signal'.
+    - atr_column (str): Column with ATR values. Default is 'atr'.
+    - atr_sl_mult (float): Multiplier for stop loss based on ATR. Default is 1.
+    - atr_tp_mult (float): Multiplier for take profit based on ATR. Default is 2.
+
+    Call with:
+        df = CalculateATRStopLossTakeProfit(df, signal_column='signal')
+
+    Returns:
+    - pd.DataFrame: Updated DataFrame with 'takeprofit', 'stoploss', and 'buyprice' columns.
+    """
+    # Initialize new columns for take profit, stop loss, and buy price if not already present
+    if 'takeprofit' not in df.columns:
+        df['takeprofit'] = np.nan
+    if 'stoploss' not in df.columns:
+        df['stoploss'] = np.nan
+    if 'buyprice' not in df.columns:
+        df['buyprice'] = np.nan
+
+    # Create a new column for advice_changed if it does not exist
+    df['advice_changed'] = df[signal_column] != df[signal_column].shift(1)
+
+    # Logic for when the advice has changed and signal is 'buy'
+    buy_mask = (df['advice_changed'] == True) & (df[signal_column] == 'buy')
+    df.loc[buy_mask, 'takeprofit'] = df.loc[buy_mask, 'close'] + (df.loc[buy_mask, atr_column] * atr_tp_mult)
+    df.loc[buy_mask, 'stoploss'] = df.loc[buy_mask, 'close'] - (df.loc[buy_mask, atr_column] * atr_sl_mult)
+    df.loc[buy_mask, 'buyprice'] = df.loc[buy_mask, 'close']
+
+    # Logic for when the advice has changed and signal is 'sell'
+    sell_mask = (df['advice_changed'] == True) & (df[signal_column] == 'sell')
+    df.loc[sell_mask, 'takeprofit'] = np.nan
+    df.loc[sell_mask, 'stoploss'] = np.nan
+    df.loc[sell_mask, 'buyprice'] = np.nan
+
+    # Logic for carrying forward the previous values if the advice has not changed
+    no_change_mask = df['advice_changed'] == False
+    df.loc[no_change_mask, 'takeprofit'] = df['takeprofit'].shift(1)
+    df.loc[no_change_mask, 'stoploss'] = df['stoploss'].shift(1)
+    df.loc[no_change_mask, 'buyprice'] = df['buyprice'].shift(1)
+
+    return df
+
+
 def CalculateFixedStopLossTakeProfitWithSignal(
     df: pd.DataFrame,
     signal_column: str = 'trade_signal',

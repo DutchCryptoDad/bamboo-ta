@@ -328,7 +328,29 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # crossed_below_series = bta.CrossedBelow(df['series1'], df['series2'])
 # df['crossed_below'] = crossed_below_series
 
+# # Import the function (assuming it's in a module named 'bta')
+# trade_cols = bta.CalculateFixedStopLossTakeProfitWithSignal(
+#     df, 
+#     signal_column='trade_signal',
+#     long_trade_signal='long_trade', 
+#     short_trade_signal='short_trade', 
+#     no_trade_signal='no_trade', 
+#     lookback_period=3, 
+#     long_risk_reward_ratio=2, 
+#     short_risk_reward_ratio=2, 
+#     buffer=0
+# )
 
+# # Add the result to the DataFrame (or inspect it separately)
+# df[['stop_loss', 'entry_price', 'take_profit', 'trade_active', 'exit_reason']] = trade_cols
+
+
+# df = bta.CalculateATRStopLossTakeProfit(df, signal_column='signal', atr_column='atr')
+
+
+
+# Print the updated DataFrame with the new columns
+print(df)
 
 
 # ###
