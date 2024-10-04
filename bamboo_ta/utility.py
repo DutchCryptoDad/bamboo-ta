@@ -4,9 +4,173 @@ import numpy as np
 import pandas as pd
 from .bamboo_ta import *
 from scipy.signal import argrelextrema
+from scipy.stats import linregress
 
 
-def Calculate_Exhaustion_Lengths(df):
+def ConsecutiveCount(consecutive_diff):
+    """
+    Calculate the average consecutive count of non-zero differences
+    
+    Parameters:
+    - consecutive_diff (np.ndarray): Array of consecutive differences.
+
+    Returns:
+    - float: Average consecutive count.
+    """
+    non_zero_diff = np.where(consecutive_diff != 0)[0]
+    if len(non_zero_diff) < 2:
+        return 0
+    return np.mean(np.abs(np.diff(non_zero_diff)))
+
+
+def CrossedAbove(series1: pd.Series, series2: pd.Series) -> pd.Series:
+    """
+    Check if series1 crosses above series2 in a vectorized manner.
+
+    Parameters:
+    - series1 (pd.Series): First input series to check for crossover.
+    - series2 (pd.Series): Second input series to compare against.
+
+    Call with:
+        crossover = CrossedAbove(series1, series2)
+        df['crossed_above'] = crossover
+
+    Returns:
+    - pd.Series: Boolean series where True indicates a crossover above.
+    """
+    return (series1 > series2) & (series1.shift(1) <= series2.shift(1))
+
+
+def CrossedBelow(series1: pd.Series, series2: pd.Series) -> pd.Series:
+    """
+    Check if series1 crosses below series2 in a vectorized manner.
+
+    Parameters:
+    - series1 (pd.Series): First input series to check for crossover.
+    - series2 (pd.Series): Second input series to compare against.
+
+    Call with:
+        crossover = CrossedBelow(series1, series2)
+        df['crossed_below'] = crossover
+
+    Returns:
+    - pd.Series: Boolean series where True indicates a crossover below.
+    """
+    return (series1 < series2) & (series1.shift(1) >= series2.shift(1))
+
+
+
+def CumulativeReturn(df, column="close", fillna=False):
+    """
+    Cumulative Return (CR)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the specified column.
+    - column (str): The column on which the cumulative return is to be calculated. Default is "close".
+    - fillna (bool): If True, fill nan values. Default is False.
+
+    Call with:
+        cr = CumulativeReturn(df)
+        df['cumulative_return'] = cr
+
+    Returns:
+    - pd.Series: Series of cumulative return values.
+    """
+    df_copy = df.copy()
+    df_copy['cum_ret'] = (df_copy[column] / df_copy[column].iloc[0]) - 1
+    df_copy['cum_ret'] *= 100
+    if fillna:
+        df_copy['cum_ret'] = df_copy['cum_ret'].fillna(-1)
+    return df_copy['cum_ret'].rename("cum_ret")
+
+
+def DailyLogReturn(df, column="close", fillna=False):
+    """
+    Daily Log Return (DLR)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the specified column.
+    - column (str): The column on which the daily log return is to be calculated. Default is "close".
+    - fillna (bool): If True, fill nan values. Default is False.
+
+    Call with:
+        dlr = DailyLogReturn(df)
+        df['daily_log_return'] = dlr
+
+    Returns:
+    - pd.Series: Series of daily log return values.
+    """
+    df_copy = df.copy()
+    df_copy['d_logret'] = pd.Series(np.log(df_copy[column])).diff()
+    df_copy['d_logret'] *= 100
+    if fillna:
+        df_copy['d_logret'] = df_copy['d_logret'].fillna(0)
+    return df_copy['d_logret'].rename("d_logret")
+
+
+def DailyReturn(df, column="close", fillna=False):
+    """
+    Daily Return (DR)
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the specified column.
+    - column (str): The column on which the daily return is to be calculated. Default is "close".
+    - fillna (bool): If True, fill nan values. Default is False.
+
+    Call with:
+        dr = DailyReturn(df)
+        df['daily_return'] = dr
+
+    Returns:
+    - pd.Series: Series of daily return values.
+    """
+    df_copy = df.copy()
+    df_copy['d_ret'] = (df_copy[column] / df_copy[column].shift(1)) - 1
+    df_copy['d_ret'] *= 100
+    if fillna:
+        df_copy['d_ret'] = df_copy['d_ret'].fillna(0)
+    return df_copy['d_ret'].rename("d_ret")
+
+
+def ExhaustionCandles(df, window=1, multiplier=1):
+    """
+    Calculate the average consecutive length of ups and downs to adjust the exhaustion bands dynamically
+    
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame.
+    - window (int): Lookback window for calculation.
+    - multiplier (int or np.ndarray): Scalar or array of multipliers.
+
+    Call with:
+        maj_qual, min_qual = ExhaustionCandles(df, window, multiplier)
+        df['maj_qual'] = maj_qual
+        df['min_qual'] = min_qual
+
+    Returns:
+    - np.ndarray, np.ndarray: Arrays of major and minor quality values.
+    """
+    consecutive_diff = np.sign(df['close'].diff())
+    maj_qual = np.zeros(len(df))
+    min_qual = np.zeros(len(df))
+
+    # Ensure multiplier is an array
+    if isinstance(multiplier, (int, float)):
+        multiplier = np.full(len(df), multiplier)
+    elif isinstance(multiplier, np.ndarray) and multiplier.shape[0] != len(df):
+        raise ValueError("Length of multiplier array must match the length of the DataFrame")
+
+    for i in range(len(df)):
+        idx_range = consecutive_diff[i - window + 1:i + 1] if i >= window else consecutive_diff[:i + 1]
+        avg_consecutive = ConsecutiveCount(idx_range)
+        if isinstance(avg_consecutive, np.ndarray):
+            avg_consecutive = avg_consecutive.item()
+        maj_qual[i] = int(avg_consecutive * (3 * multiplier[i])) if not np.isnan(avg_consecutive) else 0
+        min_qual[i] = int(avg_consecutive * (3 * multiplier[i])) if not np.isnan(avg_consecutive) else 0
+
+    return maj_qual, min_qual
+
+
+def ExhaustionLengths(df):
     """
     Calculate the average length of peaks and valleys to adjust the exhaustion bands dynamically
     
@@ -14,7 +178,7 @@ def Calculate_Exhaustion_Lengths(df):
     - df (pandas.DataFrame): Input DataFrame.
 
     Call with:
-        maj_len, min_len = Calculate_Exhaustion_Lengths(df)
+        maj_len, min_len = ExhaustionLengths(df)
         df['maj_len'] = maj_len
         df['min_len'] = min_len
 
@@ -38,60 +202,35 @@ def Calculate_Exhaustion_Lengths(df):
     return maj_len, min_len
 
 
-def Calculate_Exhaustion_Candles(df, window=1, multiplier=1):
+def GetMinMax(series1: pd.Series, series2: pd.Series, function: str = "min"):
     """
-    Calculate the average consecutive length of ups and downs to adjust the exhaustion bands dynamically
-    
+    Find min or max value between two lists for each index
+
     Parameters:
-    - df (pandas.DataFrame): Input DataFrame.
-    - window (int): Lookback window for calculation.
-    - multiplier (int or np.ndarray): Scalar or array of multipliers.
+    - series1 (pd.Series): First input series.
+    - series2 (pd.Series): Second input series.
+    - function (str): Function to apply ("min" or "max"). Default is "min".
 
     Call with:
-        maj_qual, min_qual = Calculate_Exhaustion_Candles(df, window, multiplier)
-        df['maj_qual'] = maj_qual
-        df['min_qual'] = min_qual
+        min_max_series = GetMinMax(series1, series2, function)
+        df['min_max'] = min_max_series
 
     Returns:
-    - np.ndarray, np.ndarray: Arrays of major and minor quality values.
+    - pd.Series: Series with min or max values for each index.
     """
-    consecutive_diff = np.sign(df['close'].diff())
-    maj_qual = np.zeros(len(df))
-    min_qual = np.zeros(len(df))
+    series1 = np.array(series1)
+    series2 = np.array(series2)
+    if function == "min":
+        output = np.amin([series1, series2], axis=0)
+    elif function == "max":
+        output = np.amax([series1, series2], axis=0)
+    else:
+        raise ValueError('"function" variable value should be "min" or "max"')
 
-    # Ensure multiplier is an array
-    if isinstance(multiplier, (int, float)):
-        multiplier = np.full(len(df), multiplier)
-    elif isinstance(multiplier, np.ndarray) and multiplier.shape[0] != len(df):
-        raise ValueError("Length of multiplier array must match the length of the DataFrame")
-
-    for i in range(len(df)):
-        idx_range = consecutive_diff[i - window + 1:i + 1] if i >= window else consecutive_diff[:i + 1]
-        avg_consecutive = Consecutive_Count(idx_range)
-        if isinstance(avg_consecutive, np.ndarray):
-            avg_consecutive = avg_consecutive.item()
-        maj_qual[i] = int(avg_consecutive * (3 * multiplier[i])) if not np.isnan(avg_consecutive) else 0
-        min_qual[i] = int(avg_consecutive * (3 * multiplier[i])) if not np.isnan(avg_consecutive) else 0
-
-    return maj_qual, min_qual
-
-def Consecutive_Count(consecutive_diff):
-    """
-    Calculate the average consecutive count of non-zero differences
-    
-    Parameters:
-    - consecutive_diff (np.ndarray): Array of consecutive differences.
-
-    Returns:
-    - float: Average consecutive count.
-    """
-    non_zero_diff = np.where(consecutive_diff != 0)[0]
-    if len(non_zero_diff) < 2:
-        return 0
-    return np.mean(np.abs(np.diff(non_zero_diff)))
+    return pd.Series(output)
 
 
-def Linear_Decay(start: float, end: float, start_time: int, end_time: int, trade_time: int) -> float:
+def LinearDecay(start: float, end: float, start_time: int, end_time: int, trade_time: int) -> float:
     """
     Simple linear decay function. Decays from start to end after end_time minutes (starts after start_time minutes)
 
@@ -103,7 +242,7 @@ def Linear_Decay(start: float, end: float, start_time: int, end_time: int, trade
     - trade_time (int): Current trade time in minutes.
 
     Call with:
-        decayed_value = Linear_Decay(start, end, start_time, end_time, trade_time)
+        decayed_value = LinearDecay(start, end, start_time, end_time, trade_time)
 
     Returns:
     - float: Decayed value.
@@ -113,7 +252,7 @@ def Linear_Decay(start: float, end: float, start_time: int, end_time: int, trade
     return max(end, start - (rate * time))
 
 
-def Linear_Growth(start: float, end: float, start_time: int, end_time: int, trade_time: int) -> float:
+def LinearGrowth(start: float, end: float, start_time: int, end_time: int, trade_time: int) -> float:
     """
     Simple linear growth function. Grows from start to end after end_time minutes (starts after start_time minutes)
 
@@ -125,7 +264,7 @@ def Linear_Growth(start: float, end: float, start_time: int, end_time: int, trad
     - trade_time (int): Current trade time in minutes.
 
     Call with:
-        grown_value = Linear_Growth(start, end, start_time, end_time, trade_time)
+        grown_value = LinearGrowth(start, end, start_time, end_time, trade_time)
 
     Returns:
     - float: Grown value.
@@ -135,7 +274,7 @@ def Linear_Growth(start: float, end: float, start_time: int, end_time: int, trad
     return min(end, start + (rate * time))
 
 
-def populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len):
+def PopulateLeledcMajorMinor(df, maj_qual, min_qual, maj_len, min_len):
     """
     Populate Leledc Major and Minor columns
 
@@ -147,7 +286,7 @@ def populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len):
     - min_len (int): Minor length value.
 
     Call with:
-        leledc_major_minor = populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len)
+        leledc_major_minor = PopulateLeledcMajorMinor(df, maj_qual, min_qual, maj_len, min_len)
 
     Returns:
     - pd.DataFrame: DataFrame with populated columns.
@@ -189,6 +328,40 @@ def populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len):
     return df_copy
 
 
+def RegressionSlope(df, lookback_period=20):
+    """
+    Calculate the slope of the linear regression for a given lookback period.
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame containing the 'close' prices.
+    - lookback_period (int): The lookback period for calculating the regression slope. Default is 20.
+
+    Call with:
+        slope = RegressionSlope(df, lookback_period)
+        df['slope'] = slope
+
+    Returns:
+    - pd.Series: Series containing the regression slopes.
+    """
+    # Initialize the 'slope' column with NaN values
+    slope_series = pd.Series(np.nan, index=df.index)
+
+    # Loop over each row starting from the lookback period
+    for i in range(lookback_period, len(df)):
+        # Define the x-values (time steps) for the lookback window
+        x_values = np.arange(lookback_period)
+        # Extract the corresponding 'close' prices for the lookback window
+        y_values = df.loc[i - lookback_period:i - 1, 'close'].values
+
+        # Calculate the slope using linear regression
+        slope, _, _, _, _ = linregress(x_values, y_values)
+
+        # Store the calculated slope in the series
+        slope_series[i] = slope
+
+    return slope_series
+
+
 def SameLength(bigger, shorter):
     """
     Ensures the shorter array has the same length as the bigger array by padding with NaN values.
@@ -204,6 +377,20 @@ def SameLength(bigger, shorter):
     - np.ndarray: The shorter array padded with NaN values to match the size of the bigger array.
     """
     return np.concatenate((np.full((bigger.shape[0] - shorter.shape[0]), np.nan), shorter))
+
+
+def StDev(series, period):
+    """
+    Calculate the standard deviation over a specified period.
+
+    Parameters:
+    - series (pd.Series): The data series to calculate the standard deviation for.
+    - period (int): The period over which to calculate the standard deviation.
+
+    Returns:
+    - pd.Series: The standard deviation of the series.
+    """
+    return series.rolling(window=period).std()
 
 
 def ZScore(series, window=500):
@@ -262,7 +449,7 @@ class IndicatorMixin:
         return true_range
 
 
-def dropna(df: pd.DataFrame) -> pd.DataFrame:
+def DropNa(df: pd.DataFrame) -> pd.DataFrame:
     """
     Drop rows with 'NaN' values
 
@@ -283,153 +470,45 @@ def dropna(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def _sma(series, periods: int, fillna: bool = False):
-    """
-    Simple Moving Average (SMA)
+# def _sma(series, periods: int, fillna: bool = False):
+#     """
+#     Simple Moving Average (SMA)
 
-    Parameters:
-    - series (pd.Series): Input series.
-    - periods (int): Period for SMA calculation.
-    - fillna (bool): If True, fill NaN values. Default is False.
+#     Parameters:
+#     - series (pd.Series): Input series.
+#     - periods (int): Period for SMA calculation.
+#     - fillna (bool): If True, fill NaN values. Default is False.
 
-    Call with:
-        sma = _sma(series, periods)
-        df['sma'] = sma
+#     Call with:
+#         sma = _sma(series, periods)
+#         df['sma'] = sma
 
-    Returns:
-    - pd.Series: Series of SMA values.
-    """
-    min_periods = 0 if fillna else periods
-    return series.rolling(window=periods, min_periods=min_periods).mean()
-
-
-def _ema(series, periods: int, fillna: bool = False):
-    """
-    Exponential Moving Average (EMA)
-
-    Parameters:
-    - series (pd.Series): Input series.
-    - periods (int): Period for EMA calculation.
-    - fillna (bool): If True, fill NaN values. Default is False.
-
-    Call with:
-        ema = _ema(series, periods)
-        df['ema'] = ema
-
-    Returns:
-    - pd.Series: Series of EMA values.
-    """
-    min_periods = 0 if fillna else periods
-    return series.ewm(span=periods, min_periods=min_periods, adjust=False).mean()
-
-def STDEV(series, period):
-    """
-    Calculate the standard deviation over a specified period.
-
-    Parameters:
-    - series (pd.Series): The data series to calculate the standard deviation for.
-    - period (int): The period over which to calculate the standard deviation.
-
-    Returns:
-    - pd.Series: The standard deviation of the series.
-    """
-    return series.rolling(window=period).std()
-
-def get_min_max(series1: pd.Series, series2: pd.Series, function: str = "min"):
-    """
-    Find min or max value between two lists for each index
-
-    Parameters:
-    - series1 (pd.Series): First input series.
-    - series2 (pd.Series): Second input series.
-    - function (str): Function to apply ("min" or "max"). Default is "min".
-
-    Call with:
-        min_max_series = get_min_max(series1, series2, function)
-        df['min_max'] = min_max_series
-
-    Returns:
-    - pd.Series: Series with min or max values for each index.
-    """
-    series1 = np.array(series1)
-    series2 = np.array(series2)
-    if function == "min":
-        output = np.amin([series1, series2], axis=0)
-    elif function == "max":
-        output = np.amax([series1, series2], axis=0)
-    else:
-        raise ValueError('"function" variable value should be "min" or "max"')
-
-    return pd.Series(output)
+#     Returns:
+#     - pd.Series: Series of SMA values.
+#     """
+#     min_periods = 0 if fillna else periods
+#     return series.rolling(window=periods, min_periods=min_periods).mean()
 
 
-def Daily_Return(df, column="close", fillna=False):
-    """
-    Daily Return (DR)
+# def _ema(series, periods: int, fillna: bool = False):
+#     """
+#     Exponential Moving Average (EMA)
 
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the specified column.
-    - column (str): The column on which the daily return is to be calculated. Default is "close".
-    - fillna (bool): If True, fill nan values. Default is False.
+#     Parameters:
+#     - series (pd.Series): Input series.
+#     - periods (int): Period for EMA calculation.
+#     - fillna (bool): If True, fill NaN values. Default is False.
 
-    Call with:
-        dr = Daily_Return(df)
-        df['daily_return'] = dr
+#     Call with:
+#         ema = _ema(series, periods)
+#         df['ema'] = ema
 
-    Returns:
-    - pd.Series: Series of daily return values.
-    """
-    df_copy = df.copy()
-    df_copy['d_ret'] = (df_copy[column] / df_copy[column].shift(1)) - 1
-    df_copy['d_ret'] *= 100
-    if fillna:
-        df_copy['d_ret'] = df_copy['d_ret'].fillna(0)
-    return df_copy['d_ret'].rename("d_ret")
+#     Returns:
+#     - pd.Series: Series of EMA values.
+#     """
+#     min_periods = 0 if fillna else periods
+#     return series.ewm(span=periods, min_periods=min_periods, adjust=False).mean()
 
 
-def Daily_Log_Return(df, column="close", fillna=False):
-    """
-    Daily Log Return (DLR)
-
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the specified column.
-    - column (str): The column on which the daily log return is to be calculated. Default is "close".
-    - fillna (bool): If True, fill nan values. Default is False.
-
-    Call with:
-        dlr = Daily_Log_Return(df)
-        df['daily_log_return'] = dlr
-
-    Returns:
-    - pd.Series: Series of daily log return values.
-    """
-    df_copy = df.copy()
-    df_copy['d_logret'] = pd.Series(np.log(df_copy[column])).diff()
-    df_copy['d_logret'] *= 100
-    if fillna:
-        df_copy['d_logret'] = df_copy['d_logret'].fillna(0)
-    return df_copy['d_logret'].rename("d_logret")
 
 
-def Cumulative_Return(df, column="close", fillna=False):
-    """
-    Cumulative Return (CR)
-
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the specified column.
-    - column (str): The column on which the cumulative return is to be calculated. Default is "close".
-    - fillna (bool): If True, fill nan values. Default is False.
-
-    Call with:
-        cr = Cumulative_Return(df)
-        df['cumulative_return'] = cr
-
-    Returns:
-    - pd.Series: Series of cumulative return values.
-    """
-    df_copy = df.copy()
-    df_copy['cum_ret'] = (df_copy[column] / df_copy[column].iloc[0]) - 1
-    df_copy['cum_ret'] *= 100
-    if fillna:
-        df_copy['cum_ret'] = df_copy['cum_ret'].fillna(-1)
-    return df_copy['cum_ret'].rename("cum_ret")

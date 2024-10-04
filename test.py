@@ -273,6 +273,64 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['vwap'] = bta.VolumeWeightedAveragePrice(df, window=14, fillna=True)['volume_weighted_average_price']
 
 
+# # ## TEST FOR RegressionSlope
+# slope_series = bta.RegressionSlope(df, lookback_period=20)
+# df['slope'] = slope_series
+
+# # ## TEST FOR DailyReturn
+# daily_return_series = bta.DailyReturn(df, column='close', fillna=True)
+# df['daily_return'] = daily_return_series
+
+# # ## TEST FOR DailyLogReturn
+# daily_log_return_series = bta.DailyLogReturn(df, column='close', fillna=True)
+# df['daily_log_return'] = daily_log_return_series
+
+# # ## TEST FOR CumulativeReturn
+# cumulative_return_series = bta.CumulativeReturn(df, column='close', fillna=True)
+# df['cumulative_return'] = cumulative_return_series
+
+# # ## TEST FOR ExhaustionCandles
+# maj_qual, min_qual = bta.ExhaustionCandles(df, window=1, multiplier=1)
+# df['maj_qual'] = maj_qual
+# df['min_qual'] = min_qual
+
+# # ## TEST FOR ExhaustionLengths
+# maj_len, min_len = bta.ExhaustionLengths(df)
+# df['maj_len'] = maj_len
+# df['min_len'] = min_len
+
+# # ## TEST FOR GetMinMax
+# min_max_series = bta.GetMinMax(df['high'], df['low'], function="min")
+# df['min_max'] = min_max_series
+
+
+# ## TEST FOR StDev
+# stdev_series = bta.StDev(df['close'], period=20)
+# df['stdev'] = stdev_series
+
+# # ## TEST FOR ZScore
+# zscore_series = bta.ZScore(df['close'], window=500)
+# df['zscore'] = zscore_series
+
+# # ## TEST FOR SameLength
+# padded_series = bta.SameLength(df['high'].values, df['low'].values)
+# df['padded_series'] = padded_series
+
+# ## TEST FOR DropNa
+# df_clean = bta.DropNa(df)
+
+# # ## TEST FOR CrossedAbove
+# crossed_above_series = bta.CrossedAbove(df['series1'], df['series2'])
+# df['crossed_above'] = crossed_above_series
+
+
+# # ## TEST FOR CrossedBelow
+# crossed_below_series = bta.CrossedBelow(df['series1'], df['series2'])
+# df['crossed_below'] = crossed_below_series
+
+
+
+
 # ###
 #  TOT HIER GOED ++++++++++
 
@@ -284,4 +342,25 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # TODO: 
 
 
-print(df.tail(40))
+
+
+
+# 
+
+# BUGGY INDICATORS..?
+# # ## TEST FOR LinearDecay
+# df['linear_decay'] =  bta.LinearDecay(start, end, start_time, end_time, trade_time)
+
+# # ## TEST FOR LinearGrowth
+# df['linear_growth'] = df.apply(lambda row: bta.LinearGrowth(50, 100, 0, 100, row['time']), axis=1)
+
+# # ## TEST FOR PopulateLeledcMajorMinor
+# leledc_df = bta.PopulateLeledcMajorMinor(df, maj_qual, min_qual, maj_len, min_len)
+# df['leledc_major'] = leledc_df['leledc_major']
+# df['leledc_minor'] = leledc_df['leledc_minor']
+
+# 
+
+
+
+print(df.tail(30))
