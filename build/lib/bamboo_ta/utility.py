@@ -123,13 +123,14 @@ def CalculateStopLossTakeProfit(
                                                         long_reward_ratio=2, 
                                                         short_reward_ratio=1.5, 
                                                         buffer=0.5)
-        df['stop_loss'] = stop_loss_take_profit['stop_loss']
-        df['entry_price'] = stop_loss_take_profit['entry_price']
-        df['take_profit'] = stop_loss_take_profit['take_profit']
-        df['exit_reason'] = stop_loss_take_profit['exit_reason']
-        df
 
-    
+                                                        
+    # Add the new columns to the original DataFrame
+    df['stop_loss'] = stop_loss_take_profit['stop_loss']
+    df['entry_price'] = stop_loss_take_profit['entry_price']
+    df['take_profit'] = stop_loss_take_profit['take_profit']
+    df['exit_reason'] = stop_loss_take_profit['exit_reason']
+    df
 
     Returns:
     - pd.DataFrame: Updated DataFrame with new columns: 'stop_loss', 'take_profit', 'entry_price', and 'exit_reason'.
@@ -208,14 +209,15 @@ def CalculateStopLossTakeProfit(
             entry_price.append(np.nan)
             exit_reason.append('trade_signal_lost')
 
-    # Adding the stop loss, take profit, entry price, and exit reason columns to the DataFrame
-    df['stop_loss'] = stop_loss
-    df['take_profit'] = take_profit
-    df['entry_price'] = entry_price
-    df['exit_reason'] = exit_reason
-
-    # Return the updated DataFrame
-    return df[['stop_loss', 'entry_price', 'take_profit', 'exit_reason']]
+    # Create a new DataFrame with only the calculated columns
+    result_df = pd.DataFrame({
+        'stop_loss': stop_loss,
+        'take_profit': take_profit,
+        'entry_price': entry_price,
+        'exit_reason': exit_reason
+    })
+    
+    return result_df
 
 
 def CalculateFixedStopLossTakeProfitWithSignal(
@@ -266,36 +268,34 @@ def CalculateFixedStopLossTakeProfitWithSignal(
     - buffer (float): Buffer added to the stop loss. Default is 0.
 
     Call with:
-        fixed_stop_loss_take_profit = bta.CalculateFixedStopLossTakeProfitWithSignal(df, 
-                                                                signal_column='trade_signal',
-                                                                long_trade_signal='long_trade', 
-                                                                short_trade_signal='short_trade', 
-                                                                no_trade_signal='no_trade', 
-                                                                lookback_period=3, 
-                                                                long_risk_reward_ratio=2, 
-                                                                short_risk_reward_ratio=2, 
-                                                                buffer=0)
-        df['stop_loss'] = fixed_stop_loss_take_profit['stop_loss']
-        df['entry_price'] = fixed_stop_loss_take_profit['entry_price']
-        df['take_profit'] = fixed_stop_loss_take_profit['take_profit']
-        df['exit_reason'] = fixed_stop_loss_take_profit['exit_reason']
-    
+        fixed_stop_loss_take_profit = bta.CalculateFixedStopLossTakeProfitWithSignal(
+                                                                            df, 
+                                                                            signal_column='trade_signal',
+                                                                            long_trade_signal='long_trade', 
+                                                                            short_trade_signal='short_trade', 
+                                                                            no_trade_signal='no_trade', 
+                                                                            lookback_period=3, 
+                                                                            long_risk_reward_ratio=2, 
+                                                                            short_risk_reward_ratio=2, 
+                                                                            buffer=0
+                                                                        )
+
+    # Add the new columns to the original DataFrame
+    df['stop_loss'] = fixed_stop_loss_take_profit['stop_loss']
+    df['entry_price'] = fixed_stop_loss_take_profit['entry_price']
+    df['take_profit'] = fixed_stop_loss_take_profit['take_profit']
+    df['trade_active'] = fixed_stop_loss_take_profit['trade_active']
+    df['exit_reason'] = fixed_stop_loss_take_profit['exit_reason']
 
     Returns:
     - pd.DataFrame: DataFrame with new columns: 'stop_loss', 'entry_price', 'take_profit', 'trade_active', and 'exit_reason'.
     """
-    # Initialize new columns if not already present
-    if 'stop_loss' not in df.columns:
-        df['stop_loss'] = np.nan
-    if 'entry_price' not in df.columns:
-        df['entry_price'] = np.nan
-    if 'take_profit' not in df.columns:
-        df['take_profit'] = np.nan
-    if 'trade_active' not in df.columns:
-        df['trade_active'] = False
-    if 'exit_reason' not in df.columns:
-        df['exit_reason'] = pd.NA
-        df['exit_reason'] = df['exit_reason'].astype('object')
+    # Initialize lists to store new column data
+    stop_loss_list = []
+    entry_price_list = []
+    take_profit_list = []
+    trade_active_list = []
+    exit_reason_list = []
 
     trade_active = False
     stop_loss = entry_price = take_profit = None
@@ -304,37 +304,39 @@ def CalculateFixedStopLossTakeProfitWithSignal(
 
     for i in range(lookback_period, len(df)):
         if clear_next_row:
-            df.loc[i, 'stop_loss'] = np.nan
-            df.loc[i, 'entry_price'] = np.nan
-            df.loc[i, 'take_profit'] = np.nan
+            stop_loss_list.append(np.nan)
+            entry_price_list.append(np.nan)
+            take_profit_list.append(np.nan)
+            trade_active_list.append(False)
+            exit_reason_list.append(pd.NA)
             clear_next_row = False
             continue
 
         if trade_active:
             if current_trade_type == long_trade_signal:
                 if df.loc[i, 'close'] >= take_profit:
-                    df.loc[i, 'exit_reason'] = 'take_profit_hit'
-                    df.loc[i, 'trade_active'] = False
+                    exit_reason_list.append('take_profit_hit')
+                    trade_active_list.append(False)
                     trade_active = False
                     clear_next_row = True
                     continue
                 elif df.loc[i, 'close'] <= stop_loss:
-                    df.loc[i, 'exit_reason'] = 'stop_loss_hit'
-                    df.loc[i, 'trade_active'] = False
+                    exit_reason_list.append('stop_loss_hit')
+                    trade_active_list.append(False)
                     trade_active = False
                     clear_next_row = True
                     continue
 
             elif current_trade_type == short_trade_signal:
                 if df.loc[i, 'close'] <= take_profit:
-                    df.loc[i, 'exit_reason'] = 'take_profit_hit'
-                    df.loc[i, 'trade_active'] = False
+                    exit_reason_list.append('take_profit_hit')
+                    trade_active_list.append(False)
                     trade_active = False
                     clear_next_row = True
                     continue
                 elif df.loc[i, 'close'] >= stop_loss:
-                    df.loc[i, 'exit_reason'] = 'stop_loss_hit'
-                    df.loc[i, 'trade_active'] = False
+                    exit_reason_list.append('stop_loss_hit')
+                    trade_active_list.append(False)
                     trade_active = False
                     clear_next_row = True
                     continue
@@ -354,30 +356,40 @@ def CalculateFixedStopLossTakeProfitWithSignal(
                 risk = stop_loss - entry_price
                 take_profit = entry_price - (risk * short_risk_reward_ratio)
 
-            df.loc[i, 'stop_loss'] = stop_loss
-            df.loc[i, 'entry_price'] = entry_price
-            df.loc[i, 'take_profit'] = take_profit
-            df.loc[i, 'trade_active'] = True
-            df.loc[i, 'exit_reason'] = pd.NA
+            stop_loss_list.append(stop_loss)
+            entry_price_list.append(entry_price)
+            take_profit_list.append(take_profit)
+            trade_active_list.append(True)
+            exit_reason_list.append(pd.NA)
 
             trade_active = True
 
         elif advice_changed and df.loc[i, signal_column] == no_trade_signal:
-            df.loc[i, 'stop_loss'] = np.nan
-            df.loc[i, 'entry_price'] = np.nan
-            df.loc[i, 'take_profit'] = np.nan
-            df.loc[i, 'trade_active'] = False
-            df.loc[i, 'exit_reason'] = 'trade_signal_lost'
+            stop_loss_list.append(np.nan)
+            entry_price_list.append(np.nan)
+            take_profit_list.append(np.nan)
+            trade_active_list.append(False)
+            exit_reason_list.append('trade_signal_lost')
             trade_active = False
 
         elif trade_active:
-            df.loc[i, 'stop_loss'] = df.loc[i - 1, 'stop_loss']
-            df.loc[i, 'entry_price'] = df.loc[i - 1, 'entry_price']
-            df.loc[i, 'take_profit'] = df.loc[i - 1, 'take_profit']
-            df.loc[i, 'trade_active'] = True
+            stop_loss_list.append(stop_loss_list[-1])  # Carry over from the previous row
+            entry_price_list.append(entry_price_list[-1])
+            take_profit_list.append(take_profit_list[-1])
+            trade_active_list.append(True)
+            exit_reason_list.append(pd.NA)
+
+    # Create a new DataFrame with the calculated columns
+    result_df = pd.DataFrame({
+        'stop_loss': stop_loss_list,
+        'entry_price': entry_price_list,
+        'take_profit': take_profit_list,
+        'trade_active': trade_active_list,
+        'exit_reason': exit_reason_list
+    })
 
     # Return only the new columns
-    return df[['stop_loss', 'entry_price', 'take_profit', 'trade_active', 'exit_reason']]
+    return result_df
 
 
 def ConsecutiveCount(consecutive_diff):
