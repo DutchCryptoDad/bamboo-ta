@@ -64,8 +64,9 @@ def CalculateATRStopLossTakeProfit(
 
     return df
 
-def CalculateStopLossTakeProfit()
-    pass
+def CalculateStopLossTakeProfit():
+    x = 5
+    return x
 # def CalculateStopLossTakeProfit(
 #     df: pd.DataFrame,
 #     signal_column: str = 'trade_signal',
