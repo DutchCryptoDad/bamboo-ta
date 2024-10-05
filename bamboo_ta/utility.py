@@ -64,213 +64,158 @@ def CalculateATRStopLossTakeProfit(
 
     return df
 
-def CalculateStopLossAndTakeProfit(
-    df: pd.DataFrame,
-    signal_column: str = 'signal',
-    atr_column: str = 'atr',
-    atr_sl_mult: float = 1,
-    atr_tp_mult: float = 2
-) -> pd.DataFrame:
-    """
-    Calculate take profit, stop loss, and buy price based on ATR, signal, and advice changes.
 
-    This version includes an internal logic that calculates 'advice_changed' based on whether
-    the current signal differs from the previous signal.
+def CalculateStopLossTakeProfit(
+    df: pd.DataFrame,
+    signal_column: str = 'trade_signal',
+    long_trade_signal: str = 'long_trade',
+    short_trade_signal: str = 'short_trade',
+    no_trade_signal: str = 'no_trade',
+    lookback_period: int = 5,
+    long_reward_ratio: float = 2,
+    short_reward_ratio: float = 2,
+    buffer: float = 0.0) -> pd.DataFrame:
+    """
+    Calculate stop loss, take profit, and entry price based on customizable trade signals.
+  
+    In order to make this function work, you have to do the following:
+    - adjust the signal_column name to match the column that contains the trade signal
+    - change the long_trade_signal to your own preferred way of naming a long trade signal
+    - change the short_trade_signal to your own preferred way of naming a short trade signal
+    - change the default way of naming the period where no trade is allowed in no_trade_signal
+
+    TRADE SIGNAL GENERATION:
+
+    The trade signal can be created by a function that is similar of that below:
+
+    def determine_trade_signal(row):
+        # Long trade condition
+        if (row['close'] > row['sma']) and (row['rsi'] > row['rsi_level']):
+            return 'long_trade'
+
+        # Short trade condition
+        elif (row['close'] < row['sma']) and (row['rsi'] < row['rsi_level']):
+            return 'short_trade'
+
+        # No trade condition
+        else:
+            return 'no_trade'
 
     Parameters:
-    - df (pandas.DataFrame): Input DataFrame with columns 'signal', 'close', and 'atr'.
-    - signal_column (str): Column with buy/sell signals. Default is 'signal'.
-    - atr_column (str): Column with ATR values. Default is 'atr'.
-    - atr_sl_mult (float): Multiplier for stop loss based on ATR. Default is 1.
-    - atr_tp_mult (float): Multiplier for take profit based on ATR. Default is 2.
+    - df (pandas.DataFrame): Input DataFrame containing trading data and trade signals.
+    - signal_column (str): Column name where trade signals ('long_trade', 'short_trade', etc.) are stored. Default is 'trade_signal'.
+    - long_trade_signal (str): The value in signal_column that represents a long trade. Default is 'long_trade'.
+    - short_trade_signal (str): The value in signal_column that represents a short trade. Default is 'short_trade'.
+    - no_trade_signal (str): The value in signal_column that represents no trade. Default is 'no_trade'.
+    - lookback_period (int): The lookback period for calculating stop loss. Default is 5.
+    - long_reward_ratio (float): Reward-risk ratio for long trades. Default is 2.
+    - short_reward_ratio (float): Reward-risk ratio for short trades. Default is 2.
+    - buffer (float): Buffer added to the stop loss. Default is 0.0.
+
 
     Call with:
-        df = CalculateATRStopLossTakeProfit(df, signal_column='signal')
-
-    Returns:
-    - pd.DataFrame: Updated DataFrame with 'takeprofit', 'stoploss', and 'buyprice' columns.
-    """
-    # Initialize new columns for take profit, stop loss, and buy price if not already present
-    if 'takeprofit' not in df.columns:
-        df['takeprofit'] = np.nan
-    if 'stoploss' not in df.columns:
-        df['stoploss'] = np.nan
-    if 'buyprice' not in df.columns:
-        df['buyprice'] = np.nan
-
-    # Create a new column for advice_changed if it does not exist
-    df['advice_changed'] = df[signal_column] != df[signal_column].shift(1)
-
-    # Logic for when the advice has changed and signal is 'buy'
-    buy_mask = (df['advice_changed'] == True) & (df[signal_column] == 'buy')
-    df.loc[buy_mask, 'takeprofit'] = df.loc[buy_mask, 'close'] + (df.loc[buy_mask, atr_column] * atr_tp_mult)
-    df.loc[buy_mask, 'stoploss'] = df.loc[buy_mask, 'close'] - (df.loc[buy_mask, atr_column] * atr_sl_mult)
-    df.loc[buy_mask, 'buyprice'] = df.loc[buy_mask, 'close']
-
-    # Logic for when the advice has changed and signal is 'sell'
-    sell_mask = (df['advice_changed'] == True) & (df[signal_column] == 'sell')
-    df.loc[sell_mask, 'takeprofit'] = np.nan
-    df.loc[sell_mask, 'stoploss'] = np.nan
-    df.loc[sell_mask, 'buyprice'] = np.nan
-
-    # Logic for carrying forward the previous values if the advice has not changed
-    no_change_mask = df['advice_changed'] == False
-    df.loc[no_change_mask, 'takeprofit'] = df['takeprofit'].shift(1)
-    df.loc[no_change_mask, 'stoploss'] = df['stoploss'].shift(1)
-    df.loc[no_change_mask, 'buyprice'] = df['buyprice'].shift(1)
-
-    return df
-# def CalculateStopLossTakeProfit(
-#     df: pd.DataFrame,
-#     signal_column: str = 'trade_signal',
-#     long_trade_signal: str = 'long_trade',
-#     short_trade_signal: str = 'short_trade',
-#     no_trade_signal: str = 'no_trade',
-#     lookback_period: int = 5,
-#     long_reward_ratio: float = 2,
-#     short_reward_ratio: float = 2,
-#     buffer: float = 0.0) -> pd.DataFrame:
-#     """
-#     Calculate stop loss, take profit, and entry price based on customizable trade signals.
-  
-#     In order to make this function work, you have to do the following:
-#     - adjust the signal_column name to match the column that contains the trade signal
-#     - change the long_trade_signal to your own preferred way of naming a long trade signal
-#     - change the short_trade_signal to your own preferred way of naming a short trade signal
-#     - change the default way of naming the period where no trade is allowed in no_trade_signal
-
-#     TRADE SIGNAL GENERATION:
-
-#     The trade signal can be created by a function that is similar of that below:
-
-#     def determine_trade_signal(row):
-#         # Long trade condition
-#         if (row['close'] > row['sma']) and (row['rsi'] > row['rsi_level']):
-#             return 'long_trade'
-
-#         # Short trade condition
-#         elif (row['close'] < row['sma']) and (row['rsi'] < row['rsi_level']):
-#             return 'short_trade'
-
-#         # No trade condition
-#         else:
-#             return 'no_trade'
-
-#     Parameters:
-#     - df (pandas.DataFrame): Input DataFrame containing trading data and trade signals.
-#     - signal_column (str): Column name where trade signals ('long_trade', 'short_trade', etc.) are stored. Default is 'trade_signal'.
-#     - long_trade_signal (str): The value in signal_column that represents a long trade. Default is 'long_trade'.
-#     - short_trade_signal (str): The value in signal_column that represents a short trade. Default is 'short_trade'.
-#     - no_trade_signal (str): The value in signal_column that represents no trade. Default is 'no_trade'.
-#     - lookback_period (int): The lookback period for calculating stop loss. Default is 5.
-#     - long_reward_ratio (float): Reward-risk ratio for long trades. Default is 2.
-#     - short_reward_ratio (float): Reward-risk ratio for short trades. Default is 2.
-#     - buffer (float): Buffer added to the stop loss. Default is 0.0.
-
-
-#     Call with:
-#         stop_loss_take_profit = bta.CalculateStopLossTakeProfit(df, 
-#                                                         signal_column='trade_signal',
-#                                                         long_trade_signal='long_trade', 
-#                                                         short_trade_signal='short_trade', 
-#                                                         no_trade_signal='no_trade', 
-#                                                         lookback_period=5, 
-#                                                         long_reward_ratio=2, 
-#                                                         short_reward_ratio=1.5, 
-#                                                         buffer=0.5)
-#         df['stop_loss'] = stop_loss_take_profit['stop_loss']
-#         df['entry_price'] = stop_loss_take_profit['entry_price']
-#         df['take_profit'] = stop_loss_take_profit['take_profit']
-#         df['exit_reason'] = stop_loss_take_profit['exit_reason']
-#         df
+        stop_loss_take_profit = bta.CalculateStopLossTakeProfit(df, 
+                                                        signal_column='trade_signal',
+                                                        long_trade_signal='long_trade', 
+                                                        short_trade_signal='short_trade', 
+                                                        no_trade_signal='no_trade', 
+                                                        lookback_period=5, 
+                                                        long_reward_ratio=2, 
+                                                        short_reward_ratio=1.5, 
+                                                        buffer=0.5)
+        df['stop_loss'] = stop_loss_take_profit['stop_loss']
+        df['entry_price'] = stop_loss_take_profit['entry_price']
+        df['take_profit'] = stop_loss_take_profit['take_profit']
+        df['exit_reason'] = stop_loss_take_profit['exit_reason']
+        df
 
     
 
-#     Returns:
-#     - pd.DataFrame: Updated DataFrame with new columns: 'stop_loss', 'take_profit', 'entry_price', and 'exit_reason'.
-#     """
-#     stop_loss = []
-#     take_profit = []
-#     entry_price = []
-#     exit_reason = []
+    Returns:
+    - pd.DataFrame: Updated DataFrame with new columns: 'stop_loss', 'take_profit', 'entry_price', and 'exit_reason'.
+    """
+    stop_loss = []
+    take_profit = []
+    entry_price = []
+    exit_reason = []
 
-#     current_signal = None
-#     current_stop_loss = None
-#     current_take_profit = None
-#     current_entry_price = None
+    current_signal = None
+    current_stop_loss = None
+    current_take_profit = None
+    current_entry_price = None
 
-#     for i, row in df.iterrows():
-#         signal = row[signal_column]
+    for i, row in df.iterrows():
+        signal = row[signal_column]
         
-#         if signal == long_trade_signal:
-#             if current_signal != long_trade_signal:  # New long trade signal
-#                 low_window = df['low'].iloc[max(0, i - lookback_period):i + 1]
-#                 lowest_low = low_window.min()
-#                 stop_loss_price = lowest_low - buffer
-#                 current_entry_price = row['close']
-#                 risk = current_entry_price - stop_loss_price
-#                 take_profit_price = current_entry_price + risk * long_reward_ratio
+        if signal == long_trade_signal:
+            if current_signal != long_trade_signal:  # New long trade signal
+                low_window = df['low'].iloc[max(0, i - lookback_period):i + 1]
+                lowest_low = low_window.min()
+                stop_loss_price = lowest_low - buffer
+                current_entry_price = row['close']
+                risk = current_entry_price - stop_loss_price
+                take_profit_price = current_entry_price + risk * long_reward_ratio
 
-#                 current_stop_loss = stop_loss_price
-#                 current_take_profit = take_profit_price
-#                 current_signal = long_trade_signal
+                current_stop_loss = stop_loss_price
+                current_take_profit = take_profit_price
+                current_signal = long_trade_signal
 
-#             stop_loss.append(float(current_stop_loss) if current_stop_loss is not None else np.nan)
-#             take_profit.append(float(current_take_profit) if current_take_profit is not None else np.nan)
-#             entry_price.append(float(current_entry_price) if current_entry_price is not None else np.nan)
+            stop_loss.append(float(current_stop_loss) if current_stop_loss is not None else np.nan)
+            take_profit.append(float(current_take_profit) if current_take_profit is not None else np.nan)
+            entry_price.append(float(current_entry_price) if current_entry_price is not None else np.nan)
 
-#             # Determine exit reason
-#             if row['close'] < current_stop_loss:
-#                 exit_reason.append('stop_loss_exit')
-#             elif row['close'] > current_take_profit:
-#                 exit_reason.append('take_profit_hit')
-#             else:
-#                 exit_reason.append('')
+            # Determine exit reason
+            if row['close'] < current_stop_loss:
+                exit_reason.append('stop_loss_exit')
+            elif row['close'] > current_take_profit:
+                exit_reason.append('take_profit_hit')
+            else:
+                exit_reason.append('')
 
-#         elif signal == short_trade_signal:
-#             if current_signal != short_trade_signal:  # New short trade signal
-#                 high_window = df['high'].iloc[max(0, i - lookback_period):i + 1]
-#                 highest_high = high_window.max()
-#                 stop_loss_price = highest_high + buffer
-#                 current_entry_price = row['close']
-#                 risk = stop_loss_price - current_entry_price
-#                 take_profit_price = current_entry_price - risk * short_reward_ratio
+        elif signal == short_trade_signal:
+            if current_signal != short_trade_signal:  # New short trade signal
+                high_window = df['high'].iloc[max(0, i - lookback_period):i + 1]
+                highest_high = high_window.max()
+                stop_loss_price = highest_high + buffer
+                current_entry_price = row['close']
+                risk = stop_loss_price - current_entry_price
+                take_profit_price = current_entry_price - risk * short_reward_ratio
 
-#                 current_stop_loss = stop_loss_price
-#                 current_take_profit = take_profit_price
-#                 current_signal = short_trade_signal
+                current_stop_loss = stop_loss_price
+                current_take_profit = take_profit_price
+                current_signal = short_trade_signal
 
-#             stop_loss.append(float(current_stop_loss) if current_stop_loss is not None else np.nan)
-#             take_profit.append(float(current_take_profit) if current_take_profit is not None else np.nan)
-#             entry_price.append(float(current_entry_price) if current_entry_price is not None else np.nan)
+            stop_loss.append(float(current_stop_loss) if current_stop_loss is not None else np.nan)
+            take_profit.append(float(current_take_profit) if current_take_profit is not None else np.nan)
+            entry_price.append(float(current_entry_price) if current_entry_price is not None else np.nan)
 
-#             # Determine exit reason
-#             if row['close'] > current_stop_loss:
-#                 exit_reason.append('stop_loss_exit')
-#             elif row['close'] < current_take_profit:
-#                 exit_reason.append('take_profit_hit')
-#             else:
-#                 exit_reason.append('')
+            # Determine exit reason
+            if row['close'] > current_stop_loss:
+                exit_reason.append('stop_loss_exit')
+            elif row['close'] < current_take_profit:
+                exit_reason.append('take_profit_hit')
+            else:
+                exit_reason.append('')
 
-#         elif signal == no_trade_signal:
-#             # No trade signal, reset values
-#             current_signal = None
-#             current_stop_loss = None
-#             current_take_profit = None
-#             current_entry_price = None
-#             stop_loss.append(np.nan)
-#             take_profit.append(np.nan)
-#             entry_price.append(np.nan)
-#             exit_reason.append('trade_signal_lost')
+        elif signal == no_trade_signal:
+            # No trade signal, reset values
+            current_signal = None
+            current_stop_loss = None
+            current_take_profit = None
+            current_entry_price = None
+            stop_loss.append(np.nan)
+            take_profit.append(np.nan)
+            entry_price.append(np.nan)
+            exit_reason.append('trade_signal_lost')
 
-#     # Adding the stop loss, take profit, entry price, and exit reason columns to the DataFrame
-#     df['stop_loss'] = stop_loss
-#     df['take_profit'] = take_profit
-#     df['entry_price'] = entry_price
-#     df['exit_reason'] = exit_reason
+    # Adding the stop loss, take profit, entry price, and exit reason columns to the DataFrame
+    df['stop_loss'] = stop_loss
+    df['take_profit'] = take_profit
+    df['entry_price'] = entry_price
+    df['exit_reason'] = exit_reason
 
-#     # Return the updated DataFrame
-#     return df[['stop_loss', 'entry_price', 'take_profit', 'exit_reason']]
+    # Return the updated DataFrame
+    return df[['stop_loss', 'entry_price', 'take_profit', 'exit_reason']]
 
 
 def CalculateFixedStopLossTakeProfitWithSignal(
