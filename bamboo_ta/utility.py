@@ -78,6 +78,30 @@ def CalculateStopLossTakeProfit(
 ) -> pd.DataFrame:
     """
     Calculate stop loss, take profit, and entry price based on customizable trade signals.
+  
+    In order to make this function work, you have to do the following:
+    - adjust the signal_column name to match the column that contains the trade signal
+    - change the long_trade_signal to your own preferred way of naming a long trade signal
+    - change the short_trade_signal to your own preferred way of naming a short trade signal
+    - change the default way of naming the period where no trade is allowed in no_trade_signal
+
+
+    TRADE SIGNAL GENERATION:
+
+    The trade signal can be created by a function that is similar of that below:
+
+    def determine_trade_signal(row):
+        # Long trade condition
+        if (row['close'] > row['sma']) and (row['rsi'] > row['rsi_level']):
+            return 'long_trade'
+
+        # Short trade condition
+        elif (row['close'] < row['sma']) and (row['rsi'] < row['rsi_level']):
+            return 'short_trade'
+
+        # No trade condition
+        else:
+            return 'no_trade'
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame containing trading data and trade signals.
@@ -92,11 +116,21 @@ def CalculateStopLossTakeProfit(
 
 
     Call with:
-        stop_loss_take_profit = bta.CalculateStopLossTakeProfit(df, signal_column='my_signal_column', long_trade_signal='buy', short_trade_signal='sell', no_trade_signal='hold', lookback_period=5, long_reward_ratio=2, short_reward_ratio=1.5, buffer=0.5)
+        stop_loss_take_profit = bta.CalculateStopLossTakeProfit(df, 
+                                                        signal_column='trade_signal',
+                                                        long_trade_signal='long_trade', 
+                                                        short_trade_signal='short_trade', 
+                                                        no_trade_signal='no_trade', 
+                                                        lookback_period=5, 
+                                                        long_reward_ratio=2, 
+                                                        short_reward_ratio=1.5, 
+                                                        buffer=0.5)
         df['stop_loss'] = stop_loss_take_profit['stop_loss']
         df['entry_price'] = stop_loss_take_profit['entry_price']
         df['take_profit'] = stop_loss_take_profit['take_profit']
         df['exit_reason'] = stop_loss_take_profit['exit_reason']
+        df
+
     
 
     Returns:
@@ -234,7 +268,15 @@ def CalculateFixedStopLossTakeProfitWithSignal(
     - buffer (float): Buffer added to the stop loss. Default is 0.
 
     Call with:
-        fixed_stop_loss_take_profit = bta.CalculateFixedStopLossTakeProfitWithSignal(df, signal_column='trade_signal',long_trade_signal='long_trade', short_trade_signal='short_trade', no_trade_signal='no_trade', lookback_period=3, long_risk_reward_ratio=2, short_risk_reward_ratio=2, buffer=0)
+        fixed_stop_loss_take_profit = bta.CalculateFixedStopLossTakeProfitWithSignal(df, 
+                                                                signal_column='trade_signal',
+                                                                long_trade_signal='long_trade', 
+                                                                short_trade_signal='short_trade', 
+                                                                no_trade_signal='no_trade', 
+                                                                lookback_period=3, 
+                                                                long_risk_reward_ratio=2, 
+                                                                short_risk_reward_ratio=2, 
+                                                                buffer=0)
         df['stop_loss'] = fixed_stop_loss_take_profit['stop_loss']
         df['entry_price'] = fixed_stop_loss_take_profit['entry_price']
         df['take_profit'] = fixed_stop_loss_take_profit['take_profit']
