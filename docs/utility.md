@@ -25,25 +25,6 @@ Utility functions and helper methods for technical analysis.
     df
     ```
 
-
-- **CalculateFixedStopLossTakeProfitWithSignal**: Calculates stop loss, entry price, and take profit levels based on trade signals (long, short, or no trade).
-  - **Usage**:
-    ```python
-    fixed_stop_loss_take_profit = bta.CalculateFixedStopLossTakeProfitWithSignal(df, 
-                                                            signal_column='trade_signal',
-                                                            long_trade_signal='long_trade', 
-                                                            short_trade_signal='short_trade', 
-                                                            no_trade_signal='no_trade', 
-                                                            lookback_period=3, 
-                                                            long_risk_reward_ratio=2, 
-                                                            short_risk_reward_ratio=2, 
-                                                            buffer=0)
-    df['stop_loss'] = fixed_stop_loss_take_profit['stop_loss']
-    df['entry_price'] = fixed_stop_loss_take_profit['entry_price']
-    df['take_profit'] = fixed_stop_loss_take_profit['take_profit']
-    df['exit_reason'] = fixed_stop_loss_take_profit['exit_reason']
-    ```
-
 - **CalculateATRStopLossTakeProfit**: Calculates take profit, stop loss, and buy price based on ATR values, buy/sell signals, and changes in trading advice.
   - **Usage**:
     ```python
