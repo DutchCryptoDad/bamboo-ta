@@ -8,37 +8,40 @@ Utility functions and helper methods for technical analysis.
 
 - **CalculateStopLossTakeProfit**: Calculates stop loss, entry price, and take profit levels based on trade signals
  - **Usage**:
-   ```
-   trade_cols = CalculateStopLossTakeProfit(
-    dataframe, 
-    signal_column='my_signal_column',  # Custom signal column
-    long_trade_signal='buy',           # Custom long signal
-    short_trade_signal='sell',         # Custom short signal
-    no_trade_signal='hold',            # Custom no trade signal
-    lookback_period=5, 
-    long_reward_ratio=2, 
-    short_reward_ratio=1.5, 
-    buffer=0.5
-    )
-    df[['stop_loss', 'entry_price', 'take_profit', 'exit_reason']] = trade_cols
-   ```
+    ```python
+    stop_loss_take_profit = bta.CalculateStopLossTakeProfit(df, 
+                                                    signal_column='trade_signal',
+                                                    long_trade_signal='long_trade', 
+                                                    short_trade_signal='short_trade', 
+                                                    no_trade_signal='no_trade', 
+                                                    lookback_period=5, 
+                                                    long_reward_ratio=2, 
+                                                    short_reward_ratio=1.5, 
+                                                    buffer=0.5)
+    df['stop_loss'] = stop_loss_take_profit['stop_loss']
+    df['entry_price'] = stop_loss_take_profit['entry_price']
+    df['take_profit'] = stop_loss_take_profit['take_profit']
+    df['exit_reason'] = stop_loss_take_profit['exit_reason']
+    df
+    ```
 
 
 - **CalculateFixedStopLossTakeProfitWithSignal**: Calculates stop loss, entry price, and take profit levels based on trade signals (long, short, or no trade).
   - **Usage**:
     ```python
-    trade_cols = CalculateFixedStopLossTakeProfitWithSignal(
-        df, 
-        signal_column='trade_signal', 
-        long_trade_signal='long_trade', 
-        short_trade_signal='short_trade', 
-        no_trade_signal='no_trade', 
-        lookback_period=5, 
-        long_risk_reward_ratio=2, 
-        short_risk_reward_ratio=2, 
-        buffer=0
-    )
-    df[['stop_loss', 'entry_price', 'take_profit', 'trade_active', 'exit_reason']] = trade_cols
+    fixed_stop_loss_take_profit = bta.CalculateFixedStopLossTakeProfitWithSignal(df, 
+                                                            signal_column='trade_signal',
+                                                            long_trade_signal='long_trade', 
+                                                            short_trade_signal='short_trade', 
+                                                            no_trade_signal='no_trade', 
+                                                            lookback_period=3, 
+                                                            long_risk_reward_ratio=2, 
+                                                            short_risk_reward_ratio=2, 
+                                                            buffer=0)
+    df['stop_loss'] = fixed_stop_loss_take_profit['stop_loss']
+    df['entry_price'] = fixed_stop_loss_take_profit['entry_price']
+    df['take_profit'] = fixed_stop_loss_take_profit['take_profit']
+    df['exit_reason'] = fixed_stop_loss_take_profit['exit_reason']
     ```
 
 - **CalculateATRStopLossTakeProfit**: Calculates take profit, stop loss, and buy price based on ATR values, buy/sell signals, and changes in trading advice.

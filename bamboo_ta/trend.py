@@ -253,6 +253,9 @@ def EMA(df: pd.DataFrame, column: str = 'close', period: int = 21) -> pd.DataFra
 
     The Exponential Moving Average gives more weight to recent prices and thus reacts more quickly to price changes than the Simple Moving Average.
 
+    Call with:
+        df['ema'] = bta.EMA(df, "close", 21)
+
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain at least the column specified.
     - column (str): The column on which EMA is to be calculated. Default is 'close'.
@@ -264,8 +267,9 @@ def EMA(df: pd.DataFrame, column: str = 'close', period: int = 21) -> pd.DataFra
     df_copy = df.copy()
     # Calculate EMA
     df_copy['ema'] = df_copy[column].ewm(span=period, adjust=False).mean().round(2)
-    # Set first `period - 1` values to NaN
-    df_copy['ema'].iloc[:period-1] = pd.NA
+    
+    # Set first `period - 1` values to NaN using `.loc[]` to avoid chained assignment warning
+    df_copy.loc[:period-1, 'ema'] = pd.NA
     
     return df_copy[['ema']]
 
