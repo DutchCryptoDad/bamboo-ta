@@ -258,16 +258,17 @@ def EMA(df: pd.DataFrame, column: str = 'close', period: int = 21) -> pd.DataFra
     - column (str): The column on which EMA is to be calculated. Default is 'close'.
     - period (int): The period over which EMA is to be calculated. Default is 21.
 
-    Call with:
-        df['ema'] = bta.EMA(df, 'close', 50)['ema']
-
     Returns:
-    - pd.DataFrame: DataFrame with 'ema' column.
+    - pd.DataFrame: DataFrame with 'ema' column, where first `period-1` values are NaN.
     """
     df_copy = df.copy()
+    # Calculate EMA
     df_copy['ema'] = df_copy[column].ewm(span=period, adjust=False).mean().round(2)
+    # Set first `period - 1` values to NaN
+    df_copy['ema'].iloc[:period-1] = pd.NA
     
     return df_copy[['ema']]
+
 
 
 def HMA(df: pd.DataFrame, column: str = 'close', period: int = 9) -> pd.DataFrame:
