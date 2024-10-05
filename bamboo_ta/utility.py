@@ -74,8 +74,7 @@ def CalculateStopLossTakeProfit(
     lookback_period: int = 5,
     long_reward_ratio: float = 2,
     short_reward_ratio: float = 2,
-    buffer: float = 0.0
-) -> pd.DataFrame:
+    buffer: float = 0.0) -> pd.DataFrame:
     """
     Calculate stop loss, take profit, and entry price based on customizable trade signals.
   
@@ -84,7 +83,6 @@ def CalculateStopLossTakeProfit(
     - change the long_trade_signal to your own preferred way of naming a long trade signal
     - change the short_trade_signal to your own preferred way of naming a short trade signal
     - change the default way of naming the period where no trade is allowed in no_trade_signal
-
 
     TRADE SIGNAL GENERATION:
 
