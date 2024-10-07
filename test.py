@@ -20,100 +20,141 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 ### CANDLES.PY FUNCTIES ###
 
-# VERDER UIT TE VINDEN WAT DEZE INDICATOR DOET...
-# exhaustion = bta.ExhaustionBars(df)
+# GOOD
+# exhaustion = bta.exhaustion_bars(df)
 # df['leledc_major'] = exhaustion['leledc_major']
 # df['leledc_minor'] = exhaustion['leledc_minor']
 
-# VERDER UIT TE VINDEN WAT DEZE INDICATOR DOET...
-# dynamic_exhaustion = bta.DynamicExhaustionBars(df)
+# ERROR
+# dynamic_exhaustion = bta.dynamic_exhaustion_bars(df)
 # df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
 # df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
 
-# # WERKT GOED!!!
-# ha_df = bta.HeikinAshi(df)
+# GOOD
+# ha_df = bta.heikin_ashi(df)
 # df['ha_open'] = ha_df['ha_open']
 # df['ha_high'] = ha_df['ha_high']
 # df['ha_low'] = ha_df['ha_low']
 # df['ha_close'] = ha_df['ha_close']
 
-# # # WERKT GOED!!!
-# lr_df = bta.LinRegCandles(df)
+# GOOD
+# lr_df = bta.linear_regression_candles(df)
 # df['lrc_open'] = lr_df['bopen']
 # df['lrc_high'] = lr_df['bhigh']
 # df['lrc_low'] = lr_df['blow']
 # df['lrc_close'] = lr_df['bclose']
 # df['lrc_signal'] = lr_df['signal']
 
+
+
+
 ### MOMENTUM.PY FUNCTIES ###
 
 # # # WERKT GOED!!!
-# df['ao'] = bta.AwesomeOscillator(df, 'high', 'low', 5, 34)['ao']
+# df['ao'] = bta.awesome_oscillator(df, 'high', 'low', 5, 34)['ao']
+
+# # # # WERKT GOED!!!
+# df['cmo'] = bta.chande_momentum_oscillator(df)
+
+# # # # WERKT GOED!!!
+# df['ewo'] = bta.elliott_wave_oscillator(df, 'close', 5, 35)
+
 # # # WERKT GOED!!!
-# df['cmo'] = bta.ChandeMomentumOscillator(df)
+# fscg = bta.ehlers_fisher_stochastic_center_of_gravity(df)
+# df['cg'] = fscg['cg']
+# df['trigger'] = fscg['trigger']
+
 # # # WERKT GOED!!!
-# df['ewo'] = bta.ElliottWaveOscillator(df, "close", 5, 35)
+# df['kama'] = bta.kaufmans_adaptive_moving_average(df)['kama']
 
 # # WERKT GOED!!!
-# df['kama'] = bta.KaufmansAdaptiveMovingAverage(df)['kama']
-
-# # # WERKT GOED!!!
-# fscg = bta.EhlersFisherStochasticCenterOfGravity(df)
-# df['CG'] = fscg['CG']
-# df['Trigger'] = fscg['Trigger']
-
-# # WERKT GOED!!!
-# macd_result = bta.MACD(df, 'close', 12, 30, 9)
+# macd_result = bta.macd(df, 'close', 12, 26, 9)
 # df['macd'] = macd_result['macd']
 # df['macd_signal'] = macd_result['macd_signal']
 # df['macd_histogram'] = macd_result['macd_histogram']
 
+# # # # WERKT GOED!!!
+# df['macd_leader'] = bta.macd_leader(df, 'close')['macd_leader']
+
+# # # WERKT GOED!!! https://www.tradingview.com/script/Yq1z7cIv-MA-Streak-Can-Show-When-a-Run-Is-Getting-Long-in-the-Tooth/
+# df['ma_streak'] = bta.ma_streak(df, length=10, src='close', matype=1)['ma_streak']
+
 # # # WERKT GOED!!!
-# df['macd_leader'] = bta.MACDLeader(df, 'close', 12, 30, 9)['macd_leader']
-
-# # WERKT GOED!!! https://www.tradingview.com/script/Yq1z7cIv-MA-Streak-Can-Show-When-a-Run-Is-Getting-Long-in-the-Tooth/
-# df['ma_streak'] = bta.MAStreak(df, length=10, src='close', matype=1)['ma_streak']
-
-# # WERKT GOED!!!
-# ppo = bta.PercentagePriceOscillator(df)
+# ppo = bta.percentage_price_oscillator(df)
 # df['ppo'] = ppo['ppo']
 # df['ppo_signal'] = ppo['ppo_signal']
 # df['ppo_hist'] = ppo['ppo_hist']
 
-# GOED VOLGENS https://www.tradingview.com/script/DdT7MmPa/
-# Maar liever ombouwen naar: https://www.tradingview.com/script/kwIt9OgQ-Relative-Momentum-Index/
-# df['rmi'] = bta.RelativeMomentumIndex(df, length=20, mom=5)['rmi']
+# pvo = bta.percentage_volume_oscillator(df)
+# df['pvo'] = pvo['pvo']
+# df['pvo_signal'] = pvo['pvo_signal']
+# df['pvo_hist'] = pvo['pvo_hist']
 
-# # WERKT GOED!!!
-# df['roc'] = bta.RateOfChange(df, column='close', period=21)['roc']
-
-# # WERKT GOED!!!
-# df['sroc'] = bta.SmoothedRateOfChange(df, roclen=21, emalen=13, smooth=21)['sroc']
+# # GOED VOLGENS https://www.tradingview.com/script/DdT7MmPa/
+# # Maar liever ombouwen naar: https://www.tradingview.com/script/kwIt9OgQ-Relative-Momentum-Index/
+# df['rmi'] = bta.relative_momentum_index(df, length=20, mom=5)['rmi']
 
 # # # WERKT GOED!!!
-# https://www.tradingview.com/script/jFQn4jYZ-WaveTrend-with-Crosses-LazyBear/
-# wt = bta.WaveTrend(df, chlen=10, avg=21, smalen=4)
+# df['roc'] = bta.rate_of_change(df, column='close', period=21)['roc']
+
+# # # WERKT GOED!!!
+# df['sroc'] = bta.smoothed_rate_of_change(df, roclen=21, emalen=13, smooth=21)['sroc']
+
+# # # WERKT GOED!!!
+# wae = bta.waddah_attar_explosion_atr(df)
+# df['trend_up'] = wae['trend_up']
+# df['trend_down'] = wae['trend_down']
+# df['explosion_line'] = wae['explosion_line']
+# df['dead_zone_line'] = wae['dead_zone_line']
+
+# # # WERKT GOED!!!
+# wae = bta.waddah_attar_explosion(df)
+# df['trend_up'] = wae['trend_up']
+# df['trend_down'] = wae['trend_down']
+# df['explosion_line'] = wae['explosion_line']
+# df['dead_zone_line'] = wae['dead_zone_line']
+
+# # # # WERKT GOED!!!
+# # https://www.tradingview.com/script/jFQn4jYZ-WaveTrend-with-Crosses-LazyBear/
+# wt = bta.wave_trend(df, chlen=10, avg=21, smalen=4)
 # df['wt1'] = wt['wt1']
 # df['wt2'] = wt['wt2']
 
-# # WERKT GOED!!!
-# df['rsi'] = bta.RelativeStrengthIndex(df, column='close', period=14)['rsi']
+# # # WERKT GOED!!!
+# df['wto'] = bta.wave_trend_oscillator(df, 'close')['wavetrend']
+
+# qqe_mod = bta.qqe_mod(df, 6, 5, 3, 3, 50, 0.35, 6, 5, 1.61, 3)
+# df['qqe_line'] = qqe_mod['qqe_line']
+# df['histo2'] = qqe_mod['histo2']
+# df['qqe_up'] = qqe_mod['qqe_up']
+# df['qqe_down'] = qqe_mod['qqe_down']
 
 # # WERKT GOED!!!
-# df['smi'] = bta.StochasticMomentumIndex(df, k_length=9, d_length=3)['smi']
-
-# # WERKT GOED!!!
-# stoch_rsi = bta.StochasticRSI(df, lengthRSI=14, lengthStoch=14, smoothK=3, smoothD=3)
-# df['StochRSI_K'] = stoch_rsi['stoch_rsi_k']
-# df['StochRSI_D'] = stoch_rsi['stoch_rsi_d']
+# df['rsi'] = bta.relative_strength_index(df, column='close', period=14)['rsi']
 
 # # # WERKT GOED!!!
-# df['tsi'] = bta.TrueStrengthIndex(df, 'close', 25, 13)['tsi']
-# # # WERKT GOED!!!
-# df['uo'] = bta.UltimateOscillator(df, 'high', 'low', 'close', 7, 14, 28)['uo']
+# df['smi'] = bta.stochastic_momentum_index(df, k_length=9, d_length=3)['smi']
 
-# # WERKT CONFORM https://www.tradingview.com/script/REGZq58T-Williams-R/
-# df['williams_r'] = bta.WilliamsR(df, 'high', 'low', 'close', 14)['williams_r']
+# stoch = bta.stochastics_oscillator(df, 'high', 'low', 'close', 14, 3)
+# df['stoch'] = stoch['stoch']
+# df['stoch_signal'] = stoch['stoch_signal']
+# df['stoch_hist'] = stoch['stoch_hist']
+
+# # # WERKT GOED!!!
+# stoch_rsi = bta.stochastic_rsi(df, length_rsi=14, length_stoch=14, smooth_k=3, smooth_d=3)
+# df['stoch_rsi_k'] = stoch_rsi['stoch_rsi_k']
+# df['stoch_rsi_d'] = stoch_rsi['stoch_rsi_d']
+
+# # # # WERKT GOED!!!
+# df['tsi'] = bta.true_strength_index(df, 'close', 25, 13)['tsi']
+# # # # WERKT GOED!!!
+# df['uo'] = bta.ultimate_oscillator(df, 'high', 'low', 'close', 7, 14, 28)['uo']
+
+# # # WERKT CONFORM https://www.tradingview.com/script/REGZq58T-Williams-R/
+# df['williams_r'] = bta.williams_r(df, 'high', 'low', 'close', 14)['williams_r']
+
+
+
 
 #### TREND.PY ####
 
@@ -350,7 +391,7 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 
 # Print the updated DataFrame with the new columns
-print(df)
+# print(df)
 
 
 # ###
@@ -385,4 +426,5 @@ print(df)
 
 
 
-print(df.tail(30))
+# print(df.tail(30))
+dir(bta)
