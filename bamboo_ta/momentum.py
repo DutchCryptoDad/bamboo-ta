@@ -50,8 +50,6 @@ def awesome_oscillator(
     if fillna:
         df_copy['ao'] = df_copy['ao'].fillna(0)
 
-    df_copy['ao'] = df_copy['ao'].round(2)
-    
     return df_copy[['ao']]
 
 
@@ -71,7 +69,7 @@ def chande_momentum_oscillator(df: pd.DataFrame, length: int = 14) -> pd.DataFra
         df['cmo'] = bta.chande_momentum_oscillator(df)
 
     For Signal line:
-        df['cmo_signal'] = df['cmo'].rolling(window=10).mean().round(2)  # Using SMA for signal
+        df['cmo_signal'] = df['cmo'].rolling(window=10).mean()  # Using SMA for signal
 
     Returns:
     - pd.DataFrame: DataFrame with 'cmo' column.
@@ -86,8 +84,7 @@ def chande_momentum_oscillator(df: pd.DataFrame, length: int = 14) -> pd.DataFra
     sm2 = neg_mom.rolling(window=length).sum()
     
     df_copy['cmo'] = 100 * (sm1 - sm2) / (sm1 + sm2)
-    df_copy['cmo'] = df_copy['cmo'].round(2)
-    
+
     return df_copy[['cmo']]
 
 
@@ -125,7 +122,7 @@ def elliott_wave_oscillator(
     sma1 = df[column].rolling(window=sma1_period).mean()
     sma2 = df[column].rolling(window=sma2_period).mean()
     
-    df_copy['ewo'] = ((sma1 - sma2) / df[column] * 100).round(2)
+    df_copy['ewo'] = ((sma1 - sma2) / df[column] * 100)
 
     return df_copy[['ewo']]
 
@@ -202,8 +199,8 @@ def ehlers_fisher_stochastic_center_of_gravity(df: pd.DataFrame, length: int = 8
     v3 = 0.5 * np.log((1 + 1.98 * (denom - 0.5)) / (1 - 1.98 * (denom - 0.5)))
     trigger = v3.shift(1)
 
-    df_copy['cg'] = v3.round(2)
-    df_copy['trigger'] = trigger.round(2)
+    df_copy['cg'] = v3
+    df_copy['trigger'] = trigger
 
     return df_copy[['cg', 'trigger']]
 
@@ -274,7 +271,8 @@ def kaufmans_adaptive_moving_average(
                 close_values[i] - kama[i - 1]
             )
     
-    kama_series = pd.Series(kama, index=close.index).round(2)
+    kama_series = pd.Series(kama, index=close.index)
+
     if fillna:
         kama_series = kama_series.fillna(close)
 
@@ -323,10 +321,10 @@ def macd(
     histogram = macd - signal
 
     df_copy = df.copy()
-    df_copy['macd'] = macd.round(2)
-    df_copy['macd_signal'] = signal.round(2)
-    df_copy['macd_histogram'] = histogram.round(2)
-
+    df_copy['macd'] = macd
+    df_copy['macd_signal'] = signal
+    df_copy['macd_histogram'] = histogram
+    
     return df_copy[['macd', 'macd_signal', 'macd_histogram']]
 
 
@@ -370,7 +368,7 @@ def macd_leader(
     i2 = lema + ema_calculation(diff_lema, span=slow_length)
     macd_leader = ((i1 - i2) / 10) * 10
 
-    df_copy['macd_leader'] = macd_leader.round(2)
+    df_copy['macd_leader'] = macd_leader
     
     return df_copy[['macd_leader']]
 
@@ -512,9 +510,9 @@ def percentage_price_oscillator(
         ppo_signal = ppo_signal.fillna(0)
         ppo_hist = ppo_hist.fillna(0)
 
-    df_copy['ppo'] = ppo.round(2)
-    df_copy['ppo_signal'] = ppo_signal.round(2)
-    df_copy['ppo_hist'] = ppo_hist.round(2)
+    df_copy['ppo'] = ppo
+    df_copy['ppo_signal'] = ppo_signal
+    df_copy['ppo_hist'] = ppo_hist
 
     return df_copy[['ppo', 'ppo_signal', 'ppo_hist']]
 
@@ -570,9 +568,9 @@ def percentage_volume_oscillator(
         pvo_signal = pvo_signal.fillna(0)
         pvo_hist = pvo_hist.fillna(0)
 
-    df_copy['pvo'] = pvo.round(2)
-    df_copy['pvo_signal'] = pvo_signal.round(2)
-    df_copy['pvo_hist'] = pvo_hist.round(2)
+    df_copy['pvo'] = pvo
+    df_copy['pvo_signal'] = pvo_signal
+    df_copy['pvo_hist'] = pvo_hist
 
     return df_copy[['pvo', 'pvo_signal', 'pvo_hist']]
 
@@ -608,8 +606,8 @@ def relative_momentum_index(df: pd.DataFrame, length: int = 20, mom: int = 5) ->
     df_copy.fillna(0, inplace=True)
     
     # Calculate the EMA of increases and decreases
-    df_copy["ema_inc"] = EMA(df_copy, column='maxup', period=length)
-    df_copy["ema_dec"] = EMA(df_copy, column='maxdown', period=length)
+    df_copy["ema_inc"] = exponential_moving_average(df_copy, column='maxup', period=length)
+    df_copy["ema_dec"] = exponential_moving_average(df_copy, column='maxdown', period=length)
     
     # Calculate the Relative Momentum Index (RMI)
     df_copy['rmi'] = np.where(
@@ -618,8 +616,6 @@ def relative_momentum_index(df: pd.DataFrame, length: int = 20, mom: int = 5) ->
         100 - 100 / (1 + df_copy["ema_inc"] / df_copy["ema_dec"])
     )
 
-    df_copy['rmi'] = df_copy['rmi'].round(2)
-    
     return df_copy[['rmi']]
 
 
@@ -644,7 +640,6 @@ def rate_of_change(df: pd.DataFrame, column: str = 'close', period: int = 21) ->
     df_copy = df.copy()
 
     df_copy['roc'] = df_copy[column].diff(period) / df_copy[column].shift(period) * 100
-    df_copy['roc'] = df_copy['roc'].round(2)
     
     return df_copy[['roc']]
 
@@ -685,7 +680,7 @@ def smoothed_rate_of_change(
     # Calculate SROC
     sroc = ema.diff(smooth) / ema.shift(smooth) * 100
 
-    df_copy['sroc'] = sroc.round(2)
+    df_copy['sroc'] = sroc
     
     return df_copy[['sroc']]
 
@@ -763,10 +758,10 @@ def waddah_attar_explosion_atr(
     trend_up = np.where(t1 >= 0, t1, 0)
     trend_down = np.where(t1 < 0, -t1, 0)
 
-    df_copy['trend_up'] = trend_up.round(2)
-    df_copy['trend_down'] = trend_down.round(2)
-    df_copy['explosion_line'] = e1.round(2)
-    df_copy['dead_zone_line'] = dead_zone.values.round(2)
+    df_copy['trend_up'] = trend_up
+    df_copy['trend_down'] = trend_down
+    df_copy['explosion_line'] = e1
+    df_copy['dead_zone_line'] = dead_zone.values
 
     return df_copy[['trend_up', 'trend_down', 'explosion_line', 'dead_zone_line']]
 
@@ -832,9 +827,9 @@ def waddah_attar_explosion(
     trend_up = np.where(t1 >= 0, t1, 0)
     trend_down = np.where(t1 < 0, -t1, 0)
 
-    df_copy['trend_up'] = trend_up.round(2)
-    df_copy['trend_down'] = trend_down.round(2)
-    df_copy['explosion_line'] = e1.round(2)
+    df_copy['trend_up'] = trend_up
+    df_copy['trend_down'] = trend_down
+    df_copy['explosion_line'] = e1
     df_copy['dead_zone_line'] = dead_zone
 
     return df_copy[['trend_up', 'trend_down', 'explosion_line', 'dead_zone_line']]
@@ -867,16 +862,13 @@ def wave_trend(df: pd.DataFrame, chlen: int = 10, avg: int = 21, smalen: int = 4
     df_copy = df.copy()
 
     df_copy['hlc3'] = (df_copy['high'] + df_copy['low'] + df_copy['close']) / 3
-    df_copy['esa'] = EMA(df_copy, column='hlc3', period=chlen)
+    df_copy['esa'] = exponential_moving_average(df_copy, column='hlc3', period=chlen)
     df_copy['abs_diff'] = (df_copy['hlc3'] - df_copy['esa']).abs()
-    df_copy['d'] = EMA(df_copy, column='abs_diff', period=chlen)
+    df_copy['d'] = exponential_moving_average(df_copy, column='abs_diff', period=chlen)
     df_copy['ci'] = (df_copy['hlc3'] - df_copy['esa']) / (0.015 * df_copy['d'])
-    df_copy['tci'] = EMA(df_copy, column='ci', period=avg)
+    df_copy['tci'] = exponential_moving_average(df_copy, column='ci', period=avg)
     df_copy['wt1'] = df_copy['tci']
-    df_copy['wt2'] = SMA(df_copy, column='wt1', period=smalen)
-
-    df_copy['wt1'] = df_copy['wt1'].round(2)
-    df_copy['wt2'] = df_copy['wt2'].round(2)
+    df_copy['wt2'] = simple_moving_average(df_copy, column='wt1', period=smalen)
 
     return df_copy[['wt1', 'wt2']]
 
@@ -908,14 +900,14 @@ def wave_trend_oscillator(
     df_copy = df.copy()
 
     src_series = df[src]
-    ema_src = EMA(df, column=src, period=n1)['ema']
+    ema_src = exponential_moving_average(df, column=src, period=n1)['ema']
     diff_series = np.abs(src_series - ema_src)
-    d = EMA(pd.DataFrame({'diff': diff_series}), column='diff', period=n1)['ema']
+    d = exponential_moving_average(pd.DataFrame({'diff': diff_series}), column='diff', period=n1)['ema']
     ci = (src_series - ema_src) / (0.015 * d)
-    tci = EMA(pd.DataFrame({'ci': ci}), column='ci', period=n2)['ema']
-    wavetrend = tci - SMA(pd.DataFrame({'tci': tci}), column='tci', period=4)['sma']
+    tci = exponential_moving_average(pd.DataFrame({'ci': ci}), column='ci', period=n2)['ema']
+    wavetrend = tci - simple_moving_average(pd.DataFrame({'tci': tci}), column='tci', period=4)['sma']
 
-    df_copy['wavetrend'] = wavetrend.round(2)
+    df_copy['wavetrend'] = wavetrend
     
     return df_copy[['wavetrend']]
 
@@ -977,8 +969,8 @@ def qqe_mod(
     src = df_copy['close']
     wilders_period = rsi_period * 2 - 1
 
-    rsi = RelativeStrengthIndex(df_copy, column='close', period=rsi_period)
-    rsi_ma = EMA(df_copy.assign(rsi=rsi), column='rsi', period=rsi_smoothing)['ema']
+    rsi = relative_strength_index(df_copy, column='close', period=rsi_period)
+    rsi_ma = exponential_moving_average(df_copy.assign(rsi=rsi), column='rsi', period=rsi_smoothing)['ema']
     atr_rsi = abs(rsi_ma.shift(1) - rsi_ma)
     ma_atr_rsi = wilders_ema(atr_rsi, wilders_period)
     dar = wilders_ema(ma_atr_rsi, wilders_period) * qqe_factor
@@ -1014,7 +1006,7 @@ def qqe_mod(
     fast_atr_rsi_tl = np.where(trend == 1, longband, shortband)
 
     # Bollinger Bands on FastATRRSI TL
-    basis = SMA(pd.DataFrame(fast_atr_rsi_tl - 50), column=0, period=bollinger_length)['sma']
+    basis = simple_moving_average(pd.DataFrame(fast_atr_rsi_tl - 50), column=0, period=bollinger_length)['sma']
     dev = bb_multiplier * (pd.Series(fast_atr_rsi_tl - 50).rolling(window=bollinger_length).std())
     upper = basis + dev
     lower = basis - dev
@@ -1022,8 +1014,8 @@ def qqe_mod(
     # Second QQE Calculation
     wilders_period2 = rsi_period2 * 2 - 1
 
-    rsi2 = RelativeStrengthIndex(df_copy, column='close', period=rsi_period2)
-    rsi_ma2 = EMA(df_copy.assign(rsi2=rsi2), column='rsi2', period=rsi_smoothing2)['ema']
+    rsi2 = relative_strength_index(df_copy, column='close', period=rsi_period2)
+    rsi_ma2 = exponential_moving_average(df_copy.assign(rsi2=rsi2), column='rsi2', period=rsi_smoothing2)['ema']
     atr_rsi2 = abs(rsi_ma2.shift(1) - rsi_ma2)
     ma_atr_rsi2 = wilders_ema(atr_rsi2, wilders_period2)
     dar2 = wilders_ema(ma_atr_rsi2, wilders_period2) * qqe_factor2
@@ -1058,8 +1050,8 @@ def qqe_mod(
 
     fast_atr_rsi2_tl = np.where(trend2 == 1, longband2, shortband2)
 
-    df_copy['qqe_line'] = (fast_atr_rsi2_tl - 50).round(2)
-    df_copy['histo2'] = (rsi_ma2 - 50).round(2)
+    df_copy['qqe_line'] = (fast_atr_rsi2_tl - 50)
+    df_copy['histo2'] = (rsi_ma2 - 50)
 
     greenbar1 = rsi_ma2 - 50 > threshold2
     greenbar2 = rsi_ma - 50 > upper
@@ -1067,8 +1059,8 @@ def qqe_mod(
     redbar1 = rsi_ma2 - 50 < -threshold2
     redbar2 = rsi_ma - 50 < lower
 
-    df_copy['qqe_up'] = np.where(greenbar1 & greenbar2, rsi_ma2 - 50, np.nan).round(2)
-    df_copy['qqe_down'] = np.where(redbar1 & redbar2, rsi_ma2 - 50, np.nan).round(2)
+    df_copy['qqe_up'] = np.where(greenbar1 & greenbar2, rsi_ma2 - 50, np.nan)
+    df_copy['qqe_down'] = np.where(redbar1 & redbar2, rsi_ma2 - 50, np.nan)
 
     return df_copy[['qqe_line', 'histo2', 'qqe_up', 'qqe_down']]
 
@@ -1108,7 +1100,7 @@ def relative_strength_index(df: pd.DataFrame, column: str = 'close', period: int
     rs = avg_gain / avg_loss
     rsi = 100 - (100 / (1 + rs))
 
-    df_copy['rsi'] = rsi.round(2)
+    df_copy['rsi'] = rsi
 
     return df_copy[['rsi']]
 
@@ -1149,7 +1141,7 @@ def stochastic_momentum_index(df: pd.DataFrame, k_length: int = 9, d_length: int
     avgrel = rdiff.ewm(span=d_length).mean().ewm(span=d_length).mean()
     avgdiff = diff.ewm(span=d_length).mean().ewm(span=d_length).mean()
 
-    df_copy['smi'] = np.where(avgdiff != 0, (avgrel / (avgdiff / 2) * 100), 0).round(2)
+    df_copy['smi'] = np.where(avgdiff != 0, (avgrel / (avgdiff / 2) * 100), 0)
 
     return df_copy[['smi']]
 
@@ -1209,9 +1201,9 @@ def stochastics_oscillator(
     if fillna:
         stoch_hist = stoch_hist.fillna(0)
 
-    df_copy['stoch'] = stoch_k.round(2)
-    df_copy['stoch_signal'] = stoch_d.round(2)
-    df_copy['stoch_hist'] = stoch_hist.round(2)
+    df_copy['stoch'] = stoch_k
+    df_copy['stoch_signal'] = stoch_d
+    df_copy['stoch_hist'] = stoch_hist
 
     return df_copy[['stoch', 'stoch_signal', 'stoch_hist']]
 
@@ -1260,10 +1252,6 @@ def stochastic_rsi(
     # Step 3: Smooth the Stochastic RSI values
     df_copy['stoch_rsi_k'] = df_copy['stoch_rsi'].rolling(window=smooth_k).mean()
     df_copy['stoch_rsi_d'] = df_copy['stoch_rsi_k'].rolling(window=smooth_d).mean()
-    
-    # Round the results to 2 decimal places
-    df_copy['stoch_rsi_k'] = df_copy['stoch_rsi_k'].round(2)
-    df_copy['stoch_rsi_d'] = df_copy['stoch_rsi_d'].round(2)
     
     return df_copy[['stoch_rsi_k', 'stoch_rsi_d']]
 
@@ -1317,7 +1305,7 @@ def true_strength_index(
     if fillna:
         tsi = tsi.fillna(0)
 
-    df_copy['tsi'] = tsi.round(2)
+    df_copy['tsi'] = tsi
 
     return df_copy[['tsi']]
 
@@ -1382,7 +1370,7 @@ def ultimate_oscillator(
     if fillna:
         uo = uo.fillna(50)
     
-    df_copy['uo'] = uo.round(2)
+    df_copy['uo'] = uo
 
     return df_copy[['uo']]
 
@@ -1427,6 +1415,6 @@ def williams_r(
     if fillna:
         wr = wr.fillna(-50)
 
-    df_copy['williams_r'] = wr.round(2)
+    df_copy['williams_r'] = wr
     
     return df_copy[['williams_r']]

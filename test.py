@@ -20,24 +20,24 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 ### CANDLES.PY FUNCTIES ###
 
-# GOOD
+# # GOOD
 # exhaustion = bta.exhaustion_bars(df)
 # df['leledc_major'] = exhaustion['leledc_major']
 # df['leledc_minor'] = exhaustion['leledc_minor']
 
-# ERROR
-# dynamic_exhaustion = bta.dynamic_exhaustion_bars(df)
-# df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
-# df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
+# # ERROR
+# # dynamic_exhaustion = bta.dynamic_exhaustion_bars(df)
+# # df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
+# # df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
 
-# GOOD
+# # GOOD
 # ha_df = bta.heikin_ashi(df)
 # df['ha_open'] = ha_df['ha_open']
 # df['ha_high'] = ha_df['ha_high']
 # df['ha_low'] = ha_df['ha_low']
 # df['ha_close'] = ha_df['ha_close']
 
-# GOOD
+# # GOOD
 # lr_df = bta.linear_regression_candles(df)
 # df['lrc_open'] = lr_df['bopen']
 # df['lrc_high'] = lr_df['bhigh']
@@ -156,48 +156,81 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 
 
-#### TREND.PY ####
+# ### TREND.PY ####
+
+
+# alligator_result = bta.alligator_bands(df, 'close', 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
+# df['jaw'] = alligator_result['jaw']
+# df['teeth'] = alligator_result['teeth']
+# df['lips'] = alligator_result['lips']
+
+
+# df['bbtrend'] = bta.bollinger_trend(df, 'close', 20, 50, 2.0)['bbtrend']
+
+
+# result = bta.bollinger_trend_fast_with_ma(df, 'close', 10, 50, 1.0, 2.0, 'SMA', 14)
+# df['bollinger_trend_fast'] = result['bbtrend']
+# df['bollinger_trend_fast_ma'] = result['bbtrend_ma']
+
+# # # # WERKT GOED!!!
+# breakout = bta.breakouts(df, length=20)
+# df['support_level'] = breakout['support_level']
+# df['resistance_level'] = breakout['resistance_level']
+# df['support_breakout'] = breakout['support_breakout']
+# df['resistance_breakout'] = breakout['resistance_breakout']
+# df['support_retest'] = breakout['support_retest']
+# df['potential_support_retest'] = breakout['potential_support_retest']
+# df['resistance_retest'] = breakout['resistance_retest']
+# df['potential_resistance_retest'] = breakout['potential_resistance_retest']
+
 
 # # # WERKT GOED!!!
-# df['ema'] = bta.EMA(df, 'close', 9)['ema']
-# # # WERKT GOED!!!
-# df['hma'] = bta.HMA(df, 'close', 9)['hma']
-# # # WERKT GOED!!!
-# df['wma'] = bta.WMA(df, 'close', 30)['wma']
-# # # WERKT GOED!!!
-# df['lsma'] = bta.LSMA(df, 'close', 25)['lsma']
+# df['ema'] = bta.exponential_moving_average(df, "close", 21)
+# # # # WERKT GOED!!!
+# df['hma'] = bta.hull_moving_average(df, 'close', 9)['hma']
+# # # # WERKT GOED!!!
+# df['wma'] = bta.weighted_moving_average(df, 'close', 10)['wma']
+# # # # WERKT GOED!!!
+# df['lsma'] = bta.least_squares_moving_average(df, 'close', 50)['lsma']
 
+# FOUTIEF
 # # # # WERKT GOED!!! # https://help.tradestation.com/10_00/eng/tradestationhelp/elanalysis/indicator/price_channel__percent_pc_indicator_.htm
-# ppc_result = bta.PriceChannel(df, period=20)
+# pcc_result = bta.percent_price_channel(df, period=20, mult=2)
+# df['pcc_upper'] = pcc_result['pcc_upper']
+# df['pcc_rangema'] = pcc_result['pcc_rangema']
+# df['pcc_lower'] = pcc_result['pcc_lower']
+
+# ppc_result = bta.price_channel(df, period=20)
 # df['ppc_upper'] = ppc_result['ppc_upper']
 # df['ppc_mid'] = ppc_result['ppc_mid']
 # df['ppc_lower'] = ppc_result['ppc_lower']
 # df['percent_p'] = ppc_result['percent_p']
 
+
+# ## # # WERKT GOED!!!
+# df['rma'] = bta.rolling_moving_average(df, 'close', 14)['rma']
+
 # # # # WERKT GOED!!!
-# df['zema'] = bta.ZEMA(df, 'close', 21)['zema']
+# df['sma'] = bta.simple_moving_average(df, 'close', 50)['sma']
 
-## # # WERKT GOED!!!
-# df['rma'] = bta.RMA(df, 'close', 14)['rma']
-
-# # # WERKT GOED!!!
-# df['sma'] = bta.SMA(df, 'close', 50)['sma']
-
-# # # # # WERKT GOED!!!
-# ssl_result = bta.SSLChannels(df, length=10, mode='sma')
+# # # # # # WERKT GOED!!!
+# ssl_result = bta.ssl_channels(df, length=10, mode='sma')
 # df['ssl_down'] = ssl_result['ssl_down']
 # df['ssl_up'] = ssl_result['ssl_up']
 
-# ## KLOPT NIET HELEMAAL< MAAR WEL BIJNA MET DE OPGEGEVEN INDICATOR: https://www.tradingview.com/script/SKHqWzql-SSL-ATR-channel/ GEACCEPTEERD RISICO HIER
-# ssl_result = bta.SSLChannelsATR(df, column='open', length=14, atr_period=7)
+# # ## KLOPT NIET HELEMAAL< MAAR WEL BIJNA MET DE OPGEGEVEN INDICATOR: https://www.tradingview.com/script/SKHqWzql-SSL-ATR-channel/ GEACCEPTEERD RISICO HIER
+# ssl_result = bta.ssl_channels_atr(df, column='close', length=14, atr_period=7)
 # df['ssl_atr_down'] = ssl_result['ssl_atr_down']
 # df['ssl_atr_up'] = ssl_result['ssl_atr_up']
 
-# # WERKT GOED!!!
-# df['t3_average'] = bta.T3(df, length=5)['t3_average']
+# # # WERKT GOED!!!
+# df['t3_average'] = bta.t3_average(df, length=5)['t3_average']
 
-# # WERKT GOED!!!
-# df['zlema'] = bta.ZLEMA(df, 'close', 21)['zlema']
+# # # WERKT GOED!!!
+# df['zema'] = bta.zero_exponential_moving_average(df, 'close', 21)['zema']
+
+# # # # WERKT GOED!!!
+# df['zlema'] = bta.zero_lag_exponential_moving_average(df, 'close', 21)['zlema']
 
 ## CANNOT VERIFY THIS - HAVE TO TRUST THE BUILDER
 # breakout = bta.Breakouts(df, length=20)
@@ -426,5 +459,5 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 
 
-# print(df.tail(30))
-dir(bta)
+print(df.tail(30))
+# dir(bta)

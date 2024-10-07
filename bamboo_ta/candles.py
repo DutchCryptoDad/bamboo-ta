@@ -238,11 +238,11 @@ def heikin_ashi(df, pre_smoothing_period=None, post_smoothing_period=None):
         df_copy['ha_low'] = EMA(df_copy, 'ha_low', post_smoothing_period)
         df_copy['ha_close'] = EMA(df_copy, 'ha_close', post_smoothing_period)
 
-    # Limit to two decimal places
-    df_copy['ha_open'] = df_copy['ha_open'].round(2)
-    df_copy['ha_high'] = df_copy['ha_high'].round(2)
-    df_copy['ha_low'] = df_copy['ha_low'].round(2)
-    df_copy['ha_close'] = df_copy['ha_close'].round(2)
+
+    # df_copy['ha_open'] = df_copy['ha_open'].round(2)
+    # df_copy['ha_high'] = df_copy['ha_high'].round(2)
+    # df_copy['ha_low'] = df_copy['ha_low'].round(2)
+    # df_copy['ha_close'] = df_copy['ha_close'].round(2)
 
     return df_copy[['ha_open', 'ha_high', 'ha_low', 'ha_close']]
 
@@ -318,11 +318,11 @@ def linear_regression_candles(df, linreg_length=11, sma_signal=True, signal_leng
     else:
         df_copy['signal'] = df_copy['bclose'].ewm(span=signal_length, adjust=False).mean()
 
-    # Limit to two decimal places
-    df_copy['bopen'] = df_copy['bopen'].round(2)
-    df_copy['bhigh'] = df_copy['bhigh'].round(2)
-    df_copy['blow'] = df_copy['blow'].round(2)
-    df_copy['bclose'] = df_copy['bclose'].round(2)
-    df_copy['signal'] = df_copy['signal'].round(2)
+    # # Limit to two decimal places
+    # df_copy['bopen'] = df_copy['bopen'].round(2)
+    # df_copy['bhigh'] = df_copy['bhigh'].round(2)
+    # df_copy['blow'] = df_copy['blow'].round(2)
+    # df_copy['bclose'] = df_copy['bclose'].round(2)
+    # df_copy['signal'] = df_copy['signal'].round(2)
 
     return df_copy[['bopen', 'bhigh', 'blow', 'bclose', 'signal']]
