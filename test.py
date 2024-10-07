@@ -307,7 +307,11 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 ###### UTILITY.PY FILE ###############
 
+df['slope'] = bta.regression_slope(df, 20)
 
+# leledc_major_minor = bta.populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len)
+# df['leledc_major'] = leledc_major_minor['leledc_major']
+# df['leledc_minor'] = leledc_major_minor['leledc_minor']
 
 ###### VOLATILITY.PY FILE ###############
 

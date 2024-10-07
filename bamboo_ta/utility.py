@@ -415,9 +415,9 @@ def ExhaustionLengths(df):
     return maj_len, min_len
 
 
-def GetMinMax(series1: pd.Series, series2: pd.Series, function: str = "min"):
+def get_min_max(series1: pd.Series, series2: pd.Series, function: str = "min") -> pd.Series:
     """
-    Find min or max value between two lists for each index
+    Find the minimum or maximum value between two series for each index.
 
     Parameters:
     - series1 (pd.Series): First input series.
@@ -425,7 +425,7 @@ def GetMinMax(series1: pd.Series, series2: pd.Series, function: str = "min"):
     - function (str): Function to apply ("min" or "max"). Default is "min".
 
     Call with:
-        min_max_series = GetMinMax(series1, series2, function)
+        min_max_series = get_min_max(series1, series2, function)
         df['min_max'] = min_max_series
 
     Returns:
@@ -433,19 +433,22 @@ def GetMinMax(series1: pd.Series, series2: pd.Series, function: str = "min"):
     """
     series1 = np.array(series1)
     series2 = np.array(series2)
+
     if function == "min":
         output = np.amin([series1, series2], axis=0)
     elif function == "max":
         output = np.amax([series1, series2], axis=0)
     else:
-        raise ValueError('"function" variable value should be "min" or "max"')
+        raise ValueError('"function" variable should be "min" or "max"')
 
     return pd.Series(output)
 
 
-def LinearDecay(start: float, end: float, start_time: int, end_time: int, trade_time: int) -> float:
+def linear_decay(start: float, end: float, start_time: int, 
+                 end_time: int, trade_time: int) -> float:
     """
-    Simple linear decay function. Decays from start to end after end_time minutes (starts after start_time minutes)
+    Simple linear decay function. Decays from start to end after 
+    end_time minutes (starts after start_time minutes).
 
     Parameters:
     - start (float): Starting value.
@@ -455,7 +458,7 @@ def LinearDecay(start: float, end: float, start_time: int, end_time: int, trade_
     - trade_time (int): Current trade time in minutes.
 
     Call with:
-        decayed_value = LinearDecay(start, end, start_time, end_time, trade_time)
+        decayed_value = linear_decay(start, end, start_time, end_time, trade_time)
 
     Returns:
     - float: Decayed value.
@@ -465,9 +468,11 @@ def LinearDecay(start: float, end: float, start_time: int, end_time: int, trade_
     return max(end, start - (rate * time))
 
 
-def LinearGrowth(start: float, end: float, start_time: int, end_time: int, trade_time: int) -> float:
+def linear_growth(start: float, end: float, start_time: int, 
+                  end_time: int, trade_time: int) -> float:
     """
-    Simple linear growth function. Grows from start to end after end_time minutes (starts after start_time minutes)
+    Simple linear growth function. Grows from start to end after 
+    end_time minutes (starts after start_time minutes).
 
     Parameters:
     - start (float): Starting value.
@@ -477,7 +482,7 @@ def LinearGrowth(start: float, end: float, start_time: int, end_time: int, trade
     - trade_time (int): Current trade time in minutes.
 
     Call with:
-        grown_value = LinearGrowth(start, end, start_time, end_time, trade_time)
+        grown_value = linear_growth(start, end, start_time, end_time, trade_time)
 
     Returns:
     - float: Grown value.
@@ -487,9 +492,11 @@ def LinearGrowth(start: float, end: float, start_time: int, end_time: int, trade
     return min(end, start + (rate * time))
 
 
-def PopulateLeledcMajorMinor(df, maj_qual, min_qual, maj_len, min_len):
+def populate_leledc_major_minor(df: pd.DataFrame, maj_qual: np.ndarray, 
+                                min_qual: np.ndarray, maj_len: int, 
+                                min_len: int) -> pd.DataFrame:
     """
-    Populate Leledc Major and Minor columns
+    Populate Leledc Major and Minor columns.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame.
@@ -499,10 +506,12 @@ def PopulateLeledcMajorMinor(df, maj_qual, min_qual, maj_len, min_len):
     - min_len (int): Minor length value.
 
     Call with:
-        leledc_major_minor = PopulateLeledcMajorMinor(df, maj_qual, min_qual, maj_len, min_len)
+        leledc_major_minor = bta.populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len)
+        df['leledc_major'] = leledc_major_minor['leledc_major']
+        df['leledc_minor'] = leledc_major_minor['leledc_minor']
 
     Returns:
-    - pd.DataFrame: DataFrame with populated columns.
+    - pd.DataFrame: DataFrame with 'leledc_major' and 'leledc_minor' columns.
     """
     df_copy = df.copy()
     bindex_maj, sindex_maj, trend_maj = 0, 0, 0
@@ -523,59 +532,72 @@ def PopulateLeledcMajorMinor(df, maj_qual, min_qual, maj_len, min_len):
             sindex_min += 1
 
         update_major = False
-        if bindex_maj > maj_qual[i] and close < df_copy['open'][i] and df_copy['high'][i] >= df_copy['high'][i - maj_len:i].max():
+        if (bindex_maj > maj_qual[i] and close < df_copy['open'][i] and
+                df_copy['high'][i] >= df_copy['high'][i - maj_len:i].max()):
             bindex_maj, trend_maj, update_major = 0, 1, True
-        elif sindex_maj > maj_qual[i] and close > df_copy['open'][i] and df_copy['low'][i] <= df_copy['low'][i - maj_len:i].min():
+        elif (sindex_maj > maj_qual[i] and close > df_copy['open'][i] and
+              df_copy['low'][i] <= df_copy['low'][i - maj_len:i].min()):
             sindex_maj, trend_maj, update_major = 0, -1, True
 
         df_copy.at[i, 'leledc_major'] = trend_maj if update_major else np.nan if trend_maj == 0 else trend_maj
-        if bindex_min > min_qual[i] and close < df_copy['open'][i] and df_copy['high'][i] >= df_copy['high'][i - min_len:i].max():
+
+        if (bindex_min > min_qual[i] and close < df_copy['open'][i] and
+                df_copy['high'][i] >= df_copy['high'][i - min_len:i].max()):
             bindex_min = 0
             df_copy.at[i, 'leledc_minor'] = -1
-        elif sindex_min > min_qual[i] and close > df_copy['open'][i] and df_copy['low'][i] <= df_copy['low'][i - min_len:i].min():
+        elif (sindex_min > min_qual[i] and close > df_copy['open'][i] and
+              df_copy['low'][i] <= df_copy['low'][i - min_len:i].min()):
             sindex_min = 0
             df_copy.at[i, 'leledc_minor'] = 1
         else:
             df_copy.at[i, 'leledc_minor'] = 0
 
-    return df_copy
+    return df_copy[['leledc_major', 'leledc_minor']]
 
 
-def RegressionSlope(df, lookback_period=20):
+def regression_slope(df: pd.DataFrame, lookback_period: int = 20) -> pd.Series:
     """
     Calculate the slope of the linear regression for a given lookback period.
+
+    This function computes the slope of a linear regression line (least squares) fitted to the
+    'close' prices over the specified lookback period.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame containing the 'close' prices.
     - lookback_period (int): The lookback period for calculating the regression slope. Default is 20.
 
     Call with:
-        slope = RegressionSlope(df, lookback_period)
-        df['slope'] = slope
+        df['slope'] = bta.regression_slope(df, 20)
 
     Returns:
     - pd.Series: Series containing the regression slopes.
     """
-    # Initialize the 'slope' column with NaN values
-    slope_series = pd.Series(np.nan, index=df.index)
+    # Ensure the 'close' column exists in the DataFrame
+    if 'close' not in df.columns:
+        raise KeyError("The input DataFrame must contain a 'close' column.")
+    
+    # Extract the 'close' prices as a NumPy array for faster processing
+    y_values = df['close'].values
+    
+    # Create an array for the x-values (time steps) for the regression
+    x_values = np.arange(lookback_period)
+    x_mean = x_values.mean()
+    
+    # Function to calculate the slope for a given rolling window
+    def calculate_slope(window):
+        y_mean = window.mean()
+        numerator = np.sum((x_values - x_mean) * (window - y_mean))
+        denominator = np.sum((x_values - x_mean) ** 2)
+        return numerator / denominator
 
-    # Loop over each row starting from the lookback period
-    for i in range(lookback_period, len(df)):
-        # Define the x-values (time steps) for the lookback window
-        x_values = np.arange(lookback_period)
-        # Extract the corresponding 'close' prices for the lookback window
-        y_values = df.loc[i - lookback_period:i - 1, 'close'].values
-
-        # Calculate the slope using linear regression
-        slope, _, _, _, _ = linregress(x_values, y_values)
-
-        # Store the calculated slope in the series
-        slope_series[i] = slope
-
+    # Apply the slope calculation to the rolling window on the 'close' prices
+    slope_series = df['close'].rolling(window=lookback_period).apply(calculate_slope, raw=True)
+    
     return slope_series
 
 
-def SameLength(bigger, shorter):
+
+def same_length(bigger: np.ndarray, shorter: np.ndarray) -> np.ndarray:
     """
     Ensures the shorter array has the same length as the bigger array by padding with NaN values.
 
@@ -583,30 +605,44 @@ def SameLength(bigger, shorter):
     - bigger (np.ndarray): The array with the larger size.
     - shorter (np.ndarray): The array with the smaller size.
 
-    Call with:
-        padded_array = SameLength(bigger, shorter)
-
     Returns:
     - np.ndarray: The shorter array padded with NaN values to match the size of the bigger array.
     """
-    return np.concatenate((np.full((bigger.shape[0] - shorter.shape[0]), np.nan), shorter))
+    if not isinstance(bigger, np.ndarray) or not isinstance(shorter, np.ndarray):
+        raise ValueError("Both inputs must be NumPy arrays.")
+    
+    if bigger.shape[0] < shorter.shape[0]:
+        raise ValueError("The first array must be bigger or equal in length to the second array.")
+    
+    # Calculate how many NaN values to add to the shorter array
+    pad_size = bigger.shape[0] - shorter.shape[0]
+    
+    # Return the concatenated array of NaNs followed by the shorter array
+    return np.concatenate((np.full(pad_size, np.nan), shorter))
 
 
-def StDev(series, period):
+
+def st_dev(series: pd.Series, period: int) -> pd.Series:
     """
-    Calculate the standard deviation over a specified period.
+    Calculate the rolling standard deviation over a specified period.
 
     Parameters:
     - series (pd.Series): The data series to calculate the standard deviation for.
     - period (int): The period over which to calculate the standard deviation.
 
     Returns:
-    - pd.Series: The standard deviation of the series.
+    - pd.Series: The rolling standard deviation of the series over the specified period.
     """
+    if not isinstance(series, pd.Series):
+        raise ValueError("Input must be a pandas Series.")
+    if period <= 0:
+        raise ValueError("Period must be a positive integer.")
+
     return series.rolling(window=period).std()
 
 
-def ZScore(series, window=500):
+
+def z_score(series: pd.Series, window: int = 500) -> pd.Series:
     """
     Calculate the z-score of a series.
 
@@ -615,7 +651,7 @@ def ZScore(series, window=500):
     - window (int): Lookback window for mean and standard deviation calculation.
 
     Call with:
-        zscore = ZScore(series)
+        zscore = z_score(series)
         df['zscore'] = zscore
 
     Returns:
@@ -630,19 +666,20 @@ def ZScore(series, window=500):
 
 
 class IndicatorMixin:
-    """Util mixin indicator class"""
+    """Utility mixin class for indicator calculations."""
 
     _fillna = False
 
     def _check_fillna(self, series: pd.Series, value: int = 0) -> pd.Series:
-        """Check if fillna flag is True.
+        """
+        Check if the fillna flag is True and handle NaN values accordingly.
 
         Parameters:
-        - series (pandas.Series): Calculated indicator series.
-        - value (int): Value to fill gaps; if -1 fill values using 'backfill' mode.
+        - series (pd.Series): Calculated indicator series.
+        - value (int): Value to fill gaps; if -1, fill values using 'backfill' mode.
 
         Returns:
-        - pd.Series: New feature generated.
+        - pd.Series: Series with NaN values handled.
         """
         if self._fillna:
             series_output = series.copy(deep=False)
@@ -655,6 +692,17 @@ class IndicatorMixin:
 
     @staticmethod
     def _true_range(high: pd.Series, low: pd.Series, prev_close: pd.Series) -> pd.Series:
+        """
+        Calculate the true range.
+
+        Parameters:
+        - high (pd.Series): High price series.
+        - low (pd.Series): Low price series.
+        - prev_close (pd.Series): Previous close price series.
+
+        Returns:
+        - pd.Series: True range series.
+        """
         tr1 = high - low
         tr2 = (high - prev_close).abs()
         tr3 = (low - prev_close).abs()
@@ -662,66 +710,33 @@ class IndicatorMixin:
         return true_range
 
 
-def DropNa(df: pd.DataFrame) -> pd.DataFrame:
+def drop_na(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Drop rows with 'NaN' values
+    Drop rows with 'NaN' values and handle very large numbers and zeros in numeric columns.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame.
 
     Call with:
-        dropna = dropna(df)
+        df_cleaned = drop_na(df)
 
     Returns:
-    - pd.DataFrame: DataFrame without NaN values.
+    - pd.DataFrame: DataFrame without NaN values, extremely large values, and zeroes in numeric columns.
     """
-    df = df.copy()
-    number_cols = df.select_dtypes(include=np.number).columns.tolist()
-    df[number_cols] = df[number_cols][df[number_cols] < math.exp(709)]  # big number
-    df[number_cols] = df[number_cols][df[number_cols] != 0.0]
-    df = df.dropna()
-    return df
-
-
-# def _sma(series, periods: int, fillna: bool = False):
-#     """
-#     Simple Moving Average (SMA)
-
-#     Parameters:
-#     - series (pd.Series): Input series.
-#     - periods (int): Period for SMA calculation.
-#     - fillna (bool): If True, fill NaN values. Default is False.
-
-#     Call with:
-#         sma = _sma(series, periods)
-#         df['sma'] = sma
-
-#     Returns:
-#     - pd.Series: Series of SMA values.
-#     """
-#     min_periods = 0 if fillna else periods
-#     return series.rolling(window=periods, min_periods=min_periods).mean()
-
-
-# def _ema(series, periods: int, fillna: bool = False):
-#     """
-#     Exponential Moving Average (EMA)
-
-#     Parameters:
-#     - series (pd.Series): Input series.
-#     - periods (int): Period for EMA calculation.
-#     - fillna (bool): If True, fill NaN values. Default is False.
-
-#     Call with:
-#         ema = _ema(series, periods)
-#         df['ema'] = ema
-
-#     Returns:
-#     - pd.Series: Series of EMA values.
-#     """
-#     min_periods = 0 if fillna else periods
-#     return series.ewm(span=periods, min_periods=min_periods, adjust=False).mean()
-
-
+    df_copy = df.copy()
+    
+    # Select numeric columns
+    number_cols = df_copy.select_dtypes(include=np.number).columns.tolist()
+    
+    # Replace extremely large values (greater than exp(709)) with NaN
+    df_copy[number_cols] = df_copy[number_cols].where(df_copy[number_cols] < math.exp(709))
+    
+    # Replace zero values with NaN
+    df_copy[number_cols] = df_copy[number_cols].replace(0.0, np.nan)
+    
+    # Drop rows with any NaN values
+    df_cleaned = df_copy.dropna()
+    
+    return df_cleaned
 
 

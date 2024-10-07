@@ -79,7 +79,7 @@ def bollinger_bands(df: pd.DataFrame, column: str = 'close', period: int = 20, s
 
     return df_copy[['bb_upper', 'bb_middle', 'bb_lower']]
 
-def TrueRange(df: pd.DataFrame) -> pd.DataFrame:
+def true_range(df: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate True Range (TR)
 
@@ -92,20 +92,24 @@ def TrueRange(df: pd.DataFrame) -> pd.DataFrame:
     - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'close' columns.
 
     Call with:
-        df['true_range'] = bta.TrueRange(df)['true_range']
+        df['true_range'] = bta.true_range(df)['true_range']
 
     Returns:
     - pd.DataFrame: DataFrame with 'true_range' column.
     """
     df_copy = df.copy()
     prev_close = df_copy['close'].shift()
-    df_copy['true_range'] = pd.concat(
+    
+    # Calculate the true range components
+    true_range = pd.concat(
         [
             df_copy['high'] - df_copy['low'],
             (df_copy['high'] - prev_close).abs(),
             (df_copy['low'] - prev_close).abs()
         ], axis=1
-    ).max(axis=1).round(2)
+    ).max(axis=1)
+
+    df_copy['true_range'] = true_range
 
     return df_copy[['true_range']]
 
