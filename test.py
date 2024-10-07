@@ -305,8 +305,23 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['fast_atr_rsi_tl'] = qqe_df['fast_atr_rsi_tl']
 # df['histogram'] = qqe_df['histogram']
 
+###### UTILITY.PY FILE ###############
+
+
+
 ###### VOLATILITY.PY FILE ###############
 
+# # ## WERKT GOED!!!
+# df['atr'] = bta.average_true_range(df, 14)['atr']
+
+# # ## WERKT GOED!!!
+# bb_result = bta.bollinger_bands(df, 'close', 20, 2, 0)
+# df['bb_upper'] = bb_result['bb_upper']
+# df['bb_middle'] = bb_result['bb_middle']
+# df['bb_lower'] = bb_result['bb_lower']
+
+# # ## WERKT GOED!!!
+# df['true_range'] = bta.true_range(df)['true_range']
 
 ###### VOLUME.PY FILE ###############
 
