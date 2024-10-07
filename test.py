@@ -232,6 +232,11 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # # # # WERKT GOED!!!
 # df['zlema'] = bta.zero_lag_exponential_moving_average(df, 'close', 21)['zlema']
 
+
+###### UTILITY.PY FILE ###############
+
+
+
 ## CANNOT VERIFY THIS - HAVE TO TRUST THE BUILDER
 # breakout = bta.Breakouts(df, length=20)
 # df['support_level'] = breakout['support_level']
@@ -300,126 +305,54 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['fast_atr_rsi_tl'] = qqe_df['fast_atr_rsi_tl']
 # df['histogram'] = qqe_df['histogram']
 
-# ### VOLUME INDICATORS TEST
+###### VOLATILITY.PY FILE ###############
 
-## WERKT GOED!!!
-# df['adi'] = bta.AccumulationDistributionIndex(df, fillna=True)['adi']
 
-## WERKT GOED!!!
-# df['cmf'] = bta.ChaikinMoneyFlow(df, window=20, fillna=True)['cmf']
+###### VOLUME.PY FILE ###############
 
-## WERKT GOED!!!
-# eom_df = bta.EaseOfMovement(df, eom_length=14, seom_length=14, fillna=True)
+# ## WERKT GOED!!!
+# df['adi'] = bta.accumulation_distribution_index(df, fillna=True)['adi']
+
+# ## WERKT GOED!!!
+# df['cmf'] = bta.chaikin_money_flow(df, window=20, fillna=True)['cmf']
+
+# ## WERKT GOED!!!
+# eom_df = bta.ease_of_movement(df, eom_length=14, seom_length=14, fillna=True)
 # df['eom'] = eom_df['eom']
-# df['eom_ma'] = eom_df['eom_ma']
+# df['seom'] = eom_df['seom']
 
-# ## WERKT GOED!!!
-# df['fi'] = bta.ForceIndex(df, window=13, fillna=True)['fi']
+# # ## WERKT GOED!!!
+# df['fi'] = bta.force_index(df, window=13, fillna=True)['fi']
 
-# ## WERKT GOED!!!
-# df['mfi']  = bta.MoneyFlowIndex(df, window=14, fillna=True)['mfi']
+# # ## WERKT GOED!!!
+# df['mfi'] = bta.money_flow_index(df, window=14, fillna=True)['mfi']
 
-# ## WERKT GOED!!!
-# nvi_df = bta.NegativeVolumeIndex(df, signal_type='EMA', signal_length=255, fillna=True)
+# # ## WERKT GOED!!!
+# nvi_df = bta.negative_volume_index(df, signal_type='EMA', signal_length=255, fillna=True)
 # df['nvi'] = nvi_df['nvi']
 # df['nvi_signal'] = nvi_df['nvi_signal']
 
-# ## WERKT GOED!!!
-# pvi_df = bta.PositiveVolumeIndex(df, signal_type='EMA', signal_length=255, fillna=True)
-# df['pvi'] = pvi_df['pvi']
-# df['pvi_signal'] = pvi_df['pvi_signal']
-
-
-# ## WERKT GOED!!
-# obv_df = bta.OnBalanceVolume(df, signal_type='SMA', signal_length=21, show_signal=True, fillna=True)
+# # ## WERKT GOED!!
+# obv_df = bta.on_balance_volume(df, signal_type='SMA', signal_length=21, show_signal=True, fillna=True)
 # df['obv'] = obv_df['obv']
 # df['signal'] = obv_df['signal']
 
-# ## WERKT GOED!!!
-# df['obv_osc'] = bta.OnBalanceVolumeOscillator(df, length=20, fillna=True)['obv_oscillator']
+# # ## WERKT GOED!!
+# df['obv_oscillator'] = bta.on_balance_volume_oscillator(df, length=20, fillna=True)['obv_oscillator']
 
-# # # WERKT BIJNA HETZELFDE ALS https://www.tradingview.com/script/3Ah2ALck-Price-Volume-Trend/
-# pvt_df = bta.PriceVolumeTrend(df, fillna=True, signal_type='SMA', signal_length=21, dropnans=True)
+# # ## WERKT GOED!!!
+# pvi_df = bta.positive_volume_index(df, signal_type='EMA', signal_length=255, fillna=True)
+# df['pvi'] = pvi_df['pvi']
+# df['pvi_signal'] = pvi_df['pvi_signal']
+
+# # ## WERKT GOED!!
+# pvt_df = bta.price_volume_trend(df, fillna=True, signal_type='EMA', signal_length=21, dropnans=True)
 # df['pvt'] = pvt_df['price_volume_trend']
 # df['pvt_signal'] = pvt_df['signal']
 
-# ## WERKT GOED conform https://www.tradingview.com/script/rSTNnV6B-VWAP-with-period/!!!
-# df['vwap'] = bta.VolumeWeightedAveragePrice(df, window=14, fillna=True)['volume_weighted_average_price']
+# # ## WERKT GOED!!
+# df['vwap'] = bta.volume_weighted_average_price(df, window=14, fillna=True)['volume_weighted_average_price']
 
-
-# # ## TEST FOR RegressionSlope
-# slope_series = bta.RegressionSlope(df, lookback_period=20)
-# df['slope'] = slope_series
-
-# # ## TEST FOR DailyReturn
-# daily_return_series = bta.DailyReturn(df, column='close', fillna=True)
-# df['daily_return'] = daily_return_series
-
-# # ## TEST FOR DailyLogReturn
-# daily_log_return_series = bta.DailyLogReturn(df, column='close', fillna=True)
-# df['daily_log_return'] = daily_log_return_series
-
-# # ## TEST FOR CumulativeReturn
-# cumulative_return_series = bta.CumulativeReturn(df, column='close', fillna=True)
-# df['cumulative_return'] = cumulative_return_series
-
-# # ## TEST FOR ExhaustionCandles
-# maj_qual, min_qual = bta.ExhaustionCandles(df, window=1, multiplier=1)
-# df['maj_qual'] = maj_qual
-# df['min_qual'] = min_qual
-
-# # ## TEST FOR ExhaustionLengths
-# maj_len, min_len = bta.ExhaustionLengths(df)
-# df['maj_len'] = maj_len
-# df['min_len'] = min_len
-
-# # ## TEST FOR GetMinMax
-# min_max_series = bta.GetMinMax(df['high'], df['low'], function="min")
-# df['min_max'] = min_max_series
-
-
-# ## TEST FOR StDev
-# stdev_series = bta.StDev(df['close'], period=20)
-# df['stdev'] = stdev_series
-
-# # ## TEST FOR ZScore
-# zscore_series = bta.ZScore(df['close'], window=500)
-# df['zscore'] = zscore_series
-
-# # ## TEST FOR SameLength
-# padded_series = bta.SameLength(df['high'].values, df['low'].values)
-# df['padded_series'] = padded_series
-
-# ## TEST FOR DropNa
-# df_clean = bta.DropNa(df)
-
-# # ## TEST FOR CrossedAbove
-# crossed_above_series = bta.CrossedAbove(df['series1'], df['series2'])
-# df['crossed_above'] = crossed_above_series
-
-
-# # ## TEST FOR CrossedBelow
-# crossed_below_series = bta.CrossedBelow(df['series1'], df['series2'])
-# df['crossed_below'] = crossed_below_series
-
-# # Import the function (assuming it's in a module named 'bta')
-# trade_cols = bta.CalculateFixedStopLossTakeProfitWithSignal(
-#     df, 
-#     signal_column='trade_signal',
-#     long_trade_signal='long_trade', 
-#     short_trade_signal='short_trade', 
-#     no_trade_signal='no_trade', 
-#     lookback_period=3, 
-#     long_risk_reward_ratio=2, 
-#     short_risk_reward_ratio=2, 
-#     buffer=0
-# )
-
-# # Add the result to the DataFrame (or inspect it separately)
-# df[['stop_loss', 'entry_price', 'take_profit', 'trade_active', 'exit_reason']] = trade_cols
-
-
-# df = bta.CalculateATRStopLossTakeProfit(df, signal_column='signal', atr_column='atr')
 
 
 
