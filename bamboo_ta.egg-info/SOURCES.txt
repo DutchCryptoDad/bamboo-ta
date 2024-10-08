@@ -8,7 +8,6 @@ bamboo_ta/cycles.py
 bamboo_ta/momentum.py
 bamboo_ta/performance.py
 bamboo_ta/statistics.py
-bamboo_ta/test.py
 bamboo_ta/trend.py
 bamboo_ta/utility.py
 bamboo_ta/volatility.py

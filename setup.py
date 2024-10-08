@@ -3,7 +3,7 @@ import os
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-VERSION = '0.1.5'
+VERSION = '0.2.0'
 DESCRIPTION = 'TA library for Pandas'
 
 with open("README.md", "r") as f:
@@ -23,7 +23,7 @@ setup(
     keywords=['python', 'pandas', 'numpy',
               'trading', 'indicator', 'technical analysis'],
     classifiers=[
-        "Development Status :: 1 - Planning",
+        "Development Status :: 2 - Pre-Alpha", # see https://pypi.org/classifiers/
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3",
         "Operating System :: Unix",

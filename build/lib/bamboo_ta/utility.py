@@ -5,9 +5,10 @@ import pandas as pd
 from .bamboo_ta import *
 from scipy.signal import argrelextrema
 from scipy.stats import linregress
+from typing import Tuple
 
 
-def CalculateATRStopLossTakeProfit(
+def calculate_atr_stop_loss_take_profit(
     df: pd.DataFrame,
     signal_column: str = 'signal',
     atr_column: str = 'atr',
@@ -28,44 +29,45 @@ def CalculateATRStopLossTakeProfit(
     - atr_tp_mult (float): Multiplier for take profit based on ATR. Default is 2.
 
     Call with:
-        df = CalculateATRStopLossTakeProfit(df, signal_column='signal')
+        atr_sl_tp_df = bta.calculate_atr_stop_loss_take_profit(df, signal_column='signal')
+        df['takeprofit'] = atr_sl_tp_df['takeprofit']
+        df['stoploss'] = atr_sl_tp_df['stoploss']
+        df['buyprice'] = atr_sl_tp_df['buyprice']
 
     Returns:
-    - pd.DataFrame: Updated DataFrame with 'takeprofit', 'stoploss', and 'buyprice' columns.
+    - pd.DataFrame: DataFrame with 'takeprofit', 'stoploss', and 'buyprice' columns.
     """
-    # Initialize new columns for take profit, stop loss, and buy price if not already present
-    if 'takeprofit' not in df.columns:
-        df['takeprofit'] = np.nan
-    if 'stoploss' not in df.columns:
-        df['stoploss'] = np.nan
-    if 'buyprice' not in df.columns:
-        df['buyprice'] = np.nan
-
     # Create a new column for advice_changed if it does not exist
     df['advice_changed'] = df[signal_column] != df[signal_column].shift(1)
 
-    # Logic for when the advice has changed and signal is 'buy'
-    buy_mask = (df['advice_changed'] == True) & (df[signal_column] == 'buy')
-    df.loc[buy_mask, 'takeprofit'] = df.loc[buy_mask, 'close'] + (df.loc[buy_mask, atr_column] * atr_tp_mult)
-    df.loc[buy_mask, 'stoploss'] = df.loc[buy_mask, 'close'] - (df.loc[buy_mask, atr_column] * atr_sl_mult)
-    df.loc[buy_mask, 'buyprice'] = df.loc[buy_mask, 'close']
+    # Initialize new columns for take profit, stop loss, and buy price
+    takeprofit = np.full(len(df), np.nan)
+    stoploss = np.full(len(df), np.nan)
+    buyprice = np.full(len(df), np.nan)
 
-    # Logic for when the advice has changed and signal is 'sell'
-    sell_mask = (df['advice_changed'] == True) & (df[signal_column] == 'sell')
-    df.loc[sell_mask, 'takeprofit'] = np.nan
-    df.loc[sell_mask, 'stoploss'] = np.nan
-    df.loc[sell_mask, 'buyprice'] = np.nan
+    # Logic for when the advice has changed and signal is 'buy'
+    buy_mask = (df['advice_changed']) & (df[signal_column] == 'buy')
+    takeprofit[buy_mask] = df['close'][buy_mask] + (df[atr_column][buy_mask] * atr_tp_mult)
+    stoploss[buy_mask] = df['close'][buy_mask] - (df[atr_column][buy_mask] * atr_sl_mult)
+    buyprice[buy_mask] = df['close'][buy_mask]
 
     # Logic for carrying forward the previous values if the advice has not changed
-    no_change_mask = df['advice_changed'] == False
-    df.loc[no_change_mask, 'takeprofit'] = df['takeprofit'].shift(1)
-    df.loc[no_change_mask, 'stoploss'] = df['stoploss'].shift(1)
-    df.loc[no_change_mask, 'buyprice'] = df['buyprice'].shift(1)
+    no_change_mask = ~df['advice_changed']
+    takeprofit[no_change_mask] = pd.Series(takeprofit).shift(1)
+    stoploss[no_change_mask] = pd.Series(stoploss).shift(1)
+    buyprice[no_change_mask] = pd.Series(buyprice).shift(1)
 
-    return df
+    # Return the result as a DataFrame
+    result_df = pd.DataFrame({
+        'takeprofit': takeprofit,
+        'stoploss': stoploss,
+        'buyprice': buyprice
+    })
+    
+    return result_df
 
 
-def CalculateStopLossTakeProfit(
+def calculate_stop_loss_take_profit(
     df: pd.DataFrame,
     signal_column: str = 'trade_signal',
     long_trade_signal: str = 'long_trade',
@@ -74,33 +76,11 @@ def CalculateStopLossTakeProfit(
     lookback_period: int = 5,
     long_reward_ratio: float = 2,
     short_reward_ratio: float = 2,
-    buffer: float = 0.0) -> pd.DataFrame:
+    buffer: float = 0.0
+) -> pd.DataFrame:
     """
     Calculate stop loss, take profit, and entry price based on customizable trade signals.
   
-    In order to make this function work, you have to do the following:
-    - adjust the signal_column name to match the column that contains the trade signal
-    - change the long_trade_signal to your own preferred way of naming a long trade signal
-    - change the short_trade_signal to your own preferred way of naming a short trade signal
-    - change the default way of naming the period where no trade is allowed in no_trade_signal
-
-    TRADE SIGNAL GENERATION:
-
-    The trade signal can be created by a function that is similar of that below:
-
-    def determine_trade_signal(row):
-        # Long trade condition
-        if (row['close'] > row['sma']) and (row['rsi'] > row['rsi_level']):
-            return 'long_trade'
-
-        # Short trade condition
-        elif (row['close'] < row['sma']) and (row['rsi'] < row['rsi_level']):
-            return 'short_trade'
-
-        # No trade condition
-        else:
-            return 'no_trade'
-
     Parameters:
     - df (pandas.DataFrame): Input DataFrame containing trading data and trade signals.
     - signal_column (str): Column name where trade signals ('long_trade', 'short_trade', etc.) are stored. Default is 'trade_signal'.
@@ -112,25 +92,22 @@ def CalculateStopLossTakeProfit(
     - short_reward_ratio (float): Reward-risk ratio for short trades. Default is 2.
     - buffer (float): Buffer added to the stop loss. Default is 0.0.
 
-
     Call with:
-        stop_loss_take_profit = bta.CalculateStopLossTakeProfit(df, 
-                                                        signal_column='trade_signal',
-                                                        long_trade_signal='long_trade', 
-                                                        short_trade_signal='short_trade', 
-                                                        no_trade_signal='no_trade', 
-                                                        lookback_period=5, 
-                                                        long_reward_ratio=2, 
-                                                        short_reward_ratio=1.5, 
-                                                        buffer=0.5)
+        stop_loss_take_profit = bta.calculate_stop_loss_take_profit(df, 
+                                                                    signal_column='trade_signal',
+                                                                    long_trade_signal='long_trade', 
+                                                                    short_trade_signal='short_trade', 
+                                                                    no_trade_signal='no_trade', 
+                                                                    lookback_period=5, 
+                                                                    long_reward_ratio=2, 
+                                                                    short_reward_ratio=1.5, 
+                                                                    buffer=0.5)
 
-                                                        
-    # Add the new columns to the original DataFrame
-    df['stop_loss'] = stop_loss_take_profit['stop_loss']
-    df['entry_price'] = stop_loss_take_profit['entry_price']
-    df['take_profit'] = stop_loss_take_profit['take_profit']
-    df['exit_reason'] = stop_loss_take_profit['exit_reason']
-    df
+    Add the new columns to the original DataFrame:
+        df['stop_loss'] = stop_loss_take_profit['stop_loss']
+        df['entry_price'] = stop_loss_take_profit['entry_price']
+        df['take_profit'] = stop_loss_take_profit['take_profit']
+        df['exit_reason'] = stop_loss_take_profit['exit_reason']
 
     Returns:
     - pd.DataFrame: Updated DataFrame with new columns: 'stop_loss', 'take_profit', 'entry_price', and 'exit_reason'.
@@ -220,195 +197,28 @@ def CalculateStopLossTakeProfit(
     return result_df
 
 
-def CalculateFixedStopLossTakeProfitWithSignal(
-    df: pd.DataFrame,
-    signal_column: str = 'trade_signal',
-    long_trade_signal: str = 'long_trade',
-    short_trade_signal: str = 'short_trade',
-    no_trade_signal: str = 'no_trade',
-    lookback_period: int = 5,
-    long_risk_reward_ratio: float = 2,
-    short_risk_reward_ratio: float = 2,
-    buffer: float = 0) -> pd.DataFrame:
+def consecutive_count(consecutive_diff: np.ndarray) -> float:
     """
-    Calculate stop loss, entry price, and take profit levels based on trade signals (long, short, or no trade).
-
-    In order to make this function work, you have to do the following:
-    - adjust the signal_column name to match the column that contains the trade signal
-    - change the long_trade_signal to your own preferred way of naming a long trade signal
-    - change the short_trade_signal to your own preferred way of naming a short trade signal
-    - change the default way of naming the period where no trade is allowed in no_trade_signal
-
-    TRADE SIGNAL GENERATION:
-
-    The trade signal can be created by a function that is similar of that below:
-
-    def determine_trade_signal(row):
-        # Long trade condition
-        if (row['close'] > row['sma']) and (row['rsi'] > row['rsi_level']):
-            return 'long_trade'
-
-        # Short trade condition
-        elif (row['close'] < row['sma']) and (row['rsi'] < row['rsi_level']):
-            return 'short_trade'
-
-        # No trade condition
-        else:
-            return 'no_trade'
-
-    Parameters:
-    - df (pandas.DataFrame): Input DataFrame containing trading data.
-    - signal_column (str): Column name with trade signals. Default is 'trade_signal'.
-    - long_trade_signal (str): Signal for long trades. Default is 'long_trade'.
-    - short_trade_signal (str): Signal for short trades. Default is 'short_trade'.
-    - no_trade_signal (str): Signal for no trade. Default is 'no_trade'.
-    - lookback_period (int): Lookback period for calculating stop loss. Default is 5.
-    - long_risk_reward_ratio (float): Risk-reward ratio for long trades. Default is 2.
-    - short_risk_reward_ratio (float): Risk-reward ratio for short trades. Default is 2.
-    - buffer (float): Buffer added to the stop loss. Default is 0.
-
-    Call with:
-        fixed_stop_loss_take_profit = bta.CalculateFixedStopLossTakeProfitWithSignal(
-                                                                            df, 
-                                                                            signal_column='trade_signal',
-                                                                            long_trade_signal='long_trade', 
-                                                                            short_trade_signal='short_trade', 
-                                                                            no_trade_signal='no_trade', 
-                                                                            lookback_period=3, 
-                                                                            long_risk_reward_ratio=2, 
-                                                                            short_risk_reward_ratio=2, 
-                                                                            buffer=0
-                                                                        )
-
-    # Add the new columns to the original DataFrame
-    df['stop_loss'] = fixed_stop_loss_take_profit['stop_loss']
-    df['entry_price'] = fixed_stop_loss_take_profit['entry_price']
-    df['take_profit'] = fixed_stop_loss_take_profit['take_profit']
-    df['trade_active'] = fixed_stop_loss_take_profit['trade_active']
-    df['exit_reason'] = fixed_stop_loss_take_profit['exit_reason']
-
-    Returns:
-    - pd.DataFrame: DataFrame with new columns: 'stop_loss', 'entry_price', 'take_profit', 'trade_active', and 'exit_reason'.
-    """
-    # Initialize lists to store new column data
-    stop_loss_list = []
-    entry_price_list = []
-    take_profit_list = []
-    trade_active_list = []
-    exit_reason_list = []
-
-    trade_active = False
-    stop_loss = entry_price = take_profit = None
-    current_trade_type = None
-    clear_next_row = False
-
-    for i in range(lookback_period, len(df)):
-        if clear_next_row:
-            stop_loss_list.append(np.nan)
-            entry_price_list.append(np.nan)
-            take_profit_list.append(np.nan)
-            trade_active_list.append(False)
-            exit_reason_list.append(pd.NA)
-            clear_next_row = False
-            continue
-
-        if trade_active:
-            if current_trade_type == long_trade_signal:
-                if df.loc[i, 'close'] >= take_profit:
-                    exit_reason_list.append('take_profit_hit')
-                    trade_active_list.append(False)
-                    trade_active = False
-                    clear_next_row = True
-                    continue
-                elif df.loc[i, 'close'] <= stop_loss:
-                    exit_reason_list.append('stop_loss_hit')
-                    trade_active_list.append(False)
-                    trade_active = False
-                    clear_next_row = True
-                    continue
-
-            elif current_trade_type == short_trade_signal:
-                if df.loc[i, 'close'] <= take_profit:
-                    exit_reason_list.append('take_profit_hit')
-                    trade_active_list.append(False)
-                    trade_active = False
-                    clear_next_row = True
-                    continue
-                elif df.loc[i, 'close'] >= stop_loss:
-                    exit_reason_list.append('stop_loss_hit')
-                    trade_active_list.append(False)
-                    trade_active = False
-                    clear_next_row = True
-                    continue
-
-        advice_changed = df.loc[i, signal_column] != df.loc[i - 1, signal_column]
-
-        if advice_changed and df.loc[i, signal_column] in [long_trade_signal, short_trade_signal]:
-            entry_price = df.loc[i, 'close']
-            current_trade_type = df.loc[i, signal_column]
-
-            if current_trade_type == long_trade_signal:
-                stop_loss = df.loc[i - lookback_period:i, 'low'].min() - buffer
-                risk = entry_price - stop_loss
-                take_profit = entry_price + (risk * long_risk_reward_ratio)
-            elif current_trade_type == short_trade_signal:
-                stop_loss = df.loc[i - lookback_period:i, 'high'].max() + buffer
-                risk = stop_loss - entry_price
-                take_profit = entry_price - (risk * short_risk_reward_ratio)
-
-            stop_loss_list.append(stop_loss)
-            entry_price_list.append(entry_price)
-            take_profit_list.append(take_profit)
-            trade_active_list.append(True)
-            exit_reason_list.append(pd.NA)
-
-            trade_active = True
-
-        elif advice_changed and df.loc[i, signal_column] == no_trade_signal:
-            stop_loss_list.append(np.nan)
-            entry_price_list.append(np.nan)
-            take_profit_list.append(np.nan)
-            trade_active_list.append(False)
-            exit_reason_list.append('trade_signal_lost')
-            trade_active = False
-
-        elif trade_active:
-            stop_loss_list.append(stop_loss_list[-1])  # Carry over from the previous row
-            entry_price_list.append(entry_price_list[-1])
-            take_profit_list.append(take_profit_list[-1])
-            trade_active_list.append(True)
-            exit_reason_list.append(pd.NA)
-
-    # Create a new DataFrame with the calculated columns
-    result_df = pd.DataFrame({
-        'stop_loss': stop_loss_list,
-        'entry_price': entry_price_list,
-        'take_profit': take_profit_list,
-        'trade_active': trade_active_list,
-        'exit_reason': exit_reason_list
-    })
-
-    # Return only the new columns
-    return result_df
-
-
-def ConsecutiveCount(consecutive_diff):
-    """
-    Calculate the average consecutive count of non-zero differences
+    Calculate the average consecutive count of non-zero differences.
     
     Parameters:
     - consecutive_diff (np.ndarray): Array of consecutive differences.
 
     Returns:
-    - float: Average consecutive count.
+    - float: Average consecutive count. If there are fewer than two non-zero differences, returns 0.
     """
+    # Find indices of non-zero elements in the array
     non_zero_diff = np.where(consecutive_diff != 0)[0]
+
+    # If fewer than two non-zero elements, return 0 as no valid calculation can be performed
     if len(non_zero_diff) < 2:
         return 0
-    return np.mean(np.abs(np.diff(non_zero_diff)))
+
+    # Calculate and return the average distance between consecutive non-zero indices
+    return np.mean(np.diff(non_zero_diff))
 
 
-def CrossedAbove(series1: pd.Series, series2: pd.Series) -> pd.Series:
+def first_crossed_above_second(series1: pd.Series, series2: pd.Series) -> pd.Series:
     """
     Check if series1 crosses above series2 in a vectorized manner.
 
@@ -417,16 +227,20 @@ def CrossedAbove(series1: pd.Series, series2: pd.Series) -> pd.Series:
     - series2 (pd.Series): Second input series to compare against.
 
     Call with:
-        crossover = CrossedAbove(series1, series2)
-        df['crossed_above'] = crossover
+        df['first_crossed_above_second'] = bta.first_crossed_above_second(series1, series2)
 
     Returns:
     - pd.Series: Boolean series where True indicates a crossover above.
     """
+    # Ensure both series have the same length
+    if len(series1) != len(series2):
+        raise ValueError("Input series must have the same length")
+
+    # Vectorized check for crossover above
     return (series1 > series2) & (series1.shift(1) <= series2.shift(1))
 
 
-def CrossedBelow(series1: pd.Series, series2: pd.Series) -> pd.Series:
+def first_crossed_below_second(series1: pd.Series, series2: pd.Series) -> pd.Series:
     """
     Check if series1 crosses below series2 in a vectorized manner.
 
@@ -435,161 +249,186 @@ def CrossedBelow(series1: pd.Series, series2: pd.Series) -> pd.Series:
     - series2 (pd.Series): Second input series to compare against.
 
     Call with:
-        crossover = CrossedBelow(series1, series2)
-        df['crossed_below'] = crossover
+        df['first_crossed_below_second'] = bta.first_crossed_below_second(series1, series2)
 
     Returns:
     - pd.Series: Boolean series where True indicates a crossover below.
     """
+    # Ensure both series have the same length
+    if len(series1) != len(series2):
+        raise ValueError("Input series must have the same length")
+
+    # Vectorized check for crossover below
     return (series1 < series2) & (series1.shift(1) >= series2.shift(1))
 
 
-
-def CumulativeReturn(df, column="close", fillna=False):
+def cumulative_return(df: pd.DataFrame, column: str = "close", fillna: bool = False) -> pd.Series:
     """
-    Cumulative Return (CR)
+    Calculate the Cumulative Return (CR) of a specified column in a DataFrame.
 
     Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the specified column.
+    - df (pandas.DataFrame): Input DataFrame containing the specified column.
     - column (str): The column on which the cumulative return is to be calculated. Default is "close".
-    - fillna (bool): If True, fill nan values. Default is False.
+    - fillna (bool): If True, fill NaN values. Default is False.
 
     Call with:
-        cr = CumulativeReturn(df)
-        df['cumulative_return'] = cr
+        df['cumulative_return'] = bta.cumulative_return(df)
 
     Returns:
     - pd.Series: Series of cumulative return values.
     """
+    # Create a copy of the DataFrame to avoid modifying the original
     df_copy = df.copy()
+
+    # Calculate cumulative return
     df_copy['cum_ret'] = (df_copy[column] / df_copy[column].iloc[0]) - 1
-    df_copy['cum_ret'] *= 100
+    df_copy['cum_ret'] *= 100  # Expressing cumulative return as a percentage
+
+    # Handle NaN values if requested
     if fillna:
         df_copy['cum_ret'] = df_copy['cum_ret'].fillna(-1)
-    return df_copy['cum_ret'].rename("cum_ret")
+
+    return df_copy['cum_ret'].rename("cumulative_return")
 
 
-def DailyLogReturn(df, column="close", fillna=False):
+def daily_log_return(df: pd.DataFrame, column: str = "close", fillna: bool = False) -> pd.Series:
     """
-    Daily Log Return (DLR)
+    Calculate the Daily Log Return (DLR) of a specified column in a DataFrame.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain the specified column.
     - column (str): The column on which the daily log return is to be calculated. Default is "close".
-    - fillna (bool): If True, fill nan values. Default is False.
+    - fillna (bool): If True, fill NaN values with 0. Default is False.
 
     Call with:
-        dlr = DailyLogReturn(df)
-        df['daily_log_return'] = dlr
+        df['daily_log_return'] = bta.daily_log_return(df)
 
     Returns:
     - pd.Series: Series of daily log return values.
     """
+    # Copy the DataFrame to avoid modifying the original data
     df_copy = df.copy()
-    df_copy['d_logret'] = pd.Series(np.log(df_copy[column])).diff()
-    df_copy['d_logret'] *= 100
+
+    # Calculate the daily log return
+    df_copy['daily_log_return'] = np.log(df_copy[column]).diff() * 100  # Expressing as a percentage
+
+    # Handle NaN values if requested
     if fillna:
-        df_copy['d_logret'] = df_copy['d_logret'].fillna(0)
-    return df_copy['d_logret'].rename("d_logret")
+        df_copy['daily_log_return'] = df_copy['daily_log_return'].fillna(0)
+
+    return df_copy['daily_log_return'].rename("daily_log_return")
 
 
-def DailyReturn(df, column="close", fillna=False):
+def daily_return(df: pd.DataFrame, column: str = "close", fillna: bool = False) -> pd.Series:
     """
-    Daily Return (DR)
+    Calculate the Daily Return (DR) of a specified column in a DataFrame.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain the specified column.
     - column (str): The column on which the daily return is to be calculated. Default is "close".
-    - fillna (bool): If True, fill nan values. Default is False.
+    - fillna (bool): If True, fill NaN values with 0. Default is False.
 
     Call with:
-        dr = DailyReturn(df)
-        df['daily_return'] = dr
+        df['daily_return'] = bta.daily_return(df)
 
     Returns:
     - pd.Series: Series of daily return values.
     """
+    # Copy the DataFrame to avoid modifying the original data
     df_copy = df.copy()
-    df_copy['d_ret'] = (df_copy[column] / df_copy[column].shift(1)) - 1
-    df_copy['d_ret'] *= 100
+
+    # Calculate the daily return as a percentage
+    df_copy['daily_return'] = (df_copy[column] / df_copy[column].shift(1)) - 1
+    df_copy['daily_return'] *= 100
+
+    # Handle NaN values if requested
     if fillna:
-        df_copy['d_ret'] = df_copy['d_ret'].fillna(0)
-    return df_copy['d_ret'].rename("d_ret")
+        df_copy['daily_return'] = df_copy['daily_return'].fillna(0)
+
+    return df_copy['daily_return'].rename("daily_return")
 
 
-def ExhaustionCandles(df, window=1, multiplier=1):
+def exhaustion_candles(df: pd.DataFrame, window: int = 1, multiplier: int = 1) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Calculate the average consecutive length of ups and downs to adjust the exhaustion bands dynamically
+    Calculate the average consecutive length of ups and downs to adjust the exhaustion bands dynamically.
     
     Parameters:
-    - df (pandas.DataFrame): Input DataFrame.
+    - df (pandas.DataFrame): Input DataFrame containing the 'close' price series.
     - window (int): Lookback window for calculation.
-    - multiplier (int or np.ndarray): Scalar or array of multipliers.
+    - multiplier (int): Scalar multiplier for both major and minor quality.
 
     Call with:
-        maj_qual, min_qual = ExhaustionCandles(df, window, multiplier)
+        maj_qual, min_qual = exhaustion_candles(df, window, multiplier)
         df['maj_qual'] = maj_qual
         df['min_qual'] = min_qual
 
     Returns:
-    - np.ndarray, np.ndarray: Arrays of major and minor quality values.
+    - Tuple[np.ndarray, np.ndarray]: Arrays of major and minor quality values.
     """
     consecutive_diff = np.sign(df['close'].diff())
     maj_qual = np.zeros(len(df))
     min_qual = np.zeros(len(df))
 
-    # Ensure multiplier is an array
-    if isinstance(multiplier, (int, float)):
-        multiplier = np.full(len(df), multiplier)
-    elif isinstance(multiplier, np.ndarray) and multiplier.shape[0] != len(df):
-        raise ValueError("Length of multiplier array must match the length of the DataFrame")
+    # Ensure multiplier is applied consistently
+    multiplier = np.full(len(df), multiplier)
 
     for i in range(len(df)):
         idx_range = consecutive_diff[i - window + 1:i + 1] if i >= window else consecutive_diff[:i + 1]
-        avg_consecutive = ConsecutiveCount(idx_range)
+        avg_consecutive = consecutive_count(idx_range)
+        
+        # Ensure avg_consecutive is a scalar, not an array
         if isinstance(avg_consecutive, np.ndarray):
             avg_consecutive = avg_consecutive.item()
+
         maj_qual[i] = int(avg_consecutive * (3 * multiplier[i])) if not np.isnan(avg_consecutive) else 0
         min_qual[i] = int(avg_consecutive * (3 * multiplier[i])) if not np.isnan(avg_consecutive) else 0
 
     return maj_qual, min_qual
 
 
-def ExhaustionLengths(df):
+import numpy as np
+import pandas as pd
+from scipy.signal import argrelextrema
+
+def exhaustion_lengths(df: pd.DataFrame) -> Tuple[int, int]:
     """
-    Calculate the average length of peaks and valleys to adjust the exhaustion bands dynamically
+    Calculate the average length of peaks and valleys to adjust the exhaustion bands dynamically.
     
     Parameters:
-    - df (pandas.DataFrame): Input DataFrame.
+    - df (pandas.DataFrame): Input DataFrame containing 'high' and 'low' columns.
 
     Call with:
-        maj_len, min_len = ExhaustionLengths(df)
+        maj_len, min_len = exhaustion_lengths(df)
         df['maj_len'] = maj_len
         df['min_len'] = min_len
 
     Returns:
     - int, int: Average peak distance and average valley distance.
     """
+    # Find relative maxima (peaks) and minima (valleys) in the 'high' and 'low' columns
     high_indices = argrelextrema(df['high'].to_numpy(), np.greater)[0]
     low_indices = argrelextrema(df['low'].to_numpy(), np.less)[0]
 
+    # If there are fewer than two peaks or valleys, return zero
     if len(high_indices) < 2 or len(low_indices) < 2:
         return 0, 0
 
+    # Calculate average and standard deviation of distances between peaks and valleys
     avg_peak_distance = np.mean(np.diff(high_indices))
     std_peak_distance = np.std(np.diff(high_indices))
     avg_valley_distance = np.mean(np.diff(low_indices))
     std_valley_distance = np.std(np.diff(low_indices))
 
+    # Determine major and minor lengths using average + standard deviation
     maj_len = int(avg_peak_distance + std_peak_distance)
     min_len = int(avg_valley_distance + std_valley_distance)
 
     return maj_len, min_len
 
 
-def GetMinMax(series1: pd.Series, series2: pd.Series, function: str = "min"):
+def get_min_max(series1: pd.Series, series2: pd.Series, function: str = "min") -> pd.Series:
     """
-    Find min or max value between two lists for each index
+    Find the minimum or maximum value between two series for each index.
 
     Parameters:
     - series1 (pd.Series): First input series.
@@ -597,27 +436,31 @@ def GetMinMax(series1: pd.Series, series2: pd.Series, function: str = "min"):
     - function (str): Function to apply ("min" or "max"). Default is "min".
 
     Call with:
-        min_max_series = GetMinMax(series1, series2, function)
-        df['min_max'] = min_max_series
+        df['min_max'] = bta.get_min_max(series1, series2, function)
+    Like:
+        df['min_max'] = bta.get_min_max(df['open'], df['open'], 'max')
 
     Returns:
     - pd.Series: Series with min or max values for each index.
     """
     series1 = np.array(series1)
     series2 = np.array(series2)
+
     if function == "min":
         output = np.amin([series1, series2], axis=0)
     elif function == "max":
         output = np.amax([series1, series2], axis=0)
     else:
-        raise ValueError('"function" variable value should be "min" or "max"')
+        raise ValueError('"function" variable should be "min" or "max"')
 
     return pd.Series(output)
 
 
-def LinearDecay(start: float, end: float, start_time: int, end_time: int, trade_time: int) -> float:
+def linear_decay(start: float, end: float, start_time: int, 
+                 end_time: int, trade_time: int) -> float:
     """
-    Simple linear decay function. Decays from start to end after end_time minutes (starts after start_time minutes)
+    Simple linear decay function. Decays from start to end after 
+    end_time minutes (starts after start_time minutes).
 
     Parameters:
     - start (float): Starting value.
@@ -627,7 +470,7 @@ def LinearDecay(start: float, end: float, start_time: int, end_time: int, trade_
     - trade_time (int): Current trade time in minutes.
 
     Call with:
-        decayed_value = LinearDecay(start, end, start_time, end_time, trade_time)
+        decayed_value = linear_decay(start, end, start_time, end_time, trade_time)
 
     Returns:
     - float: Decayed value.
@@ -637,9 +480,11 @@ def LinearDecay(start: float, end: float, start_time: int, end_time: int, trade_
     return max(end, start - (rate * time))
 
 
-def LinearGrowth(start: float, end: float, start_time: int, end_time: int, trade_time: int) -> float:
+def linear_growth(start: float, end: float, start_time: int, 
+                  end_time: int, trade_time: int) -> float:
     """
-    Simple linear growth function. Grows from start to end after end_time minutes (starts after start_time minutes)
+    Simple linear growth function. Grows from start to end after 
+    end_time minutes (starts after start_time minutes).
 
     Parameters:
     - start (float): Starting value.
@@ -649,7 +494,7 @@ def LinearGrowth(start: float, end: float, start_time: int, end_time: int, trade
     - trade_time (int): Current trade time in minutes.
 
     Call with:
-        grown_value = LinearGrowth(start, end, start_time, end_time, trade_time)
+        grown_value = linear_growth(start, end, start_time, end_time, trade_time)
 
     Returns:
     - float: Grown value.
@@ -659,9 +504,11 @@ def LinearGrowth(start: float, end: float, start_time: int, end_time: int, trade
     return min(end, start + (rate * time))
 
 
-def PopulateLeledcMajorMinor(df, maj_qual, min_qual, maj_len, min_len):
+def populate_leledc_major_minor(df: pd.DataFrame, maj_qual: np.ndarray, 
+                                min_qual: np.ndarray, maj_len: int, 
+                                min_len: int) -> pd.DataFrame:
     """
-    Populate Leledc Major and Minor columns
+    Populate Leledc Major and Minor columns.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame.
@@ -671,10 +518,12 @@ def PopulateLeledcMajorMinor(df, maj_qual, min_qual, maj_len, min_len):
     - min_len (int): Minor length value.
 
     Call with:
-        leledc_major_minor = PopulateLeledcMajorMinor(df, maj_qual, min_qual, maj_len, min_len)
+        leledc_major_minor = bta.populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len)
+        df['leledc_major'] = leledc_major_minor['leledc_major']
+        df['leledc_minor'] = leledc_major_minor['leledc_minor']
 
     Returns:
-    - pd.DataFrame: DataFrame with populated columns.
+    - pd.DataFrame: DataFrame with 'leledc_major' and 'leledc_minor' columns.
     """
     df_copy = df.copy()
     bindex_maj, sindex_maj, trend_maj = 0, 0, 0
@@ -695,59 +544,71 @@ def PopulateLeledcMajorMinor(df, maj_qual, min_qual, maj_len, min_len):
             sindex_min += 1
 
         update_major = False
-        if bindex_maj > maj_qual[i] and close < df_copy['open'][i] and df_copy['high'][i] >= df_copy['high'][i - maj_len:i].max():
+        if (bindex_maj > maj_qual[i] and close < df_copy['open'][i] and
+                df_copy['high'][i] >= df_copy['high'][i - maj_len:i].max()):
             bindex_maj, trend_maj, update_major = 0, 1, True
-        elif sindex_maj > maj_qual[i] and close > df_copy['open'][i] and df_copy['low'][i] <= df_copy['low'][i - maj_len:i].min():
+        elif (sindex_maj > maj_qual[i] and close > df_copy['open'][i] and
+              df_copy['low'][i] <= df_copy['low'][i - maj_len:i].min()):
             sindex_maj, trend_maj, update_major = 0, -1, True
 
         df_copy.at[i, 'leledc_major'] = trend_maj if update_major else np.nan if trend_maj == 0 else trend_maj
-        if bindex_min > min_qual[i] and close < df_copy['open'][i] and df_copy['high'][i] >= df_copy['high'][i - min_len:i].max():
+
+        if (bindex_min > min_qual[i] and close < df_copy['open'][i] and
+                df_copy['high'][i] >= df_copy['high'][i - min_len:i].max()):
             bindex_min = 0
             df_copy.at[i, 'leledc_minor'] = -1
-        elif sindex_min > min_qual[i] and close > df_copy['open'][i] and df_copy['low'][i] <= df_copy['low'][i - min_len:i].min():
+        elif (sindex_min > min_qual[i] and close > df_copy['open'][i] and
+              df_copy['low'][i] <= df_copy['low'][i - min_len:i].min()):
             sindex_min = 0
             df_copy.at[i, 'leledc_minor'] = 1
         else:
             df_copy.at[i, 'leledc_minor'] = 0
 
-    return df_copy
+    return df_copy[['leledc_major', 'leledc_minor']]
 
 
-def RegressionSlope(df, lookback_period=20):
+def regression_slope(df: pd.DataFrame, lookback_period: int = 20) -> pd.Series:
     """
     Calculate the slope of the linear regression for a given lookback period.
+
+    This function computes the slope of a linear regression line (least squares) fitted to the
+    'close' prices over the specified lookback period.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame containing the 'close' prices.
     - lookback_period (int): The lookback period for calculating the regression slope. Default is 20.
 
     Call with:
-        slope = RegressionSlope(df, lookback_period)
-        df['slope'] = slope
+        df['slope'] = bta.regression_slope(df, 20)
 
     Returns:
     - pd.Series: Series containing the regression slopes.
     """
-    # Initialize the 'slope' column with NaN values
-    slope_series = pd.Series(np.nan, index=df.index)
+    # Ensure the 'close' column exists in the DataFrame
+    if 'close' not in df.columns:
+        raise KeyError("The input DataFrame must contain a 'close' column.")
+    
+    # Extract the 'close' prices as a NumPy array for faster processing
+    y_values = df['close'].values
+    
+    # Create an array for the x-values (time steps) for the regression
+    x_values = np.arange(lookback_period)
+    x_mean = x_values.mean()
+    
+    # Function to calculate the slope for a given rolling window
+    def calculate_slope(window):
+        y_mean = window.mean()
+        numerator = np.sum((x_values - x_mean) * (window - y_mean))
+        denominator = np.sum((x_values - x_mean) ** 2)
+        return numerator / denominator
 
-    # Loop over each row starting from the lookback period
-    for i in range(lookback_period, len(df)):
-        # Define the x-values (time steps) for the lookback window
-        x_values = np.arange(lookback_period)
-        # Extract the corresponding 'close' prices for the lookback window
-        y_values = df.loc[i - lookback_period:i - 1, 'close'].values
-
-        # Calculate the slope using linear regression
-        slope, _, _, _, _ = linregress(x_values, y_values)
-
-        # Store the calculated slope in the series
-        slope_series[i] = slope
-
+    # Apply the slope calculation to the rolling window on the 'close' prices
+    slope_series = df['close'].rolling(window=lookback_period).apply(calculate_slope, raw=True)
+    
     return slope_series
 
 
-def SameLength(bigger, shorter):
+def same_length(bigger: np.ndarray, shorter: np.ndarray) -> np.ndarray:
     """
     Ensures the shorter array has the same length as the bigger array by padding with NaN values.
 
@@ -756,29 +617,50 @@ def SameLength(bigger, shorter):
     - shorter (np.ndarray): The array with the smaller size.
 
     Call with:
-        padded_array = SameLength(bigger, shorter)
+        padded_array = same_length(bigger_array, shorter_array)
 
     Returns:
     - np.ndarray: The shorter array padded with NaN values to match the size of the bigger array.
     """
-    return np.concatenate((np.full((bigger.shape[0] - shorter.shape[0]), np.nan), shorter))
+    if not isinstance(bigger, np.ndarray) or not isinstance(shorter, np.ndarray):
+        raise ValueError("Both inputs must be NumPy arrays.")
+    
+    if bigger.shape[0] < shorter.shape[0]:
+        raise ValueError("The first array must be bigger or equal in length to the second array.")
+    
+    # Calculate how many NaN values to add to the shorter array
+    pad_size = bigger.shape[0] - shorter.shape[0]
+    
+    # Return the concatenated array of NaNs followed by the shorter array
+    return np.concatenate((np.full(pad_size, np.nan), shorter))
 
 
-def StDev(series, period):
+def st_dev(series: pd.Series, period: int) -> pd.Series:
     """
-    Calculate the standard deviation over a specified period.
+    Calculate the rolling standard deviation over a specified period.
 
     Parameters:
     - series (pd.Series): The data series to calculate the standard deviation for.
     - period (int): The period over which to calculate the standard deviation.
 
+    Call with:
+        df['std_dev'] = bta.st_dev(df['column_name'], period=14)
+    
+    Like:
+        df['std_dev'] = bta.st_dev(df['close'], period=14)
+
     Returns:
-    - pd.Series: The standard deviation of the series.
+    - pd.Series: The rolling standard deviation of the series over the specified period.
     """
+    if not isinstance(series, pd.Series):
+        raise ValueError("Input must be a pandas Series.")
+    if period <= 0:
+        raise ValueError("Period must be a positive integer.")
+
     return series.rolling(window=period).std()
 
 
-def ZScore(series, window=500):
+def z_score(series: pd.Series, window: int = 500) -> pd.Series:
     """
     Calculate the z-score of a series.
 
@@ -787,8 +669,10 @@ def ZScore(series, window=500):
     - window (int): Lookback window for mean and standard deviation calculation.
 
     Call with:
-        zscore = ZScore(series)
-        df['zscore'] = zscore
+        df['zscore']  = bta.z_score(series)
+    
+    Like:
+        df['zscore']  = bta.z_score(df['close'])
 
     Returns:
     - pd.Series: Z-score series.
@@ -802,19 +686,20 @@ def ZScore(series, window=500):
 
 
 class IndicatorMixin:
-    """Util mixin indicator class"""
+    """Utility mixin class for indicator calculations."""
 
     _fillna = False
 
     def _check_fillna(self, series: pd.Series, value: int = 0) -> pd.Series:
-        """Check if fillna flag is True.
+        """
+        Check if the fillna flag is True and handle NaN values accordingly.
 
         Parameters:
-        - series (pandas.Series): Calculated indicator series.
-        - value (int): Value to fill gaps; if -1 fill values using 'backfill' mode.
+        - series (pd.Series): Calculated indicator series.
+        - value (int): Value to fill gaps; if -1, fill values using 'backfill' mode.
 
         Returns:
-        - pd.Series: New feature generated.
+        - pd.Series: Series with NaN values handled.
         """
         if self._fillna:
             series_output = series.copy(deep=False)
@@ -827,6 +712,17 @@ class IndicatorMixin:
 
     @staticmethod
     def _true_range(high: pd.Series, low: pd.Series, prev_close: pd.Series) -> pd.Series:
+        """
+        Calculate the true range.
+
+        Parameters:
+        - high (pd.Series): High price series.
+        - low (pd.Series): Low price series.
+        - prev_close (pd.Series): Previous close price series.
+
+        Returns:
+        - pd.Series: True range series.
+        """
         tr1 = high - low
         tr2 = (high - prev_close).abs()
         tr3 = (low - prev_close).abs()
@@ -834,66 +730,33 @@ class IndicatorMixin:
         return true_range
 
 
-def DropNa(df: pd.DataFrame) -> pd.DataFrame:
+def drop_na(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Drop rows with 'NaN' values
+    Drop rows with 'NaN' values and handle very large numbers and zeros in numeric columns.
 
     Parameters:
     - df (pandas.DataFrame): Input DataFrame.
 
     Call with:
-        dropna = dropna(df)
+        df['df_cleaned'] = bta.drop_na(df)
 
     Returns:
-    - pd.DataFrame: DataFrame without NaN values.
+    - pd.DataFrame: DataFrame without NaN values, extremely large values, and zeroes in numeric columns.
     """
-    df = df.copy()
-    number_cols = df.select_dtypes(include=np.number).columns.tolist()
-    df[number_cols] = df[number_cols][df[number_cols] < math.exp(709)]  # big number
-    df[number_cols] = df[number_cols][df[number_cols] != 0.0]
-    df = df.dropna()
-    return df
-
-
-# def _sma(series, periods: int, fillna: bool = False):
-#     """
-#     Simple Moving Average (SMA)
-
-#     Parameters:
-#     - series (pd.Series): Input series.
-#     - periods (int): Period for SMA calculation.
-#     - fillna (bool): If True, fill NaN values. Default is False.
-
-#     Call with:
-#         sma = _sma(series, periods)
-#         df['sma'] = sma
-
-#     Returns:
-#     - pd.Series: Series of SMA values.
-#     """
-#     min_periods = 0 if fillna else periods
-#     return series.rolling(window=periods, min_periods=min_periods).mean()
-
-
-# def _ema(series, periods: int, fillna: bool = False):
-#     """
-#     Exponential Moving Average (EMA)
-
-#     Parameters:
-#     - series (pd.Series): Input series.
-#     - periods (int): Period for EMA calculation.
-#     - fillna (bool): If True, fill NaN values. Default is False.
-
-#     Call with:
-#         ema = _ema(series, periods)
-#         df['ema'] = ema
-
-#     Returns:
-#     - pd.Series: Series of EMA values.
-#     """
-#     min_periods = 0 if fillna else periods
-#     return series.ewm(span=periods, min_periods=min_periods, adjust=False).mean()
-
-
+    df_copy = df.copy()
+    
+    # Select numeric columns
+    number_cols = df_copy.select_dtypes(include=np.number).columns.tolist()
+    
+    # Replace extremely large values (greater than exp(709)) with NaN
+    df_copy[number_cols] = df_copy[number_cols].where(df_copy[number_cols] < math.exp(709))
+    
+    # Replace zero values with NaN
+    df_copy[number_cols] = df_copy[number_cols].replace(0.0, np.nan)
+    
+    # Drop rows with any NaN values
+    df_cleaned = df_copy.dropna()
+    
+    return df_cleaned
 
 

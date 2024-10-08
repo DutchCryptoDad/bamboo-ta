@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-def AverageTrueRange(df: pd.DataFrame, period: int = 14) -> pd.DataFrame:
+def average_true_range(df: pd.DataFrame, period: int = 14) -> pd.DataFrame:
     """
     Average True Range (ATR)
 
@@ -15,22 +15,34 @@ def AverageTrueRange(df: pd.DataFrame, period: int = 14) -> pd.DataFrame:
     - period (int): Period for the ATR calculation. Default is 14.
 
     Call with:
-        df['atr'] = bta.AverageTrueRange(df, 14)['atr']
+        df['atr'] = bta.average_true_range(df, 14)['atr']
 
     Returns:
     - pd.DataFrame: DataFrame with 'atr' column.
     """
     df_copy = df.copy()
+
+    # Ensure the DataFrame contains the required columns
+    required_columns = ['high', 'low', 'close']
+    for col in required_columns:
+        if col not in df.columns:
+            raise KeyError(f"DataFrame must contain '{col}' column")
+
+    # Calculate True Range components
     df_copy['high_low'] = df_copy['high'] - df_copy['low']
     df_copy['high_close'] = (df_copy['high'] - df_copy['close'].shift()).abs()
     df_copy['low_close'] = (df_copy['low'] - df_copy['close'].shift()).abs()
+
+    # Calculate True Range
     df_copy['true_range'] = df_copy[['high_low', 'high_close', 'low_close']].max(axis=1)
-    df_copy['atr'] = df_copy['true_range'].rolling(window=period, min_periods=1).mean().round(2)
+
+    # Calculate ATR as the rolling mean of True Range
+    df_copy['atr'] = df_copy['true_range'].rolling(window=period, min_periods=1).mean()
 
     return df_copy[['atr']]
 
 
-def BollingerBands(df: pd.DataFrame, column: str = 'close', period: int = 20, std_dev: float = 2.0, ddof: int = 0) -> pd.DataFrame:
+def bollinger_bands(df: pd.DataFrame, column: str = 'close', period: int = 20, std_dev: float = 2.0, ddof: int = 0) -> pd.DataFrame:
     """
     Bollinger Bands (BBANDS)
 
@@ -44,7 +56,7 @@ def BollingerBands(df: pd.DataFrame, column: str = 'close', period: int = 20, st
     - ddof (int): Degrees of Freedom to use in standard deviation calculation. Default is 0.
 
     Call with:
-        bb_result = bta.BollingerBands(df, 'close', 20, 2, 0)
+        bb_result = bta.bollinger_bands(df, 'close', 20, 2, 0)
         df['bb_upper'] = bb_result['bb_upper']
         df['bb_middle'] = bb_result['bb_middle']
         df['bb_lower'] = bb_result['bb_lower']
@@ -61,14 +73,13 @@ def BollingerBands(df: pd.DataFrame, column: str = 'close', period: int = 20, st
     rolling_std = df_copy[column].rolling(window=period).std(ddof=ddof)
 
     # Calculate upper and lower bands
-    df_copy['bb_upper'] = (sma + (rolling_std * std_dev)).round(2)
-    df_copy['bb_middle'] = sma.round(2)
-    df_copy['bb_lower'] = (sma - (rolling_std * std_dev)).round(2)
+    df_copy['bb_upper'] = sma + (rolling_std * std_dev)
+    df_copy['bb_middle'] = sma
+    df_copy['bb_lower'] = sma - (rolling_std * std_dev)
 
     return df_copy[['bb_upper', 'bb_middle', 'bb_lower']]
 
-
-def TrueRange(df: pd.DataFrame) -> pd.DataFrame:
+def true_range(df: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate True Range (TR)
 
@@ -81,20 +92,24 @@ def TrueRange(df: pd.DataFrame) -> pd.DataFrame:
     - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'close' columns.
 
     Call with:
-        df['true_range'] = bta.TrueRange(df)['true_range']
+        df['true_range'] = bta.true_range(df)['true_range']
 
     Returns:
     - pd.DataFrame: DataFrame with 'true_range' column.
     """
     df_copy = df.copy()
     prev_close = df_copy['close'].shift()
-    df_copy['true_range'] = pd.concat(
+    
+    # Calculate the true range components
+    true_range = pd.concat(
         [
             df_copy['high'] - df_copy['low'],
             (df_copy['high'] - prev_close).abs(),
             (df_copy['low'] - prev_close).abs()
         ], axis=1
-    ).max(axis=1).round(2)
+    ).max(axis=1)
+
+    df_copy['true_range'] = true_range
 
     return df_copy[['true_range']]
 
