@@ -1,98 +1,403 @@
-# Bamboo TA Indicators Module
+# `trend` - Trend Indicators
 
-## Trend
+## Alligator Bands
 
-Includes trend-based indicators.
+### Description
+The **Alligator Indicator**, developed by Bill Williams, is used to identify trends and their direction in the market. It consists of three smoothed moving averages known as the **Jaw**, **Teeth**, and **Lips**.
 
-### Indicators
+### Interpretation
+- **Jaw**: Represents the slowest moving average and is shifted by 8 periods to indicate long-term trends.
+- **Teeth**: Represents the medium-term trend and is shifted by 5 periods.
+- **Lips**: Represents the fastest moving average and is shifted by 3 periods.
 
-- **AlligatorBands**: Bill Williams Alligator Indicator.
-- **Usage**: 
-    ```python
-    alligator_result = AlligatorBands(df, "high", 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
-    df['jaw'] = alligator_result['jaw']
-    df['teeth'] = alligator_result['teeth']
-    df['lips'] = alligator_result['lips']
-    ```
-- **BollingerTrend**: Bollinger Trend Indicator.
-- **Usage**: 
-    ```python
-    df['BBTrend'] = BollingerTrend(df, "close", 20, 50, 2.0)
-    ```
-- **BollingerTrendFastWithMA**: Bollinger Trend Indicator with selectable Moving Average.
-- **Usage**: 
-    ```python
-    result = BollingerTrendFastWithMA(df, column="close", short_length=10, long_length=50, short_stddev=1.0, long_stddev=2.0, ma_type="SMA", ma_length=14)
-    df['BBTrend'] = result['bbtrend']
-    df['BBTrendMA'] = result['bbtrend_ma']
-    ```
-- **EMA**: Exponential Moving Average.
-- **Usage**: 
-    ```python
-    df['ema'] = EMA(df, "close", 21)
-    ```
-- **HMA**: Hull Moving Average.
-- **Usage**: 
-    ```python
-    df['hma'] = HMA(df, "close", 9)
-    ```
-- **LSMA**: Least Squares Moving Average.
-- **Usage**: 
-    ```python
-    df['lsma'] = LSMA(df, "close", 50)
-    ```
-- **SMA**: Simple Moving Average.
-- **Usage**: 
-    ```python
-    df['sma'] = SMA(df, "close", 50)
-    ```
-- **WMA**: Weighted Moving Average.
-- **Usage**: 
-    ```python
-    df['wma'] = WMA(df, "close", 9)
-    ```
-- **ZLEMA**: Zero Lag Exponential Moving Average.
-- **Usage**: 
-    ```python
-    df['zlema'] = ZLEMA(df, "close", 21)
-    ```
-- **Breakouts**: S/R Breakouts and Retests.
-- **Usage**: 
-    ```python
-    breakout = Breakouts(df)
-    df['support_level'] = breakout['support_level']
-    df['resistance_level'] = breakout['resistance_level']
-    df['support_breakout'] = breakout['support_breakout']
-    df['resistance_breakout'] = breakout['resistance_breakout']
-    df['support_retest'] = breakout['support_retest']
-    df['potential_support_retest'] = breakout['potential_support_retest']
-    df['resistance_retest'] = breakout['resistance_retest']
-    df['potential_resistance_retest'] = breakout['potential_resistance_retest']
-    ```
-- **SSLChannels**: SSL Channels.
-- **Usage**: 
-    ```python
-    ssl_down, ssl_up = SSLChannels(df, length=10, mode='sma')
-    df['ssl_down'] = ssl_down
-    df['ssl_up'] = ssl_up
-    ```
-- **SSLChannelsATR**: SSL Channels with ATR.
-- **Usage**: 
-    ```python
-    ssl_down, ssl_up = SSLChannelsATR(df, length=7)
-    df['ssl_atr_down'] = ssl_down
-    df['ssl_atr_up'] = ssl_up
-    ```
-- **PCC**: Percent Change Channel.
-- **Usage**: 
-    ```python
-    upper, rangema, lower = PCC(df, period=20, mult=2)
-    df['pcc_upper'] = upper
-    df['pcc_rangema'] = rangema
-    df['pcc_lower'] = lower
-    ```
-- **T3**: T3 Average.
-- **Usage**: 
-    ```python
-    df['t3_average'] = T3(df, length=5)
-    ```
+### Usage Example
+```python
+alligator_result = bta.alligator_bands(df, 'close', 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
+df['jaw'] = alligator_result['jaw']
+df['teeth'] = alligator_result['teeth']
+df['lips'] = alligator_result['lips']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): DataFrame containing the data.
+- `column` (str): The column on which the Alligator is applied. Default is `'close'`.
+- `jaw_period` (int): Period for the Alligator's Jaw. Default is `13`.
+- `teeth_period` (int): Period for the Alligator's Teeth. Default is `8`.
+- `lips_period` (int): Period for the Alligator's Lips. Default is `5`.
+- `jaw_shift` (int): Number of periods to shift the Jaw line. Default is `8`.
+- `teeth_shift` (int): Number of periods to shift the Teeth line. Default is `5`.
+- `lips_shift` (int): Number of periods to shift the Lips line. Default is `3`.
+
+### Returns
+- **DataFrame**: A DataFrame with `'jaw'`, `'teeth'`, and `'lips'` columns.
+
+---
+
+## Bollinger Trend Indicator
+
+### Description
+The **Bollinger Trend Indicator** measures the trend based on the difference between short and long Bollinger Bands, indicating the strength of the trend.
+
+### Interpretation
+- Positive values of **BBTrend** suggest a strong uptrend, while negative values indicate a downtrend.
+
+### Usage Example
+```python
+df['bbtrend'] = bta.bollinger_trend(df, 'close', 20, 50, 2.0)['bbtrend']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing the data.
+- `column` (str): The column on which BBTrend is calculated. Default is `'close'`.
+- `short_length` (int): Period for the short Bollinger Bands. Default is `20`.
+- `long_length` (int): Period for the long Bollinger Bands. Default is `50`.
+- `std_dev` (float): Standard deviation multiplier for the Bollinger Bands. Default is `2.0`.
+
+### Returns
+- **DataFrame**: A DataFrame with a single `'bbtrend'` column.
+
+---
+
+## Bollinger Trend Fast with Moving Average
+
+### Description
+This variation of the **Bollinger Trend Indicator** calculates a more responsive Bollinger Trend and applies a selectable moving average to the BBTrend result.
+
+### Interpretation
+- **BBTrend** indicates the direction of the trend, while the selected moving average can smooth the BBTrend values.
+
+### Usage Example
+```python
+result = bta.bollinger_trend_fast_with_ma(df, 'close', 10, 50, 1.0, 2.0, 'SMA', 14)
+df['bollinger_trend_fast'] = result['bbtrend']
+df['bollinger_trend_fast_ma'] = result['bbtrend_ma']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame.
+- `column` (str): The column on which BBTrend is calculated. Default is `'close'`.
+- `short_length` (int): Period for the short Bollinger Bands. Default is `10`.
+- `long_length` (int): Period for the long Bollinger Bands. Default is `50`.
+- `short_stddev` (float): Standard deviation multiplier for short Bollinger Bands. Default is `1.0`.
+- `long_stddev` (float): Standard deviation multiplier for long Bollinger Bands. Default is `2.0`.
+- `ma_type` (str): Type of moving average to apply. Default is `'SMA'`.
+- `ma_length` (int): Period for the moving average. Default is `14`.
+
+### Returns
+- **DataFrame**: A DataFrame with `'bbtrend'` and `'bbtrend_ma'` columns.
+
+---
+
+## Breakouts
+
+### Description
+The **Breakouts** function identifies **Support and Resistance (S/R)** levels and their breakouts or retests. It highlights potential trend reversals and continuation points.
+
+### Interpretation
+- **Support/Resistance Breakout**: Indicates if the price breaks through a support or resistance level.
+- **Retests**: Signals whether the price retests a previously broken support or resistance level.
+
+### Usage Example
+```python
+breakout = bta.breakouts(df, length=20)
+df['support_level'] = breakout['support_level']
+df['resistance_level'] = breakout['resistance_level']
+df['support_breakout'] = breakout['support_breakout']
+df['resistance_breakout'] = breakout['resistance_breakout']
+df['support_retest'] = breakout['support_retest']
+df['potential_support_retest'] = breakout['potential_support_retest']
+df['resistance_retest'] = breakout['resistance_retest']
+df['potential_resistance_retest'] = breakout['potential_resistance_retest']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing the columns `'high'`, `'low'`, and `'close'`.
+- `length` (int): Lookback period. Default is `20`.
+
+### Returns
+- **DataFrame**: A DataFrame with columns for support and resistance levels, breakouts, and retests.
+
+---
+
+## Exponential Moving Average (EMA)
+
+### Description
+The **Exponential Moving Average (EMA)** gives more weight to recent prices, making it more responsive to recent price changes compared to the Simple Moving Average (SMA).
+
+### Interpretation
+- **EMA** is used to identify trends and smooth out price action, with more emphasis on recent data points.
+
+### Usage Example
+```python
+df['ema'] = bta.exponential_moving_average(df, 'close', 21)['ema']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing the data.
+- `column` (str): The column on which EMA is to be calculated. Default is `'close'`.
+- `period` (int): The period for the EMA calculation. Default is `21`.
+
+### Returns
+- **DataFrame**: A DataFrame with the `'ema'` column.
+
+---
+
+## Hull Moving Average (HMA)
+
+### Description
+The **Hull Moving Average (HMA)** is a smoothed moving average designed to minimize lag while retaining responsiveness to price changes. It achieves this by using the **Weighted Moving Average (WMA)**.
+
+### Interpretation
+- **HMA** provides a faster signal than traditional moving averages and can be used to detect trends more effectively.
+
+### Usage Example
+```python
+df['hma'] = bta.hull_moving_average(df, 'close', 9)['hma']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing the data.
+- `column` (str): The column on which HMA is to be calculated. Default is `'close'`.
+- `period` (int): The period for the HMA calculation. Default is `9`.
+
+### Returns
+- **DataFrame**: A DataFrame with the `'hma'` column.
+
+---
+
+## Least Squares Moving Average (LSMA)
+
+### Description
+The **Least Squares Moving Average (LSMA)** fits a straight line to the price data over a specified period using the **least squares** method. This line is used to depict the direction of movement.
+
+### Interpretation
+- **LSMA** is used to identify the current trend and smooth price data by removing noise.
+
+### Usage Example
+```python
+df['lsma'] = bta.least_squares_moving_average(df, 'close', 50)['lsma']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing the data.
+- `column` (str): The column on which LSMA is to be calculated. Default is `'close'`.
+- `period` (int): The period for LSMA calculation. Default is `21`.
+
+### Returns
+- **DataFrame**: A DataFrame with the `'lsma'` column.
+
+---
+
+## Percent Price Channel (PPC)
+
+### Description
+The **Percent Price Channel (PPC)** calculates the percentage change of a price channel, based on the highest high and lowest low of a trailing period.
+
+### Interpretation
+- A **breakout** above the upper band indicates market strength, while a **breakout** below the lower band signals weakness. The **percent_p** value shows the current price’s position within the price channel.
+
+### Usage Example
+```python
+ppc_result = bta.price_channel(df, period=20)
+df['ppc_upper'] = ppc_result['ppc_upper']
+df['ppc_mid'] = ppc_result['ppc_mid']
+df['ppc_lower'] = ppc_result['ppc_lower']
+df['percent_p'] = ppc_result['percent_p']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing the data.
+- `period` (int): The period for calculating the highest high and lowest low. Default is `20`.
+
+### Returns
+- **DataFrame**: A DataFrame with `'ppc_upper'`, `'ppc_mid'`, `'ppc_lower'`, and `'percent_p'` columns.
+
+---
+
+## Rolling Moving Average (RMA)
+
+### Description
+The **Rolling Moving Average (RMA)** is a type of **Exponential Moving Average (EMA)** that smooths data over a specified period, providing a trend-following measure.
+
+### Interpretation
+- **RMA** is used similarly to EMA, giving more weight to recent price data, and is helpful in trend identification.
+
+### Usage Example
+```python
+df['rma'] = bta.rolling_moving_average(df, 'close', 14)['rma']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing the data.
+- `column` (str): The column on which RMA is calculated. Default is `'close'`.
+- `period` (int): The period for the RMA calculation. Default is `14`.
+
+### Returns
+- **DataFrame**: A DataFrame with the `'rma'` column.
+
+---
+
+## Simple Moving Average (SMA)
+
+### Description
+The **Simple Moving Average (SMA)** is the unweighted mean of the previous n data points. It is used to smooth price data to identify trends.
+
+### Interpretation
+- **SMA** is used to identify the overall direction of a trend. Longer periods smooth out more short-term fluctuations.
+
+### Usage Example
+```python
+df['sma'] = bta.simple_moving_average(df, 'close', 50)['sma']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing the data.
+- `column` (str): The column on which SMA is to be calculated. Default is `'close'`.
+- `period` (int): The period for SMA calculation. Default is `21`.
+
+### Returns
+- **DataFrame**: A DataFrame with the `'sma'` column.
+
+---
+
+## SSL Channels
+
+### Description
+**SSL Channels** use moving averages to identify trends by calculating SSL Down and SSL Up series based on price action.
+
+### Interpretation
+- **SSL Down** and **SSL Up** signals indicate potential buy or sell conditions depending on the relationship between price and these levels.
+
+### Usage Example
+```python
+ssl_result = bta.ssl_channels(df, length=10, mode='sma')
+df['ssl_down'] = ssl_result['ssl_down']
+df['ssl_up'] = ssl_result['ssl_up']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing the data.
+- `length` (int): Period for the SMA calculation. Default is `10`.
+- `mode` (str): The type of moving average. Currently, only `'sma'` is supported.
+
+### Returns
+- **DataFrame**: A DataFrame with `'ssl_down'` and `'ssl_up'` columns.
+
+---
+
+## SSL Channels with ATR
+
+### Description
+The **SSL Channels with ATR** use the **Average True Range (ATR)** to dynamically adjust support and resistance levels, helping identify trend reversals and continuations.
+
+### Interpretation
+- The **ATR-adjusted SSL Down** and **SSL Up** provide dynamic support and resistance levels based on volatility.
+
+### Usage Example
+```python
+ssl_result = bta.ssl_channels_atr(df, column='close', length=14, atr_period=7)
+df['ssl_atr_down'] = ssl_result['ssl_atr_down']
+df['ssl_atr_up'] = ssl_result['ssl_atr_up']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing the data.
+- `length` (int): Period for the SMA calculation. Default is `14`.
+- `atr_period` (int): Period for the ATR calculation. Default is `7`.
+- `column` (str): The column to use for moving average calculations. Default is `'close'`.
+
+### Returns
+- **DataFrame**: A DataFrame with `'ssl_atr_down'` and `'ssl_atr_up'` columns.
+
+---
+
+## T3 Average
+
+### Description
+The **T3 Average** is a smoothed moving average designed to reduce lag while maintaining responsiveness to price changes. It is calculated using multiple stages of **Exponential Moving Averages (EMAs)**.
+
+### Interpretation
+- The **T3 Average** offers a smooth trend-following signal that is more responsive than traditional moving averages while reducing lag.
+
+### Usage Example
+```python
+df['t3_average'] = bta.t3_average(df, length=5)['t3_average']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing the data.
+- `length` (int): Period for the EMA calculation. Default is `5`.
+
+### Returns
+- **DataFrame**: A DataFrame with the `'t3_average'` column.
+
+---
+
+## Weighted Moving Average (WMA)
+
+### Description
+The **Weighted Moving Average (WMA)** gives more weight to recent data points and less weight to older data points. It is useful for tracking trends while placing emphasis on recent prices.
+
+### Interpretation
+- **WMA** can be used to identify trends similarly to other moving averages, but it reacts faster to price changes due to its weighting system.
+
+### Usage Example
+```python
+df['wma'] = bta.weighted_moving_average(df, 'close', 10)['wma']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing the data.
+- `column` (str): The column to calculate the WMA on. Default is `'close'`.
+- `period` (int): The period for the WMA calculation. Default is `10`.
+
+### Returns
+- **DataFrame**: A DataFrame with the `'wma'` column.
+
+---
+
+## Zero Exponential Moving Average (ZEMA)
+
+### Description
+The **Zero Exponential Moving Average (ZEMA)** is an improved version of the **Exponential Moving Average (EMA)** that reduces lag by incorporating a zero-lag component.
+
+### Interpretation
+- **ZEMA** is faster to respond to price changes compared to the regular EMA and can be used to detect trends more effectively.
+
+### Usage Example
+```python
+df['zema'] = bta.zero_exponential_moving_average(df, 'close', 21)['zema']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing the data.
+- `column` (str): The column on which ZEMA is to be calculated. Default is `'close'`.
+- `period` (int): The period for ZEMA calculation. Default is `21`.
+
+### Returns
+- **DataFrame**: A DataFrame with the `'zema'` column.
+
+---
+
+## Zero Lag Exponential Moving Average (ZLEMA)
+
+### Description
+The **Zero Lag Exponential Moving Average (ZLEMA)** is an **Exponential Moving Average (EMA)** that adjusts for lag, making it more responsive to recent price changes by using lagged data differences to adjust the EMA calculation.
+
+### Interpretation
+- **ZLEMA** provides a faster and more responsive trend signal by reducing the inherent lag of the EMA.
+
+### Usage Example
+```python
+df['zlema'] = bta.zero_lag_exponential_moving_average(df, 'close', 21)['zlema']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing the data.
+- `column` (str): The column on which ZLEMA is to be calculated. Default is `'close'`.
+- `period` (int): The period for ZLEMA calculation. Default is `21`.
+
+### Returns
+- **DataFrame**: A DataFrame with the `'zlema'` column.
+
+---
