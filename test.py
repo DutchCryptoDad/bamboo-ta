@@ -25,10 +25,10 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['leledc_major'] = exhaustion['leledc_major']
 # df['leledc_minor'] = exhaustion['leledc_minor']
 
-# # ERROR
-# # dynamic_exhaustion = bta.dynamic_exhaustion_bars(df)
-# # df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
-# # df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
+# # # GOOD
+# dynamic_exhaustion = bta.dynamic_exhaustion_bars(df)
+# df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
+# df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
 
 # # GOOD
 # ha_df = bta.heikin_ashi(df)
@@ -45,10 +45,7 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['lrc_close'] = lr_df['bclose']
 # df['lrc_signal'] = lr_df['signal']
 
-
-
-
-### MOMENTUM.PY FUNCTIES ###
+# ## MOMENTUM.PY FUNCTIES ###
 
 # # # WERKT GOED!!!
 # df['ao'] = bta.awesome_oscillator(df, 'high', 'low', 5, 34)['ao']
@@ -154,19 +151,14 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['williams_r'] = bta.williams_r(df, 'high', 'low', 'close', 14)['williams_r']
 
 
-
-
 # ### TREND.PY ####
-
 
 # alligator_result = bta.alligator_bands(df, 'close', 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
 # df['jaw'] = alligator_result['jaw']
 # df['teeth'] = alligator_result['teeth']
 # df['lips'] = alligator_result['lips']
 
-
 # df['bbtrend'] = bta.bollinger_trend(df, 'close', 20, 50, 2.0)['bbtrend']
-
 
 # result = bta.bollinger_trend_fast_with_ma(df, 'close', 10, 50, 1.0, 2.0, 'SMA', 14)
 # df['bollinger_trend_fast'] = result['bbtrend']
@@ -193,8 +185,7 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # # # # WERKT GOED!!!
 # df['lsma'] = bta.least_squares_moving_average(df, 'close', 50)['lsma']
 
-# FOUTIEF
-# # # # WERKT GOED!!! # https://help.tradestation.com/10_00/eng/tradestationhelp/elanalysis/indicator/price_channel__percent_pc_indicator_.htm
+# # # # # WERKT GOED!!! # https://help.tradestation.com/10_00/eng/tradestationhelp/elanalysis/indicator/price_channel__percent_pc_indicator_.htm
 # pcc_result = bta.percent_price_channel(df, period=20, mult=2)
 # df['pcc_upper'] = pcc_result['pcc_upper']
 # df['pcc_rangema'] = pcc_result['pcc_rangema']
@@ -248,63 +239,6 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['resistance_retest'] = breakout['resistance_retest']
 # df['potential_resistance_retest'] = breakout['potential_resistance_retest']
 
-## WERKT GOED!!! TESTED AGAINST THE DEFAULTBUILDIN TV Stochastic (STOCH) https://www.tradingview.com/chart/?symbol=BINANCE%3ABTCUSDT&solution=43000502332
-# stoch = bta.StochasticsOscillator(df, 'high', 'low', 'close', 14, 3)
-# df['stoch'] = stoch['stoch']
-# df['stoch_signal'] = stoch['stoch_signal']
-# df['stoch_hist'] = stoch['stoch_hist']
-
-# ## ONDUIDELIJK WELKE OSCILLATOR HIER NU WORDT GEBRUIKT NIET TE CONTROLEREN
-# df['wto'] = bta.WaveTrendOscillator(df, 'close', 10, 21)['wavetrend']
-
-# ## WERKT GOED!!! 
-# df['atr'] = bta.AverageTrueRange(df, 14)['atr']
-
-# ## WERKT GOED!!! 
-# bb_result = bta.BollingerBands(df, 'close', 20, 2, 0)
-# df['bb_upper'] = bb_result['bb_upper']
-# df['bb_middle'] = bb_result['bb_middle']
-# df['bb_lower'] = bb_result['bb_lower']
-
-# ## WERKT GOED!!! 
-# df['true_range'] = bta.TrueRange(df)['true_range']
-
-# # ## WERKT GOED!!! 
-# df['bbtrend'] = bta.BollingerTrend(df, 'close', 20, 50, 2.0)['bbtrend']
-
-# # ## WERKT GOED!!! 
-# result = bta.BollingerTrendFastWithMA(df, 'close', 10, 50, 1.0, 2.0, 'SMA', 14)
-# df['bollinger_trend_fast'] = result['bbtrend']
-# df['bollinger_trend_fast_ma'] = result['bbtrend_ma']
-
-# WERKT GOED!!! 
-# wae = bta.WaddahAttarExplosion(df)
-# df['trend_up'] = wae['trend_up']
-# df['trend_down'] = wae['trend_down']
-# df['explosion_line'] = wae['explosion_line']
-# df['dead_zone_line'] = wae['dead_zone_line']
-
-# # WERKT GOED!!! 
-# wae_atr = bta.WaddahAttarExplosionAtr(df)
-# df['trend_up'] = wae_atr['trend_up']
-# df['trend_down'] = wae_atr['trend_down']
-# df['explosion_line'] = wae_atr['explosion_line']
-# df['dead_zone_line'] = wae_atr['dead_zone_line']
-
-## WERKT BIJNA GOED, ALLEEN DE QQE LIJN VERTOONT AFWIJKINGEN TOV https://www.tradingview.com/script/TpUW4muw-QQE-MOD/
-# qqe_mod = bta.QQEMod(df)
-# qqe_mod = bta.QQEMod(df, 6, 5, 3, 3, 50, 0.35, 6, 5, 1.61, 3)
-# df['qqe_line'] = qqe_mod['qqe_line']
-# df['histo2'] = qqe_mod['histo2']
-# df['qqe_up'] = qqe_mod['qqe_up']
-# df['qqe_down'] = qqe_mod['qqe_down']
-
-
-# qqe_df = bta.QQE(df, rsi_period=6, sf=5, qqe_factor=4.238, threshold=10, fillna=True)
-# df['rsi_ma'] = qqe_df['rsi_ma']
-# df['fast_atr_rsi_tl'] = qqe_df['fast_atr_rsi_tl']
-# df['histogram'] = qqe_df['histogram']
-
 ###### UTILITY.PY FILE ###############
 
 ### NOG TE TESTEN
@@ -347,16 +281,16 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['daily_log_return'] = bta.daily_log_return(df)
 
 
-## LIJKT GOED TE WERKEN
+# # LIJKT GOED TE WERKEN
 # maj_qual, min_qual = bta.exhaustion_candles(df, 2, 1)
 # df['maj_qual'] = maj_qual
 # df['min_qual'] = min_qual
 
 
-## LIJKT GOED TE WERKEN
+# # LIJKT GOED TE WERKEN
 # df['zscore']  = bta.z_score(df['close'])
 
-## LIJKT GOED TE WERKEN
+# # LIJKT GOED TE WERKEN
 # df['std_dev'] = bta.st_dev(df['close'], period=14)
 
 # df['df_cleaned'] = bta.drop_na(df)
@@ -364,7 +298,7 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # # ## WERKT GOED!!!
 # df['slope'] = bta.regression_slope(df, 20)
 
-# NIET TE TESTEN
+# # NIET TE TESTEN
 # leledc_major_minor = bta.populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len)
 # df['leledc_major'] = leledc_major_minor['leledc_major']
 # df['leledc_minor'] = leledc_major_minor['leledc_minor']
@@ -383,7 +317,7 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # # ## WERKT GOED!!!
 # df['true_range'] = bta.true_range(df)['true_range']
 
-###### VOLUME.PY FILE ###############
+# ##### VOLUME.PY FILE ###############
 
 # ## WERKT GOED!!!
 # df['adi'] = bta.accumulation_distribution_index(df, fillna=True)['adi']

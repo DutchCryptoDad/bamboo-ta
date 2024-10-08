@@ -752,7 +752,7 @@ def waddah_attar_explosion_atr(
     t1 = (macd_diff - macd_diff.shift(1)) * sensitivity
 
     # Calculate Bollinger Bands
-    bb = BollingerBands(df, column='close', period=channel_length, std_dev=mult)
+    bb = bollinger_bands(df, column='close', period=channel_length, std_dev=mult)
     e1 = bb['bb_upper'] - bb['bb_lower']
 
     trend_up = np.where(t1 >= 0, t1, 0)
@@ -821,7 +821,7 @@ def waddah_attar_explosion(
     t1 = (macd_diff - macd_diff.shift(1)) * sensitivity
 
     # Calculate Bollinger Bands
-    bb = BollingerBands(df, column='close', period=channel_length, std_dev=mult)
+    bb = bollinger_bands(df, column='close', period=channel_length, std_dev=mult)
     e1 = bb['bb_upper'] - bb['bb_lower']
 
     trend_up = np.where(t1 >= 0, t1, 0)

@@ -386,32 +386,40 @@ def exhaustion_candles(df: pd.DataFrame, window: int = 1, multiplier: int = 1) -
     return maj_qual, min_qual
 
 
-def ExhaustionLengths(df):
+import numpy as np
+import pandas as pd
+from scipy.signal import argrelextrema
+
+def exhaustion_lengths(df: pd.DataFrame) -> Tuple[int, int]:
     """
-    Calculate the average length of peaks and valleys to adjust the exhaustion bands dynamically
+    Calculate the average length of peaks and valleys to adjust the exhaustion bands dynamically.
     
     Parameters:
-    - df (pandas.DataFrame): Input DataFrame.
+    - df (pandas.DataFrame): Input DataFrame containing 'high' and 'low' columns.
 
     Call with:
-        maj_len, min_len = ExhaustionLengths(df)
+        maj_len, min_len = exhaustion_lengths(df)
         df['maj_len'] = maj_len
         df['min_len'] = min_len
 
     Returns:
     - int, int: Average peak distance and average valley distance.
     """
+    # Find relative maxima (peaks) and minima (valleys) in the 'high' and 'low' columns
     high_indices = argrelextrema(df['high'].to_numpy(), np.greater)[0]
     low_indices = argrelextrema(df['low'].to_numpy(), np.less)[0]
 
+    # If there are fewer than two peaks or valleys, return zero
     if len(high_indices) < 2 or len(low_indices) < 2:
         return 0, 0
 
+    # Calculate average and standard deviation of distances between peaks and valleys
     avg_peak_distance = np.mean(np.diff(high_indices))
     std_peak_distance = np.std(np.diff(high_indices))
     avg_valley_distance = np.mean(np.diff(low_indices))
     std_valley_distance = np.std(np.diff(low_indices))
 
+    # Determine major and minor lengths using average + standard deviation
     maj_len = int(avg_peak_distance + std_peak_distance)
     min_len = int(avg_valley_distance + std_valley_distance)
 

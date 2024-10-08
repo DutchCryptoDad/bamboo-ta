@@ -83,13 +83,13 @@ def bollinger_trend(
     df_copy = df.copy()
 
     # Calculate short Bollinger Bands
-    short_bb = BollingerBands(df, column=column, period=short_length, std_dev=std_dev)
+    short_bb = bollinger_bands(df, column=column, period=short_length, std_dev=std_dev)
     short_middle = short_bb['bb_middle']
     short_upper = short_bb['bb_upper']
     short_lower = short_bb['bb_lower']
 
     # Calculate long Bollinger Bands
-    long_bb = BollingerBands(df, column=column, period=long_length, std_dev=std_dev)
+    long_bb = bollinger_bands(df, column=column, period=long_length, std_dev=std_dev)
     long_middle = long_bb['bb_middle']
     long_upper = long_bb['bb_upper']
     long_lower = long_bb['bb_lower']
@@ -142,13 +142,13 @@ def bollinger_trend_fast_with_ma(
     df_copy = df.copy()
 
     # Calculate short Bollinger Bands
-    short_bb = BollingerBands(df, column=column, period=short_length, std_dev=short_stddev)
+    short_bb = bollinger_bands(df, column=column, period=short_length, std_dev=short_stddev)
     short_middle = short_bb['bb_middle']
     short_upper = short_bb['bb_upper']
     short_lower = short_bb['bb_lower']
 
     # Calculate long Bollinger Bands
-    long_bb = BollingerBands(df, column=column, period=long_length, std_dev=long_stddev)
+    long_bb = bollinger_bands(df, column=column, period=long_length, std_dev=long_stddev)
     long_middle = long_bb['bb_middle']
     long_upper = long_bb['bb_upper']
     long_lower = long_bb['bb_lower']
