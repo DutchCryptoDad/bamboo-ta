@@ -307,8 +307,64 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 ###### UTILITY.PY FILE ###############
 
-df['slope'] = bta.regression_slope(df, 20)
+### NOG TE TESTEN
+# atr_sl_tp_df = bta.calculate_atr_stop_loss_take_profit(df, signal_column='signal')
+# df['takeprofit'] = atr_sl_tp_df['takeprofit']
+# df['stoploss'] = atr_sl_tp_df['stoploss']
+# df['buyprice'] = atr_sl_tp_df['buyprice']
 
+### NOG TE TESTEN
+# stop_loss_take_profit = bta.calculate_stop_loss_take_profit(df, 
+#                                                             signal_column='trade_signal',
+#                                                             long_trade_signal='long_trade', 
+#                                                             short_trade_signal='short_trade', 
+#                                                             no_trade_signal='no_trade', 
+#                                                             lookback_period=5, 
+#                                                             long_reward_ratio=2, 
+#                                                             short_reward_ratio=1.5, 
+#                                                             buffer=0.5)
+# df['stop_loss'] = stop_loss_take_profit['stop_loss']
+# df['entry_price'] = stop_loss_take_profit['entry_price']
+# df['take_profit'] = stop_loss_take_profit['take_profit']
+# df['exit_reason'] = stop_loss_take_profit['exit_reason']
+
+### NOG TE TESTEN
+# df['first_crossed_below_second'] = bta.first_crossed_below_second(series1, series2)
+
+### NOG TE TESTEN
+# df['first_crossed_above_second'] = bta.first_crossed_above_second(series1, series2)
+
+# ## LIJKT GOED TE WERKEN
+# df['min_max'] = bta.get_min_max(df['open'], df['open'], 'max')
+
+# ## LIJKT GOED TE WERKEN
+# df['daily_return'] = bta.daily_return(df)
+
+# ## LIJKT GOED TE WERKEN
+# df['cumulative_return'] = bta.cumulative_return(df)
+
+# ## LIJKT GOED TE WERKEN
+# df['daily_log_return'] = bta.daily_log_return(df)
+
+
+## LIJKT GOED TE WERKEN
+# maj_qual, min_qual = bta.exhaustion_candles(df, 2, 1)
+# df['maj_qual'] = maj_qual
+# df['min_qual'] = min_qual
+
+
+## LIJKT GOED TE WERKEN
+# df['zscore']  = bta.z_score(df['close'])
+
+## LIJKT GOED TE WERKEN
+# df['std_dev'] = bta.st_dev(df['close'], period=14)
+
+# df['df_cleaned'] = bta.drop_na(df)
+
+# # ## WERKT GOED!!!
+# df['slope'] = bta.regression_slope(df, 20)
+
+# NIET TE TESTEN
 # leledc_major_minor = bta.populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len)
 # df['leledc_major'] = leledc_major_minor['leledc_major']
 # df['leledc_minor'] = leledc_major_minor['leledc_minor']
