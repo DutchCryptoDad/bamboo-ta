@@ -97,6 +97,40 @@ df['trigger'] = fscg['trigger']
 
 ---
 
+## Intraday Momentum Index (IMI)
+
+### Description
+The **Intraday Momentum Index (IMI)** combines candlestick analysis with the principles of the Relative Strength Index (RSI) to measure intraday momentum. It evaluates the relationship between opening and closing prices to identify potential market trends and reversals.
+
+### Interpretation
+- **IMI Values**:
+  - **`IMI > 70`**: Indicates overbought conditions, signaling a potential sell opportunity.
+  - **`IMI < 30`**: Indicates oversold conditions, signaling a potential buy opportunity.
+  - **`IMI Between 30 and 70`**: Indicates neutral market conditions.
+
+The IMI is particularly useful for short-term trading, where the relationship between open and close prices is significant.
+
+### Usage Example
+```python
+# Calculate IMI and add it to the DataFrame
+df['imi'] = bta.calculate_intraday_momentum_index(df, length=14)
+```
+
+### Parameters
+- **`df`** (*pandas.DataFrame*): The input DataFrame must contain the following columns:
+  - `'open'`: Opening price.
+  - `'close'`: Closing price.
+- **`length`** (*int*, default=`14`): The lookback period over which gains and losses are summed to calculate the IMI.
+
+### Returns
+- **`pd.Series`**: A Pandas Series representing the Intraday Momentum Index (IMI) values.
+
+### Notes
+- The **IMI** is most effective in volatile markets or when analyzing short-term price movements.
+- Ensure the input DataFrame contains the `'open'` and `'close'` columns; otherwise, the function will raise a `ValueError`.
+
+---
+
 ## Kaufman's Adaptive Moving Average (KAMA)
 
 ### Description

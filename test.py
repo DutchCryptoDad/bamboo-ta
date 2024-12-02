@@ -52,6 +52,8 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 # ## MOMENTUM.PY FUNCTIES ###
 
+df['imi'] = bta.calculate_intraday_momentum_index(df, length=14)
+
 # # # WERKT GOED!!!
 # df['ao'] = bta.awesome_oscillator(df, 'high', 'low', 5, 34)['ao']
 
@@ -246,20 +248,21 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 ###### UTILITY.PY FILE ###############
 
-pd_result = bta.pump_dump_protection(
-    df,
-    rsi_period=14,
-    short_volume_window=4,
-    long_volume_window=48,
-    volume_warn_threshold=0.8
-)
+# GOED
+# pd_result = bta.pump_dump_protection(
+#     df,
+#     rsi_period=14,
+#     short_volume_window=4,
+#     long_volume_window=48,
+#     volume_warn_threshold=0.8
+# )
 
-# Add all calculated columns to the original DataFrame
-df['volume_mean_short'] = pd_result['volume_mean_short']
-df['volume_mean_long'] = pd_result['volume_mean_long']
-df['volume_change_percentage'] = pd_result['volume_change_percentage']
-df['rsi'] = pd_result['rsi']
-df['pnd_volume_warn'] = pd_result['pnd_volume_warn']
+# # Add all calculated columns to the original DataFrame
+# df['volume_mean_short'] = pd_result['volume_mean_short']
+# df['volume_mean_long'] = pd_result['volume_mean_long']
+# df['volume_change_percentage'] = pd_result['volume_change_percentage']
+# df['rsi'] = pd_result['rsi']
+# df['pnd_volume_warn'] = pd_result['pnd_volume_warn']
 
 ## CANNOT VERIFY THIS - HAVE TO TRUST THE BUILDER
 # breakout = bta.Breakouts(df, length=20)
