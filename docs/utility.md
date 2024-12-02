@@ -309,6 +309,85 @@ df['leledc_minor'] = leledc_major_minor['leledc_minor']
 
 ---
 
+---
+
+## Pump and Dump Protection Indicator
+
+### Description
+The **Pump and Dump Protection Indicator** detects abnormal trading volume changes and price movements to help identify potential pump-and-dump scenarios. This self-contained function avoids relying on a specific timeframe, making it adaptable to any dataset's granularity.
+
+
+### Interpretation
+This indicator outputs several metrics to identify potential pump-and-dump activity:
+
+1. **Volume Metrics**:
+   - **`volume_mean_short`**: The short-term average of trading volume over the last few intervals.
+   - **`volume_mean_long`**: The long-term average of trading volume over a larger rolling window.
+   - **`volume_change_percentage`**: Measures the relative change in volume:
+     - High values (> 1.0) indicate the short-term volume is unusually high compared to the long-term volume.
+     - Values > `volume_warn_threshold` suggest abnormal trading activity.
+2. **RSI Metrics**:
+   - **`rsi`**: The Relative Strength Index over a specified period, indicating market conditions:
+     - **RSI < 30**: Oversold conditions (potential buy signals).
+     - **RSI > 70**: Overbought conditions (potential sell signals).
+   - **`pnd_volume_warn`**: A binary indicator:
+     - `-1`: Abnormal short-term volume spike detected.
+     - `0`: No significant volume spikes detected.
+
+### Usage Example
+```python
+result = bta.pump_dump_protection_no_timeframe(
+    df,
+    rsi_period=14,
+    short_volume_window=4,
+    long_volume_window=48,
+    volume_warn_threshold=5.0
+)
+
+# Integrate results into the original DataFrame
+df['volume_mean_short'] = result['volume_mean_short']
+df['volume_mean_long'] = result['volume_mean_long']
+df['volume_change_percentage'] = result['volume_change_percentage']
+df['rsi'] = result['rsi']
+df['pnd_volume_warn'] = result['pnd_volume_warn']
+```
+
+### Parameters
+- **`df`** (*pandas.DataFrame*): Input DataFrame with required columns:
+  - `'close'`: Closing price.
+  - `'high'`: High price for the interval.
+  - `'low'`: Low price for the interval.
+  - `'volume'`: Trading volume for the interval.
+- **`rsi_period`** (*int*, default=`14`): Lookback period for RSI calculation.
+- **`short_volume_window`** (*int*, default=`4`): Rolling window size for short-term volume mean.
+- **`long_volume_window`** (*int*, default=`48`): Rolling window size for long-term volume mean.
+- **`volume_warn_threshold`** (*float*, default=`5.0`): Threshold for abnormal short-term volume spikes.
+
+### Returns
+A DataFrame with the following additional columns:
+- **`volume_mean_short`**: Rolling mean of volume over the last `short_volume_window` intervals.
+- **`volume_mean_long`**: Rolling mean of volume over the last `long_volume_window` intervals.
+- **`volume_change_percentage`**: Ratio of short-term volume to long-term volume.
+- **`rsi`**: Calculated RSI values.
+- **`pnd_volume_warn`**: Indicator (`-1` or `0`) for abnormal short-term volume spikes.
+
+### Interpretation of Output
+1. **Volume Spikes (`pnd_volume_warn`)**:
+   - `-1`: A warning that the short-term volume is significantly higher than the long-term volume, which could indicate a potential pump-and-dump scenario.
+   - `0`: No abnormal volume activity detected.
+2. **Volume Change Percentage**:
+   - Values > 1.0 suggest increased trading activity.
+   - Higher values closer to the `volume_warn_threshold` should be reviewed carefully for abnormal activity.
+3. **RSI (`rsi`)**:
+   - RSI < 30: Potential oversold conditions, signaling a possible buy opportunity.
+   - RSI > 70: Potential overbought conditions, signaling a possible sell opportunity.
+
+### Notes
+- The `volume_warn_threshold` parameter can be adjusted to fine-tune sensitivity to volume spikes. A lower value increases sensitivity, while a higher value reduces it.
+- The function adapts dynamically to any dataset interval (e.g., 1-minute, 5-minute, hourly), making it versatile for different data granularities.
+
+---
+
 ## regression_slope
 
 ### Description

@@ -155,14 +155,15 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # # # WERKT CONFORM https://www.tradingview.com/script/REGZq58T-Williams-R/
 # df['williams_r'] = bta.williams_r(df, 'high', 'low', 'close', 14)['williams_r']
 
-momdiv_result = bta.momentum_divergence(df, mom_length=5, bb_length=5, bb_dev=1.0, lookback=5)
-df['momentum_divergence_mom'] = momdiv_result['momentum_divergence_mom']
-df['momentum_divergence_upperb'] = momdiv_result['momentum_divergence_upperb']
-df['momentum_divergence_lowerb'] = momdiv_result['momentum_divergence_lowerb']
-df['momentum_divergence_buy'] = momdiv_result['momentum_divergence_buy']
-df['momentum_divergence_sell'] = momdiv_result['momentum_divergence_sell']
-df['momentum_divergence_coh'] = momdiv_result['momentum_divergence_coh']
-df['momentum_divergence_col'] = momdiv_result['momentum_divergence_col']
+## GOED
+# momdiv_result = bta.momentum_divergence(df, mom_length=5, bb_length=5, bb_dev=1.0, lookback=5)
+# df['momentum_divergence_mom'] = momdiv_result['momentum_divergence_mom']
+# df['momentum_divergence_upperb'] = momdiv_result['momentum_divergence_upperb']
+# df['momentum_divergence_lowerb'] = momdiv_result['momentum_divergence_lowerb']
+# df['momentum_divergence_buy'] = momdiv_result['momentum_divergence_buy']
+# df['momentum_divergence_sell'] = momdiv_result['momentum_divergence_sell']
+# df['momentum_divergence_coh'] = momdiv_result['momentum_divergence_coh']
+# df['momentum_divergence_col'] = momdiv_result['momentum_divergence_col']
 
 
 # ### TREND.PY ####
@@ -245,7 +246,20 @@ df['momentum_divergence_col'] = momdiv_result['momentum_divergence_col']
 
 ###### UTILITY.PY FILE ###############
 
+pd_result = bta.pump_dump_protection(
+    df,
+    rsi_period=14,
+    short_volume_window=4,
+    long_volume_window=48,
+    volume_warn_threshold=0.8
+)
 
+# Add all calculated columns to the original DataFrame
+df['volume_mean_short'] = pd_result['volume_mean_short']
+df['volume_mean_long'] = pd_result['volume_mean_long']
+df['volume_change_percentage'] = pd_result['volume_change_percentage']
+df['rsi'] = pd_result['rsi']
+df['pnd_volume_warn'] = pd_result['pnd_volume_warn']
 
 ## CANNOT VERIFY THIS - HAVE TO TRUST THE BUILDER
 # breakout = bta.Breakouts(df, length=20)
