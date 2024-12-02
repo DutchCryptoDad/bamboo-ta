@@ -170,14 +170,14 @@ def dynamic_exhaustion_bars(df, window=500):
     return df_copy[['leledc_major', 'leledc_minor']]
 
 
-def heikin_ashi(df, pre_smoothing_period=None, post_smoothing_period=None):
+def heiken_ashi(df, pre_smoothing_period=None, post_smoothing_period=None):
     """
-    Heikin Ashi (HA) with Optional Pre and Post Smoothing
+    Heiken Ashi (HA) with Optional Pre and Post Smoothing
 
-    Heikin Ashi is a type of price chart that shares some characteristics with 
+    Heiken Ashi is a type of price chart that shares some characteristics with 
     candlestick charts but differs due to the values used to plot them. This 
     modified version allows for optional smoothing of the original data before 
-    the Heikin Ashi calculation and/or smoothing of the Heikin Ashi values 
+    the Heiken Ashi calculation and/or smoothing of the Heiken Ashi values 
     themselves, aiming to provide a more refined and smoother representation 
     of price action, making it easier to identify the trend.
 
@@ -185,13 +185,13 @@ def heikin_ashi(df, pre_smoothing_period=None, post_smoothing_period=None):
     - df (pandas.DataFrame): Input DataFrame which should contain columns: 
       'open', 'high', 'low', and 'close'.
     - pre_smoothing_period (int, optional): Period for EMA pre-smoothing of the 
-      original data. If provided, original price bars are smoothed before Heikin 
+      original data. If provided, original price bars are smoothed before Heiken 
       Ashi calculations.
     - post_smoothing_period (int, optional): Period for EMA post-smoothing of 
-      Heikin Ashi values. If provided, Heikin Ashi values are smoothed post calculations.
+      Heiken Ashi values. If provided, Heiken Ashi values are smoothed post calculations.
 
     Call with:
-        ha_df = bta.heikin_ashi(df)
+        ha_df = bta.heiken_ashi(df)
         df['ha_open'] = ha_df['ha_open']
         df['ha_high'] = ha_df['ha_high']
         df['ha_low'] = ha_df['ha_low']
@@ -215,7 +215,7 @@ def heikin_ashi(df, pre_smoothing_period=None, post_smoothing_period=None):
         df_copy['high'] = EMA(df_copy, 'high', pre_smoothing_period)
         df_copy['low'] = EMA(df_copy, 'low', pre_smoothing_period)
 
-    # Regular Heikin Ashi calculations
+    # Regular Heiken Ashi calculations
     df_copy['ha_close'] = (
         (df_copy['open'] + df_copy['high'] + df_copy['low'] + df_copy['close']) / 4
     )

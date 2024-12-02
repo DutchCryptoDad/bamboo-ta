@@ -58,17 +58,17 @@ df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
 
 ---
 
-## Heikin Ashi
+## Heiken Ashi
 
 ### Description
-**Heikin Ashi** charts are a modified form of candlestick charts that smooth out price action, making it easier to identify trends. Optional pre- and post-smoothing can further refine the visual representation of the trend.
+**Heiken Ashi** charts are a modified form of candlestick charts that smooth out price action, making it easier to identify trends. Optional pre- and post-smoothing can further refine the visual representation of the trend.
 
 ### Interpretation
-- **Heikin Ashi Candles** help reduce noise and make trend-following easier. When the Heikin Ashi close is higher than the open, the market is in an uptrend, and vice versa.
+- **Heiken Ashi Candles** help reduce noise and make trend-following easier. When the Heiken Ashi close is higher than the open, the market is in an uptrend, and vice versa.
 
 ### Usage Example
 ```python
-ha_df = bta.heikin_ashi(df)
+ha_df = bta.heiken_ashi(df)
 df['ha_open'] = ha_df['ha_open']
 df['ha_high'] = ha_df['ha_high']
 df['ha_low'] = ha_df['ha_low']
@@ -77,15 +77,15 @@ df['ha_close'] = ha_df['ha_close']
 
 ### Parameters
 - `df` (pandas.DataFrame): Input DataFrame with columns `open`, `high`, `low`, and `close`.
-- `pre_smoothing_period` (int, optional): If provided, smooths data before Heikin Ashi calculations.
-- `post_smoothing_period` (int, optional): If provided, smooths the Heikin Ashi values after calculation.
+- `pre_smoothing_period` (int, optional): If provided, smooths data before Heiken Ashi calculations.
+- `post_smoothing_period` (int, optional): If provided, smooths the Heiken Ashi values after calculation.
 
 ### Returns
 - **DataFrame**: A DataFrame with four columns:
-  - `'ha_open'`: Heikin Ashi open.
-  - `'ha_high'`: Heikin Ashi high.
-  - `'ha_low'`: Heikin Ashi low.
-  - `'ha_close'`: Heikin Ashi close.
+  - `'ha_open'`: Heiken Ashi open.
+  - `'ha_high'`: Heiken Ashi high.
+  - `'ha_low'`: Heiken Ashi low.
+  - `'ha_close'`: Heiken Ashi close.
 
 ---
 
