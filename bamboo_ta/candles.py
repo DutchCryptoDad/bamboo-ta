@@ -170,6 +170,43 @@ def dynamic_exhaustion_bars(df, window=500):
     return df_copy[['leledc_major', 'leledc_minor']]
 
 
+def hansen_heiken_ashi(df: pd.DataFrame, period: int = 6) -> pd.DataFrame:
+    """
+    Hansen Heiken Ashi (HHA)
+
+    The Hansen Heiken Ashi is a modified version of the Heiken Ashi candlestick calculation
+    with additional smoothing using a Simple Moving Average (SMA). It aims to reduce noise 
+    in the data for better trend visualization.
+
+    Parameters:
+    - df (pd.DataFrame): Input DataFrame containing OHLC (open, high, low, close) data.
+    - period (int): Period for the Simple Moving Average (SMA) to smooth data. Default is 6.
+
+    Call with:
+        hha_result = bta.hansen_heiken_ashi(df, period=6)
+        df['hha_emac'] = hha_result['emac']
+        df['hha_emao'] = hha_result['emao']
+
+    Returns:
+    - pd.DataFrame: DataFrame containing the smoothed 'emac' and 'emao' columns.
+    """
+    # Create a copy of the DataFrame to prevent altering the original
+    df_copy = df.copy()
+
+    # Calculate the Hansen Heikin Ashi components
+    df_copy['hhclose'] = (df_copy['open'] + df_copy['high'] + df_copy['low'] + df_copy['close']) / 4
+    df_copy['hhopen'] = ((df_copy['open'].shift(2) + df_copy['close'].shift(2)) / 2)  # Modified formula
+    df_copy['hhhigh'] = df_copy[['open', 'close', 'high']].max(axis=1)
+    df_copy['hhlow'] = df_copy[['open', 'close', 'low']].min(axis=1)
+
+    # Apply smoothing with SMA
+    df_copy['emac'] = df_copy['hhclose'].rolling(window=period).mean()
+    df_copy['emao'] = df_copy['hhopen'].rolling(window=period).mean()
+
+    # Return the calculated components
+    return df_copy[['emac', 'emao']]
+
+
 def heiken_ashi(df, pre_smoothing_period=None, post_smoothing_period=None):
     """
     Heiken Ashi (HA) with Optional Pre and Post Smoothing

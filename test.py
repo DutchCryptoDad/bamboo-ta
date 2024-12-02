@@ -31,11 +31,15 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
 
 # # GOOD
-# ha_df = bta.heikin_ashi(df)
-# df['ha_open'] = ha_df['ha_open']
-# df['ha_high'] = ha_df['ha_high']
-# df['ha_low'] = ha_df['ha_low']
-# df['ha_close'] = ha_df['ha_close']
+ha_df = bta.heiken_ashi(df)
+df['ha_open'] = ha_df['ha_open']
+df['ha_high'] = ha_df['ha_high']
+df['ha_low'] = ha_df['ha_low']
+df['ha_close'] = ha_df['ha_close']
+
+hha_result = bta.hansen_heiken_ashi(df, period=6)
+df['hha_emac'] = hha_result['emac']
+df['hha_emao'] = hha_result['emao']
 
 # # GOOD
 # lr_df = bta.linear_regression_candles(df)
