@@ -228,6 +228,10 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # # # # WERKT GOED!!!
 # df['zlema'] = bta.zero_lag_exponential_moving_average(df, 'close', 21)['zlema']
 
+pmax_result = bta.pmax(df, period=10, multiplier=3.0, length=10, ma_type='EMA', src='close')
+df['pmax'] = pmax_result['pmax']
+df['pmax_trend'] = pmax_result['pmax_trend']
+
 
 ###### UTILITY.PY FILE ###############
 
@@ -371,7 +375,8 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # # ## WERKT GOED!!
 # df['vwap'] = bta.volume_weighted_average_price(df, window=14, fillna=True)['volume_weighted_average_price']
 
-df['rvol'] = bta.relative_volume(df, volume_col='volume', window=24)['rvol']
+## WERKT GOED!!
+# df['rvol'] = bta.relative_volume(df, volume_col='volume', window=24)['rvol']
 
 
 

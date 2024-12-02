@@ -188,6 +188,55 @@ df['lsma'] = bta.least_squares_moving_average(df, 'close', 50)['lsma']
 
 ---
 
+## Pmax Indicator
+
+### Description
+The **Pmax Indicator** is a technical analysis tool designed to identify trend direction and potential reversals. It calculates upper and lower bands based on a moving average and the Average True Range (ATR). The Pmax values and the associated trend direction (`up` or `down`) help traders make informed decisions about market trends.
+
+### Interpretation
+- **Pmax Values**: The calculated values represent dynamic support and resistance levels.  
+  - When the trend is `up`, prices are expected to stay above the Pmax line.
+  - When the trend is `down`, prices are expected to stay below the Pmax line.
+- **Trend Direction**:
+  - `up`: Indicates an uptrend where prices are above the Pmax line.
+  - `down`: Indicates a downtrend where prices are below the Pmax line.
+
+### Usage Example
+```python
+# Example usage
+result = pmax(df, period=14, multiplier=2.0, length=20, ma_type='EMA', src='close')
+df['pmax'] = result['pmax']
+df['pmax_trend'] = result['pmax_trend']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing the following OHLC columns:
+  - `open`
+  - `high`
+  - `low`
+  - `close`
+- `period` (int): Lookback period for calculating the ATR.
+- `multiplier` (float): The multiplier applied to the ATR for calculating the bands.
+- `length` (int): Lookback period for the moving average.
+- `ma_type` (str, default=`'EMA'`): The type of moving average to use. Options include:
+  - `'EMA'` (Exponential Moving Average)
+  - `'SMA'` (Simple Moving Average)
+- `src` (str, default=`'close'`): The source price for calculations. Options include:
+  - `'close'`: Closing price (default).
+  - `'hl2'`: Average of high and low prices.
+  - `'ohlc4'`: Average of open, high, low, and close prices.
+
+### Returns
+- **DataFrame**: A DataFrame with two additional columns:
+  - `'pmax'`: Final Pmax values, which serve as dynamic support/resistance levels.
+  - `'pmax_trend'`: The trend direction (`'up'` or `'down'`).
+
+### Notes
+- The Pmax indicator is versatile and can be adapted to different markets and timeframes by adjusting the `period`, `length`, and `multiplier` parameters.
+- For shorter-term analysis, use a smaller `period` and `length`. For longer-term trends, increase these values.
+
+---
+
 ## Percent Price Channel (PPC)
 
 ### Description
