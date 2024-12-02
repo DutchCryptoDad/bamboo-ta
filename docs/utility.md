@@ -285,6 +285,84 @@ grown_value = bta.linear_growth(start=0, end=100, start_time=10, end_time=60, tr
 
 ---
 
+## Overbought/Oversold (OBOS) Indicator
+
+### Description
+The **Overbought/Oversold (OBOS) Indicator** identifies market conditions by analyzing indicator values to determine whether they exceed overbought or oversold thresholds. Additionally, it detects triggers based on recent indicator values, providing insights into potential market reversals.
+
+### Interpretation
+- **OBOS Conditions**:
+  - **`overbought`**: Current value exceeds the overbought threshold.
+  - **`oversold`**: Current value falls below the oversold threshold.
+  - **`overbought_trigger`**: Neutral state, but one of the previous `previous_rows` values exceeded the overbought threshold.
+  - **`oversold_trigger`**: Neutral state, but one of the previous `previous_rows` values fell below the oversold threshold.
+  - **`neutral`**: No significant conditions detected.
+
+### Call with
+
+```python
+obos = bta.overbought_oversold(
+    df,
+    indicator_col='indicator',  # Replace 'indicator' with the column name containing the indicator values
+    overbought_value=75,       # Specify the overbought threshold (default: 75)
+    oversold_value=30,         # Specify the oversold threshold (default: 30)
+    previous_rows=5            # Number of previous rows to consider for trigger conditions (default: 5)
+)
+
+# Integrate results into the original DataFrame
+df['obos_condition'] = obos
+```
+
+### Parameters
+- **`df`** (*pandas.DataFrame*): The input DataFrame containing the indicator column.
+- **`indicator_col`** (*str*): The name of the column containing the indicator values.
+- **`overbought_value`** (*float*, default=`75`): The overbought threshold.
+- **`oversold_value`** (*float*, default=`30`): The oversold threshold.
+- **`previous_rows`** (*int*, default=`5`): The number of previous rows to consider for trigger conditions.
+
+### Returns
+- **`pd.Series`**: A Series containing the OBOS conditions:
+  - **`overbought`**: Indicator exceeds the overbought threshold.
+  - **`oversold`**: Indicator falls below the oversold threshold.
+  - **`overbought_trigger`**: Neutral state but recent values exceeded the overbought threshold.
+  - **`oversold_trigger`**: Neutral state but recent values fell below the oversold threshold.
+  - **`neutral`**: No significant conditions detected.
+
+### Example Usage
+
+```python
+# Example DataFrame
+data = {
+    'indicator': [50, 80, 85, 60, 25, 20, 40, 90, 95, 70]
+}
+df = pd.DataFrame(data)
+
+# Calculate OBOS conditions
+df['obos_condition'] = bta.overbought_oversold(
+    df,
+    indicator_col='indicator',
+    overbought_value=75,
+    oversold_value=30,
+    previous_rows=3
+)
+
+# Display the updated DataFrame
+print(df)
+```
+
+### Output Interpretation
+- **Neutral**: No overbought/oversold conditions or triggers detected.
+- **Overbought/Oversold**: Current value exceeds the respective threshold.
+- **Triggers**:
+  - **Overbought Trigger**: Recent values exceeded the overbought threshold, though the current value is neutral.
+  - **Oversold Trigger**: Recent values fell below the oversold threshold, though the current value is neutral.
+
+### Notes
+- The **OBOS Indicator** can be applied to any column containing numeric values, such as Stochastic or RSI values.
+- Ensure that the `indicator_col` exists in the input DataFrame; otherwise, the function will raise a `ValueError`.
+
+---
+
 ## populate_leledc_major_minor
 
 ### Description
@@ -306,8 +384,6 @@ df['leledc_minor'] = leledc_major_minor['leledc_minor']
 
 ### Returns
 - **pd.DataFrame**: DataFrame with `'leledc_major'` and `'leledc_minor'` columns.
-
----
 
 ---
 

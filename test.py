@@ -52,7 +52,8 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 # ## MOMENTUM.PY FUNCTIES ###
 
-df['imi'] = bta.calculate_intraday_momentum_index(df, length=14)
+# GOED
+# df['imi'] = bta.calculate_intraday_momentum_index(df, length=14)
 
 # # # WERKT GOED!!!
 # df['ao'] = bta.awesome_oscillator(df, 'high', 'low', 5, 34)['ao']
@@ -134,7 +135,7 @@ df['imi'] = bta.calculate_intraday_momentum_index(df, length=14)
 # df['qqe_down'] = qqe_mod['qqe_down']
 
 # # WERKT GOED!!!
-# df['rsi'] = bta.relative_strength_index(df, column='close', period=14)['rsi']
+df['rsi'] = bta.relative_strength_index(df, column='close', period=14)['rsi']
 
 # # # WERKT GOED!!!
 # df['smi'] = bta.stochastic_momentum_index(df, k_length=9, d_length=3)['smi']
@@ -247,6 +248,18 @@ df['imi'] = bta.calculate_intraday_momentum_index(df, length=14)
 
 
 ###### UTILITY.PY FILE ###############
+
+
+# obos = bta.overbought_oversold(
+#     df,
+#     indicator_col='rsi',  # Replace 'indicator' with the column name containing the indicator values
+#     overbought_value=50,       # Specify the overbought threshold (default: 75)
+#     oversold_value=30,         # Specify the oversold threshold (default: 30)
+#     previous_rows=5            # Number of previous rows to consider for trigger conditions (default: 5)
+# )
+
+# # Integrate results into the original DataFrame
+# df['obos_condition'] = obos
 
 # GOED
 # pd_result = bta.pump_dump_protection(

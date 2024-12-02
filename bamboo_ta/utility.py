@@ -504,6 +504,68 @@ def linear_growth(start: float, end: float, start_time: int,
     return min(end, start + (rate * time))
 
 
+def overbought_oversold(
+    df: pd.DataFrame,
+    indicator_col: str,
+    overbought_value: float = 75,
+    oversold_value: float = 30,
+    previous_rows: int = 5
+) -> pd.Series:
+    """
+    Overbought/Oversold (OBOS) Indicator
+
+    Determines overbought, oversold, and trigger conditions based on a specified indicator column.
+
+    Parameters:
+    - df (pd.DataFrame): The input DataFrame containing the indicator column.
+    - indicator_col (str): The name of the column containing the indicator values.
+    - overbought_value (float, default=75): The overbought threshold.
+    - oversold_value (float, default=30): The oversold threshold.
+    - previous_rows (int, default=5): Number of previous rows to consider for trigger conditions.
+
+    # Example usage of the obos function
+    obos = bta.overbought_oversold(
+        df,
+        indicator_col='indicator',  # Replace 'indicator' with the column name containing the indicator values
+        overbought_value=75,       # Specify the overbought threshold (default: 75)
+        oversold_value=30,         # Specify the oversold threshold (default: 30)
+        previous_rows=5            # Number of previous rows to consider for trigger conditions (default: 5)
+    )
+
+    # Integrate results into the original DataFrame
+    df['obos_condition'] = obos
+
+    Returns:
+    - pd.Series: A Series containing the OBOS conditions:
+        - 'overbought'
+        - 'oversold'
+        - 'overbought_trigger'
+        - 'oversold_trigger'
+        - 'neutral'
+    """
+    if indicator_col not in df.columns:
+        raise ValueError(f"Column '{indicator_col}' not found in the DataFrame.")
+
+    # Create arrays for efficiency
+    indicator = df[indicator_col].values
+    obos_condition = np.full(len(df), "neutral", dtype=object)
+
+    # Determine 'overbought' and 'oversold'
+    obos_condition[indicator > overbought_value] = "overbought"
+    obos_condition[indicator < oversold_value] = "oversold"
+
+    # Determine 'overbought_trigger' and 'oversold_trigger' conditions
+    for i in range(previous_rows, len(df)):
+        if obos_condition[i] == "neutral":
+            previous_values = indicator[i - previous_rows:i]
+            if (previous_values < oversold_value).any():
+                obos_condition[i] = "oversold_trigger"
+            elif (previous_values > overbought_value).any():
+                obos_condition[i] = "overbought_trigger"
+
+    return pd.Series(obos_condition, index=df.index, name="obos_condition")
+
+
 def populate_leledc_major_minor(df: pd.DataFrame, maj_qual: np.ndarray, 
                                 min_qual: np.ndarray, maj_len: int, 
                                 min_len: int) -> pd.DataFrame:
@@ -567,8 +629,6 @@ def populate_leledc_major_minor(df: pd.DataFrame, maj_qual: np.ndarray,
     return df_copy[['leledc_major', 'leledc_minor']]
 
 
-import pandas as pd
-import numpy as np
 
 def pump_dump_protection(
     df: pd.DataFrame,
