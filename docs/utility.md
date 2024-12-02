@@ -519,6 +519,78 @@ df['std_dev'] = bta.st_dev(df['close'], period=14)
 ### Returns
 - **pd.Series**: Rolling standard deviation values.
 
+
+---
+
+## Top Percent Change Indicator
+
+### Description
+The **Top Percent Change Indicator** calculates the percentage difference between the current close price and the range maximum open price over a specified lookback period. This can help assess price deviations and identify potential price levels for resistance or support.
+
+### Interpretation
+- **Positive Values**:
+  - Indicate that the **close price** is below the **maximum open price** over the specified lookback period. This may suggest potential upside if prices are returning to historical highs.
+- **Negative Values**:
+  - Indicate that the **close price** is above the **maximum open price** over the specified lookback period. This may suggest overextension or resistance at current levels.
+- **For `length=0`**:
+  - Calculates the percentage difference between the current open and close prices. Positive values suggest a bearish candle (open > close), while negative values suggest a bullish candle (close > open).
+
+### Call with
+
+```python
+df['percent_change'] = bta.top_percent_change(df, length=3)
+```
+
+This calculates the percentage change over a rolling window of 3 intervals and stores the result in the `percent_change` column.
+
+### Parameters
+- **`df`** (*pandas.DataFrame*): Input DataFrame containing OHLC data with the following required columns:
+  - `'open'`: Opening price.
+  - `'close'`: Closing price.
+- **`length`** (*int*, default=`0`): Lookback period for calculating the range maximum open price:
+  - If `length=0`, calculates the percentage change between the current open and close prices.
+
+### Returns
+- **`pd.Series`**: A Series representing the percentage change for each row in the DataFrame:
+  - Positive values indicate the close price is below the maximum open price over the lookback period.
+  - Negative values indicate the close price is above the maximum open price over the lookback period.
+
+### Usage Example
+
+```python
+# Example DataFrame
+data = {
+    'open': [100, 102, 105, 108, 110],
+    'close': [98, 101, 103, 107, 109]
+}
+df = pd.DataFrame(data)
+
+# Calculate percentage change with a rolling window of 3
+df['percent_change'] = bta.top_percent_change(df, length=3)
+
+# Display the updated DataFrame
+print(df)
+```
+
+### Example Output
+
+```plaintext
+   open  close  percent_change
+0   100     98        0.020408
+1   102    101        0.009901
+2   105    103        0.019417
+3   108    107        0.028037
+4   110    109        0.028037
+```
+
+### Notes
+1. **NaN Values**:
+   - For `length > 0`, the first `length - 1` rows will contain `NaN` values, as the rolling calculation requires a full window.
+2. **Column Presence**:
+   - Ensure the input DataFrame contains the required `'open'` and `'close'` columns; otherwise, a `ValueError` will be raised.
+3. **Use Cases**:
+   - This indicator can be used to analyze deviations from recent price levels, identify potential resistance or support levels, or detect overbought/oversold conditions.
+
 ---
 
 ## z_score

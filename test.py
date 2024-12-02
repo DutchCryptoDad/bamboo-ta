@@ -249,6 +249,9 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 ###### UTILITY.PY FILE ###############
 
+# GOED
+# df['percent_change'] = bta.top_percent_change(df, length=3)
+
 
 # obos = bta.overbought_oversold(
 #     df,
@@ -372,10 +375,10 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 # ##### VOLUME.PY FILE ###############
 
-vwapb_result = bta.volume_weighted_average_price_bands(df, window_size=20, num_of_std=1.0)
-df['vwap_low'] = vwapb_result['vwap_low']
-df['vwap'] = vwapb_result['vwap']
-df['vwap_high'] = vwapb_result['vwap_high']
+# vwapb_result = bta.volume_weighted_average_price_bands(df, window_size=20, num_of_std=1.0)
+# df['vwap_low'] = vwapb_result['vwap_low']
+# df['vwap'] = vwapb_result['vwap']
+# df['vwap_high'] = vwapb_result['vwap_high']
 
 # ## WERKT GOED!!!
 # df['adi'] = bta.accumulation_distribution_index(df, fillna=True)['adi']

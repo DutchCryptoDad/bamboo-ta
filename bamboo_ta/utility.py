@@ -803,6 +803,38 @@ def st_dev(series: pd.Series, period: int) -> pd.Series:
     return series.rolling(window=period).std()
 
 
+def top_percent_change(df: pd.DataFrame, length: int = 0) -> pd.Series:
+    """
+    Calculate the percentage change of the current close price from the range maximum open price.
+
+    Parameters:
+    - df (pd.DataFrame): Input DataFrame containing OHLC data with required columns:
+        - 'open': Opening price.
+        - 'close': Closing price.
+    - length (int, default=0): Lookback period for calculating the range maximum. If 0, calculates the percentage 
+      change between the current open and close prices.
+    
+    Call with:
+        df['percent_change'] = bta.top_percent_change(df, length=3)
+    
+    Returns:
+    - pd.Series: A Series representing the percentage change for each row in the DataFrame.
+    """
+    # Ensure the required columns are in the DataFrame
+    if not {'open', 'close'}.issubset(df.columns):
+        raise ValueError("DataFrame must contain 'open' and 'close' columns.")
+
+    if length == 0:
+        # Calculate percentage change for the current open and close prices
+        percent_change = (df['open'] - df['close']) / df['close']
+    else:
+        # Calculate percentage change from the range maximum open price
+        max_open = df['open'].rolling(window=length).max()
+        percent_change = (max_open - df['close']) / df['close']
+
+    return percent_change
+
+
 def z_score(series: pd.Series, window: int = 500) -> pd.Series:
     """
     Calculate the z-score of a series.
