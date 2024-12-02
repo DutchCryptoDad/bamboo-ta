@@ -205,6 +205,59 @@ df['ma_streak'] = bta.ma_streak(df, length=10, src='close', matype=1)['ma_streak
 
 ---
 
+## Momentum Divergence (momdiv)
+
+### Description
+The **Momentum Divergence (momdiv)** indicator identifies potential buy and sell signals by applying Bollinger Bands to a momentum calculation. It also checks if the current high or low breaches the highest high or lowest low over a specified lookback period, providing additional insights into price extremes.
+
+### Interpretation
+- **Buy Signal**:
+  - Triggered when the momentum crosses **below** the lower Bollinger Band, indicating potential upward price movement.
+- **Sell Signal**:
+  - Triggered when the momentum crosses **above** the upper Bollinger Band, signaling potential downward price movement.
+- **Highest High (coh)**:
+  - Indicates the current high equals or exceeds the highest high over the lookback period.
+- **Lowest Low (col)**:
+  - Indicates the current low equals or falls below the lowest low over the lookback period.
+
+### Usage Example
+```python
+momdiv_result = bta.momentum_divergence(df, mom_length=5, bb_length=5, bb_dev=1.0, lookback=5)
+df['momentum_divergence_mom'] = momdiv_result['momentum_divergence_mom']
+df['momentum_divergence_upperb'] = momdiv_result['momentum_divergence_upperb']
+df['momentum_divergence_lowerb'] = momdiv_result['momentum_divergence_lowerb']
+df['momentum_divergence_buy'] = momdiv_result['momentum_divergence_buy']
+df['momentum_divergence_sell'] = momdiv_result['momentum_divergence_sell']
+df['momentum_divergence_coh'] = momdiv_result['momentum_divergence_coh']
+df['momentum_divergence_col'] = momdiv_result['momentum_divergence_col']
+```
+
+### Parameters
+- **`df`** (*pandas.DataFrame*): The input DataFrame containing OHLC data with the following required columns:
+  - `close`
+  - `high`
+  - `low`
+- **`mom_length`** (*int*, default=`10`): The period for momentum calculation.
+- **`bb_length`** (*int*, default=`20`): The period for Bollinger Bands calculation.
+- **`bb_dev`** (*float*, default=`2.0`): The standard deviation multiplier for Bollinger Bands.
+- **`lookback`** (*int*, default=`30`): The period for detecting the highest high and lowest low.
+
+### Returns
+A DataFrame with the following columns:
+- **`momentum_divergence_mom`**: The calculated momentum values.
+- **`momentum_divergence_upperb`**: The upper Bollinger Band for momentum.
+- **`momentum_divergence_lowerb`**: The lower Bollinger Band for momentum.
+- **`momentum_divergence_buy`**: Boolean column indicating buy signals (momentum crosses below the lower Bollinger Band).
+- **`momentum_divergence_sell`**: Boolean column indicating sell signals (momentum crosses above the upper Bollinger Band).
+- **`momentum_divergence_coh`**: Boolean column indicating the current high equals or exceeds the highest high over the lookback period.
+- **`momentum_divergence_col`**: Boolean column indicating the current low equals or falls below the lowest low over the lookback period.
+
+### Notes
+- Adjusting `mom_length` can change the sensitivity of the momentum calculation. Shorter lengths respond more quickly to price changes.
+- The `bb_dev` parameter controls how far the Bollinger Bands are from the mean. A higher value results in wider bands and fewer signals.
+
+---
+
 ## Percentage Price Oscillator (PPO)
 
 ### Description

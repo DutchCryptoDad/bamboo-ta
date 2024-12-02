@@ -155,6 +155,15 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # # # WERKT CONFORM https://www.tradingview.com/script/REGZq58T-Williams-R/
 # df['williams_r'] = bta.williams_r(df, 'high', 'low', 'close', 14)['williams_r']
 
+momdiv_result = bta.momentum_divergence(df, mom_length=5, bb_length=5, bb_dev=1.0, lookback=5)
+df['momentum_divergence_mom'] = momdiv_result['momentum_divergence_mom']
+df['momentum_divergence_upperb'] = momdiv_result['momentum_divergence_upperb']
+df['momentum_divergence_lowerb'] = momdiv_result['momentum_divergence_lowerb']
+df['momentum_divergence_buy'] = momdiv_result['momentum_divergence_buy']
+df['momentum_divergence_sell'] = momdiv_result['momentum_divergence_sell']
+df['momentum_divergence_coh'] = momdiv_result['momentum_divergence_coh']
+df['momentum_divergence_col'] = momdiv_result['momentum_divergence_col']
+
 
 # ### TREND.PY ####
 
@@ -228,9 +237,10 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # # # # WERKT GOED!!!
 # df['zlema'] = bta.zero_lag_exponential_moving_average(df, 'close', 21)['zlema']
 
-pmax_result = bta.pmax(df, period=10, multiplier=3.0, length=10, ma_type='EMA', src='close')
-df['pmax'] = pmax_result['pmax']
-df['pmax_trend'] = pmax_result['pmax_trend']
+# GOED
+# pmax_result = bta.pmax(df, period=10, multiplier=3.0, length=10, ma_type='EMA', src='close')
+# df['pmax'] = pmax_result['pmax']
+# df['pmax_trend'] = pmax_result['pmax_trend']
 
 
 ###### UTILITY.PY FILE ###############
