@@ -522,6 +522,39 @@ def price_volume_trend(df: pd.DataFrame, fillna: bool = False, smoothing_factor:
     return df_copy[['price_volume_trend', 'signal']]
 
 
+def relative_volume(df: pd.DataFrame, volume_col: str = 'volume', window: int = 24) -> pd.DataFrame:
+    """
+    Relative Volume (RVOL)
+
+    Computes the Relative Volume (RVOL) indicator, which compares the current volume
+    to a moving average of volume over a specified window. This helps identify periods
+    of unusually high or low trading activity.
+
+    Parameters:
+    - df (pd.DataFrame): Input DataFrame containing a volume column.
+    - volume_col (str): Name of the column containing volume data. Default is 'volume'.
+    - window (int): Lookback window for calculating the Simple Moving Average (SMA) of volume. Default is 24.
+
+    Call with:
+        df['rvol'] = bta.relative_volume(df, volume_col='volume', window=24)['rvol']
+
+    Returns:
+    - pd.DataFrame: DataFrame with an additional column:
+        - 'rvol': The Relative Volume values.
+    """
+    # Create a copy of the DataFrame to prevent modifying the original
+    df_copy = df.copy()
+
+    # Calculate the SMA of the volume
+    df_copy['volume_sma'] = df_copy[volume_col].rolling(window=window).mean()
+
+    # Calculate Relative Volume
+    df_copy['rvol'] = df_copy[volume_col] / df_copy['volume_sma']
+
+    # Return the DataFrame with the RVOL column
+    return df_copy[['rvol']]
+
+
 def volume_weighted_average_price(df: pd.DataFrame, window: int = 14, fillna: bool = False) -> pd.DataFrame:
     """
     Volume Weighted Average Price (VWAP)

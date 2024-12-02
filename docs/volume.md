@@ -219,6 +219,36 @@ andas.DataFrame): Input DataFrame containing `'close'` and `'volume'` columns.
 
 ---
 
+## Relative Volume (RVOL)
+
+### Description
+**Relative Volume (RVOL)** measures the current volume relative to its historical average over a specified lookback period. It is useful for identifying periods of unusually high or low trading activity, which can signify significant market events or conditions.
+
+### Interpretation
+- **High RVOL (> 1)**: Indicates that the current volume is above the historical average, potentially signifying increased trader interest or volatility.
+- **Low RVOL (< 1)**: Indicates that the current volume is below the historical average, suggesting a lack of interest or quiet market conditions.
+
+### Usage Example
+```python
+# Calculate Relative Volume with a 24-period SMA
+df['rvol'] = bta.relative_volume(df, volume_col='volume', window=24)['rvol']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing a volume column.
+- `volume_col` (str, default=`'volume'`): Name of the column containing volume data.
+- `window` (int, default=`24`): Lookback window for calculating the Simple Moving Average (SMA) of volume.
+
+### Returns
+- **DataFrame**: A DataFrame with the following additional column:
+  - `'rvol'`: The Relative Volume values, computed as the ratio of the current volume to the SMA of the volume over the specified window.
+
+### Notes
+- This indicator is sensitive to the lookback period (`window`); shorter windows will make it more responsive to recent changes in volume, while longer windows provide a more stable comparison.
+- Ensure the volume column contains non-zero values to avoid division by zero errors.
+
+---
+
 ## Volume Weighted Average Price (VWAP)
 
 ### Description

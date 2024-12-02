@@ -371,6 +371,7 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # # ## WERKT GOED!!
 # df['vwap'] = bta.volume_weighted_average_price(df, window=14, fillna=True)['volume_weighted_average_price']
 
+df['rvol'] = bta.relative_volume(df, volume_col='volume', window=24)['rvol']
 
 
 
