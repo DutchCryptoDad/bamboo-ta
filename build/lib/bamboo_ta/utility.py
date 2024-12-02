@@ -504,6 +504,68 @@ def linear_growth(start: float, end: float, start_time: int,
     return min(end, start + (rate * time))
 
 
+def overbought_oversold(
+    df: pd.DataFrame,
+    indicator_col: str,
+    overbought_value: float = 75,
+    oversold_value: float = 30,
+    previous_rows: int = 5
+) -> pd.Series:
+    """
+    Overbought/Oversold (OBOS) Indicator
+
+    Determines overbought, oversold, and trigger conditions based on a specified indicator column.
+
+    Parameters:
+    - df (pd.DataFrame): The input DataFrame containing the indicator column.
+    - indicator_col (str): The name of the column containing the indicator values.
+    - overbought_value (float, default=75): The overbought threshold.
+    - oversold_value (float, default=30): The oversold threshold.
+    - previous_rows (int, default=5): Number of previous rows to consider for trigger conditions.
+
+    # Example usage of the obos function
+    obos = bta.overbought_oversold(
+        df,
+        indicator_col='indicator',  # Replace 'indicator' with the column name containing the indicator values
+        overbought_value=75,       # Specify the overbought threshold (default: 75)
+        oversold_value=30,         # Specify the oversold threshold (default: 30)
+        previous_rows=5            # Number of previous rows to consider for trigger conditions (default: 5)
+    )
+
+    # Integrate results into the original DataFrame
+    df['obos_condition'] = obos
+
+    Returns:
+    - pd.Series: A Series containing the OBOS conditions:
+        - 'overbought'
+        - 'oversold'
+        - 'overbought_trigger'
+        - 'oversold_trigger'
+        - 'neutral'
+    """
+    if indicator_col not in df.columns:
+        raise ValueError(f"Column '{indicator_col}' not found in the DataFrame.")
+
+    # Create arrays for efficiency
+    indicator = df[indicator_col].values
+    obos_condition = np.full(len(df), "neutral", dtype=object)
+
+    # Determine 'overbought' and 'oversold'
+    obos_condition[indicator > overbought_value] = "overbought"
+    obos_condition[indicator < oversold_value] = "oversold"
+
+    # Determine 'overbought_trigger' and 'oversold_trigger' conditions
+    for i in range(previous_rows, len(df)):
+        if obos_condition[i] == "neutral":
+            previous_values = indicator[i - previous_rows:i]
+            if (previous_values < oversold_value).any():
+                obos_condition[i] = "oversold_trigger"
+            elif (previous_values > overbought_value).any():
+                obos_condition[i] = "overbought_trigger"
+
+    return pd.Series(obos_condition, index=df.index, name="obos_condition")
+
+
 def populate_leledc_major_minor(df: pd.DataFrame, maj_qual: np.ndarray, 
                                 min_qual: np.ndarray, maj_len: int, 
                                 min_len: int) -> pd.DataFrame:
@@ -565,6 +627,87 @@ def populate_leledc_major_minor(df: pd.DataFrame, maj_qual: np.ndarray,
             df_copy.at[i, 'leledc_minor'] = 0
 
     return df_copy[['leledc_major', 'leledc_minor']]
+
+
+
+def pump_dump_protection(
+    df: pd.DataFrame,
+    rsi_period: int = 14,
+    short_volume_window: int = 4,
+    long_volume_window: int = 48,
+    volume_warn_threshold: float = 5.0
+) -> pd.DataFrame:
+    """
+    Pump and Dump Protection Indicator
+
+    This function detects abnormal volume changes and price movements to identify potential pump-and-dump
+    scenarios. It eliminates dependency on a specific timeframe, relying only on rolling calculations.
+
+    Parameters:
+    - df (pd.DataFrame): Input DataFrame with required columns:
+        - 'close': Closing price.
+        - 'high': High price for the interval.
+        - 'low': Low price for the interval.
+        - 'volume': Volume for the interval.
+    - rsi_period (int, default=14): Lookback period for RSI calculation.
+    - short_volume_window (int, default=4): Rolling window size for short-term volume mean.
+    - long_volume_window (int, default=48): Rolling window size for long-term volume mean.
+    - volume_warn_threshold (float, default=5.0): Threshold for detecting abnormal short-term volume spikes.
+
+    Call with:
+        pd_result = bta.pump_dump_protection_no_timeframe(
+            df,
+            rsi_period=14,
+            short_volume_window=4,
+            long_volume_window=48,
+            volume_warn_threshold=5.0
+        )
+
+        # Add all calculated columns to the original DataFrame
+        df['volume_mean_short'] = pd_result['volume_mean_short']
+        df['volume_mean_long'] = pd_result['volume_mean_long']
+        df['volume_change_percentage'] = pd_result['volume_change_percentage']
+        df['rsi'] = pd_result['rsi']
+        df['pnd_volume_warn'] = pd_result['pnd_volume_warn']
+
+    Returns:
+    - pd.DataFrame: The DataFrame with the following additional columns:
+        - 'volume_mean_short': Rolling mean of volume over `short_volume_window` intervals.
+        - 'volume_mean_long': Rolling mean of volume over `long_volume_window` intervals.
+        - 'volume_change_percentage': Ratio of 'volume_mean_short' to 'volume_mean_long'.
+        - 'rsi': Calculated RSI values.
+        - 'pnd_volume_warn': Indicator for abnormal volume spikes.
+    """
+    df_copy = df.copy()
+
+    # Calculate RSI
+    delta = df_copy['close'].diff()
+    gain = np.where(delta > 0, delta, 0)
+    loss = np.where(delta < 0, -delta, 0)
+    avg_gain = pd.Series(gain).rolling(window=rsi_period).mean()
+    avg_loss = pd.Series(loss).rolling(window=rsi_period).mean()
+    rs = avg_gain / avg_loss
+    df_copy['rsi'] = 100 - (100 / (1 + rs))
+
+    # Calculate rolling volume means
+    df_copy['volume_mean_short'] = df_copy['volume'].rolling(short_volume_window).mean()
+    df_copy['volume_mean_long'] = df_copy['volume'].rolling(long_volume_window).mean()
+
+    # Calculate volume change percentage
+    df_copy['volume_change_percentage'] = df_copy['volume_mean_short'] / df_copy['volume_mean_long']
+
+    # Abnormal volume spike detection
+    df_copy['pnd_volume_warn'] = np.where(
+        (df_copy['volume_mean_short'] / df_copy['volume_mean_long'] > volume_warn_threshold), -1, 0
+    )
+
+    return df_copy[[
+        'volume_mean_short',
+        'volume_mean_long',
+        'volume_change_percentage',
+        'rsi',
+        'pnd_volume_warn'
+    ]]
 
 
 def regression_slope(df: pd.DataFrame, lookback_period: int = 20) -> pd.Series:
@@ -658,6 +801,38 @@ def st_dev(series: pd.Series, period: int) -> pd.Series:
         raise ValueError("Period must be a positive integer.")
 
     return series.rolling(window=period).std()
+
+
+def top_percent_change(df: pd.DataFrame, length: int = 0) -> pd.Series:
+    """
+    Calculate the percentage change of the current close price from the range maximum open price.
+
+    Parameters:
+    - df (pd.DataFrame): Input DataFrame containing OHLC data with required columns:
+        - 'open': Opening price.
+        - 'close': Closing price.
+    - length (int, default=0): Lookback period for calculating the range maximum. If 0, calculates the percentage 
+      change between the current open and close prices.
+    
+    Call with:
+        df['percent_change'] = bta.top_percent_change(df, length=3)
+    
+    Returns:
+    - pd.Series: A Series representing the percentage change for each row in the DataFrame.
+    """
+    # Ensure the required columns are in the DataFrame
+    if not {'open', 'close'}.issubset(df.columns):
+        raise ValueError("DataFrame must contain 'open' and 'close' columns.")
+
+    if length == 0:
+        # Calculate percentage change for the current open and close prices
+        percent_change = (df['open'] - df['close']) / df['close']
+    else:
+        # Calculate percentage change from the range maximum open price
+        max_open = df['open'].rolling(window=length).max()
+        percent_change = (max_open - df['close']) / df['close']
+
+    return percent_change
 
 
 def z_score(series: pd.Series, window: int = 500) -> pd.Series:

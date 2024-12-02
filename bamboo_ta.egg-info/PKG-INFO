@@ -1,185 +1,11 @@
 Metadata-Version: 2.1
 Name: bamboo-ta
-Version: 0.2.0
+Version: 0.3.0
 Summary: TA library for Pandas
 Home-page: https://github.com/DutchCryptoDad/bamboo-ta
 Author: DutchCryptoDad (DCD)
 Author-email: <dutchcryptodad@gmail.com>
-License: UNKNOWN
-Description: # Bamboo-TA: Technical Analysis Indicators Library
-        
-        <p align="center">
-          <a href="https://github.com/DutchCryptoDad/bamboo-ta">
-            <img src="images/bamboo.png" alt="Bamboo TA" width="250">
-          </a>
-        </p>
-        
-        [![license](https://img.shields.io/github/license/DutchCryptoDad/bamboo-ta)](#license)
-        [![Python Version](https://img.shields.io/pypi/pyversions/bamboo-ta?style=flat)](https://pypi.org/project/bamboo-ta/)
-        [![PyPi Version](https://img.shields.io/pypi/v/bamboo-ta?style=flat)](https://pypi.org/project/bamboo-ta/)
-        [![Package Status](https://img.shields.io/pypi/status/bamboo-ta?style=flat)](https://pypi.org/project/bamboo-ta/)
-        [![Downloads](https://img.shields.io/pypi/dm/bamboo_ta?style=flat)](https://pypistats.org/packages/bamboo_ta)
-        [![Stars](https://img.shields.io/github/stars/DutchCryptoDad/bamboo-ta?style=flat)](#stars)
-        [![Forks](https://img.shields.io/github/forks/DutchCryptoDad/bamboo-ta?style=flat)](#forks)
-        [![Used By](https://img.shields.io/badge/used_by-0-orange.svg?style=flat)](#usedby)
-        [![Contributors](https://img.shields.io/github/contributors/DutchCryptoDad/bamboo-ta?style=flat)](#contributors)
-        [![Issues](https://img.shields.io/github/issues-raw/DutchCryptoDad/bamboo-ta?style=flat)](#issues)
-        [![Closed Issues](https://img.shields.io/github/issues-closed-raw/DutchCryptoDad/bamboo-ta?style=flat)](#closed-issues)
-        [![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Ddutchalgotrading%26type%3Dpatrons&style=flat)](https://patreon.com/dutchalgotrading)
-        [![YouTube Channel Subscribers](https://img.shields.io/youtube/channel/subscribers/UC-AOcefy1x7lTc17JiqaxqA)
-        ](https://www.youtube.com/@dutchalgotrading)
-        [![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UC-AOcefy1x7lTc17JiqaxqA)](https://www.youtube.com/@dutchalgotrading)
-        
-        ---
-        
-        ## About Bamboo-TA
-        
-        **Bamboo-TA** is a personal library that consolidates various Technical Analysis (TA) indicators into one simple and modular package for analyzing financial market data. It is designed to help traders develop trading strategies based on candlestick data.
-        
-        While this library includes popular TA indicators like **MACD**, **RSI**, **SMA**, **EMA**, it also provides lesser-known indicators like **Waddah Attar Explosion** and **Bollinger Bands Trend Indicator**. Bamboo-TA is complementary to other libraries like **TA-lib**, **Pandas-ta**, and **qtpylib**, and it is not intended to replace them.
-        
-        If you're looking for a library to use for data analysis, backtesting, or integrating indicators into trading bots, Bamboo-TA is designed for simplicity and ease of use.
-        
-        ---
-        
-        ## Features
-        
-        - **Modular Indicators**: Includes a wide range of trend, volatility, momentum, performance, volume, and other types of indicators.
-        - **Complementary to Other Libraries**: Works alongside popular TA libraries such as **TA-lib** and **Pandas-ta**.
-        - **Focus on Algorithmic Trading**: Useful for developing custom algorithmic trading strategies with backtesting capabilities.
-        - **Personal Project**: Built and maintained for personal use but shared with the community.
-        
-        ---
-        
-        ## Installation
-        
-        ### Stable Version
-        
-        Install the latest stable version directly from PyPi:
-        
-        ```bash
-        pip install bamboo-ta
-        ```
-        
-        ### Development Version
-        
-        To install the bleeding-edge version from the GitHub repository:
-        
-        ```bash
-        pip install -U git+https://github.com/DutchCryptoDad/bamboo-ta.git@development
-        ```
-        
-        ---
-        
-        ## Usage
-        
-        ### Importing the Library
-        
-        To start using Bamboo-TA, import the library in your Python scripts or notebooks:
-        
-        ```python
-        import bamboo_ta as bta
-        import pandas as pd
-        import numpy as np
-        ```
-        
-        ### Preparing Data
-        
-        Make sure to format your `DataFrame` correctly, like this:
-        
-        ```python
-        df = pd.read_json("./BTC_USDT-1d.json")
-        df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
-        df['date'] = pd.to_datetime(df['date'], unit='ms')
-        ```
-        
-        ### Applying Indicators
-        
-        You can apply indicators in various ways. Here's how to use **Alligator Bands**:
-        
-        ```python
-        alligator_result = bta.alligator_bands(df, 'close', 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
-        df['jaw'] = alligator_result['jaw']
-        df['teeth'] = alligator_result['teeth']
-        df['lips'] = alligator_result['lips']
-        ```
-        
-        ### Importing Individual Indicators
-        
-        You can also import and apply individual indicators. Here's how to the **Exponential Moving Average**::
-        
-        ```python
-        from bamboo_ta.trend import exponential_moving_average
-        
-        df['ema'] = bta.exponential_moving_average(df, "close", 21)
-        ```
-        
-        ---
-        
-        ## Indicator Categories
-        
-        Explore the wide range of indicators:
-        
-        - [Candles](./docs/candles.md)
-        - [Cycles](./docs/cycles.md)
-        - [Momentum](./docs/momentum.md)
-        - [Performance](./docs/performance.md)
-        - [Statistics](./docs/statistics.md)
-        - [Trend](./docs/trend.md)
-        - [Utility](./docs/utility.md)
-        - [Volatility](./docs/volatility.md)
-        - [Volume](./docs/volume.md)
-        
-        ---
-        
-        ## Social & Community
-        
-        - **YouTube**: Check out my [YouTube channel](https://www.youtube.com/@dutchalgotrading) for tutorials on [Freqtrade](https://www.youtube.com/watch?v=VHvikJmQrVM), [Tradingview](https://www.youtube.com/watch?v=aQSC-W8oYdw), and tested [trading strategies](https://www.youtube.com/watch?v=Jj9MSzHwa44).
-        - **Patreon**: For exclusive trading algorithms, backtests, and strategy codes, support me on [Patreon](https://www.patreon.com/dutchalgotrading).
-        - **Strategy League**: View the results of my tested strategies at [DutchAlgoTrading.com](https://www.dutchalgotrading.com).
-        
-        ---
-        
-        ## Support & Donations
-        
-        If you find Bamboo-TA useful, consider supporting the project:
-        
-        - **Patreon**: Support via [Patreon](https://www.patreon.com/dutchalgotrading).
-        - **Ko-fi**: Make a one-time donation on [Ko-fi](https://ko-fi.com/dutchcryptodad).
-        
-        ### Affiliates
-        
-        - [Bybit Rewards](https://partner.bybit.com/b/dutchalgo)
-        - [Linode $100 Credit](https://bit.ly/Linode_Advantages)
-        - [TradingView Discount](https://www.tradingview.com/?aff_id=139223)
-        - [Saxo Bank (Dutch Only)](https://refer.saxo/fKnth)
-        
-        ---
-        
-        ## Disclaimer
-        
-        Bamboo-TA is a personal project, and while I make every effort to ensure accuracy, I cannot guarantee the functionality of the indicators. They are tested against Binance (BTC/USDT) data and compared with similar indicators on [TradingView](https://www.tradingview.com/?aff_id=139223).
-        
-        I personally use these indicators to build my own trading strategies, for backtesting and manual & bot trading using the [Freqtrade trading bot](https://www.youtube.com/watch?v=VHvikJmQrVM&list=PL8gq8aFDPpbNEx4lUvpmRjxtCkjvX-Jpg). So it is in my own personal best interest to make these indicators work as accurately as possible.
-        
-        Suggestions and bug reports are welcome, but fixes will be handled on a best-effort basis. Please be patient!
-        
-        ---
-        
-        ## Indicator sources
-        
-        * [ThinkOrSwim Tech indicators](https://tlc.thinkorswim.com/center/reference/Tech-Indicators)
-        * [Legendary TA](https://github.com/just-nilux/legendary_ta)
-        * [CryptoFrog Custom Indicators](https://github.com/froggleston/cryptofrog-strategies/blob/main/custom_indicators.py)
-        * [Linnsoft](https://www.linnsoft.com/techind/accumulation-distribution)
-        * [Profitspi](https://www.profitspi.com/stock/view.aspx?v=stock-chart-library)
-        * [Cybernetic Analysis](https://www.neuroshell.com/manuals/cyber/index.html)
-        * [TRradeStation](https://help.tradestation.com/10_00/eng/tradestationhelp/elanalysis/indicator/price_channel__percent_pc_indicator_.htm)
-        * [Sierra Chart](https://www.sierrachart.com/index.php?page=doc/TechnicalStudiesReference.php)
-        * [qtpylib](https://github.com/ranaroussi/qtpylib/blob/main/qtpylib/indicators.py)
-        
 Keywords: python,pandas,numpy,trading,indicator,technical analysis
-Platform: UNKNOWN
 Classifier: Development Status :: 2 - Pre-Alpha
 Classifier: Intended Audience :: Developers
 Classifier: Programming Language :: Python :: 3
@@ -187,4 +13,181 @@ Classifier: Operating System :: Unix
 Classifier: Operating System :: MacOS :: MacOS X
 Classifier: Operating System :: Microsoft :: Windows
 Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: pandas
+Requires-Dist: numpy
 Provides-Extra: def
+Requires-Dist: pytest; extra == "def"
+Requires-Dist: twine; extra == "def"
+
+# Bamboo-TA: Technical Analysis Indicators Library
+
+<p align="center">
+  <a href="https://github.com/DutchCryptoDad/bamboo-ta">
+    <img src="images/bamboo.png" alt="Bamboo TA" width="250">
+  </a>
+</p>
+
+[![license](https://img.shields.io/github/license/DutchCryptoDad/bamboo-ta)](#license)
+[![Python Version](https://img.shields.io/pypi/pyversions/bamboo-ta?style=flat)](https://pypi.org/project/bamboo-ta/)
+[![PyPi Version](https://img.shields.io/pypi/v/bamboo-ta?style=flat)](https://pypi.org/project/bamboo-ta/)
+[![Package Status](https://img.shields.io/pypi/status/bamboo-ta?style=flat)](https://pypi.org/project/bamboo-ta/)
+[![Downloads](https://img.shields.io/pypi/dm/bamboo_ta?style=flat)](https://pypistats.org/packages/bamboo_ta)
+[![Stars](https://img.shields.io/github/stars/DutchCryptoDad/bamboo-ta?style=flat)](#stars)
+[![Forks](https://img.shields.io/github/forks/DutchCryptoDad/bamboo-ta?style=flat)](#forks)
+[![Used By](https://img.shields.io/badge/used_by-0-orange.svg?style=flat)](#usedby)
+[![Contributors](https://img.shields.io/github/contributors/DutchCryptoDad/bamboo-ta?style=flat)](#contributors)
+[![Issues](https://img.shields.io/github/issues-raw/DutchCryptoDad/bamboo-ta?style=flat)](#issues)
+[![Closed Issues](https://img.shields.io/github/issues-closed-raw/DutchCryptoDad/bamboo-ta?style=flat)](#closed-issues)
+[![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Ddutchalgotrading%26type%3Dpatrons&style=flat)](https://patreon.com/dutchalgotrading)
+[![YouTube Channel Subscribers](https://img.shields.io/youtube/channel/subscribers/UC-AOcefy1x7lTc17JiqaxqA)
+](https://www.youtube.com/@dutchalgotrading)
+[![YouTube Channel Views](https://img.shields.io/youtube/channel/views/UC-AOcefy1x7lTc17JiqaxqA)](https://www.youtube.com/@dutchalgotrading)
+
+---
+
+## About Bamboo-TA
+
+**Bamboo-TA** is a personal library that consolidates various Technical Analysis (TA) indicators into one simple and modular package for analyzing financial market data. It is designed to help traders develop trading strategies based on candlestick data.
+
+While this library includes popular TA indicators like **MACD**, **RSI**, **SMA**, **EMA**, it also provides lesser-known indicators like **Waddah Attar Explosion** and **Bollinger Bands Trend Indicator**. Bamboo-TA is complementary to other libraries like **TA-lib**, **Pandas-ta**, and **qtpylib**, and it is not intended to replace them.
+
+If you're looking for a library to use for data analysis, backtesting, or integrating indicators into trading bots, Bamboo-TA is designed for simplicity and ease of use.
+
+---
+
+## Features
+
+- **Modular Indicators**: Includes a wide range of trend, volatility, momentum, performance, volume, and other types of indicators.
+- **Complementary to Other Libraries**: Works alongside popular TA libraries such as **TA-lib** and **Pandas-ta**.
+- **Focus on Algorithmic Trading**: Useful for developing custom algorithmic trading strategies with backtesting capabilities.
+- **Personal Project**: Built and maintained for personal use but shared with the community.
+
+---
+
+## Installation
+
+### Stable Version
+
+Install the latest stable version directly from PyPi:
+
+```bash
+pip install bamboo-ta
+```
+
+### Development Version
+
+To install the bleeding-edge version from the GitHub repository:
+
+```bash
+pip install -U git+https://github.com/DutchCryptoDad/bamboo-ta.git@development
+```
+
+---
+
+## Usage
+
+### Importing the Library
+
+To start using Bamboo-TA, import the library in your Python scripts or notebooks:
+
+```python
+import bamboo_ta as bta
+import pandas as pd
+import numpy as np
+```
+
+### Preparing Data
+
+Make sure to format your `DataFrame` correctly, like this:
+
+```python
+df = pd.read_json("./BTC_USDT-1d.json")
+df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
+df['date'] = pd.to_datetime(df['date'], unit='ms')
+```
+
+### Applying Indicators
+
+You can apply indicators in various ways. Here's how to use **Alligator Bands**:
+
+```python
+alligator_result = bta.alligator_bands(df, 'close', 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
+df['jaw'] = alligator_result['jaw']
+df['teeth'] = alligator_result['teeth']
+df['lips'] = alligator_result['lips']
+```
+
+### Importing Individual Indicators
+
+You can also import and apply individual indicators. Here's how to the **Exponential Moving Average**::
+
+```python
+from bamboo_ta.trend import exponential_moving_average
+
+df['ema'] = bta.exponential_moving_average(df, "close", 21)
+```
+
+---
+
+## Indicator Categories
+
+Explore the wide range of indicators:
+
+- [Candles](./docs/candles.md)
+- [Cycles](./docs/cycles.md)
+- [Momentum](./docs/momentum.md)
+- [Performance](./docs/performance.md)
+- [Statistics](./docs/statistics.md)
+- [Trend](./docs/trend.md)
+- [Utility](./docs/utility.md)
+- [Volatility](./docs/volatility.md)
+- [Volume](./docs/volume.md)
+
+---
+
+## Social & Community
+
+- **YouTube**: Check out my [YouTube channel](https://www.youtube.com/@dutchalgotrading) for tutorials on [Freqtrade](https://www.youtube.com/watch?v=VHvikJmQrVM), [Tradingview](https://www.youtube.com/watch?v=aQSC-W8oYdw), and tested [trading strategies](https://www.youtube.com/watch?v=Jj9MSzHwa44).
+- **Patreon**: For exclusive trading algorithms, backtests, and strategy codes, support me on [Patreon](https://www.patreon.com/dutchalgotrading).
+- **Strategy League**: View the results of my tested strategies at [DutchAlgoTrading.com](https://www.dutchalgotrading.com).
+
+---
+
+## Support & Donations
+
+If you find Bamboo-TA useful, consider supporting the project:
+
+- **Patreon**: Support via [Patreon](https://www.patreon.com/dutchalgotrading).
+- **Ko-fi**: Make a one-time donation on [Ko-fi](https://ko-fi.com/dutchcryptodad).
+
+### Affiliates
+
+- [Bybit Rewards](https://partner.bybit.com/b/dutchalgo)
+- [Linode $100 Credit](https://bit.ly/Linode_Advantages)
+- [TradingView Discount](https://www.tradingview.com/?aff_id=139223)
+- [Saxo Bank (Dutch Only)](https://refer.saxo/fKnth)
+
+---
+
+## Disclaimer
+
+Bamboo-TA is a personal project, and while I make every effort to ensure accuracy, I cannot guarantee the functionality of the indicators. They are tested against Binance (BTC/USDT) data and compared with similar indicators on [TradingView](https://www.tradingview.com/?aff_id=139223).
+
+I personally use these indicators to build my own trading strategies, for backtesting and manual & bot trading using the [Freqtrade trading bot](https://www.youtube.com/watch?v=VHvikJmQrVM&list=PL8gq8aFDPpbNEx4lUvpmRjxtCkjvX-Jpg). So it is in my own personal best interest to make these indicators work as accurately as possible.
+
+Suggestions and bug reports are welcome, but fixes will be handled on a best-effort basis. Please be patient!
+
+---
+
+## Indicator sources
+
+* [ThinkOrSwim Tech indicators](https://tlc.thinkorswim.com/center/reference/Tech-Indicators)
+* [Legendary TA](https://github.com/just-nilux/legendary_ta)
+* [CryptoFrog Custom Indicators](https://github.com/froggleston/cryptofrog-strategies/blob/main/custom_indicators.py)
+* [Linnsoft](https://www.linnsoft.com/techind/accumulation-distribution)
+* [Profitspi](https://www.profitspi.com/stock/view.aspx?v=stock-chart-library)
+* [Cybernetic Analysis](https://www.neuroshell.com/manuals/cyber/index.html)
+* [TRradeStation](https://help.tradestation.com/10_00/eng/tradestationhelp/elanalysis/indicator/price_channel__percent_pc_indicator_.htm)
+* [Sierra Chart](https://www.sierrachart.com/index.php?page=doc/TechnicalStudiesReference.php)
+* [qtpylib](https://github.com/ranaroussi/qtpylib/blob/main/qtpylib/indicators.py)
