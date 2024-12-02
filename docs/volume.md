@@ -268,3 +268,74 @@ df['vwap'] = bta.volume_weighted_average_price(df, window=14, fillna=True)['volu
 - **DataFrame**: A DataFrame with a single `'volume_weighted_average_price'` column.
 
 ---
+
+## Volume-Weighted Average Price Bands (VWAPB)
+
+### Description
+The **Volume-Weighted Average Price Bands (VWAPB)** indicator calculates the Volume-Weighted Average Price (VWAP) along with upper and lower bands based on a rolling standard deviation. VWAP is a benchmark price that reflects the average price a security has traded at throughout the day, based on both volume and price.
+
+### Interpretation
+- **VWAP (`vwap`)**:
+  - Represents the average price at which a security has traded, weighted by volume.
+  - A commonly used intraday benchmark for trading decisions.
+- **VWAP Low (`vwap_low`)**:
+  - Represents the lower band.
+- **VWAP High (`vwap_high`)**:
+  - Represents the upper band.
+
+These bands provide an indication of price volatility around the VWAP.
+
+### Call with
+
+```python
+vwapb_result = bta.volume_weighted_average_price_bands(df, window_size=20, num_of_std=1.0)
+
+# Integrate results into the original DataFrame
+df['vwap_low'] = vwapb_result['vwap_low']
+df['vwap'] = vwapb_result['vwap']
+df['vwap_high'] = vwapb_result['vwap_high']
+```
+
+### Parameters
+- **`df`** (*pandas.DataFrame*): Input DataFrame containing the following required columns:
+  - `'close'`: Closing price for each interval.
+  - `'high'`: High price for each interval.
+  - `'low'`: Low price for each interval.
+  - `'volume'`: Trading volume for each interval.
+- **`window_size`** (*int*, default=`20`): The rolling window size for VWAP and standard deviation calculations.
+- **`num_of_std`** (*float*, default=`1.0`): The number of standard deviations to calculate the upper and lower bands.
+
+### Returns
+- **`pd.DataFrame`**: A DataFrame containing the following columns:
+  - **`vwap`**: The Volume-Weighted Average Price (VWAP).
+  - **`vwap_low`**: The lower band (VWAP - num_of_std × rolling std deviation).
+  - **`vwap_high`**: The upper band (VWAP + num_of_std × rolling std deviation).
+
+### Usage Example
+
+```python
+# Example DataFrame
+data = {
+    'close': [100, 102, 101, 103, 104],
+    'high': [101, 103, 102, 104, 105],
+    'low': [99, 101, 100, 102, 103],
+    'volume': [200, 220, 210, 230, 240]
+}
+df = pd.DataFrame(data)
+
+# Calculate VWAP and bands
+vwapb_result = bta.volume_weighted_average_price_bands(df, window_size=3, num_of_std=1.0)
+
+# Integrate results into the original DataFrame
+df['vwap_low'] = vwapb_result['vwap_low']
+df['vwap'] = vwapb_result['vwap']
+df['vwap_high'] = vwapb_result['vwap_high']
+
+# Display the updated DataFrame
+print(df)
+```
+
+### Notes
+- The **VWAP** and bands (`vwap_low`, `vwap_high`) are computed using a rolling window, so the first `window_size - 1` rows will contain `NaN` values.
+- Ensure the input DataFrame contains the required columns (`close`, `high`, `low`, `volume`); otherwise, the function will raise a `ValueError`.
+- This indicator is most effective for intraday trading strategies.

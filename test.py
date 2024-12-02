@@ -135,7 +135,7 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['qqe_down'] = qqe_mod['qqe_down']
 
 # # WERKT GOED!!!
-df['rsi'] = bta.relative_strength_index(df, column='close', period=14)['rsi']
+# df['rsi'] = bta.relative_strength_index(df, column='close', period=14)['rsi']
 
 # # # WERKT GOED!!!
 # df['smi'] = bta.stochastic_momentum_index(df, k_length=9, d_length=3)['smi']
@@ -371,6 +371,11 @@ df['rsi'] = bta.relative_strength_index(df, column='close', period=14)['rsi']
 # df['true_range'] = bta.true_range(df)['true_range']
 
 # ##### VOLUME.PY FILE ###############
+
+vwapb_result = bta.volume_weighted_average_price_bands(df, window_size=20, num_of_std=1.0)
+df['vwap_low'] = vwapb_result['vwap_low']
+df['vwap'] = vwapb_result['vwap']
+df['vwap_high'] = vwapb_result['vwap_high']
 
 # ## WERKT GOED!!!
 # df['adi'] = bta.accumulation_distribution_index(df, fillna=True)['adi']

@@ -598,3 +598,60 @@ def volume_weighted_average_price(df: pd.DataFrame, window: int = 14, fillna: bo
 
     return df_copy[['volume_weighted_average_price']]
 
+
+def volume_weighted_average_price_bands(
+    df: pd.DataFrame,
+    window_size: int = 20,
+    num_of_std: float = 1.0
+) -> pd.DataFrame:
+    """
+    Volume-Weighted Average Price Bands (VWAPB)
+
+    Calculates the Volume-Weighted Average Price (VWAP) along with upper and lower bands
+    based on a rolling standard deviation.
+
+    Parameters:
+    - df (pd.DataFrame): Input DataFrame containing the following required columns:
+        - 'close': Closing price.
+        - 'high': High price for each interval.
+        - 'low': Low price for each interval.
+        - 'volume': Trading volume for each interval.
+    - window_size (int, default=20): The rolling window size for VWAP and standard deviation calculations.
+    - num_of_std (float, default=1.0): The number of standard deviations to calculate the upper and lower bands.
+
+    Call with:
+        vwapb_result = bta.volume_weighted_average_price_bands(df, window_size=20, num_of_std=1.0)
+        df['vwap_low'] = vwapb_result['vwap_low']
+        df['vwap'] = vwapb_result['vwap']
+        df['vwap_high'] = vwapb_result['vwap_high']
+
+    Returns:
+    - pd.DataFrame: A DataFrame containing the following columns:
+        - 'vwap': The Volume-Weighted Average Price (VWAP).
+        - 'vwap_low': The lower band (VWAP - num_of_std × rolling std deviation).
+        - 'vwap_high': The upper band (VWAP + num_of_std × rolling std deviation).
+    """
+    if not {'close', 'high', 'low', 'volume'}.issubset(df.columns):
+        raise ValueError("DataFrame must contain 'close', 'high', 'low', and 'volume' columns.")
+
+    # Create a copy of the DataFrame to avoid modifying the original
+    df_copy = df.copy()
+
+    # Calculate typical price
+    df_copy['typical_price'] = (df_copy['close'] + df_copy['high'] + df_copy['low']) / 3
+
+    # Calculate cumulative VWAP
+    df_copy['cum_typical_volume'] = (df_copy['typical_price'] * df_copy['volume']).cumsum()
+    df_copy['cum_volume'] = df_copy['volume'].cumsum()
+    df_copy['vwap'] = df_copy['cum_typical_volume'] / df_copy['cum_volume']
+
+    # Calculate rolling standard deviation for VWAP
+    rolling_std = df_copy['vwap'].rolling(window=window_size).std()
+
+    # Calculate VWAP bands
+    df_copy['vwap_low'] = df_copy['vwap'] - (rolling_std * num_of_std)
+    df_copy['vwap_high'] = df_copy['vwap'] + (rolling_std * num_of_std)
+
+    # Return only the relevant columns
+    return df_copy[['vwap_low', 'vwap', 'vwap_high']]
+
