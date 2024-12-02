@@ -30,16 +30,17 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
 # df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
 
-# # GOOD
-ha_df = bta.heiken_ashi(df)
-df['ha_open'] = ha_df['ha_open']
-df['ha_high'] = ha_df['ha_high']
-df['ha_low'] = ha_df['ha_low']
-df['ha_close'] = ha_df['ha_close']
+# # # GOOD
+# ha_df = bta.heiken_ashi(df)
+# df['ha_open'] = ha_df['ha_open']
+# df['ha_high'] = ha_df['ha_high']
+# df['ha_low'] = ha_df['ha_low']
+# df['ha_close'] = ha_df['ha_close']
 
-hha_result = bta.hansen_heiken_ashi(df, period=6)
-df['hha_emac'] = hha_result['emac']
-df['hha_emao'] = hha_result['emao']
+# # # GOOD
+# hha_result = bta.hansen_heiken_ashi(df, period=6)
+# df['hha_emac'] = hha_result['emac']
+# df['hha_emao'] = hha_result['emao']
 
 # # GOOD
 # lr_df = bta.linear_regression_candles(df)
@@ -319,6 +320,10 @@ df['hha_emao'] = hha_result['emao']
 # df['bb_lower'] = bb_result['bb_lower']
 
 # # ## WERKT GOED!!!
+# df['bbw_expansion'] = bta.bbw_expansion(df, upper_band='bb_upper', lower_band='bb_lower', 
+#                                                 middle_band='bb_middle', mult=0.5, rolling_window=20)['bbw_expansion']
+
+# # ## WERKT GOED!!!
 # df['true_range'] = bta.true_range(df)['true_range']
 
 # ##### VOLUME.PY FILE ###############
@@ -405,5 +410,5 @@ df['hha_emao'] = hha_result['emao']
 
 
 
-print(df.tail(30))
+print(df.tail(50))
 # dir(bta)

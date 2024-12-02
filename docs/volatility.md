@@ -44,6 +44,46 @@ df['bb_lower'] = bb_result['bb_lower']
 
 ---
 
+## Bollinger Band Width Expansion (BBW Expansion)
+
+### Description
+**BBW Expansion** detects significant expansions in the Bollinger Band Width (BBW), which can signal potential increases in market volatility. This is determined by comparing the most recent BBW value against a rolling maximum multiplied by a specified factor. The indicator requires the **Bollinger Bands** to be calculated beforehand using the `bta.bollinger_bands` function.
+
+### Interpretation
+- **BBW Expansion Indicator**:
+  - A value of `1` indicates that the current BBW exceeds the rolling maximum by the specified multiplier, suggesting a possible volatility increase.
+  - A value of `0` indicates no significant expansion in the Bollinger Band Width.
+
+### Usage Example
+```python
+# First, calculate Bollinger Bands
+df = bta.bollinger_bands(df, period=20)
+
+# Then, detect BBW expansion
+df['bbw_expansion'] = bta.bbw_expansion(df, upper_band='bb_upper', lower_band='bb_lower', 
+                                         middle_band='bb_middle', mult=1.1, rolling_window=20)['bbw_expansion']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing columns for Bollinger Bands.
+- `upper_band` (str, default=`'bb_upper'`): Column name for the upper Bollinger Band.
+- `lower_band` (str, default=`'bb_lower'`): Column name for the lower Bollinger Band.
+- `middle_band` (str, default=`'bb_middle'`): Column name for the middle Bollinger Band.
+- `mult` (float, default=`1.1`): Multiplier to compare the last BBW value against the rolling maximum.
+- `rolling_window` (int, default=`20`): Size of the rolling window for calculating the maximum BBW.
+
+### Returns
+- **DataFrame**: A DataFrame with the following additional columns:
+  - `'bb_width'`: Bollinger Band Width values.
+  - `'bbw_expansion'`: Indicator for expansion (`1` if expansion is detected, otherwise `0`).
+
+### Notes
+- The Bollinger Bands (`bb_upper`, `bb_middle`, `bb_lower`) must be computed before using this function.
+- The multiplier (`mult`) can be adjusted to change sensitivity to expansions. A lower value increases sensitivity, while a higher value reduces it.
+- Shortening the `rolling_window` makes the indicator more responsive to recent changes.
+
+--- 
+
 ## True Range (TR)
 
 ### Description

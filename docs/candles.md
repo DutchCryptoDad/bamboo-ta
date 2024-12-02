@@ -58,6 +58,42 @@ df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
 
 ---
 
+## Hansen Heiken Ashi (HHA)
+
+### Description
+**Hansen Heiken Ashi (HHA)** is a modified version of the Heiken Ashi candlestick calculation. It incorporates a custom formula for the open value (`hhopen`) and uses a Simple Moving Average (SMA) to smooth the calculated values, reducing noise for better trend visualization.
+
+### Interpretation
+- **Smoothed Hansen Heiken Ashi Values**:
+  - The `emac` (smoothed close) represents the overall trend direction with reduced noise.
+  - The `emao` (smoothed open) serves as a secondary confirmation of trend continuation or reversal.
+
+### Usage Example
+```python
+hha_result = bta.hansen_heiken_ashi(df, period=6)
+df['hha_emac'] = hha_result['emac']
+df['hha_emao'] = hha_result['emao']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing the following OHLC columns:
+  - `'open'`
+  - `'high'`
+  - `'low'`
+  - `'close'`
+- `period` (int, default=6): The period for the Simple Moving Average (SMA) to smooth the calculated values.
+
+### Returns
+- **DataFrame**: A DataFrame with two columns:
+  - `'emac'`: Smoothed Hansen Heiken Ashi close values.
+  - `'emao'`: Smoothed Hansen Heiken Ashi open values.
+
+### Notes
+- The HHA indicator is particularly effective in volatile markets for identifying trends with reduced noise.
+- The modified `hhopen` calculation differs from traditional Heiken Ashi, potentially providing improved trend clarity.
+
+---
+
 ## Heiken Ashi
 
 ### Description
