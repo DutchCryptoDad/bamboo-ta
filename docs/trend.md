@@ -382,6 +382,41 @@ df['t3_average'] = bta.t3_average(df, length=5)['t3_average']
 
 ---
 
+## UT Bot Indicator
+
+### Description
+The **UT Bot Indicator** is a trend-following indicator that uses ATR (Average True Range) to create a dynamic trailing stop. Originally created by HPotter, it helps identify trend changes and potential entry/exit points by generating a trailing stop line that adapts to market volatility.
+
+### Interpretation
+- When price crosses above the trailing stop, it generates a buy signal and indicates an uptrend
+- When price crosses below the trailing stop, it generates a sell signal and indicates a downtrend
+- The trailing stop acts as dynamic support in uptrends and resistance in downtrends
+- Position value of 1 indicates a long position, -1 indicates a short position
+
+### Usage Example
+```python
+result = bta.ut_bot(df, 'close', 10, 3.0)
+df['ut_bot_stop'] = result['ut_bot_stop']
+df['ut_bot_position'] = result['ut_bot_position']
+df['ut_bot_buy'] = result['ut_bot_buy']
+df['ut_bot_sell'] = result['ut_bot_sell']
+```
+
+### Parameters
+- `df` (pandas.DataFrame): Input DataFrame containing OHLC data
+- `close_col` (str): Column name for close prices. Default is `'close'`
+- `atr_period` (int): Period for ATR calculation. Default is `10`
+- `key_value` (float): Sensitivity multiplier for ATR. Default is `3.0`
+
+### Returns
+- **DataFrame**: A DataFrame with the following columns:
+  - `ut_bot_stop`: The trailing stop level
+  - `ut_bot_position`: Position indicator (1 for long, -1 for short, 0 for neutral)
+  - `ut_bot_buy`: Buy signals (1 when triggered, 0 otherwise)
+  - `ut_bot_sell`: Sell signals (1 when triggered, 0 otherwise)
+
+---
+
 ## Weighted Moving Average (WMA)
 
 ### Description
@@ -450,3 +485,6 @@ df['zlema'] = bta.zero_lag_exponential_moving_average(df, 'close', 21)['zlema']
 - **DataFrame**: A DataFrame with the `'zlema'` column.
 
 ---
+
+
+

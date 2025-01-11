@@ -43,12 +43,12 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['hha_emao'] = hha_result['emao']
 
 # # GOOD
-# lr_df = bta.linear_regression_candles(df)
-# df['lrc_open'] = lr_df['bopen']
-# df['lrc_high'] = lr_df['bhigh']
-# df['lrc_low'] = lr_df['blow']
-# df['lrc_close'] = lr_df['bclose']
-# df['lrc_signal'] = lr_df['signal']
+lr_df = bta.linear_regression_candles(df)
+df['lrc_open'] = lr_df['bopen']
+df['lrc_high'] = lr_df['bhigh']
+df['lrc_low'] = lr_df['blow']
+df['lrc_close'] = lr_df['bclose']
+df['lrc_signal'] = lr_df['signal']
 
 # ## MOMENTUM.PY FUNCTIES ###
 
@@ -170,6 +170,12 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 
 # ### TREND.PY ####
+
+result = bta.ut_bot(df, 'close', 1.0, 10)
+df['ut_bot_stop'] = result['ut_bot_stop'] 
+df['ut_bot_position'] = result['ut_bot_position']
+df['ut_bot_buy'] = result['ut_bot_buy']
+df['ut_bot_sell'] = result['ut_bot_sell']
 
 # alligator_result = bta.alligator_bands(df, 'close', 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
 # df['jaw'] = alligator_result['jaw']
@@ -464,5 +470,5 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 
 
-print(df.tail(50))
+print(df.tail(35))
 # dir(bta)
