@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: bamboo-ta
-Version: 0.3.0
+Version: 0.3.1
 Summary: TA library for Pandas
 Home-page: https://github.com/DutchCryptoDad/bamboo-ta
 Author: DutchCryptoDad (DCD)
@@ -13,12 +13,8 @@ Classifier: Operating System :: Unix
 Classifier: Operating System :: MacOS :: MacOS X
 Classifier: Operating System :: Microsoft :: Windows
 Description-Content-Type: text/markdown
-License-File: LICENSE
-Requires-Dist: pandas
-Requires-Dist: numpy
 Provides-Extra: def
-Requires-Dist: pytest; extra == "def"
-Requires-Dist: twine; extra == "def"
+License-File: LICENSE
 
 # Bamboo-TA: Technical Analysis Indicators Library
 
