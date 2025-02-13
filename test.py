@@ -78,6 +78,12 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['macd_signal'] = macd_result['macd_signal']
 # df['macd_histogram'] = macd_result['macd_histogram']
 
+# # WERKT GOED!!!
+# macd_v_result = bta.macd_v(df, 'close', 12, 26, 26, 9) 
+# df['macd_v'] = macd_v_result['macd_v']
+# df['macd_v_signal'] = macd_v_result['macd_v_signal']
+
+
 # # # # WERKT GOED!!!
 # df['macd_leader'] = bta.macd_leader(df, 'close')['macd_leader']
 

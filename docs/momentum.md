@@ -214,6 +214,26 @@ df['macd_leader'] = bta.macd_leader(df, 'close')['macd_leader']
 
 ---
 
+## MACD-V (Volatility Normalized Momentum)
+
+### Description
+The **MACD-V** is a refined version of the traditional MACD indicator that is normalized for volatility using the Average True Range (ATR). This normalization allows for more stable and comparable momentum readings across different markets and timeframes.
+
+### Interpretation
+- **MACD-V** values are normalized by volatility, making them more comparable across different assets and time periods
+- Higher positive values indicate strong upward momentum relative to volatility
+- Lower negative values indicate strong downward momentum relative to volatility
+- Values closer to zero suggest weaker momentum or consolidation
+
+### Usage Example
+```python
+macd_v_result = bta.macd_v(df, 'close', 12, 26, 26, 9) 
+df['macd_v'] = macd_v_result['macd_v']
+df['macd_v_signal'] = macd_v_result['macd_v_signal']
+```
+
+---
+
 ## MA Streak Indicator
 
 ### Description
