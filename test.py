@@ -2,7 +2,8 @@
 # Import necessary libraries
 # Importeer necessary libraries
 import bamboo_ta.bamboo_ta as bta
-#import pandas_ta as pta
+
+# import pandas_ta as pta
 import pandas as pd
 from pandas import DataFrame
 import numpy as np
@@ -11,9 +12,9 @@ import numpy as np
 # create dataframe and read the json data in the datasets directory
 df = pd.read_json("./BTC_USDT-1d.json")
 # name the columns that are loaded into the dataframe
-df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
+df.columns = ["date", "open", "high", "low", "close", "volume"]
 # the date column consists of unix time in milliseconds, so this command changes this data into human readable form.
-df['date'] = (pd.to_datetime(df['date'], unit='ms'))
+df["date"] = pd.to_datetime(df["date"], unit="ms")
 
 # ========================================
 ### After refactoring:
@@ -79,7 +80,7 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['macd_histogram'] = macd_result['macd_histogram']
 
 # # WERKT GOED!!!
-# macd_v_result = bta.macd_v(df, 'close', 12, 26, 26, 9) 
+# macd_v_result = bta.macd_v(df, 'close', 12, 26, 26, 9)
 # df['macd_v'] = macd_v_result['macd_v']
 # df['macd_v_signal'] = macd_v_result['macd_v_signal']
 
@@ -177,8 +178,15 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 
 # ### TREND.PY ####
 
+# range_filter_result = bta.range_filter(df, "close", 100, 3.0)
+# df["range_filter"] = range_filter_result["range_filter"]
+# df["high_band"] = range_filter_result["high_band"]
+# df["low_band"] = range_filter_result["low_band"]
+# df["long_signal"] = range_filter_result["long_signal"]
+# df["short_signal"] = range_filter_result["short_signal"]
+
 # result = bta.ut_bot(df, 'close', 1.0, 10)
-# df['ut_bot_stop'] = result['ut_bot_stop'] 
+# df['ut_bot_stop'] = result['ut_bot_stop']
 # df['ut_bot_position'] = result['ut_bot_position']
 # df['ut_bot_buy'] = result['ut_bot_buy']
 # df['ut_bot_sell'] = result['ut_bot_sell']
@@ -312,14 +320,14 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['buyprice'] = atr_sl_tp_df['buyprice']
 
 ### NOG TE TESTEN
-# stop_loss_take_profit = bta.calculate_stop_loss_take_profit(df, 
+# stop_loss_take_profit = bta.calculate_stop_loss_take_profit(df,
 #                                                             signal_column='trade_signal',
-#                                                             long_trade_signal='long_trade', 
-#                                                             short_trade_signal='short_trade', 
-#                                                             no_trade_signal='no_trade', 
-#                                                             lookback_period=5, 
-#                                                             long_reward_ratio=2, 
-#                                                             short_reward_ratio=1.5, 
+#                                                             long_trade_signal='long_trade',
+#                                                             short_trade_signal='short_trade',
+#                                                             no_trade_signal='no_trade',
+#                                                             lookback_period=5,
+#                                                             long_reward_ratio=2,
+#                                                             short_reward_ratio=1.5,
 #                                                             buffer=0.5)
 # df['stop_loss'] = stop_loss_take_profit['stop_loss']
 # df['entry_price'] = stop_loss_take_profit['entry_price']
@@ -379,13 +387,26 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['bb_lower'] = bb_result['bb_lower']
 
 # # ## WERKT GOED!!!
-# df['bbw_expansion'] = bta.bbw_expansion(df, upper_band='bb_upper', lower_band='bb_lower', 
+# df['bbw_expansion'] = bta.bbw_expansion(df, upper_band='bb_upper', lower_band='bb_lower',
 #                                                 middle_band='bb_middle', mult=0.5, rolling_window=20)['bbw_expansion']
 
 # # ## WERKT GOED!!!
 # df['true_range'] = bta.true_range(df)['true_range']
 
 # ##### VOLUME.PY FILE ###############
+
+trvo_result = bta.time_relative_volume_oscillator(
+    df,
+    column="close",
+    relative_len=6,
+    delta_smoothing=9,
+    smoothing_line=True,
+    show_total_volume=False,
+)
+df["relative_buy_volume"] = trvo_result["relative_buy_volume"]
+df["relative_sell_volume"] = trvo_result["relative_sell_volume"]
+df["buy_vs_sell"] = trvo_result["buy_vs_sell"]
+df["smoothed_delta"] = trvo_result["smoothed_delta"]
 
 # vwapb_result = bta.volume_weighted_average_price_bands(df, window_size=20, num_of_std=1.0)
 # df['vwap_low'] = vwapb_result['vwap_low']
@@ -439,7 +460,6 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['rvol'] = bta.relative_volume(df, volume_col='volume', window=24)['rvol']
 
 
-
 # Print the updated DataFrame with the new columns
 # print(df)
 
@@ -451,14 +471,10 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # print(df.tail(40))
 
 
-
-# TODO: 
-
+# TODO:
 
 
-
-
-# 
+#
 
 # BUGGY INDICATORS..?
 # # ## TEST FOR LinearDecay
@@ -472,8 +488,7 @@ df['date'] = (pd.to_datetime(df['date'], unit='ms'))
 # df['leledc_major'] = leledc_df['leledc_major']
 # df['leledc_minor'] = leledc_df['leledc_minor']
 
-# 
-
+#
 
 
 print(df.tail(35))
