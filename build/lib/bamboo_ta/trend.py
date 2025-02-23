@@ -6,15 +6,16 @@ import pandas as pd
 from .volatility import *
 from .utility import *
 
+
 def alligator_bands(
     df: pd.DataFrame,
-    column: str = 'close',
+    column: str = "close",
     jaw_period: int = 13,
     teeth_period: int = 8,
     lips_period: int = 5,
     jaw_shift: int = 8,
     teeth_shift: int = 5,
-    lips_shift: int = 3
+    lips_shift: int = 3,
 ) -> pd.DataFrame:
     """
     Bill Williams Alligator Indicator
@@ -43,28 +44,32 @@ def alligator_bands(
     """
     df_copy = df.copy()
 
-    df_copy['jaw'] = df_copy[column].rolling(window=jaw_period).mean().shift(jaw_shift)
-    df_copy['teeth'] = df_copy[column].rolling(window=teeth_period).mean().shift(teeth_shift)
-    df_copy['lips'] = df_copy[column].rolling(window=lips_period).mean().shift(lips_shift)
+    df_copy["jaw"] = df_copy[column].rolling(window=jaw_period).mean().shift(jaw_shift)
+    df_copy["teeth"] = (
+        df_copy[column].rolling(window=teeth_period).mean().shift(teeth_shift)
+    )
+    df_copy["lips"] = (
+        df_copy[column].rolling(window=lips_period).mean().shift(lips_shift)
+    )
 
-    df_copy['jaw'] = df_copy['jaw']
-    df_copy['teeth'] = df_copy['teeth']
-    df_copy['lips'] = df_copy['lips']
+    df_copy["jaw"] = df_copy["jaw"]
+    df_copy["teeth"] = df_copy["teeth"]
+    df_copy["lips"] = df_copy["lips"]
 
-    return df_copy[['jaw', 'teeth', 'lips']]
+    return df_copy[["jaw", "teeth", "lips"]]
 
 
 def bollinger_trend(
-    df: pd.DataFrame, 
-    column: str = 'close', 
-    short_length: int = 20, 
-    long_length: int = 50, 
-    std_dev: float = 2.0
+    df: pd.DataFrame,
+    column: str = "close",
+    short_length: int = 20,
+    long_length: int = 50,
+    std_dev: float = 2.0,
 ) -> pd.DataFrame:
     """
     Bollinger Trend Indicator
 
-    The Bollinger Trend Indicator calculates the trend based on the difference 
+    The Bollinger Trend Indicator calculates the trend based on the difference
     between short and long Bollinger Bands.
 
     Parameters:
@@ -84,41 +89,45 @@ def bollinger_trend(
 
     # Calculate short Bollinger Bands
     short_bb = bollinger_bands(df, column=column, period=short_length, std_dev=std_dev)
-    short_middle = short_bb['bb_middle']
-    short_upper = short_bb['bb_upper']
-    short_lower = short_bb['bb_lower']
+    short_middle = short_bb["bb_middle"]
+    short_upper = short_bb["bb_upper"]
+    short_lower = short_bb["bb_lower"]
 
     # Calculate long Bollinger Bands
     long_bb = bollinger_bands(df, column=column, period=long_length, std_dev=std_dev)
-    long_middle = long_bb['bb_middle']
-    long_upper = long_bb['bb_upper']
-    long_lower = long_bb['bb_lower']
+    long_middle = long_bb["bb_middle"]
+    long_upper = long_bb["bb_upper"]
+    long_lower = long_bb["bb_lower"]
 
     # Calculate BBTrend
-    bbtrend = (np.abs(short_lower - long_lower) - np.abs(short_upper - long_upper)) / short_middle * 100
+    bbtrend = (
+        (np.abs(short_lower - long_lower) - np.abs(short_upper - long_upper))
+        / short_middle
+        * 100
+    )
 
     # Fill NaN values that may arise from the calculation
     bbtrend = bbtrend.fillna(0)
 
-    df_copy['bbtrend'] = bbtrend
+    df_copy["bbtrend"] = bbtrend
 
-    return df_copy[['bbtrend']]
+    return df_copy[["bbtrend"]]
 
 
 def bollinger_trend_fast_with_ma(
     df: pd.DataFrame,
-    column: str = 'close',
+    column: str = "close",
     short_length: int = 10,
     long_length: int = 50,
     short_stddev: float = 1.0,
     long_stddev: float = 2.0,
-    ma_type: str = 'SMA',
-    ma_length: int = 14
+    ma_type: str = "SMA",
+    ma_length: int = 14,
 ) -> pd.DataFrame:
     """
     Bollinger Trend Indicator with Selectable Moving Average
 
-    This function calculates a more responsive Bollinger Trend (BBTrend) and applies a 
+    This function calculates a more responsive Bollinger Trend (BBTrend) and applies a
     selected moving average to the BBTrend.
 
     Parameters:
@@ -142,42 +151,52 @@ def bollinger_trend_fast_with_ma(
     df_copy = df.copy()
 
     # Calculate short Bollinger Bands
-    short_bb = bollinger_bands(df, column=column, period=short_length, std_dev=short_stddev)
-    short_middle = short_bb['bb_middle']
-    short_upper = short_bb['bb_upper']
-    short_lower = short_bb['bb_lower']
+    short_bb = bollinger_bands(
+        df, column=column, period=short_length, std_dev=short_stddev
+    )
+    short_middle = short_bb["bb_middle"]
+    short_upper = short_bb["bb_upper"]
+    short_lower = short_bb["bb_lower"]
 
     # Calculate long Bollinger Bands
-    long_bb = bollinger_bands(df, column=column, period=long_length, std_dev=long_stddev)
-    long_middle = long_bb['bb_middle']
-    long_upper = long_bb['bb_upper']
-    long_lower = long_bb['bb_lower']
+    long_bb = bollinger_bands(
+        df, column=column, period=long_length, std_dev=long_stddev
+    )
+    long_middle = long_bb["bb_middle"]
+    long_upper = long_bb["bb_upper"]
+    long_lower = long_bb["bb_lower"]
 
     # Calculate BBTrend
-    bbtrend = (np.abs(short_lower - long_lower) - np.abs(short_upper - long_upper)) / short_middle * 100
+    bbtrend = (
+        (np.abs(short_lower - long_lower) - np.abs(short_upper - long_upper))
+        / short_middle
+        * 100
+    )
     bbtrend = bbtrend
 
     # Select and calculate the moving average
     bbtrend_df = df.assign(bbtrend=bbtrend)
-    if ma_type == 'SMA':
-        ma = simple_moving_average(bbtrend_df, column='bbtrend', period=ma_length)
-    elif ma_type == 'EMA':
-        ma = exponential_moving_average(bbtrend_df, column='bbtrend', period=ma_length)
-    elif ma_type == 'LSMA':
-        ma = least_squares_moving_average(bbtrend_df, column='bbtrend', period=ma_length)
-    elif ma_type == 'HMA':
-        ma = hull_moving_average(bbtrend_df, column='bbtrend', period=ma_length)
-    elif ma_type == 'WMA':
-        ma = weighted_moving_average(bbtrend_df, column='bbtrend', period=ma_length)
+    if ma_type == "SMA":
+        ma = simple_moving_average(bbtrend_df, column="bbtrend", period=ma_length)
+    elif ma_type == "EMA":
+        ma = exponential_moving_average(bbtrend_df, column="bbtrend", period=ma_length)
+    elif ma_type == "LSMA":
+        ma = least_squares_moving_average(
+            bbtrend_df, column="bbtrend", period=ma_length
+        )
+    elif ma_type == "HMA":
+        ma = hull_moving_average(bbtrend_df, column="bbtrend", period=ma_length)
+    elif ma_type == "WMA":
+        ma = weighted_moving_average(bbtrend_df, column="bbtrend", period=ma_length)
     else:
         raise ValueError("Unsupported moving average type")
 
     # Returning as DataFrame
     result = df.copy()
-    result['bbtrend'] = bbtrend
-    result['bbtrend_ma'] = ma
+    result["bbtrend"] = bbtrend
+    result["bbtrend_ma"] = ma
 
-    return result[['bbtrend', 'bbtrend_ma']]
+    return result[["bbtrend", "bbtrend_ma"]]
 
 
 def breakouts(df: pd.DataFrame, length: int = 20) -> pd.DataFrame:
@@ -208,59 +227,92 @@ def breakouts(df: pd.DataFrame, length: int = 20) -> pd.DataFrame:
     df_copy = df.copy()
 
     # Ensure the DataFrame contains the required columns
-    required_columns = ['high', 'low', 'close']
+    required_columns = ["high", "low", "close"]
     for col in required_columns:
         if col not in df.columns:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
-    high = df_copy['high']
-    low = df_copy['low']
-    close = df_copy['close']
+    high = df_copy["high"]
+    low = df_copy["low"]
+    close = df_copy["close"]
 
     pl = low.rolling(window=length * 2 + 1).min()
     ph = high.rolling(window=length * 2 + 1).max()
 
-    s_yLoc = low.shift(length + 1).where(low.shift(length + 1) > low.shift(length - 1), low.shift(length - 1))
-    r_yLoc = high.shift(length + 1).where(high.shift(length + 1) > high.shift(length - 1), high.shift(length + 1))
+    s_yLoc = low.shift(length + 1).where(
+        low.shift(length + 1) > low.shift(length - 1), low.shift(length - 1)
+    )
+    r_yLoc = high.shift(length + 1).where(
+        high.shift(length + 1) > high.shift(length - 1), high.shift(length + 1)
+    )
 
     cu = close < s_yLoc.shift(length)
     co = close > r_yLoc.shift(length)
 
     s1 = (high >= s_yLoc.shift(length)) & (close <= pl.shift(length))
-    s2 = (high >= s_yLoc.shift(length)) & (close >= pl.shift(length)) & (close <= s_yLoc.shift(length))
+    s2 = (
+        (high >= s_yLoc.shift(length))
+        & (close >= pl.shift(length))
+        & (close <= s_yLoc.shift(length))
+    )
     s3 = (high >= pl.shift(length)) & (high <= s_yLoc.shift(length))
-    s4 = (high >= pl.shift(length)) & (high <= s_yLoc.shift(length)) & (close < pl.shift(length))
+    s4 = (
+        (high >= pl.shift(length))
+        & (high <= s_yLoc.shift(length))
+        & (close < pl.shift(length))
+    )
 
     r1 = (low <= r_yLoc.shift(length)) & (close >= ph.shift(length))
-    r2 = (low <= r_yLoc.shift(length)) & (close <= ph.shift(length)) & (close >= r_yLoc.shift(length))
+    r2 = (
+        (low <= r_yLoc.shift(length))
+        & (close <= ph.shift(length))
+        & (close >= r_yLoc.shift(length))
+    )
     r3 = (low <= ph.shift(length)) & (low >= r_yLoc.shift(length))
-    r4 = (low <= ph.shift(length)) & (low >= r_yLoc.shift(length)) & (close > ph.shift(length))
+    r4 = (
+        (low <= ph.shift(length))
+        & (low >= r_yLoc.shift(length))
+        & (close > ph.shift(length))
+    )
 
-    df_copy['support_level'] = pl.diff().where(pl.diff().notna())
-    df_copy['resistance_level'] = ph.diff().where(ph.diff().notna())
+    df_copy["support_level"] = pl.diff().where(pl.diff().notna())
+    df_copy["resistance_level"] = ph.diff().where(ph.diff().notna())
 
-    df_copy['support_level'] = df_copy['support_level'].combine_first(df_copy['support_level'].shift())
-    df_copy['resistance_level'] = df_copy['resistance_level'].combine_first(df_copy['resistance_level'].shift())
+    df_copy["support_level"] = df_copy["support_level"].combine_first(
+        df_copy["support_level"].shift()
+    )
+    df_copy["resistance_level"] = df_copy["resistance_level"].combine_first(
+        df_copy["resistance_level"].shift()
+    )
 
-    df_copy['support_breakout'] = cu
-    df_copy['resistance_breakout'] = co
-    df_copy['support_retest'] = (s1 | s2 | s3 | s4).astype(int)
-    df_copy['potential_support_retest'] = (s1 | s2 | s3).astype(int)
-    df_copy['resistance_retest'] = (r1 | r2 | r3 | r4).astype(int)
-    df_copy['potential_resistance_retest'] = (r1 | r2 | r3).astype(int)
+    df_copy["support_breakout"] = cu
+    df_copy["resistance_breakout"] = co
+    df_copy["support_retest"] = (s1 | s2 | s3 | s4).astype(int)
+    df_copy["potential_support_retest"] = (s1 | s2 | s3).astype(int)
+    df_copy["resistance_retest"] = (r1 | r2 | r3 | r4).astype(int)
+    df_copy["potential_resistance_retest"] = (r1 | r2 | r3).astype(int)
 
-    return df_copy[['support_level', 'resistance_level', 'support_breakout', 'resistance_breakout', 'support_retest', 'potential_support_retest', 'resistance_retest', 'potential_resistance_retest']]
+    return df_copy[
+        [
+            "support_level",
+            "resistance_level",
+            "support_breakout",
+            "resistance_breakout",
+            "support_retest",
+            "potential_support_retest",
+            "resistance_retest",
+            "potential_resistance_retest",
+        ]
+    ]
 
 
 def exponential_moving_average(
-    df: pd.DataFrame, 
-    column: str = 'close', 
-    period: int = 21
+    df: pd.DataFrame, column: str = "close", period: int = 21
 ) -> pd.DataFrame:
     """
     Exponential Moving Average (EMA)
 
-    The Exponential Moving Average gives more weight to recent prices and thus reacts 
+    The Exponential Moving Average gives more weight to recent prices and thus reacts
     more quickly to price changes than the Simple Moving Average.
 
     Call with:
@@ -275,26 +327,24 @@ def exponential_moving_average(
     - pd.DataFrame: DataFrame with 'ema' column, where first `period-1` values are NaN.
     """
     df_copy = df.copy()
-    
+
     # Calculate Exponential Moving Average
-    df_copy['ema'] = df_copy[column].ewm(span=period, adjust=False).mean()
-    
+    df_copy["ema"] = df_copy[column].ewm(span=period, adjust=False).mean()
+
     # Set first `period - 1` values to NaN using `.loc[]` to avoid chained assignment warning
-    df_copy.loc[:period-1, 'ema'] = pd.NA
-    
-    return df_copy[['ema']]
+    df_copy.loc[: period - 1, "ema"] = pd.NA
+
+    return df_copy[["ema"]]
 
 
 def hull_moving_average(
-    df: pd.DataFrame, 
-    column: str = 'close', 
-    period: int = 9
+    df: pd.DataFrame, column: str = "close", period: int = 9
 ) -> pd.DataFrame:
     """
     Hull Moving Average (HMA)
 
-    The Hull Moving Average (HMA) is an improved moving average that is responsive and 
-    has minimal lag. It involves the combination of WMA (Weighted Moving Average) with 
+    The Hull Moving Average (HMA) is an improved moving average that is responsive and
+    has minimal lag. It involves the combination of WMA (Weighted Moving Average) with
     different periods.
 
     Parameters:
@@ -313,28 +363,30 @@ def hull_moving_average(
     half_length = math.floor(period / 2)
     sqrt_length = math.floor(math.sqrt(period))
 
-    wma_half = weighted_moving_average(df_copy, column=column, period=half_length)['wma']
-    wma_full = weighted_moving_average(df_copy, column=column, period=period)['wma']
+    wma_half = weighted_moving_average(df_copy, column=column, period=half_length)[
+        "wma"
+    ]
+    wma_full = weighted_moving_average(df_copy, column=column, period=period)["wma"]
 
     h = 2 * wma_half - wma_full
     h_df = pd.DataFrame(h, columns=[column])
-    hma = weighted_moving_average(h_df.assign(close=h), column='close', period=sqrt_length)['wma']
+    hma = weighted_moving_average(
+        h_df.assign(close=h), column="close", period=sqrt_length
+    )["wma"]
 
-    df_copy['hma'] = hma
+    df_copy["hma"] = hma
 
-    return df_copy[['hma']]
+    return df_copy[["hma"]]
 
 
 def least_squares_moving_average(
-    df: pd.DataFrame, 
-    column: str = 'close', 
-    period: int = 21
+    df: pd.DataFrame, column: str = "close", period: int = 21
 ) -> pd.DataFrame:
     """
     Least Squares Moving Average (LSMA)
 
-    LSMA uses linear regression to compute the trend of the data over a specified period. 
-    It fits a straight line to the data points using the method of least squares to depict 
+    LSMA uses linear regression to compute the trend of the data over a specified period.
+    It fits a straight line to the data points using the method of least squares to depict
     the direction of movement.
 
     Parameters:
@@ -352,7 +404,7 @@ def least_squares_moving_average(
 
     for i in range(period - 1, len(df)):
         # Extract the most recent N df points
-        subset = df.iloc[i + 1 - period:i + 1]
+        subset = df.iloc[i + 1 - period : i + 1]
 
         # Perform linear regression to fit a line
         x = np.arange(len(subset))
@@ -363,18 +415,16 @@ def least_squares_moving_average(
         lsma = intercept + slope * (period - 1)
         lsma_values.append(lsma)
 
-    lsma_series = pd.Series(lsma_values, index=df.index[period - 1:])
+    lsma_series = pd.Series(lsma_values, index=df.index[period - 1 :])
 
     df_copy = df.copy()
-    df_copy['lsma'] = lsma_series
+    df_copy["lsma"] = lsma_series
 
-    return df_copy[['lsma']]
+    return df_copy[["lsma"]]
 
 
 def percent_price_channel(
-    df: pd.DataFrame, 
-    period: int = 20, 
-    mult: int = 2
+    df: pd.DataFrame, period: int = 20, mult: int = 2
 ) -> pd.DataFrame:
     """
     Percent Change Channel (PCC)
@@ -398,29 +448,38 @@ def percent_price_channel(
     """
     df_copy = df.copy()
 
-    df_copy['previous_close'] = df_copy['close'].shift()
-    df_copy['close_change'] = (
-        (df_copy['close'] - df_copy['previous_close']) / df_copy['previous_close'] * 100
+    df_copy["previous_close"] = df_copy["close"].shift()
+    df_copy["close_change"] = (
+        (df_copy["close"] - df_copy["previous_close"]) / df_copy["previous_close"] * 100
     )
-    df_copy['high_change'] = (
-        (df_copy['high'] - df_copy['close']) / df_copy['close'] * 100
+    df_copy["high_change"] = (
+        (df_copy["high"] - df_copy["close"]) / df_copy["close"] * 100
     )
-    df_copy['low_change'] = (
-        (df_copy['low'] - df_copy['close']) / df_copy['close'] * 100
-    )
-    df_copy['delta'] = df_copy['high_change'] - df_copy['low_change']
+    df_copy["low_change"] = (df_copy["low"] - df_copy["close"]) / df_copy["close"] * 100
+    df_copy["delta"] = df_copy["high_change"] - df_copy["low_change"]
 
-    mid = zero_exponential_moving_average(df_copy, column='close_change', period=period)['zema']
-    rangema = zero_exponential_moving_average(df_copy, column='delta', period=period)['zema']
+    mid = zero_exponential_moving_average(
+        df_copy, column="close_change", period=period
+    )["zema"]
+    rangema = zero_exponential_moving_average(df_copy, column="delta", period=period)[
+        "zema"
+    ]
 
-    df_copy['pcc_upper'] = mid + rangema * mult
-    df_copy['pcc_rangema'] = rangema
-    df_copy['pcc_lower'] = mid - rangema * mult
+    df_copy["pcc_upper"] = mid + rangema * mult
+    df_copy["pcc_rangema"] = rangema
+    df_copy["pcc_lower"] = mid - rangema * mult
 
-    return df_copy[['pcc_upper', 'pcc_rangema', 'pcc_lower']]
+    return df_copy[["pcc_upper", "pcc_rangema", "pcc_lower"]]
 
 
-def pmax(df: pd.DataFrame, period: int, multiplier: float, length: int, ma_type: str = 'EMA', src: str = 'close') -> pd.DataFrame:
+def pmax(
+    df: pd.DataFrame,
+    period: int,
+    multiplier: float,
+    length: int,
+    ma_type: str = "EMA",
+    src: str = "close",
+) -> pd.DataFrame:
     """
     Pmax Indicator
 
@@ -456,32 +515,38 @@ def pmax(df: pd.DataFrame, period: int, multiplier: float, length: int, ma_type:
     df_copy = df.copy()
 
     # Define the source price
-    if src == 'close':
-        masrc = df_copy['close']
-    elif src == 'hl2':
-        masrc = (df_copy['high'] + df_copy['low']) / 2
-    elif src == 'ohlc4':
-        masrc = (df_copy['open'] + df_copy['high'] + df_copy['low'] + df_copy['close']) / 4
+    if src == "close":
+        masrc = df_copy["close"]
+    elif src == "hl2":
+        masrc = (df_copy["high"] + df_copy["low"]) / 2
+    elif src == "ohlc4":
+        masrc = (
+            df_copy["open"] + df_copy["high"] + df_copy["low"] + df_copy["close"]
+        ) / 4
     else:
         raise ValueError(f"Invalid src value: {src}")
 
     # Moving average calculations
-    if ma_type == 'EMA':
+    if ma_type == "EMA":
         mavalue = masrc.ewm(span=length, adjust=False).mean()
-    elif ma_type == 'SMA':
+    elif ma_type == "SMA":
         mavalue = masrc.rolling(window=length).mean()
     else:
         raise ValueError(f"Invalid ma_type value: {ma_type}")
 
     # ATR calculation (self-contained)
-    df_copy['tr'] = np.maximum(df_copy['high'] - df_copy['low'], 
-                               np.maximum(abs(df_copy['high'] - df_copy['close'].shift()), 
-                                          abs(df_copy['low'] - df_copy['close'].shift())))
-    df_copy['atr'] = df_copy['tr'].rolling(window=period).mean()
+    df_copy["tr"] = np.maximum(
+        df_copy["high"] - df_copy["low"],
+        np.maximum(
+            abs(df_copy["high"] - df_copy["close"].shift()),
+            abs(df_copy["low"] - df_copy["close"].shift()),
+        ),
+    )
+    df_copy["atr"] = df_copy["tr"].rolling(window=period).mean()
 
     # Calculate bands
-    df_copy['basic_ub'] = mavalue + (multiplier * df_copy['atr'])
-    df_copy['basic_lb'] = mavalue - (multiplier * df_copy['atr'])
+    df_copy["basic_ub"] = mavalue + (multiplier * df_copy["atr"])
+    df_copy["basic_lb"] = mavalue - (multiplier * df_copy["atr"])
 
     # Final upper and lower bands
     final_ub = np.full(len(df_copy), 0.00)
@@ -489,13 +554,15 @@ def pmax(df: pd.DataFrame, period: int, multiplier: float, length: int, ma_type:
 
     for i in range(period, len(df_copy)):
         final_ub[i] = (
-            df_copy['basic_ub'].iloc[i]
-            if df_copy['basic_ub'].iloc[i] < final_ub[i - 1] or mavalue.iloc[i - 1] > final_ub[i - 1]
+            df_copy["basic_ub"].iloc[i]
+            if df_copy["basic_ub"].iloc[i] < final_ub[i - 1]
+            or mavalue.iloc[i - 1] > final_ub[i - 1]
             else final_ub[i - 1]
         )
         final_lb[i] = (
-            df_copy['basic_lb'].iloc[i]
-            if df_copy['basic_lb'].iloc[i] > final_lb[i - 1] or mavalue.iloc[i - 1] < final_lb[i - 1]
+            df_copy["basic_lb"].iloc[i]
+            if df_copy["basic_lb"].iloc[i] > final_lb[i - 1]
+            or mavalue.iloc[i - 1] < final_lb[i - 1]
             else final_lb[i - 1]
         )
 
@@ -515,31 +582,30 @@ def pmax(df: pd.DataFrame, period: int, multiplier: float, length: int, ma_type:
         )
 
     # Mark the trend direction
-    df_copy['pmax'] = pm_arr
-    df_copy['pmax_trend'] = np.where(pm_arr > 0.00, np.where(mavalue < pm_arr, 'down', 'up'), np.NaN)
+    df_copy["pmax"] = pm_arr
+    df_copy["pmax_trend"] = np.where(
+        pm_arr > 0.00, np.where(mavalue < pm_arr, "down", "up"), np.NaN
+    )
 
-    return df_copy[['pmax', 'pmax_trend']]
+    return df_copy[["pmax", "pmax_trend"]]
 
 
-def price_channel(
-    df: pd.DataFrame, 
-    period: int = 20
-) -> pd.DataFrame:
+def price_channel(df: pd.DataFrame, period: int = 20) -> pd.DataFrame:
     """
     Price Channel (PPC)
 
     The Price Channel % PC indicator calculates the percent change of the price channel.
-    It calculates the highest high and lowest low of the trailing number of bars specified 
-    by the input period. The price channel calculates the highest high and lowest low of 
+    It calculates the highest high and lowest low of the trailing number of bars specified
+    by the input period. The price channel calculates the highest high and lowest low of
     the trailing number of bars specified by the input period.
 
-    When a market moves above the upper band, it is a sign of market strength. Conversely, 
-    when a market moves below the lower band, it is a sign of market weakness. A sustained 
+    When a market moves above the upper band, it is a sign of market strength. Conversely,
+    when a market moves below the lower band, it is a sign of market weakness. A sustained
     move above or below the channel lines may indicate a significant breakout.
 
-    The `percent_p` column represents the percentage position of the current closing price 
-    within the price channel defined by the highest high and lowest low over a specified 
-    period. It shows where the current closing price stands relative to the recent highest 
+    The `percent_p` column represents the percentage position of the current closing price
+    within the price channel defined by the highest high and lowest low over a specified
+    period. It shows where the current closing price stands relative to the recent highest
     and lowest prices.
 
     Parameters:
@@ -558,32 +624,146 @@ def price_channel(
     """
     df_copy = df.copy()
 
-    df_copy['highest_high'] = df_copy['high'].rolling(window=period, min_periods=1).max()
-    df_copy['lowest_low'] = df_copy['low'].rolling(window=period, min_periods=1).min()
+    df_copy["highest_high"] = (
+        df_copy["high"].rolling(window=period, min_periods=1).max()
+    )
+    df_copy["lowest_low"] = df_copy["low"].rolling(window=period, min_periods=1).min()
 
-    df_copy['ppc_upper'] = df_copy['highest_high']
-    df_copy['ppc_lower'] = df_copy['lowest_low']
-    df_copy['ppc_mid'] = (df_copy['ppc_upper'] + df_copy['ppc_lower']) / 2
+    df_copy["ppc_upper"] = df_copy["highest_high"]
+    df_copy["ppc_lower"] = df_copy["lowest_low"]
+    df_copy["ppc_mid"] = (df_copy["ppc_upper"] + df_copy["ppc_lower"]) / 2
 
-    df_copy['percent_p'] = (
-        (df_copy['close'] - df_copy['ppc_lower']) / (df_copy['ppc_upper'] - df_copy['ppc_lower']) * 100
+    df_copy["percent_p"] = (
+        (df_copy["close"] - df_copy["ppc_lower"])
+        / (df_copy["ppc_upper"] - df_copy["ppc_lower"])
+        * 100
     )
 
-    return df_copy[['ppc_upper', 'ppc_mid', 'ppc_lower', 'percent_p']]
+    return df_copy[["ppc_upper", "ppc_mid", "ppc_lower", "percent_p"]]
+
+
+def range_filter(
+    df: pd.DataFrame,
+    column: str = "close",
+    period: int = 100,
+    multiplier: float = 3.0,
+    fillna: bool = False,
+) -> pd.DataFrame:
+    """
+    Range Filter Buy and Sell Indicator
+
+    This indicator smooths price action using a range filter based on a volatility-adjusted
+    moving average. It identifies uptrends and downtrends while filtering out noise.
+
+    Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain at least the "close" column.
+    - column (str): The column on which the range filter is calculated. Default is "close".
+    - period (int): Sampling period for smoothing range calculation. Default is 100.
+    - multiplier (float): Multiplier for the smoothed range. Default is 3.0.
+    - fillna (bool): If True, fills nan values. Default is False.
+
+    Call with:
+        range_filter_result = bta.range_filter(df, "close", 100, 3.0)
+        df["range_filter"] = range_filter_result["range_filter"]
+        df["high_band"] = range_filter_result["high_band"]
+        df["low_band"] = range_filter_result["low_band"]
+        df["long_signal"] = range_filter_result["long_signal"]
+        df["short_signal"] = range_filter_result["short_signal"]
+
+    Returns:
+    - pd.DataFrame: DataFrame with 'range_filter', 'high_band', 'low_band', 'long_signal', 'short_signal'.
+    """
+
+    def ema(series, span):
+        """Exponential Moving Average (EMA)"""
+        return series.ewm(span=span, adjust=False).mean()
+
+    # Compute smoothed range
+    price = df[column]
+    abs_diff = np.abs(price - price.shift(1))
+    avg_range = ema(abs_diff, period)
+    smooth_range = ema(avg_range, period * 2 - 1) * multiplier
+
+    # Initialize filter
+    filt = price.copy()
+
+    for i in range(1, len(df)):
+        prev_filt = filt.iloc[i - 1] if i > 0 else price.iloc[i]
+        if price.iloc[i] > prev_filt:
+            filt.iloc[i] = max(prev_filt, price.iloc[i] - smooth_range.iloc[i])
+        elif price.iloc[i] < prev_filt:
+            filt.iloc[i] = min(prev_filt, price.iloc[i] + smooth_range.iloc[i])
+        else:
+            filt.iloc[i] = prev_filt
+
+    # Determine trend direction
+    upward = np.zeros(len(df))
+    downward = np.zeros(len(df))
+
+    for i in range(1, len(df)):
+        if filt.iloc[i] > filt.iloc[i - 1]:
+            upward[i] = upward[i - 1] + 1
+        elif filt.iloc[i] < filt.iloc[i - 1]:
+            downward[i] = downward[i - 1] + 1
+        else:
+            upward[i] = upward[i - 1]
+            downward[i] = downward[i - 1]
+
+    # Calculate bands
+    high_band = filt + smooth_range
+    low_band = filt - smooth_range
+
+    # Generate buy/sell signals
+    long_signal = ((price > filt) & (price > price.shift(1)) & (upward > 0)) | (
+        (price > filt) & (price < price.shift(1)) & (upward > 0)
+    )
+
+    short_signal = ((price < filt) & (price < price.shift(1)) & (downward > 0)) | (
+        (price < filt) & (price > price.shift(1)) & (downward > 0)
+    )
+
+    # Ensure signal continuity
+    cond_ini = np.zeros(len(df))
+    for i in range(1, len(df)):
+        if long_signal.iloc[i]:
+            cond_ini[i] = 1
+        elif short_signal.iloc[i]:
+            cond_ini[i] = -1
+        else:
+            cond_ini[i] = cond_ini[i - 1]
+
+    long_signal = long_signal & (pd.Series(cond_ini).shift(1) == -1)
+    short_signal = short_signal & (pd.Series(cond_ini).shift(1) == 1)
+
+    if fillna:
+        filt.fillna(method="bfill", inplace=True)
+        high_band.fillna(method="bfill", inplace=True)
+        low_band.fillna(method="bfill", inplace=True)
+        long_signal.fillna(False, inplace=True)
+        short_signal.fillna(False, inplace=True)
+
+    df_copy = df.copy()
+    df_copy["range_filter"] = filt
+    df_copy["high_band"] = high_band
+    df_copy["low_band"] = low_band
+    df_copy["long_signal"] = long_signal.astype(int)  # Convert boolean to int (0 or 1)
+    df_copy["short_signal"] = short_signal.astype(int)
+
+    return df_copy[
+        ["range_filter", "high_band", "low_band", "long_signal", "short_signal"]
+    ]
 
 
 def rolling_moving_average(
-    df: pd.DataFrame, 
-    column: str = 'close', 
-    period: int = 14
+    df: pd.DataFrame, column: str = "close", period: int = 14
 ) -> pd.DataFrame:
     """
     Rolling Moving Average (RMA) calculation.
 
-    The RMA function calculates the Rolling Moving Average (RMA) of a specified column 
-    in a DataFrame over a given period. It uses an exponential moving average (EMA) 
-    calculation with a specified smoothing factor (alpha) and returns a DataFrame 
-    containing the RMA values. This function allows for flexible moving average 
+    The RMA function calculates the Rolling Moving Average (RMA) of a specified column
+    in a DataFrame over a given period. It uses an exponential moving average (EMA)
+    calculation with a specified smoothing factor (alpha) and returns a DataFrame
+    containing the RMA values. This function allows for flexible moving average
     calculations based on any column in the input DataFrame.
 
     Parameters:
@@ -598,15 +778,13 @@ def rolling_moving_average(
     - pd.DataFrame: DataFrame with 'rma' column.
     """
     df_copy = df.copy()
-    df_copy['rma'] = df_copy[column].ewm(alpha=1/period, adjust=False).mean()
+    df_copy["rma"] = df_copy[column].ewm(alpha=1 / period, adjust=False).mean()
 
-    return df_copy[['rma']]
+    return df_copy[["rma"]]
 
 
 def simple_moving_average(
-    df: pd.DataFrame, 
-    column: str = 'close', 
-    period: int = 21
+    df: pd.DataFrame, column: str = "close", period: int = 21
 ) -> pd.DataFrame:
     """
     Simple Moving Average (SMA)
@@ -625,20 +803,16 @@ def simple_moving_average(
     - pd.DataFrame: DataFrame with 'sma' column.
     """
     df_copy = df.copy()
-    df_copy['sma'] = df_copy[column].rolling(window=period).mean()
+    df_copy["sma"] = df_copy[column].rolling(window=period).mean()
 
-    return df_copy[['sma']]
+    return df_copy[["sma"]]
 
 
-def ssl_channels(
-    df: pd.DataFrame, 
-    length: int = 10, 
-    mode: str = 'sma'
-) -> pd.DataFrame:
+def ssl_channels(df: pd.DataFrame, length: int = 10, mode: str = "sma") -> pd.DataFrame:
     """
     SSL Channels
 
-    SSL Channels is an indicator based on the concept of using different moving averages 
+    SSL Channels is an indicator based on the concept of using different moving averages
     to identify trends. This function calculates the SSL Down and SSL Up series.
 
     Parameters:
@@ -656,41 +830,42 @@ def ssl_channels(
     """
     df_copy = df.copy()
 
-    if mode != 'sma':
+    if mode != "sma":
         raise ValueError(f"Mode '{mode}' not supported yet")
 
-    df_copy['sma_high'] = df_copy['high'].rolling(length).mean()
-    df_copy['sma_low'] = df_copy['low'].rolling(length).mean()
+    df_copy["sma_high"] = df_copy["high"].rolling(length).mean()
+    df_copy["sma_low"] = df_copy["low"].rolling(length).mean()
 
-    df_copy['hlv'] = np.where(
-        df_copy['close'] > df_copy['sma_high'], 
-        1, 
-        np.where(df_copy['close'] < df_copy['sma_low'], -1, np.nan)
+    df_copy["hlv"] = np.where(
+        df_copy["close"] > df_copy["sma_high"],
+        1,
+        np.where(df_copy["close"] < df_copy["sma_low"], -1, np.nan),
     )
-    df_copy['hlv'] = df_copy['hlv'].ffill()
+    df_copy["hlv"] = df_copy["hlv"].ffill()
 
-    df_copy['ssl_down'] = np.where(df_copy['hlv'] < 0, df_copy['sma_high'], df_copy['sma_low'])
-    df_copy['ssl_up'] = np.where(df_copy['hlv'] < 0, df_copy['sma_low'], df_copy['sma_high'])
+    df_copy["ssl_down"] = np.where(
+        df_copy["hlv"] < 0, df_copy["sma_high"], df_copy["sma_low"]
+    )
+    df_copy["ssl_up"] = np.where(
+        df_copy["hlv"] < 0, df_copy["sma_low"], df_copy["sma_high"]
+    )
 
-    return df_copy[['ssl_down', 'ssl_up']]
+    return df_copy[["ssl_down", "ssl_up"]]
 
 
 def ssl_channels_atr(
-    df: pd.DataFrame, 
-    column: str = 'close', 
-    length: int = 21, 
-    atr_period: int = 14
+    df: pd.DataFrame, column: str = "close", length: int = 21, atr_period: int = 14
 ) -> pd.DataFrame:
     """
     SSL Channels with ATR
 
-    The ssl_channels_atr function calculates the SSL (Safe and Secure Levels) channels using 
-    the Average True Range (ATR) to adjust the Simple Moving Averages (SMA) of the high 
-    and low prices over a specified period. It determines the trend direction based on 
-    the comparison of a chosen price column with these adjusted SMAs and generates the 
+    The ssl_channels_atr function calculates the SSL (Safe and Secure Levels) channels using
+    the Average True Range (ATR) to adjust the Simple Moving Averages (SMA) of the high
+    and low prices over a specified period. It determines the trend direction based on
+    the comparison of a chosen price column with these adjusted SMAs and generates the
     SSL ATR Down and Up levels accordingly.
 
-    This indicator helps identify potential trend reversals and continuations by providing 
+    This indicator helps identify potential trend reversals and continuations by providing
     dynamic support and resistance levels.
 
     Parameters:
@@ -707,42 +882,44 @@ def ssl_channels_atr(
     Returns:
     - pd.DataFrame: DataFrame with 'ssl_atr_down' and 'ssl_atr_up' columns.
     """
+
     def calculate_atr(df, period):
-        high_low = df['high'] - df['low']
-        high_close = np.abs(df['high'] - df['close'].shift())
-        low_close = np.abs(df['low'] - df['close'].shift())
+        high_low = df["high"] - df["low"]
+        high_close = np.abs(df["high"] - df["close"].shift())
+        low_close = np.abs(df["low"] - df["close"].shift())
         tr = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
         atr = tr.rolling(window=period, min_periods=1).mean()
         return atr
 
     df_copy = df.copy()
 
-    df_copy['atr'] = calculate_atr(df_copy, atr_period)
-    df_copy['sma_high'] = df_copy['high'].rolling(length).mean() + df_copy['atr']
-    df_copy['sma_low'] = df_copy['low'].rolling(length).mean() - df_copy['atr']
+    df_copy["atr"] = calculate_atr(df_copy, atr_period)
+    df_copy["sma_high"] = df_copy["high"].rolling(length).mean() + df_copy["atr"]
+    df_copy["sma_low"] = df_copy["low"].rolling(length).mean() - df_copy["atr"]
 
-    df_copy['hlv'] = np.where(
-        df_copy[column] > df_copy['sma_high'], 
-        1, 
-        np.where(df_copy[column] < df_copy['sma_low'], -1, np.nan)
+    df_copy["hlv"] = np.where(
+        df_copy[column] > df_copy["sma_high"],
+        1,
+        np.where(df_copy[column] < df_copy["sma_low"], -1, np.nan),
     )
-    df_copy['hlv'] = df_copy['hlv'].ffill()
+    df_copy["hlv"] = df_copy["hlv"].ffill()
 
-    df_copy['ssl_atr_down'] = np.where(df_copy['hlv'] < 0, df_copy['sma_high'], df_copy['sma_low'])
-    df_copy['ssl_atr_up'] = np.where(df_copy['hlv'] < 0, df_copy['sma_low'], df_copy['sma_high'])
+    df_copy["ssl_atr_down"] = np.where(
+        df_copy["hlv"] < 0, df_copy["sma_high"], df_copy["sma_low"]
+    )
+    df_copy["ssl_atr_up"] = np.where(
+        df_copy["hlv"] < 0, df_copy["sma_low"], df_copy["sma_high"]
+    )
 
-    return df_copy[['ssl_atr_down', 'ssl_atr_up']]
+    return df_copy[["ssl_atr_down", "ssl_atr_up"]]
 
 
-def t3_average(
-    df: pd.DataFrame, 
-    length: int = 5
-) -> pd.DataFrame:
+def t3_average(df: pd.DataFrame, length: int = 5) -> pd.DataFrame:
     """
     T3 Average
-    
-    The T3 average is a smoothed moving average designed to reduce lag while maintaining 
-    responsiveness to price changes. This implementation uses multiple exponential moving 
+
+    The T3 average is a smoothed moving average designed to reduce lag while maintaining
+    responsiveness to price changes. This implementation uses multiple exponential moving
     averages (EMA) to achieve its smoothing effect.
 
     Parameters:
@@ -758,12 +935,24 @@ def t3_average(
     df_copy = df.copy()
 
     # Calculating multiple EMA stages
-    df_copy['xe1'] = exponential_moving_average(df_copy, column='close', period=length)['ema']
-    df_copy['xe2'] = exponential_moving_average(df_copy, column='xe1', period=length)['ema']
-    df_copy['xe3'] = exponential_moving_average(df_copy, column='xe2', period=length)['ema']
-    df_copy['xe4'] = exponential_moving_average(df_copy, column='xe3', period=length)['ema']
-    df_copy['xe5'] = exponential_moving_average(df_copy, column='xe4', period=length)['ema']
-    df_copy['xe6'] = exponential_moving_average(df_copy, column='xe5', period=length)['ema']
+    df_copy["xe1"] = exponential_moving_average(df_copy, column="close", period=length)[
+        "ema"
+    ]
+    df_copy["xe2"] = exponential_moving_average(df_copy, column="xe1", period=length)[
+        "ema"
+    ]
+    df_copy["xe3"] = exponential_moving_average(df_copy, column="xe2", period=length)[
+        "ema"
+    ]
+    df_copy["xe4"] = exponential_moving_average(df_copy, column="xe3", period=length)[
+        "ema"
+    ]
+    df_copy["xe5"] = exponential_moving_average(df_copy, column="xe4", period=length)[
+        "ema"
+    ]
+    df_copy["xe6"] = exponential_moving_average(df_copy, column="xe5", period=length)[
+        "ema"
+    ]
 
     # Constants for T3 calculation
     b = 0.7
@@ -773,21 +962,21 @@ def t3_average(
     c4 = 1 + 3 * b + b * b * b + 3 * b * b
 
     # T3 average calculation
-    df_copy['t3_average'] = (
-        c1 * df_copy['xe6'] +
-        c2 * df_copy['xe5'] +
-        c3 * df_copy['xe4'] +
-        c4 * df_copy['xe3']
+    df_copy["t3_average"] = (
+        c1 * df_copy["xe6"]
+        + c2 * df_copy["xe5"]
+        + c3 * df_copy["xe4"]
+        + c4 * df_copy["xe3"]
     )
 
-    return df_copy[['t3_average']]
+    return df_copy[["t3_average"]]
 
 
 def ut_bot(
     df: pd.DataFrame,
-    column: str = 'close', 
+    column: str = "close",
     key_value: float = 3.0,
-    atr_period: int = 10
+    atr_period: int = 10,
 ) -> pd.DataFrame:
     """
     UT Bot Indicator
@@ -803,7 +992,7 @@ def ut_bot(
 
     Call with:
         result = bta.ut_bot(df, 'close', 3.0, 10)
-        df['ut_bot_stop'] = result['ut_bot_stop'] 
+        df['ut_bot_stop'] = result['ut_bot_stop']
         df['ut_bot_position'] = result['ut_bot_position']
         df['ut_bot_buy'] = result['ut_bot_buy']
         df['ut_bot_sell'] = result['ut_bot_sell']
@@ -815,22 +1004,22 @@ def ut_bot(
     src = df_copy[column]
 
     # Calculate ATR
-    x_atr = average_true_range(df_copy, period=atr_period)['atr']
+    x_atr = average_true_range(df_copy, period=atr_period)["atr"]
     n_loss = key_value * x_atr
 
     # Initialize trailing stop array
     x_atr_trailing_stop = pd.Series(index=df_copy.index, dtype=float)
-    
+
     # Calculate trailing stop
     for i in range(len(df_copy)):
         if i == 0:
             x_atr_trailing_stop.iloc[i] = src.iloc[i]
             continue
-            
-        prev_stop = x_atr_trailing_stop.iloc[i-1]
+
+        prev_stop = x_atr_trailing_stop.iloc[i - 1]
         curr_src = src.iloc[i]
-        prev_src = src.iloc[i-1]
-        
+        prev_src = src.iloc[i - 1]
+
         if curr_src > prev_stop and prev_src > prev_stop:
             x_atr_trailing_stop.iloc[i] = max(prev_stop, curr_src - n_loss.iloc[i])
         elif curr_src < prev_stop and prev_src < prev_stop:
@@ -843,38 +1032,40 @@ def ut_bot(
     # Calculate position
     position = pd.Series(0, index=df_copy.index)
     for i in range(1, len(df_copy)):
-        prev_src = src.iloc[i-1]
+        prev_src = src.iloc[i - 1]
         curr_src = src.iloc[i]
-        prev_stop = x_atr_trailing_stop.iloc[i-1]
-        
+        prev_stop = x_atr_trailing_stop.iloc[i - 1]
+
         if prev_src < prev_stop and curr_src > prev_stop:
             position.iloc[i] = 1
         elif prev_src > prev_stop and curr_src < prev_stop:
             position.iloc[i] = -1
         else:
-            position.iloc[i] = position.iloc[i-1]
+            position.iloc[i] = position.iloc[i - 1]
 
     # Calculate buy/sell signals
-    buy_signal = (src > x_atr_trailing_stop) & (src.shift(1) <= x_atr_trailing_stop.shift(1))
-    sell_signal = (src < x_atr_trailing_stop) & (src.shift(1) >= x_atr_trailing_stop.shift(1))
+    buy_signal = (src > x_atr_trailing_stop) & (
+        src.shift(1) <= x_atr_trailing_stop.shift(1)
+    )
+    sell_signal = (src < x_atr_trailing_stop) & (
+        src.shift(1) >= x_atr_trailing_stop.shift(1)
+    )
 
-    df_copy['ut_bot_stop'] = x_atr_trailing_stop
-    df_copy['ut_bot_position'] = position
-    df_copy['ut_bot_buy'] = buy_signal
-    df_copy['ut_bot_sell'] = sell_signal
+    df_copy["ut_bot_stop"] = x_atr_trailing_stop
+    df_copy["ut_bot_position"] = position
+    df_copy["ut_bot_buy"] = buy_signal
+    df_copy["ut_bot_sell"] = sell_signal
 
-    return df_copy[['ut_bot_stop', 'ut_bot_position', 'ut_bot_buy', 'ut_bot_sell']]
+    return df_copy[["ut_bot_stop", "ut_bot_position", "ut_bot_buy", "ut_bot_sell"]]
 
 
 def weighted_moving_average(
-    df: pd.DataFrame, 
-    column: str = 'close', 
-    period: int = 10
+    df: pd.DataFrame, column: str = "close", period: int = 10
 ) -> pd.DataFrame:
     """
     Weighted Moving Average (WMA)
 
-    The Weighted Moving Average (WMA) gives more weight to recent data points and 
+    The Weighted Moving Average (WMA) gives more weight to recent data points and
     less weight to older data points.
 
     Parameters:
@@ -890,22 +1081,22 @@ def weighted_moving_average(
     """
     df_copy = df.copy()
     weights = pd.Series(range(1, period + 1))
-    df_copy['wma'] = df_copy[column].rolling(period).apply(
-        lambda prices: (prices * weights).sum() / weights.sum(), raw=True
+    df_copy["wma"] = (
+        df_copy[column]
+        .rolling(period)
+        .apply(lambda prices: (prices * weights).sum() / weights.sum(), raw=True)
     )
 
-    return df_copy[['wma']]
+    return df_copy[["wma"]]
 
 
 def zero_exponential_moving_average(
-    df: pd.DataFrame, 
-    column: str = 'close', 
-    period: int = 21
+    df: pd.DataFrame, column: str = "close", period: int = 21
 ) -> pd.DataFrame:
     """
     Zero Exponential Moving Average (ZEMA)
 
-    The Zero Exponential Moving Average (ZEMA) is an improved version of the Exponential 
+    The Zero Exponential Moving Average (ZEMA) is an improved version of the Exponential
     Moving Average (EMA) that reduces lag by incorporating a zero-lag component.
 
     Parameters:
@@ -926,21 +1117,19 @@ def zero_exponential_moving_average(
     ema2 = ema1.ewm(span=period, adjust=False).mean()
 
     # ZEMA calculation
-    df_copy['zema'] = 2 * ema1 - ema2
+    df_copy["zema"] = 2 * ema1 - ema2
 
-    return df_copy[['zema']]
+    return df_copy[["zema"]]
 
 
 def zero_lag_exponential_moving_average(
-    df: pd.DataFrame, 
-    column: str = 'close', 
-    period: int = 21
+    df: pd.DataFrame, column: str = "close", period: int = 21
 ) -> pd.DataFrame:
     """
     Zero Lag Exponential Moving Average (ZLEMA)
 
-    ZLEMA is an Exponential Moving Average (EMA) that adjusts for lag, making it more responsive 
-    to recent price changes. It uses lagged data differences to adjust the EMA calculation, 
+    ZLEMA is an Exponential Moving Average (EMA) that adjusts for lag, making it more responsive
+    to recent price changes. It uses lagged data differences to adjust the EMA calculation,
     thereby reducing the inherent lag of EMA.
 
     Parameters:
@@ -963,8 +1152,6 @@ def zero_lag_exponential_moving_average(
     zlema = ema_data.ewm(span=period, adjust=False).mean()
 
     df_copy = df.copy()
-    df_copy['zlema'] = zlema
+    df_copy["zlema"] = zlema
 
-    return df_copy[['zlema']]
-
-
+    return df_copy[["zlema"]]

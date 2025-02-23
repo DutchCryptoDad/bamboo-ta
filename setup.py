@@ -3,8 +3,8 @@ import os
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-VERSION = '0.3.1'
-DESCRIPTION = 'TA library for Pandas'
+VERSION = "0.3.3"
+DESCRIPTION = "TA library for Pandas"
 
 with open("README.md", "r") as f:
     LONG_DESCRIPTION = f.read()
@@ -20,17 +20,23 @@ setup(
     long_description_content_type="text/markdown",
     long_description=LONG_DESCRIPTION,
     packages=find_packages(),
-    keywords=['python', 'pandas', 'numpy',
-              'trading', 'indicator', 'technical analysis'],
+    keywords=[
+        "python",
+        "pandas",
+        "numpy",
+        "trading",
+        "indicator",
+        "technical analysis",
+    ],
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha", # see https://pypi.org/classifiers/
+        "Development Status :: 2 - Pre-Alpha",  # see https://pypi.org/classifiers/
         "Intended Audience :: Developers",
         "Programming Language :: Python :: 3",
         "Operating System :: Unix",
         "Operating System :: MacOS :: MacOS X",
         "Operating System :: Microsoft :: Windows",
     ],
-    install_requires=['pandas', 'numpy'],
+    install_requires=["pandas", "numpy"],
     extras_require={
         "def": ["pytest", "twine"],
     },

@@ -1,5 +1,5 @@
-numpy
 pandas
+numpy
 
 [def]
 pytest

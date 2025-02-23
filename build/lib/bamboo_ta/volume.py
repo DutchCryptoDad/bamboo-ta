@@ -6,13 +6,12 @@ from .trend import *
 
 
 def accumulation_distribution_index(
-    df: pd.DataFrame, 
-    fillna: bool = False
+    df: pd.DataFrame, fillna: bool = False
 ) -> pd.DataFrame:
     """
     Accumulation/Distribution Index (ADI)
 
-    The ADI acts as a leading indicator of price movements. It is calculated using the 
+    The ADI acts as a leading indicator of price movements. It is calculated using the
     high, low, close, and volume data.
 
     Parameters:
@@ -28,31 +27,29 @@ def accumulation_distribution_index(
     df_copy = df.copy()
 
     # Ensure the DataFrame contains the required columns
-    required_columns = ['high', 'low', 'close', 'volume']
+    required_columns = ["high", "low", "close", "volume"]
     for col in required_columns:
         if col not in df.columns:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
     # Calculate the ADI values
-    clv = ((df_copy['close'] - df_copy['low']) - (df_copy['high'] - df_copy['close'])) / (
-        df_copy['high'] - df_copy['low']
-    )
+    clv = (
+        (df_copy["close"] - df_copy["low"]) - (df_copy["high"] - df_copy["close"])
+    ) / (df_copy["high"] - df_copy["low"])
     clv = clv.fillna(0.0)  # Handling division by zero
-    adi = clv * df_copy['volume']
+    adi = clv * df_copy["volume"]
     adi = adi.cumsum()
 
     if fillna:
         adi = adi.fillna(0)
 
-    df_copy['adi'] = adi
+    df_copy["adi"] = adi
 
-    return df_copy[['adi']]
+    return df_copy[["adi"]]
 
 
 def chaikin_money_flow(
-    df: pd.DataFrame, 
-    window: int = 20, 
-    fillna: bool = False
+    df: pd.DataFrame, window: int = 20, fillna: bool = False
 ) -> pd.DataFrame:
     """
     Chaikin Money Flow (CMF)
@@ -73,36 +70,36 @@ def chaikin_money_flow(
     df_copy = df.copy()
 
     # Ensure the DataFrame contains the required columns
-    required_columns = ['high', 'low', 'close', 'volume']
+    required_columns = ["high", "low", "close", "volume"]
     for col in required_columns:
         if col not in df.columns:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
     # Calculate the Money Flow Multiplier (MFV)
-    mfv = ((df_copy['close'] - df_copy['low']) - (df_copy['high'] - df_copy['close'])) / (
-        df_copy['high'] - df_copy['low']
-    )
+    mfv = (
+        (df_copy["close"] - df_copy["low"]) - (df_copy["high"] - df_copy["close"])
+    ) / (df_copy["high"] - df_copy["low"])
     mfv = mfv.fillna(0.0)  # Handling division by zero
-    mfv *= df_copy['volume']
+    mfv *= df_copy["volume"]
 
     # Calculate CMF: sum of MFV over window divided by the sum of volume over the same window
     min_periods = 0 if fillna else window
-    cmf = mfv.rolling(window, min_periods=min_periods).sum() / df_copy['volume'].rolling(window, min_periods=min_periods).sum()
+    cmf = (
+        mfv.rolling(window, min_periods=min_periods).sum()
+        / df_copy["volume"].rolling(window, min_periods=min_periods).sum()
+    )
 
     # Fill NaN values if fillna is True
     if fillna:
         cmf = cmf.fillna(0)
 
-    df_copy['cmf'] = cmf
+    df_copy["cmf"] = cmf
 
-    return df_copy[['cmf']]
+    return df_copy[["cmf"]]
 
 
 def ease_of_movement(
-    df: pd.DataFrame, 
-    eom_length: int = 14, 
-    seom_length: int = 14, 
-    fillna: bool = False
+    df: pd.DataFrame, eom_length: int = 14, seom_length: int = 14, fillna: bool = False
 ) -> pd.DataFrame:
     """
     Ease of Movement (EoM, EMV) and Signal Ease of Movement (SMA of EoM)
@@ -127,33 +124,36 @@ def ease_of_movement(
     df_copy = df.copy()
 
     # Ensure the DataFrame contains the required columns
-    required_columns = ['high', 'low', 'volume']
+    required_columns = ["high", "low", "volume"]
     for col in required_columns:
         if col not in df.columns:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
     # Calculate the Ease of Movement (EoM) values
-    emv = ((df_copy['high'].diff(1) + df_copy['low'].diff(1)) * (df_copy['high'] - df_copy['low'])) / (
-        2 * df_copy['volume']
-    )
+    emv = (
+        (df_copy["high"].diff(1) + df_copy["low"].diff(1))
+        * (df_copy["high"] - df_copy["low"])
+    ) / (2 * df_copy["volume"])
     emv *= 100000000
     if fillna:
         emv = emv.fillna(0)
 
-    df_copy['eom'] = emv / 100000  # No rounding per your preference
+    df_copy["eom"] = emv / 100000  # No rounding per your preference
 
     # Calculate the Signal Ease of Movement (SMA of EoM)
     min_periods = 0 if fillna else seom_length
-    sma_emv = df_copy['eom'].rolling(seom_length, min_periods=min_periods).mean()
+    sma_emv = df_copy["eom"].rolling(seom_length, min_periods=min_periods).mean()
     if fillna:
         sma_emv = sma_emv.fillna(0)
 
-    df_copy['seom'] = sma_emv
+    df_copy["seom"] = sma_emv
 
-    return df_copy[['eom', 'seom']]
+    return df_copy[["eom", "seom"]]
 
 
-def force_index(df: pd.DataFrame, window: int = 13, fillna: bool = False) -> pd.DataFrame:
+def force_index(
+    df: pd.DataFrame, window: int = 13, fillna: bool = False
+) -> pd.DataFrame:
     """
     Force Index (FI)
 
@@ -173,23 +173,25 @@ def force_index(df: pd.DataFrame, window: int = 13, fillna: bool = False) -> pd.
     df_copy = df.copy()
 
     # Ensure the DataFrame contains the required columns
-    required_columns = ['close', 'volume']
+    required_columns = ["close", "volume"]
     for col in required_columns:
         if col not in df.columns:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
     # Calculate the Force Index values
-    fi = (df_copy['close'] - df_copy['close'].shift(1)) * df_copy['volume']
+    fi = (df_copy["close"] - df_copy["close"].shift(1)) * df_copy["volume"]
     fi_ema = fi.ewm(span=window, adjust=False).mean()
     if fillna:
         fi_ema = fi_ema.fillna(0)
 
-    df_copy['fi'] = fi_ema
+    df_copy["fi"] = fi_ema
 
-    return df_copy[['fi']]
+    return df_copy[["fi"]]
 
 
-def money_flow_index(df: pd.DataFrame, window: int = 14, fillna: bool = False) -> pd.DataFrame:
+def money_flow_index(
+    df: pd.DataFrame, window: int = 14, fillna: bool = False
+) -> pd.DataFrame:
     """
     Money Flow Index (MFI)
 
@@ -209,28 +211,30 @@ def money_flow_index(df: pd.DataFrame, window: int = 14, fillna: bool = False) -
     df_copy = df.copy()
 
     # Ensure the DataFrame contains the required columns
-    required_columns = ['high', 'low', 'close', 'volume']
+    required_columns = ["high", "low", "close", "volume"]
     for col in required_columns:
         if col not in df.columns:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
     # Calculate typical price
-    typical_price = (df_copy['high'] + df_copy['low'] + df_copy['close']) / 3.0
+    typical_price = (df_copy["high"] + df_copy["low"] + df_copy["close"]) / 3.0
     up_down = np.where(
         typical_price > typical_price.shift(1),
         1,
-        np.where(typical_price < typical_price.shift(1), -1, 0)
+        np.where(typical_price < typical_price.shift(1), -1, 0),
     )
-    mfr = typical_price * df_copy['volume'] * up_down
+    mfr = typical_price * df_copy["volume"] * up_down
 
     # Calculate positive and negative money flow
     min_periods = 0 if fillna else window
     n_positive_mf = mfr.rolling(window, min_periods=min_periods).apply(
         lambda x: np.sum(np.where(x >= 0.0, x, 0.0)), raw=True
     )
-    n_negative_mf = abs(mfr.rolling(window, min_periods=min_periods).apply(
-        lambda x: np.sum(np.where(x < 0.0, x, 0.0)), raw=True
-    ))
+    n_negative_mf = abs(
+        mfr.rolling(window, min_periods=min_periods).apply(
+            lambda x: np.sum(np.where(x < 0.0, x, 0.0)), raw=True
+        )
+    )
 
     # Calculate Money Flow Index
     mfi = n_positive_mf / n_negative_mf
@@ -238,12 +242,17 @@ def money_flow_index(df: pd.DataFrame, window: int = 14, fillna: bool = False) -
     if fillna:
         mfi = mfi.fillna(50)
 
-    df_copy['mfi'] = mfi
+    df_copy["mfi"] = mfi
 
-    return df_copy[['mfi']]
+    return df_copy[["mfi"]]
 
 
-def negative_volume_index(df: pd.DataFrame, signal_type: str = 'EMA', signal_length: int = 255, fillna: bool = False) -> pd.DataFrame:
+def negative_volume_index(
+    df: pd.DataFrame,
+    signal_type: str = "EMA",
+    signal_length: int = 255,
+    fillna: bool = False,
+) -> pd.DataFrame:
     """
     Negative Volume Index (NVI) with Signal Smoothing
 
@@ -267,41 +276,52 @@ def negative_volume_index(df: pd.DataFrame, signal_type: str = 'EMA', signal_len
     df_copy = df.copy()
 
     # Ensure the DataFrame contains the required columns
-    required_columns = ['close', 'volume']
+    required_columns = ["close", "volume"]
     for col in required_columns:
         if col not in df.columns:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
     # Calculate Rate of Change (ROC)
-    df_copy['roc'] = df_copy['close'].pct_change() * 100
+    df_copy["roc"] = df_copy["close"].pct_change() * 100
 
     # Initialize the NVI starting from the first valid value
-    df_copy['nvi'] = 1000  # Starting point for NVI, common practice
+    df_copy["nvi"] = 1000  # Starting point for NVI, common practice
 
     # Calculate NVI values only when volume decreases
     for i in range(1, len(df_copy)):
-        if df_copy['volume'].iloc[i] < df_copy['volume'].iloc[i - 1]:
-            df_copy.loc[df_copy.index[i], 'nvi'] = df_copy['nvi'].iloc[i - 1] + df_copy['roc'].iloc[i]
+        if df_copy["volume"].iloc[i] < df_copy["volume"].iloc[i - 1]:
+            df_copy.loc[df_copy.index[i], "nvi"] = (
+                df_copy["nvi"].iloc[i - 1] + df_copy["roc"].iloc[i]
+            )
         else:
-            df_copy.loc[df_copy.index[i], 'nvi'] = df_copy['nvi'].iloc[i - 1]
+            df_copy.loc[df_copy.index[i], "nvi"] = df_copy["nvi"].iloc[i - 1]
 
     # Calculate NVI Signal
-    if signal_type == 'EMA':
-        df_copy['nvi_signal'] = df_copy['nvi'].ewm(span=signal_length, adjust=False).mean()
-    elif signal_type == 'SMA':
-        df_copy['nvi_signal'] = df_copy['nvi'].rolling(window=signal_length, min_periods=1).mean()
+    if signal_type == "EMA":
+        df_copy["nvi_signal"] = (
+            df_copy["nvi"].ewm(span=signal_length, adjust=False).mean()
+        )
+    elif signal_type == "SMA":
+        df_copy["nvi_signal"] = (
+            df_copy["nvi"].rolling(window=signal_length, min_periods=1).mean()
+        )
     else:
         raise ValueError(f"Invalid signal_type: {signal_type}. Use 'EMA' or 'SMA'.")
 
     if fillna:
-        df_copy['nvi'] = df_copy['nvi'].fillna(0)
-        df_copy['nvi_signal'] = df_copy['nvi_signal'].fillna(0)
+        df_copy["nvi"] = df_copy["nvi"].fillna(0)
+        df_copy["nvi_signal"] = df_copy["nvi_signal"].fillna(0)
 
-    return df_copy[['nvi', 'nvi_signal']]
+    return df_copy[["nvi", "nvi_signal"]]
 
 
-def on_balance_volume(df: pd.DataFrame, signal_type: str = 'SMA', signal_length: int = 21, 
-                      show_signal: bool = True, fillna: bool = False) -> pd.DataFrame:
+def on_balance_volume(
+    df: pd.DataFrame,
+    signal_type: str = "SMA",
+    signal_length: int = 21,
+    show_signal: bool = True,
+    fillna: bool = False,
+) -> pd.DataFrame:
     """
     On Balance Volume (OBV) with Signal Smoothing
 
@@ -327,41 +347,50 @@ def on_balance_volume(df: pd.DataFrame, signal_type: str = 'SMA', signal_length:
     df_copy = df.copy()
 
     # Ensure the DataFrame contains the required columns
-    required_columns = ['close', 'volume']
+    required_columns = ["close", "volume"]
     for col in required_columns:
         if col not in df.columns:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
     # Calculate OBV
-    df_copy['change'] = df_copy['close'].diff()
-    df_copy['obv'] = np.where(df_copy['change'] > 0, df_copy['volume'], 
-                              np.where(df_copy['change'] < 0, -df_copy['volume'], 0))
-    df_copy['obv'] = df_copy['obv'].cumsum()
+    df_copy["change"] = df_copy["close"].diff()
+    df_copy["obv"] = np.where(
+        df_copy["change"] > 0,
+        df_copy["volume"],
+        np.where(df_copy["change"] < 0, -df_copy["volume"], 0),
+    )
+    df_copy["obv"] = df_copy["obv"].cumsum()
 
     # Calculate Signal if requested
     if show_signal:
-        if signal_type == 'EMA':
-            df_copy['signal'] = df_copy['obv'].ewm(span=signal_length, adjust=False).mean()
-        elif signal_type == 'SMA':
-            df_copy['signal'] = df_copy['obv'].rolling(window=signal_length, min_periods=1).mean()
+        if signal_type == "EMA":
+            df_copy["signal"] = (
+                df_copy["obv"].ewm(span=signal_length, adjust=False).mean()
+            )
+        elif signal_type == "SMA":
+            df_copy["signal"] = (
+                df_copy["obv"].rolling(window=signal_length, min_periods=1).mean()
+            )
         else:
             raise ValueError(f"Invalid signal_type: {signal_type}. Use 'EMA' or 'SMA'.")
     else:
-        df_copy['signal'] = np.nan
+        df_copy["signal"] = np.nan
 
     # Fill NaN values if requested
     if fillna:
-        df_copy['obv'] = df_copy['obv'].fillna(0)
-        df_copy['signal'] = df_copy['signal'].fillna(0)
+        df_copy["obv"] = df_copy["obv"].fillna(0)
+        df_copy["signal"] = df_copy["signal"].fillna(0)
 
-    return df_copy[['obv', 'signal']]
+    return df_copy[["obv", "signal"]]
 
 
-def on_balance_volume_oscillator(df: pd.DataFrame, length: int = 20, fillna: bool = False) -> pd.DataFrame:
+def on_balance_volume_oscillator(
+    df: pd.DataFrame, length: int = 20, fillna: bool = False
+) -> pd.DataFrame:
     """
     On Balance Volume (OBV) Oscillator
 
-    The On Balance Volume (OBV) Oscillator measures the difference between the OBV and its Exponential Moving Average (EMA). 
+    The On Balance Volume (OBV) Oscillator measures the difference between the OBV and its Exponential Moving Average (EMA).
     It helps in identifying trends and confirming price movements. An increasing OBV oscillator indicates buying pressure, while a decreasing one indicates selling pressure.
 
     Parameters:
@@ -378,29 +407,37 @@ def on_balance_volume_oscillator(df: pd.DataFrame, length: int = 20, fillna: boo
     df_copy = df.copy()
 
     # Ensure the DataFrame contains the required columns
-    required_columns = ['close', 'volume']
+    required_columns = ["close", "volume"]
     for col in required_columns:
         if col not in df.columns:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
     # Calculate OBV
-    df_copy['change'] = df_copy['close'].diff()
-    df_copy['obv'] = np.where(df_copy['change'] > 0, df_copy['volume'], 
-                              np.where(df_copy['change'] < 0, -df_copy['volume'], 0))
-    df_copy['obv'] = df_copy['obv'].cumsum()
+    df_copy["change"] = df_copy["close"].diff()
+    df_copy["obv"] = np.where(
+        df_copy["change"] > 0,
+        df_copy["volume"],
+        np.where(df_copy["change"] < 0, -df_copy["volume"], 0),
+    )
+    df_copy["obv"] = df_copy["obv"].cumsum()
 
     # Calculate OBV Oscillator
-    df_copy['ema_obv'] = df_copy['obv'].ewm(span=length, adjust=False).mean()
-    df_copy['obv_oscillator'] = df_copy['obv'] - df_copy['ema_obv']
+    df_copy["ema_obv"] = df_copy["obv"].ewm(span=length, adjust=False).mean()
+    df_copy["obv_oscillator"] = df_copy["obv"] - df_copy["ema_obv"]
 
     # Fill NaN values if requested
     if fillna:
-        df_copy['obv_oscillator'] = df_copy['obv_oscillator'].fillna(0)
+        df_copy["obv_oscillator"] = df_copy["obv_oscillator"].fillna(0)
 
-    return df_copy[['obv_oscillator']]
+    return df_copy[["obv_oscillator"]]
 
 
-def positive_volume_index(df: pd.DataFrame, signal_type: str = 'EMA', signal_length: int = 255, fillna: bool = False) -> pd.DataFrame:
+def positive_volume_index(
+    df: pd.DataFrame,
+    signal_type: str = "EMA",
+    signal_length: int = 255,
+    fillna: bool = False,
+) -> pd.DataFrame:
     """
     Positive Volume Index (PVI) with Signal Smoothing
 
@@ -423,42 +460,53 @@ def positive_volume_index(df: pd.DataFrame, signal_type: str = 'EMA', signal_len
     df_copy = df.copy()
 
     # Ensure the DataFrame contains the required columns
-    required_columns = ['close', 'volume']
+    required_columns = ["close", "volume"]
     for col in required_columns:
         if col not in df.columns:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
     # Calculate Rate of Change (ROC)
-    df_copy['roc'] = df_copy['close'].pct_change() * 100
+    df_copy["roc"] = df_copy["close"].pct_change() * 100
 
     # Initialize PVI column with appropriate dtype
-    df_copy['pvi'] = 0.0
+    df_copy["pvi"] = 0.0
 
     # Calculate PVI
-    pvi_condition = df_copy['volume'] > df_copy['volume'].shift(1)
-    df_copy.loc[pvi_condition, 'pvi'] = df_copy['roc']
-    df_copy['pvi'] = df_copy['pvi'].cumsum().shift(1).fillna(0)
+    pvi_condition = df_copy["volume"] > df_copy["volume"].shift(1)
+    df_copy.loc[pvi_condition, "pvi"] = df_copy["roc"]
+    df_copy["pvi"] = df_copy["pvi"].cumsum().shift(1).fillna(0)
 
     # Calculate PVI Signal
-    if signal_type == 'EMA':
-        df_copy['pvi_signal'] = df_copy['pvi'].ewm(span=signal_length, adjust=False).mean()
-    elif signal_type == 'SMA':
-        df_copy['pvi_signal'] = df_copy['pvi'].rolling(window=signal_length, min_periods=1).mean()
+    if signal_type == "EMA":
+        df_copy["pvi_signal"] = (
+            df_copy["pvi"].ewm(span=signal_length, adjust=False).mean()
+        )
+    elif signal_type == "SMA":
+        df_copy["pvi_signal"] = (
+            df_copy["pvi"].rolling(window=signal_length, min_periods=1).mean()
+        )
     else:
         raise ValueError(f"Invalid signal_type: {signal_type}. Use 'EMA' or 'SMA'.")
 
     if fillna:
-        df_copy['pvi'] = df_copy['pvi'].fillna(0)
-        df_copy['pvi_signal'] = df_copy['pvi_signal'].fillna(0)
+        df_copy["pvi"] = df_copy["pvi"].fillna(0)
+        df_copy["pvi_signal"] = df_copy["pvi_signal"].fillna(0)
 
-    return df_copy[['pvi', 'pvi_signal']]
+    return df_copy[["pvi", "pvi_signal"]]
 
 
-def price_volume_trend(df: pd.DataFrame, fillna: bool = False, smoothing_factor: int = None, signal_type: str = 'SMA', signal_length: int = 21, dropnans: bool = False) -> pd.DataFrame:
+def price_volume_trend(
+    df: pd.DataFrame,
+    fillna: bool = False,
+    smoothing_factor: int = None,
+    signal_type: str = "SMA",
+    signal_length: int = 21,
+    dropnans: bool = False,
+) -> pd.DataFrame:
     """
     Price Volume Trend (PVT)
 
-    Based on cumulative volume that adds or subtracts a multiple of the percentage change in share price trend. 
+    Based on cumulative volume that adds or subtracts a multiple of the percentage change in share price trend.
     PVT = [((CurrentClose - PreviousClose) / PreviousClose) x Volume] + PreviousPVT
 
     Parameters:
@@ -480,49 +528,71 @@ def price_volume_trend(df: pd.DataFrame, fillna: bool = False, smoothing_factor:
     df_copy = df.copy()
 
     # Ensure the DataFrame contains the required columns
-    required_columns = ['close', 'volume']
+    required_columns = ["close", "volume"]
     for col in required_columns:
         if col not in df.columns:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
     # Initialize PVT column
-    df_copy['price_volume_trend'] = 0.0
+    df_copy["price_volume_trend"] = 0.0
 
     # Calculate PVT iteratively
     for i in range(1, len(df_copy)):
-        prev_pvt = df_copy.at[i-1, 'price_volume_trend']
-        price_change = (df_copy.at[i, 'close'] - df_copy.at[i-1, 'close']) / df_copy.at[i-1, 'close']
-        df_copy.at[i, 'price_volume_trend'] = price_change * df_copy.at[i, 'volume'] + prev_pvt
+        prev_pvt = df_copy.at[i - 1, "price_volume_trend"]
+        price_change = (
+            df_copy.at[i, "close"] - df_copy.at[i - 1, "close"]
+        ) / df_copy.at[i - 1, "close"]
+        df_copy.at[i, "price_volume_trend"] = (
+            price_change * df_copy.at[i, "volume"] + prev_pvt
+        )
 
     # Optional smoothing
     if smoothing_factor:
         min_periods = 0 if fillna else smoothing_factor
-        df_copy['price_volume_trend'] = df_copy['price_volume_trend'].rolling(smoothing_factor, min_periods=min_periods).mean()
+        df_copy["price_volume_trend"] = (
+            df_copy["price_volume_trend"]
+            .rolling(smoothing_factor, min_periods=min_periods)
+            .mean()
+        )
 
     if dropnans:
-        df_copy['price_volume_trend'] = df_copy['price_volume_trend'].dropna()
+        df_copy["price_volume_trend"] = df_copy["price_volume_trend"].dropna()
 
     if fillna:
-        df_copy['price_volume_trend'] = df_copy['price_volume_trend'].fillna(0)
+        df_copy["price_volume_trend"] = df_copy["price_volume_trend"].fillna(0)
 
     # Calculate signal based on the specified type
-    if signal_type == 'SMA':
-        df_copy['signal'] = df_copy['price_volume_trend'].rolling(window=signal_length, min_periods=1 if fillna else signal_length).mean()
-    elif signal_type == 'EMA':
-        df_copy['signal'] = df_copy['price_volume_trend'].ewm(span=signal_length, adjust=False, min_periods=1 if fillna else signal_length).mean()
+    if signal_type == "SMA":
+        df_copy["signal"] = (
+            df_copy["price_volume_trend"]
+            .rolling(window=signal_length, min_periods=1 if fillna else signal_length)
+            .mean()
+        )
+    elif signal_type == "EMA":
+        df_copy["signal"] = (
+            df_copy["price_volume_trend"]
+            .ewm(
+                span=signal_length,
+                adjust=False,
+                min_periods=1 if fillna else signal_length,
+            )
+            .mean()
+        )
     else:
         raise ValueError("signal_type must be either 'SMA' or 'EMA'")
 
     if dropnans:
-        df_copy['signal'] = df_copy['signal'].dropna()
+        df_copy["signal"] = df_copy["signal"].dropna()
 
     if fillna:
-        df_copy['signal'] = df_copy['signal'].fillna(0)
+        df_copy["signal"] = df_copy["signal"].fillna(0)
 
-    return df_copy[['price_volume_trend', 'signal']]
+    return df_copy[["price_volume_trend", "signal"]]
 
 
-def relative_volume(df: pd.DataFrame, volume_col: str = 'volume', window: int = 24) -> pd.DataFrame:
+def relative_volume(
+    df: pd.DataFrame, volume_col: str = "volume", window: int = 24
+) -> pd.DataFrame:
     """
     Relative Volume (RVOL)
 
@@ -546,16 +616,141 @@ def relative_volume(df: pd.DataFrame, volume_col: str = 'volume', window: int = 
     df_copy = df.copy()
 
     # Calculate the SMA of the volume
-    df_copy['volume_sma'] = df_copy[volume_col].rolling(window=window).mean()
+    df_copy["volume_sma"] = df_copy[volume_col].rolling(window=window).mean()
 
     # Calculate Relative Volume
-    df_copy['rvol'] = df_copy[volume_col] / df_copy['volume_sma']
+    df_copy["rvol"] = df_copy[volume_col] / df_copy["volume_sma"]
 
     # Return the DataFrame with the RVOL column
-    return df_copy[['rvol']]
+    return df_copy[["rvol"]]
 
 
-def volume_weighted_average_price(df: pd.DataFrame, window: int = 14, fillna: bool = False) -> pd.DataFrame:
+def time_relative_volume_oscillator(
+    df: pd.DataFrame,
+    column: str = "close",
+    relative_len: int = 6,
+    delta_smoothing: int = 9,
+    smoothing_line: bool = True,
+    show_total_volume: bool = False,
+) -> pd.DataFrame:
+    """
+    Time Relative Volume Oscillator (TRVO) - Delta Mode
+
+    This indicator measures relative volume compared to historical values and differentiates
+    between buy and sell volumes.
+
+    Call with:
+        trvo_result = bta.time_relative_volume_oscillator(
+            df,
+            column="close",
+            relative_len=6,
+            delta_smoothing=9,
+            smoothing_line=True,
+            show_total_volume=False,
+        )
+        df["relative_buy_volume"] = trvo_result["relative_buy_volume"]
+        df["relative_sell_volume"] = trvo_result["relative_sell_volume"]
+        df["buy_vs_sell"] = trvo_result["buy_vs_sell"]
+        df["smoothed_delta"] = trvo_result["smoothed_delta"]
+
+    Parameters:
+    - df (pd.DataFrame): Input DataFrame containing 'high', 'low', 'close', and 'volume'.
+    - column (str): Column name for price source (default: "close").
+    - relative_len (int): Number of previous periods used for relative volume calculation (default: 6).
+    - delta_smoothing (int): Smoothing factor for the buy/sell volume difference (default: 9).
+    - smoothing_line (bool): If True, applies EMA smoothing to buy/sell volume difference (default: True).
+    - show_total_volume (bool): If True, includes the 'total_volume' column in the output DataFrame (default: False).
+
+    Returns:
+    - pd.DataFrame: A DataFrame containing:
+        - "relative_buy_volume": Volume attributed to buyers.
+        - "relative_sell_volume": Volume attributed to sellers (negative).
+        - "buy_vs_sell": Difference between buy and sell volume percentages.
+        - "smoothed_delta": EMA-smoothed buy/sell volume difference.
+        - "total_volume" (optional): Raw total volume for each period (if show_total_volume=True).
+    """
+
+    df_copy = df.copy()
+
+    # Compute 200-period SMA of volume (used for scaling)
+    df_copy["volume_sma_200"] = df["volume"].rolling(200).mean()
+
+    # Calculate Relative Volume using the past `relative_len` bars only (shifted by 1 to exclude the current bar)
+    df_copy["total_volume"] = df["volume"].shift(1).rolling(relative_len).sum()
+    df_copy["relative_volume"] = df["volume"] / (df_copy["total_volume"] / relative_len)
+
+    # Apply Pine Script's sigmoid-like transformation to relative volume
+    df_copy["osc"] = 4 / (1 + np.exp(-2 * df_copy["relative_volume"] + 3)) - 0.18
+
+    # Compute final adjusted relative_plot (multiplied by volume_sma_200, no extra factor)
+    df_copy["relative_plot"] = df_copy["osc"] * df_copy["volume_sma_200"]
+
+    # Buy/Sell Volume Calculation (weighted by price position in high-low range)
+    high_low_range = df["high"] - df["low"]
+    df_copy["relative_buy_volume"] = np.where(
+        high_low_range == 0,
+        0,
+        df_copy["relative_plot"] * (df["close"] - df["low"]) / high_low_range,
+    )
+    # Compute the sell volume as a positive value (for correct percentage calculations)
+    df_copy["relative_sell_volume_pos"] = np.where(
+        high_low_range == 0,
+        0,
+        df_copy["relative_plot"] * (df["high"] - df["close"]) / high_low_range,
+    )
+
+    # Compute Buy and Sell Volume Percentages using positive values
+    eps = 1e-10
+    vol_sum = df_copy["relative_buy_volume"] + df_copy["relative_sell_volume_pos"] + eps
+    df_copy["buy_volume_percent"] = df_copy["relative_buy_volume"] / vol_sum
+    df_copy["sell_volume_percent"] = df_copy["relative_sell_volume_pos"] / vol_sum
+
+    # Compute Buy vs. Sell Difference
+    df_copy["buy_vs_sell"] = (
+        df_copy["buy_volume_percent"] - df_copy["sell_volume_percent"]
+    )
+
+    # Apply EMA Smoothing for Delta Mode
+    df_copy["buy_vs_sell_short_ema"] = (
+        df_copy["buy_vs_sell"].ewm(span=21, adjust=False).mean()
+        * df_copy["volume_sma_200"]
+        * 20
+    )
+    df_copy["buy_vs_sell_long_ema"] = (
+        df_copy["buy_vs_sell"].ewm(span=36, adjust=False).mean()
+        * df_copy["volume_sma_200"]
+        * 20
+    )
+    df_copy["buy_vs_sell_diff"] = (
+        df_copy["buy_vs_sell_short_ema"] - df_copy["buy_vs_sell_long_ema"]
+    )
+
+    if smoothing_line:
+        df_copy["smoothed_delta"] = (
+            df_copy["buy_vs_sell_diff"].ewm(span=delta_smoothing, adjust=False).mean()
+        )
+    else:
+        df_copy["smoothed_delta"] = df_copy["buy_vs_sell_diff"]
+
+    # Now, flip the sign of the sell volume for output (to match Pine Script's negative plotting)
+    df_copy["relative_sell_volume"] = -df_copy["relative_sell_volume_pos"]
+
+    # Return selected columns
+    columns_to_return = [
+        "relative_buy_volume",
+        "relative_sell_volume",
+        "buy_vs_sell",
+        "smoothed_delta",
+    ]
+    if show_total_volume:
+        columns_to_return.append("total_volume")
+
+    return df_copy[columns_to_return]
+
+
+def volume_weighted_average_price(
+    df: pd.DataFrame, window: int = 14, fillna: bool = False
+) -> pd.DataFrame:
     """
     Volume Weighted Average Price (VWAP)
     Equals the dollar value of all trading periods divided by the total trading volume for the current day.
@@ -574,19 +769,19 @@ def volume_weighted_average_price(df: pd.DataFrame, window: int = 14, fillna: bo
     df_copy = df.copy()
 
     # Ensure the DataFrame contains the required columns
-    required_columns = ['high', 'low', 'close', 'volume']
+    required_columns = ["high", "low", "close", "volume"]
     for col in required_columns:
         if col not in df.columns:
             raise KeyError(f"DataFrame must contain '{col}' column")
 
     # Calculate typical price
-    typical_price = (df_copy['high'] + df_copy['low'] + df_copy['close']) / 3.0
-    typical_price_volume = typical_price * df_copy['volume']
+    typical_price = (df_copy["high"] + df_copy["low"] + df_copy["close"]) / 3.0
+    typical_price_volume = typical_price * df_copy["volume"]
 
     # Calculate VWAP over the rolling window
     min_periods = 0 if fillna else window
     total_pv = typical_price_volume.rolling(window, min_periods=min_periods).sum()
-    total_volume = df_copy['volume'].rolling(window, min_periods=min_periods).sum()
+    total_volume = df_copy["volume"].rolling(window, min_periods=min_periods).sum()
 
     # VWAP calculation
     vwap = total_pv / total_volume
@@ -594,15 +789,13 @@ def volume_weighted_average_price(df: pd.DataFrame, window: int = 14, fillna: bo
         vwap = vwap.fillna(0)
 
     # Add the VWAP to the DataFrame
-    df_copy['volume_weighted_average_price'] = vwap
+    df_copy["volume_weighted_average_price"] = vwap
 
-    return df_copy[['volume_weighted_average_price']]
+    return df_copy[["volume_weighted_average_price"]]
 
 
 def volume_weighted_average_price_bands(
-    df: pd.DataFrame,
-    window_size: int = 20,
-    num_of_std: float = 1.0
+    df: pd.DataFrame, window_size: int = 20, num_of_std: float = 1.0
 ) -> pd.DataFrame:
     """
     Volume-Weighted Average Price Bands (VWAPB)
@@ -631,27 +824,30 @@ def volume_weighted_average_price_bands(
         - 'vwap_low': The lower band (VWAP - num_of_std × rolling std deviation).
         - 'vwap_high': The upper band (VWAP + num_of_std × rolling std deviation).
     """
-    if not {'close', 'high', 'low', 'volume'}.issubset(df.columns):
-        raise ValueError("DataFrame must contain 'close', 'high', 'low', and 'volume' columns.")
+    if not {"close", "high", "low", "volume"}.issubset(df.columns):
+        raise ValueError(
+            "DataFrame must contain 'close', 'high', 'low', and 'volume' columns."
+        )
 
     # Create a copy of the DataFrame to avoid modifying the original
     df_copy = df.copy()
 
     # Calculate typical price
-    df_copy['typical_price'] = (df_copy['close'] + df_copy['high'] + df_copy['low']) / 3
+    df_copy["typical_price"] = (df_copy["close"] + df_copy["high"] + df_copy["low"]) / 3
 
     # Calculate cumulative VWAP
-    df_copy['cum_typical_volume'] = (df_copy['typical_price'] * df_copy['volume']).cumsum()
-    df_copy['cum_volume'] = df_copy['volume'].cumsum()
-    df_copy['vwap'] = df_copy['cum_typical_volume'] / df_copy['cum_volume']
+    df_copy["cum_typical_volume"] = (
+        df_copy["typical_price"] * df_copy["volume"]
+    ).cumsum()
+    df_copy["cum_volume"] = df_copy["volume"].cumsum()
+    df_copy["vwap"] = df_copy["cum_typical_volume"] / df_copy["cum_volume"]
 
     # Calculate rolling standard deviation for VWAP
-    rolling_std = df_copy['vwap'].rolling(window=window_size).std()
+    rolling_std = df_copy["vwap"].rolling(window=window_size).std()
 
     # Calculate VWAP bands
-    df_copy['vwap_low'] = df_copy['vwap'] - (rolling_std * num_of_std)
-    df_copy['vwap_high'] = df_copy['vwap'] + (rolling_std * num_of_std)
+    df_copy["vwap_low"] = df_copy["vwap"] - (rolling_std * num_of_std)
+    df_copy["vwap_high"] = df_copy["vwap"] + (rolling_std * num_of_std)
 
     # Return only the relevant columns
-    return df_copy[['vwap_low', 'vwap', 'vwap_high']]
-
+    return df_copy[["vwap_low", "vwap", "vwap_high"]]
