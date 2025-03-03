@@ -38,6 +38,14 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df['ha_low'] = ha_df['ha_low']
 # df['ha_close'] = ha_df['ha_close']
 
+sha_result = bta.smoothed_heiken_ashi(df, len_=10, len2=10)
+df["sha_open"] = sha_result["sha_open"]
+df["sha_high"] = sha_result["sha_high"]
+df["sha_low"] = sha_result["sha_low"]
+df["sha_close"] = sha_result["sha_close"]
+df["sha_color"] = sha_result["sha_color"]
+
+
 # # # GOOD
 # hha_result = bta.hansen_heiken_ashi(df, period=6)
 # df['hha_emac'] = hha_result['emac']
@@ -395,18 +403,18 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 
 # ##### VOLUME.PY FILE ###############
 
-trvo_result = bta.time_relative_volume_oscillator(
-    df,
-    column="close",
-    relative_len=6,
-    delta_smoothing=9,
-    smoothing_line=True,
-    show_total_volume=False,
-)
-df["relative_buy_volume"] = trvo_result["relative_buy_volume"]
-df["relative_sell_volume"] = trvo_result["relative_sell_volume"]
-df["buy_vs_sell"] = trvo_result["buy_vs_sell"]
-df["smoothed_delta"] = trvo_result["smoothed_delta"]
+# trvo_result = bta.time_relative_volume_oscillator(
+#     df,
+#     column="close",
+#     relative_len=6,
+#     delta_smoothing=9,
+#     smoothing_line=True,
+#     show_total_volume=False,
+# )
+# df["relative_buy_volume"] = trvo_result["relative_buy_volume"]
+# df["relative_sell_volume"] = trvo_result["relative_sell_volume"]
+# df["buy_vs_sell"] = trvo_result["buy_vs_sell"]
+# df["smoothed_delta"] = trvo_result["smoothed_delta"]
 
 # vwapb_result = bta.volume_weighted_average_price_bands(df, window_size=20, num_of_std=1.0)
 # df['vwap_low'] = vwapb_result['vwap_low']
