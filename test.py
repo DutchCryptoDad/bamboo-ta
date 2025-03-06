@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Import necessary libraries
 # Importeer necessary libraries
+import os
 import bamboo_ta.bamboo_ta as bta
 
 # import pandas_ta as pta
@@ -10,7 +11,14 @@ import numpy as np
 
 # Create dataframe
 # create dataframe and read the json data in the datasets directory
-df = pd.read_json("./BTC_USDT-1d.json")
+# Attempt to read the JSON file and handle potential file not found error
+try:
+    # Check if the file exists in the data directory
+    file_path = os.path.join(os.path.dirname(__file__), "data", "BTC_USDT-1d.json")
+    df = pd.read_json(file_path)
+except FileNotFoundError as e:
+    print(f"Error: {e}. Please ensure the file path is correct and the file exists.")
+    df = pd.DataFrame()  # Create an empty DataFrame as a fallback
 # name the columns that are loaded into the dataframe
 df.columns = ["date", "open", "high", "low", "close", "volume"]
 # the date column consists of unix time in milliseconds, so this command changes this data into human readable form.
@@ -26,10 +34,16 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df['leledc_major'] = exhaustion['leledc_major']
 # df['leledc_minor'] = exhaustion['leledc_minor']
 
-# # # GOOD
-# dynamic_exhaustion = bta.dynamic_exhaustion_bars(df)
-# df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
-# df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
+# # GOOD
+dynamic_exhaustion = bta.dynamic_exhaustion_bars(df)
+df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
+df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
+
+# Using help function
+help(bta.dynamic_exhaustion_bars)
+
+# Accessing the docstring directly
+# print(bta.dynamic_exhaustion_bars.__doc__)
 
 # # # GOOD
 # ha_df = bta.heiken_ashi(df)
@@ -38,12 +52,12 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df['ha_low'] = ha_df['ha_low']
 # df['ha_close'] = ha_df['ha_close']
 
-sha_result = bta.smoothed_heiken_ashi(df, len_=10, len2=10)
-df["sha_open"] = sha_result["sha_open"]
-df["sha_high"] = sha_result["sha_high"]
-df["sha_low"] = sha_result["sha_low"]
-df["sha_close"] = sha_result["sha_close"]
-df["sha_color"] = sha_result["sha_color"]
+# sha_result = bta.smoothed_heiken_ashi(df, len_=10, len2=10)
+# df["sha_open"] = sha_result["sha_open"]
+# df["sha_high"] = sha_result["sha_high"]
+# df["sha_low"] = sha_result["sha_low"]
+# df["sha_close"] = sha_result["sha_close"]
+# df["sha_color"] = sha_result["sha_color"]
 
 
 # # # GOOD
