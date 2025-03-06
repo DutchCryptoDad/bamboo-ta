@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# candles/__init__.py
+
 from .smoothed_heiken_ashi import smoothed_heiken_ashi
 from .dynamic_exhaustion_bars import dynamic_exhaustion_bars
 from .exhaustion_bars import exhaustion_bars
