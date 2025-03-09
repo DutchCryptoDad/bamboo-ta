@@ -109,102 +109,142 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df['macd_histogram'] = macd_result['macd_histogram']
 
 # WERKT GOED!!!
-macd_v_result = bta.macd_v(df, 'close', 12, 26, 26, 9)
-df['macd_v'] = macd_v_result['macd_v']
-df['macd_v_signal'] = macd_v_result['macd_v_signal']
+# macd_v_result = bta.macd_v(df, 'close', 12, 26, 26, 9)
+# df['macd_v'] = macd_v_result['macd_v']
+# df['macd_v_signal'] = macd_v_result['macd_v_signal']
 
-help(bta.macd_v)
+# help(bta.macd_v)
 
 # # # # WERKT GOED!!!
 # df['macd_leader'] = bta.macd_leader(df, 'close')['macd_leader']
 
 # # # WERKT GOED!!! https://www.tradingview.com/script/Yq1z7cIv-MA-Streak-Can-Show-When-a-Run-Is-Getting-Long-in-the-Tooth/
-# df['ma_streak'] = bta.ma_streak(df, length=10, src='close', matype=1)['ma_streak']
+# df["ma_streak"] = bta.ma_streak(df, length=10, src="close", matype=1)["ma_streak"]
 
-# # # WERKT GOED!!!
+# help(bta.ma_streak)
+
+# # WERKT GOED!!!
 # ppo = bta.percentage_price_oscillator(df)
-# df['ppo'] = ppo['ppo']
-# df['ppo_signal'] = ppo['ppo_signal']
-# df['ppo_hist'] = ppo['ppo_hist']
+# df["ppo"] = ppo["ppo"]
+# df["ppo_signal"] = ppo["ppo_signal"]
+# df["ppo_hist"] = ppo["ppo_hist"]
+
+# help(bta.percentage_price_oscillator)
 
 # pvo = bta.percentage_volume_oscillator(df)
-# df['pvo'] = pvo['pvo']
-# df['pvo_signal'] = pvo['pvo_signal']
-# df['pvo_hist'] = pvo['pvo_hist']
+# df["pvo"] = pvo["pvo"]
+# df["pvo_signal"] = pvo["pvo_signal"]
+# df["pvo_hist"] = pvo["pvo_hist"]
+
+# help(bta.percentage_volume_oscillator)
 
 # # GOED VOLGENS https://www.tradingview.com/script/DdT7MmPa/
 # # Maar liever ombouwen naar: https://www.tradingview.com/script/kwIt9OgQ-Relative-Momentum-Index/
-# df['rmi'] = bta.relative_momentum_index(df, length=20, mom=5)['rmi']
+# df["rmi"] = bta.relative_momentum_index(df, length=20, mom=5)["rmi"]
+
+# help(bta.relative_momentum_index)
 
 # # # WERKT GOED!!!
-# df['roc'] = bta.rate_of_change(df, column='close', period=21)['roc']
+# df["roc"] = bta.rate_of_change(df, column="close", period=21)["roc"]
+
+# help(bta.rate_of_change)
 
 # # # WERKT GOED!!!
-# df['sroc'] = bta.smoothed_rate_of_change(df, roclen=21, emalen=13, smooth=21)['sroc']
+# df["sroc"] = bta.smoothed_rate_of_change(df, roclen=21, emalen=13, smooth=21)["sroc"]
+
+# help(bta.smoothed_rate_of_change)
 
 # # # WERKT GOED!!!
 # wae = bta.waddah_attar_explosion_atr(df)
-# df['trend_up'] = wae['trend_up']
-# df['trend_down'] = wae['trend_down']
-# df['explosion_line'] = wae['explosion_line']
-# df['dead_zone_line'] = wae['dead_zone_line']
+# df["trend_up"] = wae["trend_up"]
+# df["trend_down"] = wae["trend_down"]
+# df["explosion_line"] = wae["explosion_line"]
+# df["dead_zone_line"] = wae["dead_zone_line"]
+
+# help(bta.waddah_attar_explosion_atr)
 
 # # # WERKT GOED!!!
 # wae = bta.waddah_attar_explosion(df)
-# df['trend_up'] = wae['trend_up']
-# df['trend_down'] = wae['trend_down']
-# df['explosion_line'] = wae['explosion_line']
-# df['dead_zone_line'] = wae['dead_zone_line']
+# df["trend_up"] = wae["trend_up"]
+# df["trend_down"] = wae["trend_down"]
+# df["explosion_line"] = wae["explosion_line"]
+# df["dead_zone_line"] = wae["dead_zone_line"]
+
+# help(bta.waddah_attar_explosion)
 
 # # # # WERKT GOED!!!
 # # https://www.tradingview.com/script/jFQn4jYZ-WaveTrend-with-Crosses-LazyBear/
 # wt = bta.wave_trend(df, chlen=10, avg=21, smalen=4)
-# df['wt1'] = wt['wt1']
-# df['wt2'] = wt['wt2']
+# df["wt1"] = wt["wt1"]
+# df["wt2"] = wt["wt2"]
+
+# help(bta.wave_trend)
 
 # # # WERKT GOED!!!
-# df['wto'] = bta.wave_trend_oscillator(df, 'close')['wavetrend']
+# df["wto"] = bta.wave_trend_oscillator(df, "close")["wavetrend"]
+
+# help(bta.wave_trend_oscillator)
 
 # qqe_mod = bta.qqe_mod(df, 6, 5, 3, 3, 50, 0.35, 6, 5, 1.61, 3)
-# df['qqe_line'] = qqe_mod['qqe_line']
-# df['histo2'] = qqe_mod['histo2']
-# df['qqe_up'] = qqe_mod['qqe_up']
-# df['qqe_down'] = qqe_mod['qqe_down']
+# df["qqe_line"] = qqe_mod["qqe_line"]
+# df["hist"] = qqe_mod["hist"]
+# df["qqe_up"] = qqe_mod["qqe_up"]
+# df["qqe_down"] = qqe_mod["qqe_down"]
+
+# help(bta.qqe_mod)
 
 # # WERKT GOED!!!
-# df['rsi'] = bta.relative_strength_index(df, column='close', period=14)['rsi']
+# df["rsi"] = bta.relative_strength_index(df, column="close", period=14)["rsi"]
+
+# help(bta.relative_strength_index)
 
 # # # WERKT GOED!!!
-# df['smi'] = bta.stochastic_momentum_index(df, k_length=9, d_length=3)['smi']
+# df["smi"] = bta.stochastic_momentum_index(df, k_length=10, d_length=3)["smi"]
 
-# stoch = bta.stochastics_oscillator(df, 'high', 'low', 'close', 14, 3)
-# df['stoch'] = stoch['stoch']
-# df['stoch_signal'] = stoch['stoch_signal']
-# df['stoch_hist'] = stoch['stoch_hist']
+# help(bta.stochastic_momentum_index)
+
+# stoch = bta.stochastics_oscillator(df, "high", "low", "close", 14, 3)
+# df["stoch"] = stoch["stoch"]
+# df["stoch_signal"] = stoch["stoch_signal"]
+# df["stoch_hist"] = stoch["stoch_hist"]
+
+# help(bta.stochastics_oscillator)
 
 # # # WERKT GOED!!!
-# stoch_rsi = bta.stochastic_rsi(df, length_rsi=14, length_stoch=14, smooth_k=3, smooth_d=3)
-# df['stoch_rsi_k'] = stoch_rsi['stoch_rsi_k']
-# df['stoch_rsi_d'] = stoch_rsi['stoch_rsi_d']
+# stoch_rsi = bta.stochastic_rsi(
+#     df, length_rsi=14, length_stoch=14, smooth_k=3, smooth_d=3
+# )
+# df["stoch_rsi_k"] = stoch_rsi["stoch_rsi_k"]
+# df["stoch_rsi_d"] = stoch_rsi["stoch_rsi_d"]
+
+# help(bta.stochastic_rsi)
 
 # # # # WERKT GOED!!!
-# df['tsi'] = bta.true_strength_index(df, 'close', 25, 13)['tsi']
+# df["tsi"] = bta.true_strength_index(df, "close", 25, 13)["tsi"]
+# help(bta.true_strength_index)
+
 # # # # WERKT GOED!!!
-# df['uo'] = bta.ultimate_oscillator(df, 'high', 'low', 'close', 7, 14, 28)['uo']
+# df["uo"] = bta.ultimate_oscillator(df, "high", "low", "close", 7, 14, 28)["uo"]
+# help(bta.ultimate_oscillator)
 
 # # # WERKT CONFORM https://www.tradingview.com/script/REGZq58T-Williams-R/
-# df['williams_r'] = bta.williams_r(df, 'high', 'low', 'close', 14)['williams_r']
+df["williams_r"] = bta.williams_r(df, "high", "low", "close", 14)["williams_r"]
+
+help(bta.williams_r)
 
 ## GOED
-# momdiv_result = bta.momentum_divergence(df, mom_length=5, bb_length=5, bb_dev=1.0, lookback=5)
-# df['momentum_divergence_mom'] = momdiv_result['momentum_divergence_mom']
-# df['momentum_divergence_upperb'] = momdiv_result['momentum_divergence_upperb']
-# df['momentum_divergence_lowerb'] = momdiv_result['momentum_divergence_lowerb']
-# df['momentum_divergence_buy'] = momdiv_result['momentum_divergence_buy']
-# df['momentum_divergence_sell'] = momdiv_result['momentum_divergence_sell']
-# df['momentum_divergence_coh'] = momdiv_result['momentum_divergence_coh']
-# df['momentum_divergence_col'] = momdiv_result['momentum_divergence_col']
+# momdiv_result = bta.momentum_divergence(
+#     df, mom_length=5, bb_length=5, bb_dev=1.0, lookback=5
+# )
+# df["momentum_divergence_mom"] = momdiv_result["momentum_divergence_mom"]
+# df["momentum_divergence_upperb"] = momdiv_result["momentum_divergence_upperb"]
+# df["momentum_divergence_lowerb"] = momdiv_result["momentum_divergence_lowerb"]
+# df["momentum_divergence_buy"] = momdiv_result["momentum_divergence_buy"]
+# df["momentum_divergence_sell"] = momdiv_result["momentum_divergence_sell"]
+# df["momentum_divergence_coh"] = momdiv_result["momentum_divergence_coh"]
+# df["momentum_divergence_col"] = momdiv_result["momentum_divergence_col"]
 
+# help(bta.momentum_divergence)
 
 # ### TREND.PY ####
 
