@@ -87,3 +87,30 @@ Returns:
     pd.Series: A series containing the regression slope values for each period.
     The first (lookback_period - 1) values will be NaN.
 """
+
+
+def test():
+    """
+    Test function for the regression_slope indicator.
+    
+    This function uses the generic test_indicator function from bamboo_ta.py
+    to test the regression_slope indicator.
+    
+    Returns:
+        None: Displays the results to the console
+    """
+    try:
+        # Import the test_indicator function from bamboo_ta
+        from bamboo_ta.bamboo_ta import test_indicator
+        
+        # Test the indicator
+        test_indicator(regression_slope)
+        
+    except ImportError:
+        print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
+    except Exception as e:
+        print(f"Error during testing: {e}")
+
+# Execute the test if this file is run directly
+if __name__ == "__main__":
+    test()

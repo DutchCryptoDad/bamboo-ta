@@ -123,3 +123,30 @@ Call with:
 Returns:
     pd.DataFrame: DataFrame with 'range_filter', 'high_band', 'low_band', 'long_signal', 'short_signal'.
 """
+
+
+def test():
+    """
+    Test function for the range_filter indicator.
+    
+    This function uses the generic test_indicator function from bamboo_ta.py
+    to test the range_filter indicator.
+    
+    Returns:
+        None: Displays the results to the console
+    """
+    try:
+        # Import the test_indicator function from bamboo_ta
+        from bamboo_ta.bamboo_ta import test_indicator
+        
+        # Test the indicator
+        test_indicator(range_filter)
+        
+    except ImportError:
+        print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
+    except Exception as e:
+        print(f"Error during testing: {e}")
+
+# Execute the test if this file is run directly
+if __name__ == "__main__":
+    test()

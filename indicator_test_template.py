@@ -17,6 +17,11 @@ def test():
         None: Displays the results to the console
     """
     try:
+        # Suppress the RuntimeWarning about module imports
+        import warnings
+        warnings.filterwarnings("ignore", category=RuntimeWarning, 
+                               message=".*found in sys.modules after import of package.*")
+        
         # Import the test_indicator function from bamboo_ta
         from bamboo_ta.bamboo_ta import test_indicator
         

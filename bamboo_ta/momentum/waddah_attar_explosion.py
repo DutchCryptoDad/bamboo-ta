@@ -88,3 +88,30 @@ Parameters:
 Returns:
     pd.DataFrame: DataFrame with 'trend_up', 'trend_down', 'explosion_line', and 'dead_zone_line' columns.
 """
+
+
+def test():
+    """
+    Test function for the waddah_attar_explosion indicator.
+    
+    This function uses the generic test_indicator function from bamboo_ta.py
+    to test the waddah_attar_explosion indicator.
+    
+    Returns:
+        None: Displays the results to the console
+    """
+    try:
+        # Import the test_indicator function from bamboo_ta
+        from bamboo_ta.bamboo_ta import test_indicator
+        
+        # Test the indicator
+        test_indicator(waddah_attar_explosion)
+        
+    except ImportError:
+        print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
+    except Exception as e:
+        print(f"Error during testing: {e}")
+
+# Execute the test if this file is run directly
+if __name__ == "__main__":
+    test()

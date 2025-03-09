@@ -49,3 +49,30 @@ class IndicatorMixin:
         tr3 = (low - prev_close).abs()
         true_range = pd.DataFrame(data={"tr1": tr1, "tr2": tr2, "tr3": tr3}).max(axis=1)
         return true_range
+
+
+def test():
+    """
+    Test function for the _check_fillna indicator.
+    
+    This function uses the generic test_indicator function from bamboo_ta.py
+    to test the _check_fillna indicator.
+    
+    Returns:
+        None: Displays the results to the console
+    """
+    try:
+        # Import the test_indicator function from bamboo_ta
+        from bamboo_ta.bamboo_ta import test_indicator
+        
+        # Test the indicator
+        test_indicator(_check_fillna)
+        
+    except ImportError:
+        print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
+    except Exception as e:
+        print(f"Error during testing: {e}")
+
+# Execute the test if this file is run directly
+if __name__ == "__main__":
+    test()

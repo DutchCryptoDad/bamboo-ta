@@ -73,7 +73,7 @@ def add_test_function(file_path, indicator_name):
         print(f"File {file_path} already has a test function.")
         return False
     
-    # Create the test function with proper triple quotes
+    # Create the test function
     test_function = f'''
 
 def test():
@@ -87,6 +87,11 @@ def test():
         None: Displays the results to the console
     """
     try:
+        # Suppress the RuntimeWarning about module imports
+        import warnings
+        warnings.filterwarnings("ignore", category=RuntimeWarning, 
+                               message=".*found in sys.modules after import of package.*")
+        
         # Import the test_indicator function from bamboo_ta
         from bamboo_ta.bamboo_ta import test_indicator
         

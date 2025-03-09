@@ -63,3 +63,30 @@ Returns:
     np.ndarray: The shorter array padded with NaN values at the beginning to match
     the size of the bigger array.
 """
+
+
+def test():
+    """
+    Test function for the same_length indicator.
+    
+    This function uses the generic test_indicator function from bamboo_ta.py
+    to test the same_length indicator.
+    
+    Returns:
+        None: Displays the results to the console
+    """
+    try:
+        # Import the test_indicator function from bamboo_ta
+        from bamboo_ta.bamboo_ta import test_indicator
+        
+        # Test the indicator
+        test_indicator(same_length)
+        
+    except ImportError:
+        print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
+    except Exception as e:
+        print(f"Error during testing: {e}")
+
+# Execute the test if this file is run directly
+if __name__ == "__main__":
+    test()

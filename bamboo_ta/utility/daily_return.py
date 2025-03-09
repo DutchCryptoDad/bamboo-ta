@@ -66,3 +66,30 @@ Call with:
 Returns:
     pd.Series: Series of daily return values expressed as percentages.
 """
+
+
+def test():
+    """
+    Test function for the daily_return indicator.
+    
+    This function uses the generic test_indicator function from bamboo_ta.py
+    to test the daily_return indicator.
+    
+    Returns:
+        None: Displays the results to the console
+    """
+    try:
+        # Import the test_indicator function from bamboo_ta
+        from bamboo_ta.bamboo_ta import test_indicator
+        
+        # Test the indicator
+        test_indicator(daily_return)
+        
+    except ImportError:
+        print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
+    except Exception as e:
+        print(f"Error during testing: {e}")
+
+# Execute the test if this file is run directly
+if __name__ == "__main__":
+    test()

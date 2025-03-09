@@ -56,42 +56,24 @@ def test_indicator(indicator_func, timeframe="1d", *args, **kwargs):
         for col in result.columns:
             df[col] = result[col]
         
-        # Display the results
+        # Display the results header
         print(f"\n=== {indicator_name.replace('_', ' ').title()} Test Results ===")
+        
+        # Display the indicator description
         print("\nIndicator Description:")
         if hasattr(indicator_func, '__doc__') and indicator_func.__doc__:
             print(indicator_func.__doc__.strip())
         else:
             print(f"No documentation available for {indicator_name}")
         
-        print("\nLast 10 rows of data with indicator values:")
-        pd.set_option('display.max_columns', None)
-        pd.set_option('display.width', 1000)
+        # Set display options
+        pd.set_option('display.max_columns', None)  # Show all columns
+        pd.set_option('display.width', 1000)        # Wide display
+        pd.set_option('display.max_rows', None)     # Show all rows in the output
         
-        # Display date, close, and indicator columns
-        display_cols = ['date', 'close'] + list(result.columns)
-        display_df = df[display_cols].tail(10)
-        print(display_df)
-        
-        # Display some statistics for each indicator column
-        print("\nIndicator Statistics:")
-        for col in result.columns:
-            if pd.api.types.is_numeric_dtype(df[col]):
-                print(f"\n{col}:")
-                print(f"  Min: {df[col].min()}")
-                print(f"  Max: {df[col].max()}")
-                print(f"  Mean: {df[col].mean()}")
-                print(f"  Std Dev: {df[col].std()}")
-                
-                # If the column contains binary signals (0s and 1s)
-                if set(df[col].dropna().unique()).issubset({0, 1}):
-                    signal_count = df[col].sum()
-                    print(f"  Total signals: {signal_count}")
-                    if signal_count > 0:
-                        print("\nLast 5 signals:")
-                        signals = df[df[col] == 1].tail(5)
-                        if not signals.empty:
-                            print(signals[['date', 'close', col]])
+        # Display the last 32 rows of the dataframe with all columns
+        print(f"\nLast 32 rows of data with {indicator_name} values:")
+        print(df.tail(32))
         
     except FileNotFoundError as e:
         print(f"Error: {e}. Please ensure the data file exists in the data directory.")

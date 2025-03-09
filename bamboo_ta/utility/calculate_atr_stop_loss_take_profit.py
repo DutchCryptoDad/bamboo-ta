@@ -116,3 +116,30 @@ Returns:
     - 'stoploss': The price levels for stop-loss
     - 'buyprice': The entry price levels
 """
+
+
+def test():
+    """
+    Test function for the calculate_atr_stop_loss_take_profit indicator.
+    
+    This function uses the generic test_indicator function from bamboo_ta.py
+    to test the calculate_atr_stop_loss_take_profit indicator.
+    
+    Returns:
+        None: Displays the results to the console
+    """
+    try:
+        # Import the test_indicator function from bamboo_ta
+        from bamboo_ta.bamboo_ta import test_indicator
+        
+        # Test the indicator
+        test_indicator(calculate_atr_stop_loss_take_profit)
+        
+    except ImportError:
+        print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
+    except Exception as e:
+        print(f"Error during testing: {e}")
+
+# Execute the test if this file is run directly
+if __name__ == "__main__":
+    test()

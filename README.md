@@ -61,8 +61,6 @@ To install the bleeding-edge version from the GitHub repository:
 pip install -U git+https://github.com/DutchCryptoDad/bamboo-ta.git@development
 ```
 
----
-
 ## Usage
 
 ### Importing the Library
@@ -79,16 +77,20 @@ import numpy as np
 
 Make sure to format your `DataFrame` correctly, like this:
 
+Bamboo-TA expects a pandas DataFrame with specific column names. Here's how to prepare your data:
+  
 ```python
 df = pd.read_json("./BTC_USDT-1d.json")
 df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
 df['date'] = pd.to_datetime(df['date'], unit='ms')
 ```
-
+  
 ### Applying Indicators
-
+  
 You can apply indicators in various ways. Here's how to use **Alligator Bands**:
 
+Most indicators in Bamboo-TA return a DataFrame with one or more columns. You can then add these columns to your original DataFrame. Here's an example using **Alligator Bands**:
+  
 ```python
 alligator_result = bta.alligator_bands(df, 'close', 13, 8, 5, jaw_shift=8, teeth_shift=5, lips_shift=3)
 df['jaw'] = alligator_result['jaw']
@@ -96,41 +98,280 @@ df['teeth'] = alligator_result['teeth']
 df['lips'] = alligator_result['lips']
 ```
 
+For indicators that return a single value, you can simplify this:
+  
+```python
+df['rsi'] = bta.relative_strength_index(df, column='close', period=14)['rsi']
+```
+  
 ### Importing Individual Indicators
-
+  
 You can also import and apply individual indicators. Here's how to the **Exponential Moving Average**::
 
+You can also import individual indicators directly from their respective modules. When doing this, make sure to use the imported function name directly (not with the `bta.` prefix):
+  
 ```python
 from bamboo_ta.trend import exponential_moving_average
-
+  
 df['ema'] = bta.exponential_moving_average(df, "close", 21)
+# Use the imported function directly
+ema_result = exponential_moving_average(df, "close", 21)
+df['ema'] = ema_result['ema']
 ```
 
----
+### Chaining Multiple Indicators
+
+You can easily apply multiple indicators to your DataFrame:
+
+```python
+# Add RSI
+df['rsi'] = bta.relative_strength_index(df, column='close', period=14)['rsi']
+
+# Add MACD
+macd_result = bta.macd(df, 'close', 12, 26, 9)
+df['macd'] = macd_result['macd']
+df['macd_signal'] = macd_result['macd_signal']
+df['macd_histogram'] = macd_result['macd_histogram']
+
+# Add Bollinger Bands
+bb_result = bta.bollinger_bands(df, 'close', 20, 2)
+df['bb_upper'] = bb_result['upper']
+df['bb_middle'] = bb_result['middle']
+df['bb_lower'] = bb_result['lower']
+```
+### Accessing Indicator Documentation
+
+Each indicator in Bamboo-TA comes with comprehensive documentation that includes a description, parameters, usage examples, and more. You can access this documentation in several ways:
+
+#### Using the help() Function
+
+The simplest way to access indicator documentation is to use Python's built-in `help()` function:
+
+```python
+# Get help for a specific indicator
+help(bta.macd_v)
+help(bta.relative_strength_index)
+help(bta.awesome_oscillator)
+```
+
+This will display the indicator's docstring, which includes all the information you need to use it effectively.
+
+#### Accessing Docstrings Directly
+
+You can also access the docstring directly:
+
+```python
+# Print the docstring for a specific indicator
+print(bta.macd_v.__doc__)
+```
+
+#### Using the test_indicators.py Script
+
+When you run the `test_indicators.py` script, it automatically displays the indicator's documentation:
+
+```bash
+python test_indicators.py macd_v
+```
+
+This will show the indicator description along with the test results.
+
+## Testing Indicators
+
+Bamboo-TA includes a built-in testing system that allows you to quickly test any indicator in the library. This is useful for verifying that indicators are working correctly and producing the expected results, which you can compare with what you see on TradingView.
+
+### Using the test_indicators.py Script
+
+The easiest way to test an indicator is to use the `test_indicators.py` script:
+
+```bash
+python test_indicators.py [indicator_name] [timeframe]
+```
+
+For example:
+```bash
+python test_indicators.py relative_strength_index 1d
+python test_indicators.py awesome_oscillator 4h
+python test_indicators.py momentum_divergence 1h
+```
+
+This will:
+1. Load the appropriate data file (e.g., BTC_USDT-1d.json or BTC_USDT-4h.json)
+2. Apply the indicator to the data
+3. Display the indicator description and the last 32 rows of data with the indicator values
+
+### Testing Individual Indicator Files
+
+Each indicator file also includes a `test()` function that can be run directly:
+
+```bash
+python -m bamboo_ta.momentum.relative_strength_index
+```
+
+This will run the test function in the indicator file, which uses the generic `test_indicator` function.
+
+### Using the test_indicator Function Directly
+
+You can also use the `test_indicator` function directly in your code:
+
+```python
+import bamboo_ta.bamboo_ta as bta
+from bamboo_ta.momentum import relative_strength_index
+
+bta.test_indicator(relative_strength_index)
+```
+
+This gives you more flexibility to test indicators with custom parameters.
 
 ## Indicator Categories
 
-Explore the wide range of indicators:
+Bamboo-TA includes a wide range of technical analysis indicators organized into the following categories:
 
-- [Candles](./docs/candles.md)
-- [Cycles](./docs/cycles.md)
-- [Momentum](./docs/momentum.md)
-- [Performance](./docs/performance.md)
-- [Statistics](./docs/statistics.md)
-- [Trend](./docs/trend.md)
-- [Utility](./docs/utility.md)
-- [Volatility](./docs/volatility.md)
-- [Volume](./docs/volume.md)
+### Candles
 
----
+Indicators for candlestick pattern analysis and transformations:
+
+- Dynamic Exhaustion Bars
+- Exhaustion Bars
+- Hansen Heiken Ashi
+- Heiken Ashi
+- Linear Regression Candles
+- Smoothed Heiken Ashi
+
+### Cycles
+
+*Note: This category is currently under development.*
+
+### Momentum
+
+Indicators that measure the rate of change in price movements:
+
+- Awesome Oscillator
+- Calculate Intraday Momentum Index
+- Chande Momentum Oscillator
+- Ehlers Fisher Stochastic Center of Gravity
+- Elliott Wave Oscillator
+- Kaufmans Adaptive Moving Average
+- MA Streak
+- MACD (Moving Average Convergence Divergence)
+- MACD Leader
+- MACD-V (Volume-weighted MACD)
+- Momentum Divergence
+- Percentage Price Oscillator
+- Percentage Volume Oscillator
+- QQE (Qualitative Quantitative Estimation)
+- Rate of Change
+- Relative Momentum Index
+- Relative Strength Index (RSI)
+- Smoothed Rate of Change
+- Stochastic Momentum Index
+- Stochastic RSI
+- Stochastics Oscillator
+- True Strength Index
+- Ultimate Oscillator
+- Waddah Attar Explosion
+- Waddah Attar Explosion ATR
+- Wave Trend
+- Wave Trend Oscillator
+- Williams %R
+
+### Performance
+
+*Note: This category is currently under development.*
+
+### Statistics
+
+*Note: This category is currently under development.*
+
+### Trend
+
+Indicators that help identify the direction of market trends:
+
+- Alligator Bands
+- Bollinger Trend
+- Bollinger Trend Fast with MA
+- Breakouts
+- Exponential Moving Average (EMA)
+- Hull Moving Average
+- Least Squares Moving Average
+- Percent Price Channel
+- PMAX
+- Price Channel
+- Range Filter
+- Rolling Moving Average
+- Simple Moving Average (SMA)
+- SSL Channels
+- SSL Channels ATR
+- T3 Average
+- UT Bot
+- Weighted Moving Average
+- Zero Exponential Moving Average
+- Zero Lag Exponential Moving Average
+
+### Utility
+
+Utility functions and indicators for various calculations:
+
+- Calculate ATR Stop Loss Take Profit
+- Calculate Stop Loss Take Profit
+- Consecutive Count
+- Cumulative Return
+- Daily Log Return
+- Daily Return
+- Drop NA
+- Exhaustion Candles
+- Exhaustion Lengths
+- First Crossed Above Second
+- First Crossed Below Second
+- Get Min Max
+- Linear Decay
+- Linear Growth
+- Overbought Oversold
+- Populate LELEDC Major Minor
+- Pump Dump Protection
+- Regression Slope
+- Same Length
+- Standard Deviation
+- Top Percent Change
+- Z-Score
+
+### Volatility
+
+Indicators that measure the rate and magnitude of price changes:
+
+- Average True Range (ATR)
+- BBW Expansion
+- Bollinger Bands
+- Donchian Channel
+- Keltner Channel
+- True Range
+- Ulcer Index
+
+### Volume
+
+Indicators that incorporate trading volume to confirm price movements:
+
+- Accumulation Distribution Index
+- Chaikin Money Flow
+- Ease of Movement
+- Force Index
+- Money Flow Index
+- Negative Volume Index
+- On Balance Volume
+- On Balance Volume Oscillator
+- Positive Volume Index
+- Price Volume Trend
+- Relative Volume
+- Time Relative Volume Oscillator
+- Volume Weighted Average Price
+- Volume Weighted Average Price Bands
+
+To access detailed documentation for any indicator, use the `help()` function or access the docstring directly as described in the [Accessing Indicator Documentation](#accessing-indicator-documentation) section.
 
 ## Social & Community
 
 - **YouTube**: Check out my [YouTube channel](https://www.youtube.com/@dutchalgotrading) for tutorials on [Freqtrade](https://www.youtube.com/watch?v=VHvikJmQrVM), [Tradingview](https://www.youtube.com/watch?v=aQSC-W8oYdw), and tested [trading strategies](https://www.youtube.com/watch?v=Jj9MSzHwa44).
 - **Patreon**: For exclusive trading algorithms, backtests, and strategy codes, support me on [Patreon](https://www.patreon.com/dutchalgotrading).
 - **Strategy League**: View the results of my tested strategies at [DutchAlgoTrading.com](https://www.dutchalgotrading.com).
-
----
 
 ## Support & Donations
 
@@ -146,8 +387,6 @@ If you find Bamboo-TA useful, consider supporting the project:
 - [TradingView Discount](https://www.tradingview.com/?aff_id=139223)
 - [Saxo Bank (Dutch Only)](https://refer.saxo/fKnth)
 
----
-
 ## Disclaimer
 
 Bamboo-TA is a personal project, and while I make every effort to ensure accuracy, I cannot guarantee the functionality of the indicators. They are tested against Binance (BTC/USDT) data and compared with similar indicators on [TradingView](https://www.tradingview.com/?aff_id=139223).
@@ -155,8 +394,6 @@ Bamboo-TA is a personal project, and while I make every effort to ensure accurac
 I personally use these indicators to build my own trading strategies, for backtesting and manual & bot trading using the [Freqtrade trading bot](https://www.youtube.com/watch?v=VHvikJmQrVM&list=PL8gq8aFDPpbNEx4lUvpmRjxtCkjvX-Jpg). So it is in my own personal best interest to make these indicators work as accurately as possible.
 
 Suggestions and bug reports are welcome, but fixes will be handled on a best-effort basis. Please be patient!
-
----
 
 ## Indicator sources
 

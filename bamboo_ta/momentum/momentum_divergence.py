@@ -89,3 +89,35 @@ Returns:
     - 'momentum_divergence_coh': Boolean indicating the current high is the highest high over the lookback period.
     - 'momentum_divergence_col': Boolean indicating the current low is the lowest low over the lookback period.
 """
+
+
+def test():
+    """
+    Test function for the momentum_divergence indicator.
+    
+    This function uses the generic test_indicator function from bamboo_ta.py
+    to test the momentum_divergence indicator.
+    
+    Returns:
+        None: Displays the results to the console
+    """
+    try:
+        # Suppress the RuntimeWarning about module imports
+        import warnings
+        warnings.filterwarnings("ignore", category=RuntimeWarning, 
+                               message=".*found in sys.modules after import of package.*")
+        
+        # Import the test_indicator function from bamboo_ta
+        from bamboo_ta.bamboo_ta import test_indicator
+        
+        # Test the indicator
+        test_indicator(momentum_divergence)
+        
+    except ImportError:
+        print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
+    except Exception as e:
+        print(f"Error during testing: {e}")
+
+# Execute the test if this file is run directly
+if __name__ == "__main__":
+    test()

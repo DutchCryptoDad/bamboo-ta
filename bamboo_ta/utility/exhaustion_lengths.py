@@ -79,3 +79,30 @@ Returns:
     - min_len: Average valley distance plus standard deviation (for minor cycles)
     Returns (0, 0) if there are insufficient peaks or valleys to calculate.
 """
+
+
+def test():
+    """
+    Test function for the exhaustion_lengths indicator.
+    
+    This function uses the generic test_indicator function from bamboo_ta.py
+    to test the exhaustion_lengths indicator.
+    
+    Returns:
+        None: Displays the results to the console
+    """
+    try:
+        # Import the test_indicator function from bamboo_ta
+        from bamboo_ta.bamboo_ta import test_indicator
+        
+        # Test the indicator
+        test_indicator(exhaustion_lengths)
+        
+    except ImportError:
+        print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
+    except Exception as e:
+        print(f"Error during testing: {e}")
+
+# Execute the test if this file is run directly
+if __name__ == "__main__":
+    test()

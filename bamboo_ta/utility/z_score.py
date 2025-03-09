@@ -59,3 +59,30 @@ Call with:
 Returns:
     pd.Series: The Z-Score values for each point in the input series.
 """
+
+
+def test():
+    """
+    Test function for the z_score indicator.
+    
+    This function uses the generic test_indicator function from bamboo_ta.py
+    to test the z_score indicator.
+    
+    Returns:
+        None: Displays the results to the console
+    """
+    try:
+        # Import the test_indicator function from bamboo_ta
+        from bamboo_ta.bamboo_ta import test_indicator
+        
+        # Test the indicator
+        test_indicator(z_score)
+        
+    except ImportError:
+        print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
+    except Exception as e:
+        print(f"Error during testing: {e}")
+
+# Execute the test if this file is run directly
+if __name__ == "__main__":
+    test()
