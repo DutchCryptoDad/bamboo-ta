@@ -31,9 +31,9 @@ def volume_weighted_average_price(
         vwap = vwap.fillna(0)
 
     # Add the VWAP to the DataFrame
-    df_copy["volume_weighted_average_price"] = vwap
+    df_copy["vwap"] = vwap
 
-    return df_copy[["volume_weighted_average_price"]]
+    return df_copy[["vwap"]]
 
 
 volume_weighted_average_price.__doc__ = """
@@ -55,10 +55,10 @@ Parameters:
     - fillna (bool): If True, fill nan values.
 
 Call with:
-    df['vwap'] = bta.volume_weighted_average_price(df, window=14, fillna=True)['volume_weighted_average_price']
+    df['vwap'] = bta.volume_weighted_average_price(df, window=14, fillna=True)['vwap']
 
 Returns:
-    pd.DataFrame: DataFrame with 'volume_weighted_average_price' column.
+    pd.DataFrame: DataFrame with 'vwap' column.
 """
 
 
