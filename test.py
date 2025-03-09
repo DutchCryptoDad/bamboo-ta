@@ -35,12 +35,12 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df['leledc_minor'] = exhaustion['leledc_minor']
 
 # # GOOD
-dynamic_exhaustion = bta.dynamic_exhaustion_bars(df)
-df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
-df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
+# dynamic_exhaustion = bta.dynamic_exhaustion_bars(df)
+# df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
+# df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
 
-# Using help function
-help(bta.dynamic_exhaustion_bars)
+# # Using help function
+# help(bta.dynamic_exhaustion_bars)
 
 # Accessing the docstring directly
 # print(bta.dynamic_exhaustion_bars.__doc__)
@@ -78,21 +78,28 @@ help(bta.dynamic_exhaustion_bars)
 # GOED
 # df['imi'] = bta.calculate_intraday_momentum_index(df, length=14)
 
-# # # WERKT GOED!!!
+# # # # WERKT GOED!!!
 # df['ao'] = bta.awesome_oscillator(df, 'high', 'low', 5, 34)['ao']
 
-# # # # WERKT GOED!!!
+# # # # # WERKT GOED!!!
 # df['cmo'] = bta.chande_momentum_oscillator(df)
 
-# # # # WERKT GOED!!!
+# # # # # WERKT GOED!!!
 # df['ewo'] = bta.elliott_wave_oscillator(df, 'close', 5, 35)
 
-# # # WERKT GOED!!!
+# # Using help function
+# help(bta.awesome_oscillator)
+# help(bta.chande_momentum_oscillator)
+# help(bta.elliott_wave_oscillator)
+
+# # # # WERKT GOED!!!
 # fscg = bta.ehlers_fisher_stochastic_center_of_gravity(df)
 # df['cg'] = fscg['cg']
 # df['trigger'] = fscg['trigger']
 
-# # # WERKT GOED!!!
+# help(bta.ehlers_fisher_stochastic_center_of_gravity)
+
+# # WERKT GOED!!!
 # df['kama'] = bta.kaufmans_adaptive_moving_average(df)['kama']
 
 # # WERKT GOED!!!
@@ -101,11 +108,12 @@ help(bta.dynamic_exhaustion_bars)
 # df['macd_signal'] = macd_result['macd_signal']
 # df['macd_histogram'] = macd_result['macd_histogram']
 
-# # WERKT GOED!!!
-# macd_v_result = bta.macd_v(df, 'close', 12, 26, 26, 9)
-# df['macd_v'] = macd_v_result['macd_v']
-# df['macd_v_signal'] = macd_v_result['macd_v_signal']
+# WERKT GOED!!!
+macd_v_result = bta.macd_v(df, 'close', 12, 26, 26, 9)
+df['macd_v'] = macd_v_result['macd_v']
+df['macd_v_signal'] = macd_v_result['macd_v_signal']
 
+help(bta.macd_v)
 
 # # # # WERKT GOED!!!
 # df['macd_leader'] = bta.macd_leader(df, 'close')['macd_leader']
