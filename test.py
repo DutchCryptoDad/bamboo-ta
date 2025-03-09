@@ -39,11 +39,11 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df['dynamic_leledc_major'] = dynamic_exhaustion['leledc_major']
 # df['dynamic_leledc_minor'] = dynamic_exhaustion['leledc_minor']
 
-# # Using help function
-# help(bta.dynamic_exhaustion_bars)
+# # # Using help function
+# # help(bta.dynamic_exhaustion_bars)
 
-# Accessing the docstring directly
-# print(bta.dynamic_exhaustion_bars.__doc__)
+# # # Accessing the docstring directly
+# # print(bta.dynamic_exhaustion_bars.__doc__)
 
 # # # GOOD
 # ha_df = bta.heiken_ashi(df)
@@ -75,7 +75,7 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 
 # ## MOMENTUM.PY FUNCTIES ###
 
-# GOED
+# # GOED
 # df['imi'] = bta.calculate_intraday_momentum_index(df, length=14)
 
 # # # # WERKT GOED!!!
@@ -88,16 +88,16 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df['ewo'] = bta.elliott_wave_oscillator(df, 'close', 5, 35)
 
 # # Using help function
-# help(bta.awesome_oscillator)
-# help(bta.chande_momentum_oscillator)
-# help(bta.elliott_wave_oscillator)
+# # help(bta.awesome_oscillator)
+# # help(bta.chande_momentum_oscillator)
+# # help(bta.elliott_wave_oscillator)
 
 # # # # WERKT GOED!!!
 # fscg = bta.ehlers_fisher_stochastic_center_of_gravity(df)
 # df['cg'] = fscg['cg']
 # df['trigger'] = fscg['trigger']
 
-# help(bta.ehlers_fisher_stochastic_center_of_gravity)
+# # help(bta.ehlers_fisher_stochastic_center_of_gravity)
 
 # # WERKT GOED!!!
 # df['kama'] = bta.kaufmans_adaptive_moving_average(df)['kama']
@@ -108,12 +108,12 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df['macd_signal'] = macd_result['macd_signal']
 # df['macd_histogram'] = macd_result['macd_histogram']
 
-# WERKT GOED!!!
+# # WERKT GOED!!!
 # macd_v_result = bta.macd_v(df, 'close', 12, 26, 26, 9)
 # df['macd_v'] = macd_v_result['macd_v']
 # df['macd_v_signal'] = macd_v_result['macd_v_signal']
 
-# help(bta.macd_v)
+# # help(bta.macd_v)
 
 # # # # WERKT GOED!!!
 # df['macd_leader'] = bta.macd_leader(df, 'close')['macd_leader']
@@ -121,7 +121,7 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # # # WERKT GOED!!! https://www.tradingview.com/script/Yq1z7cIv-MA-Streak-Can-Show-When-a-Run-Is-Getting-Long-in-the-Tooth/
 # df["ma_streak"] = bta.ma_streak(df, length=10, src="close", matype=1)["ma_streak"]
 
-# help(bta.ma_streak)
+# # help(bta.ma_streak)
 
 # # WERKT GOED!!!
 # ppo = bta.percentage_price_oscillator(df)
@@ -129,30 +129,30 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df["ppo_signal"] = ppo["ppo_signal"]
 # df["ppo_hist"] = ppo["ppo_hist"]
 
-# help(bta.percentage_price_oscillator)
+# # help(bta.percentage_price_oscillator)
 
 # pvo = bta.percentage_volume_oscillator(df)
 # df["pvo"] = pvo["pvo"]
 # df["pvo_signal"] = pvo["pvo_signal"]
 # df["pvo_hist"] = pvo["pvo_hist"]
 
-# help(bta.percentage_volume_oscillator)
+# # help(bta.percentage_volume_oscillator)
 
 # # GOED VOLGENS https://www.tradingview.com/script/DdT7MmPa/
 # # Maar liever ombouwen naar: https://www.tradingview.com/script/kwIt9OgQ-Relative-Momentum-Index/
 # df["rmi"] = bta.relative_momentum_index(df, length=20, mom=5)["rmi"]
 
-# help(bta.relative_momentum_index)
+# # help(bta.relative_momentum_index)
 
 # # # WERKT GOED!!!
 # df["roc"] = bta.rate_of_change(df, column="close", period=21)["roc"]
 
-# help(bta.rate_of_change)
+# # help(bta.rate_of_change)
 
 # # # WERKT GOED!!!
 # df["sroc"] = bta.smoothed_rate_of_change(df, roclen=21, emalen=13, smooth=21)["sroc"]
 
-# help(bta.smoothed_rate_of_change)
+# # help(bta.smoothed_rate_of_change)
 
 # # # WERKT GOED!!!
 # wae = bta.waddah_attar_explosion_atr(df)
@@ -161,7 +161,7 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df["explosion_line"] = wae["explosion_line"]
 # df["dead_zone_line"] = wae["dead_zone_line"]
 
-# help(bta.waddah_attar_explosion_atr)
+# # help(bta.waddah_attar_explosion_atr)
 
 # # # WERKT GOED!!!
 # wae = bta.waddah_attar_explosion(df)
@@ -170,7 +170,7 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df["explosion_line"] = wae["explosion_line"]
 # df["dead_zone_line"] = wae["dead_zone_line"]
 
-# help(bta.waddah_attar_explosion)
+# # help(bta.waddah_attar_explosion)
 
 # # # # WERKT GOED!!!
 # # https://www.tradingview.com/script/jFQn4jYZ-WaveTrend-with-Crosses-LazyBear/
@@ -178,12 +178,12 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df["wt1"] = wt["wt1"]
 # df["wt2"] = wt["wt2"]
 
-# help(bta.wave_trend)
+# # help(bta.wave_trend)
 
 # # # WERKT GOED!!!
 # df["wto"] = bta.wave_trend_oscillator(df, "close")["wavetrend"]
 
-# help(bta.wave_trend_oscillator)
+# # help(bta.wave_trend_oscillator)
 
 # qqe_mod = bta.qqe_mod(df, 6, 5, 3, 3, 50, 0.35, 6, 5, 1.61, 3)
 # df["qqe_line"] = qqe_mod["qqe_line"]
@@ -191,48 +191,60 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df["qqe_up"] = qqe_mod["qqe_up"]
 # df["qqe_down"] = qqe_mod["qqe_down"]
 
-# help(bta.qqe_mod)
+# # help(bta.qqe_mod)
 
 # # WERKT GOED!!!
 # df["rsi"] = bta.relative_strength_index(df, column="close", period=14)["rsi"]
 
-# help(bta.relative_strength_index)
+# # help(bta.relative_strength_index)
 
 # # # WERKT GOED!!!
 # df["smi"] = bta.stochastic_momentum_index(df, k_length=10, d_length=3)["smi"]
 
-# help(bta.stochastic_momentum_index)
+# # help(bta.stochastic_momentum_index)
 
 # stoch = bta.stochastics_oscillator(df, "high", "low", "close", 14, 3)
 # df["stoch"] = stoch["stoch"]
 # df["stoch_signal"] = stoch["stoch_signal"]
 # df["stoch_hist"] = stoch["stoch_hist"]
 
-# help(bta.stochastics_oscillator)
+# # help(bta.stochastics_oscillator)
 
 # # # WERKT GOED!!!
+
+# #  python test.py
+# # /opt/bamboo-ta/bamboo_ta/momentum/stochastic_rsi.py:28: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[  31.61   24.     74.01 ...  766.02 1000.97  783.95]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+# #   up_move[delta > 0] = delta[delta > 0]
+# # /opt/bamboo-ta/bamboo_ta/momentum/stochastic_rsi.py:29: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[ 176.71   53.69   70.29 ... 1492.57 1561.8   946.15]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+# #   down_move[delta < 0] = -delta[delta < 0]
+# #            date       open       high        low  ...  momentum_divergence_buy  momentum_divergence_sell  momentum_divergence_coh  momentum_divergence_col
+# # 2659 2024-11-27   91965.16   97208.21   91792.14  ...                        0                         0                        0                        0
+# # 2660 2024-11-28   95863.11   96564.00   94640.00  ...                        0                         0                        0                        0
+# # 2661 2024-11-29   95643.99   98619.99   95364.99  ...
+
+
 # stoch_rsi = bta.stochastic_rsi(
 #     df, length_rsi=14, length_stoch=14, smooth_k=3, smooth_d=3
 # )
 # df["stoch_rsi_k"] = stoch_rsi["stoch_rsi_k"]
 # df["stoch_rsi_d"] = stoch_rsi["stoch_rsi_d"]
 
-# help(bta.stochastic_rsi)
+# # help(bta.stochastic_rsi)
 
 # # # # WERKT GOED!!!
 # df["tsi"] = bta.true_strength_index(df, "close", 25, 13)["tsi"]
-# help(bta.true_strength_index)
+# # help(bta.true_strength_index)
 
 # # # # WERKT GOED!!!
 # df["uo"] = bta.ultimate_oscillator(df, "high", "low", "close", 7, 14, 28)["uo"]
-# help(bta.ultimate_oscillator)
+# # help(bta.ultimate_oscillator)
 
 # # # WERKT CONFORM https://www.tradingview.com/script/REGZq58T-Williams-R/
 # df["williams_r"] = bta.williams_r(df, "high", "low", "close", 14)["williams_r"]
 
-# help(bta.williams_r)
+# # help(bta.williams_r)
 
-## GOED
+# # GOED
 # momdiv_result = bta.momentum_divergence(
 #     df, mom_length=5, bb_length=5, bb_dev=1.0, lookback=5
 # )
@@ -244,7 +256,7 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df["momentum_divergence_coh"] = momdiv_result["momentum_divergence_coh"]
 # df["momentum_divergence_col"] = momdiv_result["momentum_divergence_col"]
 
-# help(bta.momentum_divergence)
+# # help(bta.momentum_divergence)
 
 # ### TREND.PY ####
 
@@ -306,7 +318,7 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df['percent_p'] = ppc_result['percent_p']
 
 
-# ## # # WERKT GOED!!!
+## # # WERKT GOED!!!
 # df['rma'] = bta.rolling_moving_average(df, 'close', 14)['rma']
 
 # # # # WERKT GOED!!!
@@ -331,7 +343,7 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # # # # WERKT GOED!!!
 # df['zlema'] = bta.zero_lag_exponential_moving_average(df, 'close', 21)['zlema']
 
-# GOED
+# # GOED
 # pmax_result = bta.pmax(df, period=10, multiplier=3.0, length=10, ma_type='EMA', src='close')
 # df['pmax'] = pmax_result['pmax']
 # df['pmax_trend'] = pmax_result['pmax_trend']
@@ -340,8 +352,17 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 ###### UTILITY.PY FILE ###############
 
 # GOED
-# df['percent_change'] = bta.top_percent_change(df, length=3)
+df['percent_change'] = bta.top_percent_change(df, length=3)
 
+
+# python test.py
+# Traceback (most recent call last):
+#   File "/opt/bamboo-ta/test.py", line 358, in <module>
+#     obos = bta.overbought_oversold(
+#            ^^^^^^^^^^^^^^^^^^^^^^^^
+#   File "/opt/bamboo-ta/bamboo_ta/utility/overbought_oversold.py", line 47, in overbought_oversold
+#     raise ValueError(f"Column '{indicator_col}' not found in the DataFrame.")
+# ValueError: Column 'rsi' not found in the DataFrame.
 
 # obos = bta.overbought_oversold(
 #     df,
@@ -354,7 +375,7 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # # Integrate results into the original DataFrame
 # df['obos_condition'] = obos
 
-# GOED
+# # GOED
 # pd_result = bta.pump_dump_protection(
 #     df,
 #     rsi_period=14,
@@ -370,8 +391,8 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df['rsi'] = pd_result['rsi']
 # df['pnd_volume_warn'] = pd_result['pnd_volume_warn']
 
-## CANNOT VERIFY THIS - HAVE TO TRUST THE BUILDER
-# breakout = bta.Breakouts(df, length=20)
+# # CANNOT VERIFY THIS - HAVE TO TRUST THE BUILDER
+# breakout = bta.breakouts(df, length=20)
 # df['support_level'] = breakout['support_level']
 # df['resistance_level'] = breakout['resistance_level']
 # df['support_breakout'] = breakout['support_breakout']
@@ -383,13 +404,13 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 
 ###### UTILITY.PY FILE ###############
 
-### NOG TE TESTEN
+# ## NOG TE TESTEN
 # atr_sl_tp_df = bta.calculate_atr_stop_loss_take_profit(df, signal_column='signal')
 # df['takeprofit'] = atr_sl_tp_df['takeprofit']
 # df['stoploss'] = atr_sl_tp_df['stoploss']
 # df['buyprice'] = atr_sl_tp_df['buyprice']
 
-### NOG TE TESTEN
+# ## NOG TE TESTEN
 # stop_loss_take_profit = bta.calculate_stop_loss_take_profit(df,
 #                                                             signal_column='trade_signal',
 #                                                             long_trade_signal='long_trade',
@@ -404,10 +425,10 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df['take_profit'] = stop_loss_take_profit['take_profit']
 # df['exit_reason'] = stop_loss_take_profit['exit_reason']
 
-### NOG TE TESTEN
+# ## NOG TE TESTEN
 # df['first_crossed_below_second'] = bta.first_crossed_below_second(series1, series2)
 
-### NOG TE TESTEN
+# ## NOG TE TESTEN
 # df['first_crossed_above_second'] = bta.first_crossed_above_second(series1, series2)
 
 # ## LIJKT GOED TE WERKEN
@@ -437,8 +458,8 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 
 # df['df_cleaned'] = bta.drop_na(df)
 
-# # ## WERKT GOED!!!
-# df['slope'] = bta.regression_slope(df, 20)
+## WERKT GOED!!!
+df['slope'] = bta.regression_slope(df, 20)
 
 # # NIET TE TESTEN
 # leledc_major_minor = bta.populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len)
@@ -501,6 +522,13 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # df['mfi'] = bta.money_flow_index(df, window=14, fillna=True)['mfi']
 
 # # ## WERKT GOED!!!
+# # python test.py
+# # /opt/bamboo-ta/bamboo_ta/volume/negative_volume_index.py:31: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '1000.7694048978062' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
+# #   df_copy.loc[df_copy.index[i], "nvi"] = (
+# #            date       open       high        low      close         volume  ...         signal  obv_oscillator        pvi  pvi_signal            pvt     pvt_signal
+# # 2659 2024-11-27   91965.16   97208.21   91792.14   95863.11   41153.427340  ... -656917.324738   101841.245500  57.511091   37.792446  281310.548221  275800.041111
+# # 2660 2024-11-28   95863.11   96564.00   94640
+
 # nvi_df = bta.negative_volume_index(df, signal_type='EMA', signal_length=255, fillna=True)
 # df['nvi'] = nvi_df['nvi']
 # df['nvi_signal'] = nvi_df['nvi_signal']
