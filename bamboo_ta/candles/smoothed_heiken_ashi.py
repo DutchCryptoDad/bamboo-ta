@@ -8,7 +8,7 @@ def smoothed_heiken_ashi(
     df: pd.DataFrame, len_: int = 10, len2: int = 10, fillna: bool = False
 ) -> pd.DataFrame:
     """Smoothed Heiken Ashi"""
-    
+
     # Create a copy of the input DataFrame
     df_copy = df.copy()
 
@@ -66,8 +66,8 @@ def smoothed_heiken_ashi(
 
     return result
 
-smoothed_heiken_ashi.__doc__ = \
-"""
+
+smoothed_heiken_ashi.__doc__ = """
 Name:
     Smoothed Heiken Ashi Candles
 

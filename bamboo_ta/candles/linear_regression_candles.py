@@ -66,8 +66,8 @@ def linear_regression_candles(df, linreg_length=11, sma_signal=True, signal_leng
 
     return df_copy[["bopen", "bhigh", "blow", "bclose", "signal"]]
 
-linear_regression_candles.__doc__ = \
-"""
+
+linear_regression_candles.__doc__ = """
 Name:
     Linear Regression Candles
 

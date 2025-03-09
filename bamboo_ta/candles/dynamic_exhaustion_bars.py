@@ -6,6 +6,7 @@ import pandas as pd
 
 def dynamic_exhaustion_bars(df, window=500):
     """Dynamic Leledc Exhaustion Bars"""
+
     def z_score(series, window):
         """Calculate the z-score of a series."""
         mean = series.rolling(window=window).mean()
@@ -14,20 +15,20 @@ def dynamic_exhaustion_bars(df, window=500):
 
     def exhaustion_candles(df, window, zscore_multi):
         """Calculate exhaustion candles."""
-        maj_qual = np.where(df['pct_change_zscore_smoothed'] > 1.5, 1, 0)
-        min_qual = np.where(df['pct_change_zscore_smoothed'] < -1.5, 1, 0)
+        maj_qual = np.where(df["pct_change_zscore_smoothed"] > 1.5, 1, 0)
+        min_qual = np.where(df["pct_change_zscore_smoothed"] < -1.5, 1, 0)
         return maj_qual, min_qual
 
     def exhaustion_lengths(df):
         """Calculate exhaustion lengths."""
-        maj_len = df['maj_qual'].rolling(window=5).sum()
-        min_len = df['min_qual'].rolling(window=5).sum()
+        maj_len = df["maj_qual"].rolling(window=5).sum()
+        min_len = df["min_qual"].rolling(window=5).sum()
         return maj_len, min_len
 
     def populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len):
         """Populate leledc major and minor columns."""
-        df['leledc_major'] = np.where(maj_qual & (maj_len > 2), 1, 0)
-        df['leledc_minor'] = np.where(min_qual & (min_len > 2), 1, 0)
+        df["leledc_major"] = np.where(maj_qual & (maj_len > 2), 1, 0)
+        df["leledc_minor"] = np.where(min_qual & (min_len > 2), 1, 0)
         return df
 
     df_copy = df.copy()
@@ -64,8 +65,8 @@ def dynamic_exhaustion_bars(df, window=500):
 
     return df_copy[["leledc_major", "leledc_minor"]]
 
-dynamic_exhaustion_bars.__doc__ = \
-"""
+
+dynamic_exhaustion_bars.__doc__ = """
 Name:
     Dynamic Leledc Exhaustion Bars
 

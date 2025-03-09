@@ -228,9 +228,9 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # help(bta.ultimate_oscillator)
 
 # # # WERKT CONFORM https://www.tradingview.com/script/REGZq58T-Williams-R/
-df["williams_r"] = bta.williams_r(df, "high", "low", "close", 14)["williams_r"]
+# df["williams_r"] = bta.williams_r(df, "high", "low", "close", 14)["williams_r"]
 
-help(bta.williams_r)
+# help(bta.williams_r)
 
 ## GOED
 # momdiv_result = bta.momentum_divergence(
@@ -524,10 +524,16 @@ help(bta.williams_r)
 # df['pvt_signal'] = pvt_df['signal']
 
 # # ## WERKT GOED!!
-# df['vwap'] = bta.volume_weighted_average_price(df, window=14, fillna=True)['volume_weighted_average_price']
+# df["vwap"] = bta.volume_weighted_average_price(df, window=14, fillna=True)[
+#     "volume_weighted_average_price"
+# ]
+
+# help(bta.volume_weighted_average_price)
 
 ## WERKT GOED!!
-# df['rvol'] = bta.relative_volume(df, volume_col='volume', window=24)['rvol']
+# df["rvol"] = bta.relative_volume(df, volume_col="volume", window=24)["rvol"]
+
+# help(bta.relative_volume)
 
 
 # Print the updated DataFrame with the new columns

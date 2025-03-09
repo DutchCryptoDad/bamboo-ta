@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# candles/__init__.py
+# momentum/__init__.py
 
 from .awesome_oscillator import awesome_oscillator
 from .chande_momentum_oscillator import chande_momentum_oscillator

@@ -6,7 +6,7 @@ import pandas as pd
 
 def exhaustion_bars(df, maj_qual=6, maj_len=30, min_qual=5, min_len=5, core_length=4):
     """Leledc Exhaustion Bars"""
-    
+
     df_copy = df.copy()
 
     # Ensure the DataFrame contains the required columns
@@ -80,8 +80,8 @@ def exhaustion_bars(df, maj_qual=6, maj_len=30, min_qual=5, min_len=5, core_leng
 
     return df_copy[["leledc_major", "leledc_minor"]]
 
-exhaustion_bars.__doc__ = \
-"""
+
+exhaustion_bars.__doc__ = """
 Name:
     Leledc Exhaustion Bars
 
@@ -115,4 +115,3 @@ Call with:
 Returns:
     pd.DataFrame: DataFrame with 'leledc_major' and 'leledc_minor' columns.
 """
-

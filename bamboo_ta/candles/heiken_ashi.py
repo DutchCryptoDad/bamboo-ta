@@ -49,8 +49,8 @@ def heiken_ashi(df, pre_smoothing_period=None, post_smoothing_period=None):
 
     return df_copy[["ha_open", "ha_high", "ha_low", "ha_close"]]
 
-heiken_ashi.__doc__ = \
-"""
+
+heiken_ashi.__doc__ = """
 Name:
     Heiken Ashi
 

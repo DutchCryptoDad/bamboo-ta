@@ -27,8 +27,8 @@ def hansen_heiken_ashi(df: pd.DataFrame, period: int = 6) -> pd.DataFrame:
     # Return the calculated components
     return df_copy[["emac", "emao"]]
 
-hansen_heiken_ashi.__doc__ = \
-"""
+
+hansen_heiken_ashi.__doc__ = """
 Name:
     Hansen Heiken Ashi (HHA)
 
@@ -52,4 +52,3 @@ Call with:
 Returns:
     pd.DataFrame: DataFrame containing the smoothed 'emac' and 'emao' columns.
 """
-
