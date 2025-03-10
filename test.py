@@ -211,18 +211,6 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 # # help(bta.stochastics_oscillator)
 
 # # # WERKT GOED!!!
-
-# #  python test.py
-# # /opt/bamboo-ta/bamboo_ta/momentum/stochastic_rsi.py:28: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[  31.61   24.     74.01 ...  766.02 1000.97  783.95]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
-# #   up_move[delta > 0] = delta[delta > 0]
-# # /opt/bamboo-ta/bamboo_ta/momentum/stochastic_rsi.py:29: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '[ 176.71   53.69   70.29 ... 1492.57 1561.8   946.15]' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
-# #   down_move[delta < 0] = -delta[delta < 0]
-# #            date       open       high        low  ...  momentum_divergence_buy  momentum_divergence_sell  momentum_divergence_coh  momentum_divergence_col
-# # 2659 2024-11-27   91965.16   97208.21   91792.14  ...                        0                         0                        0                        0
-# # 2660 2024-11-28   95863.11   96564.00   94640.00  ...                        0                         0                        0                        0
-# # 2661 2024-11-29   95643.99   98619.99   95364.99  ...
-
-
 # stoch_rsi = bta.stochastic_rsi(
 #     df, length_rsi=14, length_stoch=14, smooth_k=3, smooth_d=3
 # )
@@ -425,41 +413,42 @@ df['percent_change'] = bta.top_percent_change(df, length=3)
 # df['take_profit'] = stop_loss_take_profit['take_profit']
 # df['exit_reason'] = stop_loss_take_profit['exit_reason']
 
-# ## NOG TE TESTEN
-# df['first_crossed_below_second'] = bta.first_crossed_below_second(series1, series2)
+# # ## GOED
+# # df['first_crossed_below_second'] = bta.first_crossed_below_second(series1, series2)
+# df['first_crossed_below_second'] = bta.first_crossed_below_second(df['macd'], df['macd_signal'])
 
-# ## NOG TE TESTEN
-# df['first_crossed_above_second'] = bta.first_crossed_above_second(series1, series2)
-
+# # ## GOED
+# # df['first_crossed_above_second'] = bta.first_crossed_above_second(series1, series2)
+# df['first_crossed_above_second'] = bta.first_crossed_above_second(df['macd'], df['macd_signal'])
 # ## LIJKT GOED TE WERKEN
 # df['min_max'] = bta.get_min_max(df['open'], df['open'], 'max')
 
-# ## LIJKT GOED TE WERKEN
+# ## WERKT GOED
 # df['daily_return'] = bta.daily_return(df)
 
-# ## LIJKT GOED TE WERKEN
+# ## WERKT GOED
 # df['cumulative_return'] = bta.cumulative_return(df)
 
-# ## LIJKT GOED TE WERKEN
+# ## WERKT GOED
 # df['daily_log_return'] = bta.daily_log_return(df)
 
 
-# # LIJKT GOED TE WERKEN
+# # WERKT GOED
 # maj_qual, min_qual = bta.exhaustion_candles(df, 2, 1)
 # df['maj_qual'] = maj_qual
 # df['min_qual'] = min_qual
 
 
-# # LIJKT GOED TE WERKEN
+# # WERKT GOED
 # df['zscore']  = bta.z_score(df['close'])
 
-# # LIJKT GOED TE WERKEN
+# # WERKT GOED
 # df['std_dev'] = bta.st_dev(df['close'], period=14)
 
 # df['df_cleaned'] = bta.drop_na(df)
 
-## WERKT GOED!!!
-df['slope'] = bta.regression_slope(df, 20)
+# ## WERKT GOED!!!
+# df['slope'] = bta.regression_slope(df, 20)
 
 # # NIET TE TESTEN
 # leledc_major_minor = bta.populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len)
@@ -486,6 +475,7 @@ df['slope'] = bta.regression_slope(df, 20)
 
 # ##### VOLUME.PY FILE ###############
 
+# # WERKT GOED!!
 # trvo_result = bta.time_relative_volume_oscillator(
 #     df,
 #     column="close",
@@ -499,6 +489,7 @@ df['slope'] = bta.regression_slope(df, 20)
 # df["buy_vs_sell"] = trvo_result["buy_vs_sell"]
 # df["smoothed_delta"] = trvo_result["smoothed_delta"]
 
+# # WERKT GOED!!
 # vwapb_result = bta.volume_weighted_average_price_bands(df, window_size=20, num_of_std=1.0)
 # df['vwap_low'] = vwapb_result['vwap_low']
 # df['vwap'] = vwapb_result['vwap']
@@ -522,13 +513,6 @@ df['slope'] = bta.regression_slope(df, 20)
 # df['mfi'] = bta.money_flow_index(df, window=14, fillna=True)['mfi']
 
 # # ## WERKT GOED!!!
-# # python test.py
-# # /opt/bamboo-ta/bamboo_ta/volume/negative_volume_index.py:31: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '1000.7694048978062' has dtype incompatible with int64, please explicitly cast to a compatible dtype first.
-# #   df_copy.loc[df_copy.index[i], "nvi"] = (
-# #            date       open       high        low      close         volume  ...         signal  obv_oscillator        pvi  pvi_signal            pvt     pvt_signal
-# # 2659 2024-11-27   91965.16   97208.21   91792.14   95863.11   41153.427340  ... -656917.324738   101841.245500  57.511091   37.792446  281310.548221  275800.041111
-# # 2660 2024-11-28   95863.11   96564.00   94640
-
 # nvi_df = bta.negative_volume_index(df, signal_type='EMA', signal_length=255, fillna=True)
 # df['nvi'] = nvi_df['nvi']
 # df['nvi_signal'] = nvi_df['nvi_signal']

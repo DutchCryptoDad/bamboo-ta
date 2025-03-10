@@ -22,8 +22,8 @@ def negative_volume_index(
     # Calculate Rate of Change (ROC)
     df_copy["roc"] = df_copy["close"].pct_change() * 100
 
-    # Initialize the NVI starting from the first valid value
-    df_copy["nvi"] = 1000  # Starting point for NVI, common practice
+    # Initialize the NVI starting from the first valid value with float type
+    df_copy["nvi"] = 1000.0  # Starting point for NVI, common practice
 
     # Calculate NVI values only when volume decreases
     for i in range(1, len(df_copy)):

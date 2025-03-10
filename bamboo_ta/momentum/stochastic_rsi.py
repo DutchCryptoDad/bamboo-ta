@@ -21,8 +21,8 @@ def stochastic_rsi(
     delta = df_copy["close"].diff()
 
     # Create upMove and downMove arrays
-    up_move = pd.Series(0, index=delta.index)
-    down_move = pd.Series(0, index=delta.index)
+    up_move = pd.Series(0.0, index=delta.index)
+    down_move = pd.Series(0.0, index=delta.index)
 
     # Populate upMove and downMove
     up_move[delta > 0] = delta[delta > 0]
