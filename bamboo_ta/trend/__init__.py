@@ -5,6 +5,7 @@ from .alligator_bands import alligator_bands
 from .bollinger_trend import bollinger_trend
 from .bollinger_trend_fast_with_ma import bollinger_trend_fast_with_ma
 from .breakouts import breakouts
+from .double_exponential_moving_average import double_exponential_moving_average
 from .exponential_moving_average import exponential_moving_average
 from .hull_moving_average import hull_moving_average
 from .least_squares_moving_average import least_squares_moving_average
@@ -17,7 +18,10 @@ from .simple_moving_average import simple_moving_average
 from .ssl_channels import ssl_channels
 from .ssl_channels_atr import ssl_channels_atr
 from .t3_average import t3_average
+from .triangular_moving_average import triangular_moving_average
+from .triple_exponential_moving_average import triple_exponential_moving_average
 from .ut_bot import ut_bot
+from .variable_index_dynamic_average import variable_index_dynamic_average
 from .weighted_moving_average import weighted_moving_average
 from .zero_exponential_moving_average import zero_exponential_moving_average
 from .zero_lag_exponential_moving_average import zero_lag_exponential_moving_average
