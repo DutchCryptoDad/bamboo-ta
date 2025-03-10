@@ -7,3 +7,4 @@ from .exhaustion_bars import exhaustion_bars
 from .heiken_ashi import heiken_ashi
 from .linear_regression_candles import linear_regression_candles
 from .hansen_heiken_ashi import hansen_heiken_ashi
+from .candlestick_patterns import candlestick_patterns

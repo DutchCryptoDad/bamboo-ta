@@ -29,6 +29,15 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 
 ### CANDLES.PY FUNCTIES ###
 
+# candlestick_df = bta.candlestick_patterns(df)
+
+# # Add type and pattern columns to original DataFrame
+# df['candlestick_type'] = candlestick_df['type']
+# df['candlestick_pattern'] = candlestick_df['pattern']
+
+# help(bta.candlestick_patterns)
+
+
 # # GOOD
 # exhaustion = bta.exhaustion_bars(df)
 # df['leledc_major'] = exhaustion['leledc_major']
@@ -339,8 +348,8 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 
 ###### UTILITY.PY FILE ###############
 
-# GOED
-df['percent_change'] = bta.top_percent_change(df, length=3)
+# # GOED
+# df['percent_change'] = bta.top_percent_change(df, length=3)
 
 
 # python test.py
