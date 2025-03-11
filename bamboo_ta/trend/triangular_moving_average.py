@@ -14,13 +14,16 @@ def triangular_moving_average(df: pd.DataFrame, length: int = 10,
     if column not in df.columns:
         raise KeyError(f"DataFrame must contain '{column}' column")
     
-    # Calculate half-length for triangular weighting
+    # Validate parameters
+    length = int(length) if length > 0 else 10
+    
+    # Calculate half length
     half_length = round(0.5 * (length + 1))
     
     # Calculate first SMA
     sma1 = df_copy[column].rolling(window=half_length).mean()
     
-    # Calculate final TRIMA (SMA of first SMA)
+    # Calculate TRIMA (SMA of the first SMA)
     trima = sma1.rolling(window=half_length).mean()
     
     # Add result to DataFrame
@@ -35,20 +38,17 @@ Name:
     Triangular Moving Average (TRIMA)
 
 Description:
-    The Triangular Moving Average (TRIMA) is a weighted moving average where the weights 
+    A Triangular Moving Average (TRIMA) is a weighted moving average where the weights
     form a triangular pattern, with the greatest weight given to the middle of the period.
+    This is accomplished by calculating a Simple Moving Average (SMA) of another SMA.
     
-    Unlike a simple moving average where all data points are weighted equally, or an 
-    exponential moving average where more recent data points are weighted more heavily,
-    the TRIMA gives more weight to the middle of the period. This results in a smoother
-    moving average with reduced lag compared to a simple moving average.
-    
-    The TRIMA is essentially a double-smoothed simple moving average, calculated by
-    taking a simple moving average of a simple moving average.
+    The TRIMA provides a smoother representation of price action compared to a standard
+    Simple Moving Average, making it useful for identifying the underlying trend while
+    filtering out short-term price fluctuations and noise.
 
 More info:
-    https://www.fidelity.com/learning-center/trading-investing/technical-analysis/technical-indicator-guide/triangular-ma
-    https://www.tradingview.com/support/solutions/43000502589/
+    https://www.tradingtechnologies.com/help/x-study/technical-indicator-definitions/triangular-moving-average-trima/
+    https://www.investopedia.com/terms/t/triangularMovingAverage.asp
 
 Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain the specified column.

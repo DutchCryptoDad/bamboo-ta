@@ -5,7 +5,7 @@ import pandas as pd
 
 
 def triple_exponential_moving_average(df: pd.DataFrame, length: int = 10, 
-                                     column: str = "close") -> pd.DataFrame:
+                                   column: str = "close") -> pd.DataFrame:
     """Triple Exponential Moving Average (TEMA)"""
     df_copy = df.copy()
     
@@ -13,16 +13,22 @@ def triple_exponential_moving_average(df: pd.DataFrame, length: int = 10,
     if column not in df.columns:
         raise KeyError(f"DataFrame must contain '{column}' column")
     
-    # Calculate first EMA
-    ema1 = df_copy[column].ewm(span=length, adjust=False).mean()
+    # Extract the series we'll be working with
+    series = df_copy[column]
     
-    # Calculate second EMA (EMA of first EMA)
+    # Validate parameters
+    length = int(length) if length > 0 else 10
+    
+    # Calculate EMA1
+    ema1 = series.ewm(span=length, adjust=False).mean()
+    
+    # Calculate EMA2 (EMA of EMA1)
     ema2 = ema1.ewm(span=length, adjust=False).mean()
     
-    # Calculate third EMA (EMA of second EMA)
+    # Calculate EMA3 (EMA of EMA2)
     ema3 = ema2.ewm(span=length, adjust=False).mean()
     
-    # Calculate TEMA
+    # Calculate TEMA: 3 * (EMA1 - EMA2) + EMA3
     tema = 3 * (ema1 - ema2) + ema3
     
     # Add result to DataFrame
@@ -37,23 +43,21 @@ Name:
     Triple Exponential Moving Average (TEMA)
 
 Description:
-    The Triple Exponential Moving Average (TEMA) was developed by Patrick Mulloy in 1994
-    to reduce the lag in traditional moving averages. It uses multiple exponential moving
-    averages (EMA) to provide a smoother and more responsive indicator than standard moving averages.
+    Triple Exponential Moving Average (TEMA) is a technical indicator designed to smooth 
+    price data while reducing lag. It's more responsive than traditional moving averages,
+    making it useful for identifying trend changes earlier.
     
-    By using a combination of three EMAs, the TEMA filters out short-term price fluctuations
-    and reduces the lag associated with traditional moving averages. This makes it potentially
-    more responsive to price changes while still maintaining a smooth trend line.
-    
-    The formula effectively eliminates a significant amount of the lag associated with traditional moving averages.
+    TEMA uses multiple EMAs and a specific calculation to reduce the lag typically 
+    associated with moving averages. It achieves this by applying a formula that gives 
+    more weight to recent price movements while maintaining a reasonable smoothing effect.
 
 More info:
     https://www.investopedia.com/terms/t/triple-exponential-moving-average.asp
-    https://www.tradingview.com/support/solutions/43000502589/
+    https://www.tradingtechnologies.com/help/x-study/technical-indicator-definitions/triple-exponential-moving-average-tema/
 
 Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain the specified column.
-    - length (int): The period for the TEMA calculation. Default is 10.
+    - length (int): The period for the EMA calculations. Default is 10.
     - column (str): The column name to use for calculations. Default is 'close'.
 
 Call with:
