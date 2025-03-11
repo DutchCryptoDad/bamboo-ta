@@ -1,6 +1,6 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.2
 Name: bamboo-ta
-Version: 0.9.0
+Version: 0.9.1
 Summary: TA library for Pandas
 Home-page: https://github.com/DutchCryptoDad/bamboo-ta
 Author: DutchCryptoDad (DCD)
@@ -19,6 +19,16 @@ Requires-Dist: numpy
 Provides-Extra: def
 Requires-Dist: pytest; extra == "def"
 Requires-Dist: twine; extra == "def"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: summary
 
 # Bamboo-TA: Technical Analysis Indicators Library
 
@@ -255,6 +265,7 @@ Bamboo-TA includes a wide range of technical analysis indicators organized into 
 
 Indicators for candlestick pattern analysis and transformations:
 
+- Candlestick Patterns (multiple patterns in one file)
 - Dynamic Exhaustion Bars
 - Exhaustion Bars
 - Hansen Heiken Ashi
@@ -264,34 +275,62 @@ Indicators for candlestick pattern analysis and transformations:
 
 ### Cycles
 
-*Note: This category is currently under development.*
+Indicators for analyzing market cycles:
+
+- Even Better Sinewave
 
 ### Momentum
 
 Indicators that measure the rate of change in price movements:
 
+- Absolute Price Oscillator
 - Awesome Oscillator
+- Balance of Power
+- Bias
+- BRAR (BR and AR)
 - Calculate Intraday Momentum Index
+- Center of Gravity
+- Chande Forecast Oscillator
 - Chande Momentum Oscillator
+- Commodity Channel Index
+- Coppock Curve
+- Correlation Trend Indicator
+- Directional Movement
+- Efficiency Ratio
 - Ehlers Fisher Stochastic Center of Gravity
+- Ehlers Ray Index
 - Elliott Wave Oscillator
+- Fisher Transform
+- Inertia
 - Kaufmans Adaptive Moving Average
+- KDJ Indicator
+- Know Sure Thing
 - MA Streak
-- MACD (Moving Average Convergence Divergence)
+- Momentum
+- Momentum Divergence
+- Moving Average Convergence Divergence (MACD)
 - MACD Leader
 - MACD-V (Volume-weighted MACD)
-- Momentum Divergence
 - Percentage Price Oscillator
 - Percentage Volume Oscillator
-- QQE (Qualitative Quantitative Estimation)
+- Pretty Good Oscillator
+- Psychological Line
+- Qualitative Quantitative Estimation (QQE)
 - Rate of Change
 - Relative Momentum Index
 - Relative Strength Index (RSI)
+- Relative Strength Index Exponential
+- Relative Vigor Index
+- Schaff Trend Cycle
+- SMI Ergodic Indicator
 - Smoothed Rate of Change
 - Stochastic Momentum Index
 - Stochastic RSI
 - Stochastics Oscillator
+- TD Sequential
+- Triple Exponential Average
 - True Strength Index
+- TTM Squeeze
 - Ultimate Oscillator
 - Waddah Attar Explosion
 - Waddah Attar Explosion ATR
@@ -312,22 +351,53 @@ Indicators that measure the rate of change in price movements:
 Indicators that help identify the direction of market trends:
 
 - Alligator Bands
+- Archer Moving Averages Trends
+- Arnaud Legoux Moving Average
+- Aroon
+- Average Directional Index
 - Bollinger Trend
 - Bollinger Trend Fast with MA
 - Breakouts
+- Chande Kroll Stop
+- Choppiness Index
+- Cross Signals
+- Decay
+- Decreasing
+- Detrended Price Oscillator
+- Double Exponential Moving Average
 - Exponential Moving Average (EMA)
+- Fractal Weighted Moving Average
+- Holt Winters Moving Average
 - Hull Moving Average
+- Increasing
+- Jurik Moving Average
 - Least Squares Moving Average
+- Long Run
+- McGinley Dynamic
+- Parabolic SAR
+- Pascals Weighted Moving Average
 - Percent Price Channel
 - PMAX
 - Price Channel
+- Q Stick
 - Range Filter
 - Rolling Moving Average
+- Sequential Weighted Moving Average
+- Short Run
 - Simple Moving Average (SMA)
+- Sine Weighted Moving Average
 - SSL Channels
 - SSL Channels ATR
 - T3 Average
+- Trend Signals
+- Triangular Moving Average
+- Triple Exponential Moving Average
+- TTM Trend
 - UT Bot
+- Variable Index Dynamic Average
+- Vertical Horizontal Filter
+- Volume Weighted Moving Average
+- Vortex Indicator
 - Weighted Moving Average
 - Zero Exponential Moving Average
 - Zero Lag Exponential Moving Average
@@ -338,36 +408,75 @@ Utility functions and indicators for various calculations:
 
 - Calculate ATR Stop Loss Take Profit
 - Calculate Stop Loss Take Profit
+- Compounded Annual Growth Rate
 - Consecutive Count
+- Consecutive Higher Highs
+- Consecutive Lower Lows
+- Cross
+- Cross Value
 - Cumulative Return
 - Daily Log Return
 - Daily Return
+- Drawdown
 - Drop NA
+- Entropy
+- Error Function
 - Exhaustion Candles
 - Exhaustion Lengths
+- Filter By Dates
 - First Crossed Above Second
 - First Crossed Below Second
+- Geometric Mean
 - Get Min Max
+- Indicator Mixin
+- Is Above
+- Is Above Value
+- Is Below
+- Is Below Value
+- Kurtosis
 - Linear Decay
 - Linear Growth
+- Log Geometric Mean
+- Log Return
+- Mean Absolute Deviation
+- Median
+- Month To Date
 - Overbought Oversold
+- Pascals Triangle
+- Percent Return
 - Populate LELEDC Major Minor
 - Pump Dump Protection
+- Quantile
+- Quarter To Date
 - Regression Slope
 - Same Length
-- Standard Deviation
+- Sharpe Ratio
+- Skew
+- St Dev (Standard Deviation)
+- Symmetric Triangle
 - Top Percent Change
+- TOS Standard Deviation All
+- Variance
+- Year To Date
 - Z-Score
 
 ### Volatility
 
 Indicators that measure the rate and magnitude of price changes:
 
+- Aberration Bands
+- Acceleration Bands
 - Average True Range (ATR)
 - BBW Expansion
 - Bollinger Bands
 - Donchian Channel
+- Hurst Winter Channel
 - Keltner Channel
+- Mass Index
+- Normalized Average True Range
+- Percentage Distance
+- Relative Volatility Index
+- Thermometer
 - True Range
 - Ulcer Index
 
@@ -376,17 +485,23 @@ Indicators that measure the rate and magnitude of price changes:
 Indicators that incorporate trading volume to confirm price movements:
 
 - Accumulation Distribution Index
+- Accumulation Distribution Oscillator
+- Accumulation On Balance Volume
 - Chaikin Money Flow
 - Ease of Movement
 - Force Index
+- Klinger Volume Oscillator
 - Money Flow Index
 - Negative Volume Index
 - On Balance Volume
 - On Balance Volume Oscillator
 - Positive Volume Index
+- Price Volume
+- Price Volume Rank
 - Price Volume Trend
 - Relative Volume
 - Time Relative Volume Oscillator
+- Volume Profile
 - Volume Weighted Average Price
 - Volume Weighted Average Price Bands
 
