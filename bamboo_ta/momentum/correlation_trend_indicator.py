@@ -8,28 +8,32 @@ import numpy as np
 def correlation_trend_indicator(df: pd.DataFrame, length: int = 12) -> pd.DataFrame:
     """Correlation Trend Indicator"""
     df_copy = df.copy()
-    
+
     # Ensure the DataFrame contains the required column
     if "close" not in df.columns:
         raise KeyError("DataFrame must contain 'close' column")
-    
+
     # Calculate the correlation between price and time
     def calculate_correlation(window):
         if len(window) < 2:  # Need at least 2 points for correlation
             return np.nan
+
+        # Convert to numpy arrays to avoid the DataFrame.swapaxes deprecation warning
         x = np.arange(len(window))
-        return np.corrcoef(x, window)[0, 1]
-    
+        y = np.array(window)
+
+        # Calculate correlation coefficient
+        return np.corrcoef(x, y)[0, 1]
+
     # Apply the correlation calculation
-    df_copy["cti"] = df_copy["close"].rolling(window=length).apply(
-        calculate_correlation, raw=True
+    df_copy["cti"] = (
+        df_copy["close"].rolling(window=length).apply(calculate_correlation, raw=True)
     )
-    
+
     return df_copy[["cti"]]
 
 
-correlation_trend_indicator.__doc__ = \
-"""
+correlation_trend_indicator.__doc__ = """
 Name:
     Correlation Trend Indicator
 
@@ -61,25 +65,26 @@ Returns:
 def test():
     """
     Test function for the correlation_trend_indicator indicator.
-    
+
     This function uses the generic test_indicator function from bamboo_ta.py
     to test the correlation_trend_indicator indicator.
-    
+
     Returns:
         None: Displays the results to the console
     """
     try:
         # Import the test_indicator function from bamboo_ta
         from bamboo_ta.bamboo_ta import test_indicator
-        
+
         # Test the indicator
         test_indicator(correlation_trend_indicator)
-        
+
     except ImportError:
         print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
     except Exception as e:
         print(f"Error during testing: {e}")
 
+
 # Execute the test if this file is run directly
 if __name__ == "__main__":
-    test() 
+    test()

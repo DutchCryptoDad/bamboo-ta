@@ -63,30 +63,50 @@ Returns:
     pd.DataFrame: DataFrame with additional columns:
         - 'bb_width': Bollinger Band Width values.
         - 'bbw_expansion': Indicator for expansion (1 if condition met, 0 otherwise).
+
+Important Notes:
+    - This function REQUIRES that your DataFrame already contains Bollinger Bands columns:
+      * Upper band column (default name: 'bb_upper')
+      * Lower band column (default name: 'bb_lower')
+      * Middle band column (default name: 'bb_middle')
+    
+    - These columns must be generated first using the bollinger_bands function:
+      ```
+      bb_df = bta.bollinger_bands(df)
+      df['bb_upper'] = bb_df['upper']
+      df['bb_middle'] = bb_df['middle']
+      df['bb_lower'] = bb_df['lower']
+      ```
+    
+    - The function will fail with a KeyError if the required Bollinger Band columns are missing.
+    
+    - For testing purposes, you might need to create a wrapper that calculates
+      Bollinger Bands before calling this function.
 """
 
 
 def test():
     """
     Test function for the bbw_expansion indicator.
-    
+
     This function uses the generic test_indicator function from bamboo_ta.py
     to test the bbw_expansion indicator.
-    
+
     Returns:
         None: Displays the results to the console
     """
     try:
         # Import the test_indicator function from bamboo_ta
         from bamboo_ta.bamboo_ta import test_indicator
-        
+
         # Test the indicator
         test_indicator(bbw_expansion)
-        
+
     except ImportError:
         print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
     except Exception as e:
         print(f"Error during testing: {e}")
+
 
 # Execute the test if this file is run directly
 if __name__ == "__main__":

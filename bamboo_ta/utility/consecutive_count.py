@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # consecutive_count.py
 import numpy as np
+import pandas as pd
 
 
 def consecutive_count(consecutive_diff: np.ndarray) -> float:
@@ -53,30 +54,59 @@ Call with:
 Returns:
     float: The average number of indices between consecutive non-zero elements.
     Returns 0 if there are fewer than two non-zero elements.
+
+Important Notes:
+    - This function returns a single float value, not a DataFrame.
+    
+    - When used with bamboo_ta's test_indicator function, it will fail with
+      "Error: consecutive_count did not return a DataFrame" because test_indicator
+      expects a DataFrame return type.
+    
+    - To use with test_indicator, you need to create a wrapper function:
+      ```python
+      def consecutive_count_wrapper(df):
+          # Create a sample array with some non-zero elements
+          sample_array = df['close'].diff().fillna(0).values
+          
+          # Call the actual function
+          result = consecutive_count(sample_array)
+          
+          # Return as DataFrame for test_indicator compatibility
+          return pd.DataFrame({'consecutive_count': [result]})
+      ```
+    
+    - This function is not designed to be applied directly to a DataFrame column
+      but to a prepared numpy array. It is typically used as part of a larger
+      calculation rather than as a standalone indicator.
 """
 
 
 def test():
     """
     Test function for the consecutive_count indicator.
-    
-    This function uses the generic test_indicator function from bamboo_ta.py
-    to test the consecutive_count indicator.
-    
-    Returns:
-        None: Displays the results to the console
     """
     try:
-        # Import the test_indicator function from bamboo_ta
         from bamboo_ta.bamboo_ta import test_indicator
-        
-        # Test the indicator
-        test_indicator(consecutive_count)
-        
+
+        # Create a wrapper function that returns a DataFrame
+        def consecutive_count_wrapper(df):
+            # Create a sample array from the DataFrame
+            sample_array = df["close"].diff().fillna(0).values
+
+            # Call the actual function
+            result = consecutive_count(sample_array)
+
+            # Return as DataFrame for test_indicator compatibility
+            return pd.DataFrame({"consecutive_count": [result]})
+
+        # Test using the wrapper
+        test_indicator(consecutive_count_wrapper)
+
     except ImportError:
         print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
     except Exception as e:
         print(f"Error during testing: {e}")
+
 
 # Execute the test if this file is run directly
 if __name__ == "__main__":

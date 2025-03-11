@@ -228,7 +228,7 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 
 # # help(bta.stochastic_rsi)
 
-# # # # WERKT GOED!!!
+# # # # WERKT GOED!!
 # df["tsi"] = bta.true_strength_index(df, "close", 25, 13)["tsi"]
 # # help(bta.true_strength_index)
 
@@ -566,6 +566,12 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 
 
 # print(df.tail(40))
+
+# df["zscore"] = bta.z_score(df["close"], window=200)
+
+# atr_sl_tp = bta.calculate_atr_stop_loss_take_profit(
+#     df, signal_column="signal", atr_column="atr_14", atr_sl_mult=1.5, atr_tp_mult=3.0
+# )
 
 
 # TODO:

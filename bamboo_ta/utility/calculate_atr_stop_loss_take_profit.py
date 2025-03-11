@@ -115,30 +115,49 @@ Returns:
     - 'takeprofit': The price levels for taking profit
     - 'stoploss': The price levels for stop-loss
     - 'buyprice': The entry price levels
+
+Important Notes:
+    - This function REQUIRES that your DataFrame already contains specific columns:
+      * A signal column (default name: 'signal') with values including 'buy'
+      * An ATR column (default name: 'atr') with numeric ATR values
+      * A 'close' column with the closing prices
+    
+    - The function will fail with a KeyError if these required columns are missing.
+    
+    - Before using this function, make sure to:
+      1. Calculate the ATR indicator using the average_true_range() function
+      2. Generate trading signals and assign them to a column named 'signal' (or specify
+         a different column name using the signal_column parameter)
+      3. Ensure your 'signal' column contains 'buy' values for entries (other values
+         like 'sell' or 'neutral' can be used for non-entry conditions)
+    
+    - For testing purposes, you might need to create a wrapper that adds these
+      required columns before calling this function.
 """
 
 
 def test():
     """
     Test function for the calculate_atr_stop_loss_take_profit indicator.
-    
+
     This function uses the generic test_indicator function from bamboo_ta.py
     to test the calculate_atr_stop_loss_take_profit indicator.
-    
+
     Returns:
         None: Displays the results to the console
     """
     try:
         # Import the test_indicator function from bamboo_ta
         from bamboo_ta.bamboo_ta import test_indicator
-        
+
         # Test the indicator
         test_indicator(calculate_atr_stop_loss_take_profit)
-        
+
     except ImportError:
         print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
     except Exception as e:
         print(f"Error during testing: {e}")
+
 
 # Execute the test if this file is run directly
 if __name__ == "__main__":

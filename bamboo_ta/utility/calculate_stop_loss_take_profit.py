@@ -216,30 +216,47 @@ Returns:
     - 'take_profit': The calculated take-profit prices
     - 'entry_price': The trade entry prices
     - 'exit_reason': The reason for exit ('stop_loss_exit', 'take_profit_hit', etc.)
+
+Important Notes:
+    - This function REQUIRES that your DataFrame already contains specific columns:
+      * A trade signal column (default name: 'trade_signal') with values matching 
+        those specified in long_trade_signal, short_trade_signal, and no_trade_signal
+      * 'high', 'low', and 'close' price columns
+    
+    - The function will fail with a KeyError if these required columns are missing.
+    
+    - Before using this function, make sure to:
+      1. Generate trading signals and assign them to a column (default: 'trade_signal')
+      2. Ensure your signal column contains the expected values (by default: 'long_trade',
+         'short_trade', and 'no_trade')
+    
+    - For testing purposes, you might need to create a wrapper that adds these
+      required columns before calling this function.
 """
 
 
 def test():
     """
     Test function for the calculate_stop_loss_take_profit indicator.
-    
+
     This function uses the generic test_indicator function from bamboo_ta.py
     to test the calculate_stop_loss_take_profit indicator.
-    
+
     Returns:
         None: Displays the results to the console
     """
     try:
         # Import the test_indicator function from bamboo_ta
         from bamboo_ta.bamboo_ta import test_indicator
-        
+
         # Test the indicator
         test_indicator(calculate_stop_loss_take_profit)
-        
+
     except ImportError:
         print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
     except Exception as e:
         print(f"Error during testing: {e}")
+
 
 # Execute the test if this file is run directly
 if __name__ == "__main__":

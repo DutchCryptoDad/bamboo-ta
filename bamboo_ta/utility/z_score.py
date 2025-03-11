@@ -58,30 +58,51 @@ Call with:
 
 Returns:
     pd.Series: The Z-Score values for each point in the input series.
+
+Important Notes:
+    - This function requires a numeric Series as input and will raise an error 
+      if provided with non-numeric data such as datetime values.
+    
+    - Error "Cannot aggregate non-numeric type: datetime64[ns]" may occur if you 
+      inadvertently pass the date/timestamp column as input.
+    
+    - Always ensure you're passing a price series (like 'close', 'high', 'low') 
+      or another numeric indicator, not the date index.
+    
+    - If you want to apply Z-Score to a datetime-based feature (e.g., time of day patterns),
+      convert it to a numeric value first:
+      ```python
+      # Convert time of day to seconds from midnight
+      seconds_series = df.index.map(lambda x: x.hour * 3600 + x.minute * 60 + x.second)
+      df['time_zscore'] = bta.z_score(seconds_series)
+      ```
+    
+    - For testing purposes, make sure to use a numeric column from the test DataFrame.
 """
 
 
 def test():
     """
     Test function for the z_score indicator.
-    
+
     This function uses the generic test_indicator function from bamboo_ta.py
     to test the z_score indicator.
-    
+
     Returns:
         None: Displays the results to the console
     """
     try:
         # Import the test_indicator function from bamboo_ta
         from bamboo_ta.bamboo_ta import test_indicator
-        
+
         # Test the indicator
         test_indicator(z_score)
-        
+
     except ImportError:
         print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
     except Exception as e:
         print(f"Error during testing: {e}")
+
 
 # Execute the test if this file is run directly
 if __name__ == "__main__":

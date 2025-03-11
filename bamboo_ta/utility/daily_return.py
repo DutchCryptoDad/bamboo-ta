@@ -65,30 +65,49 @@ Call with:
 
 Returns:
     pd.Series: Series of daily return values expressed as percentages.
+
+Important Notes:
+    - This function returns a pandas Series, not a DataFrame.
+    
+    - When used with bamboo_ta's test_indicator function, it will fail with
+      "Error: daily_return did not return a DataFrame" because the test system
+      expects a DataFrame return type.
+    
+    - For testing within the bamboo_ta framework, a wrapper function could be created:
+      ```python
+      def daily_return_wrapper(df):
+          return_series = daily_return(df)
+          # Convert the Series to a DataFrame for test_indicator compatibility
+          return pd.DataFrame({'daily_return': return_series})
+      ```
+    
+    - In actual usage, the Series return type is more convenient as it can be directly
+      assigned to a DataFrame column as shown in the "Call with" examples.
 """
 
 
 def test():
     """
     Test function for the daily_return indicator.
-    
+
     This function uses the generic test_indicator function from bamboo_ta.py
     to test the daily_return indicator.
-    
+
     Returns:
         None: Displays the results to the console
     """
     try:
         # Import the test_indicator function from bamboo_ta
         from bamboo_ta.bamboo_ta import test_indicator
-        
+
         # Test the indicator
         test_indicator(daily_return)
-        
+
     except ImportError:
         print("Error: Could not import test_indicator from bamboo_ta.bamboo_ta")
     except Exception as e:
         print(f"Error during testing: {e}")
+
 
 # Execute the test if this file is run directly
 if __name__ == "__main__":
