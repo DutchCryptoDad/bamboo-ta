@@ -426,7 +426,7 @@ Load the package to the system with:
 
 ``pip install .``
 
-After you've checked that everything is worknig correctly, then use the following command to upload to Pypi.
+After you've checked that everything is working correctly, then use the following command to upload to Pypi.
 You'll have to install twine for this (``pip install twine`` or ``sudo apt install twine``)
 
 When you get the error:
