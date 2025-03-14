@@ -31,6 +31,7 @@ from .is_below_value import is_below_value
 from .kurtosis import kurtosis
 from .linear_decay import linear_decay
 from .linear_growth import linear_growth
+from .linear_regression_slope import linear_regression_slope
 from .log_geometric_mean import log_geometric_mean
 from .log_return import log_return
 from .mean_absolute_deviation import mean_absolute_deviation

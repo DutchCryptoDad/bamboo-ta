@@ -158,6 +158,7 @@ bamboo_ta/utility/is_below_value.py
 bamboo_ta/utility/kurtosis.py
 bamboo_ta/utility/linear_decay.py
 bamboo_ta/utility/linear_growth.py
+bamboo_ta/utility/linear_regression_slope.py
 bamboo_ta/utility/log_geometric_mean.py
 bamboo_ta/utility/log_return.py
 bamboo_ta/utility/mean_absolute_deviation.py

@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 
-def regression_slope(df: pd.DataFrame, lookback_period: int = 20) -> pd.Series:
+def regression_slope(df: pd.DataFrame, lookback_period: int = 20) -> pd.DataFrame:
     """
     Calculate the slope of the linear regression for a given lookback period.
 
@@ -15,11 +15,8 @@ def regression_slope(df: pd.DataFrame, lookback_period: int = 20) -> pd.Series:
     - df (pandas.DataFrame): Input DataFrame containing the 'close' prices.
     - lookback_period (int): The lookback period for calculating the regression slope. Default is 20.
 
-    Call with:
-        df['slope'] = bta.regression_slope(df, 20)
-
     Returns:
-    - pd.Series: Series containing the regression slopes.
+    - pd.DataFrame: DataFrame containing the regression slopes in the 'slope' column.
     """
     # Ensure the 'close' column exists in the DataFrame
     if "close" not in df.columns:
@@ -44,7 +41,11 @@ def regression_slope(df: pd.DataFrame, lookback_period: int = 20) -> pd.Series:
         df["close"].rolling(window=lookback_period).apply(calculate_slope, raw=True)
     )
 
-    return slope_series
+    # Create a DataFrame with the slope column and return it
+    result_df = pd.DataFrame(index=df.index)
+    result_df['slope'] = slope_series
+
+    return result_df
 
 
 regression_slope.__doc__ = """
@@ -75,16 +76,18 @@ Parameters:
 
 Call with:
     # Calculate regression slope with default 20-period lookback
-    df['reg_slope'] = bta.regression_slope(df)
+    result = bta.regression_slope(df)
+    df['reg_slope'] = result['slope']
     
     # Calculate regression slope with custom lookback
-    df['reg_slope_50'] = bta.regression_slope(df, lookback_period=50)
+    result = bta.regression_slope(df, lookback_period=50)
+    df['reg_slope_50'] = result['slope']
     
     # Use with other indicators
     df['slope_signal'] = np.where(df['reg_slope'] > 0, 1, -1)
 
 Returns:
-    pd.Series: A series containing the regression slope values for each period.
+    pd.DataFrame: A DataFrame containing the regression slope values in the 'slope' column.
     The first (lookback_period - 1) values will be NaN.
 """
 
