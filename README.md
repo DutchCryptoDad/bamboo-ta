@@ -404,6 +404,7 @@ Utility functions and indicators for various calculations:
 - Kurtosis
 - Linear Decay
 - Linear Growth
+- Linear Regression Slope
 - Log Geometric Mean
 - Log Return
 - Mean Absolute Deviation
