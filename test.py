@@ -295,6 +295,13 @@ df["date"] = pd.to_datetime(df["date"], unit="ms")
 
 # # # WERKT GOED!!!
 # df['ema'] = bta.exponential_moving_average(df, "close", 21)
+
+# lrs = bta.linear_regression_slope(df)
+# df['lrs'] = lrs['lrs']       # Raw Linear Regression Slope
+# df['slrs'] = lrs['slrs']     # Smoothed Linear Regression Slope (main indicator)
+# df['alrs'] = lrs['alrs']     # Signal line
+# df['trend'] = lrs['trend']   # Trend indicator (1: accelerating up, -1: accelerating down, 0: neutral)
+
 # # # # WERKT GOED!!!
 # df['hma'] = bta.hull_moving_average(df, 'close', 9)['hma']
 # # # # WERKT GOED!!!

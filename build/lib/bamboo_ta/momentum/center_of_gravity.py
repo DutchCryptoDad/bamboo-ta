@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 
-def center_of_gravity(df: pd.DataFrame, length: int = 10) -> pd.DataFrame:
+def center_of_gravity(df: pd.DataFrame, length: int = 10, include_shifted: bool = True) -> pd.DataFrame:
     """Center of Gravity Oscillator"""
     df_copy = df.copy()
     
@@ -13,23 +13,32 @@ def center_of_gravity(df: pd.DataFrame, length: int = 10) -> pd.DataFrame:
     if "close" not in df.columns:
         raise KeyError("DataFrame must contain 'close' column")
     
-    # Calculate coefficients (length down to 1)
-    coefficients = np.array([length - i for i in range(length)])
+    # Calculate weighted moving average (WMA)
+    weights = np.arange(1, length + 1)
+    weight_sum = weights.sum()
     
-    # Apply the center of gravity formula
-    def calculate_cg(window):
+    # Apply the weighted moving average calculation
+    def calculate_wma(window):
         if len(window) < length:
             return np.nan
-        # Numerator: -sum(price[i] * (length - i))
-        numerator = -np.sum(window * coefficients[:len(window)])
-        # Denominator: sum(price)
-        denominator = np.sum(window)
-        return numerator / denominator if denominator != 0 else np.nan
+        # Apply weights with more weight to recent prices
+        return np.sum(window * weights[:len(window)]) / weight_sum
     
-    # Calculate CG
-    df_copy["cg"] = df_copy["close"].rolling(window=length).apply(
-        calculate_cg, raw=True
+    # Calculate WMA
+    wma_values = df_copy["close"].rolling(window=length).apply(
+        calculate_wma, raw=True
     )
+    
+    # Calculate the Center of Gravity according to Ehlers' formula
+    numerator = wma_values * length * (length + 1) / 2
+    denominator = df_copy["close"].rolling(window=length).sum()
+    
+    df_copy["cg"] = numerator / denominator
+    
+    # Add the shifted CG value (previous bar's CG value)
+    if include_shifted:
+        df_copy["cg_prev"] = df_copy["cg"].shift(1)
+        return df_copy[["cg", "cg_prev"]]
     
     return df_copy[["cg"]]
 
@@ -45,22 +54,32 @@ Description:
     the CG aims to be more responsive to price changes while maintaining some 
     smoothing characteristics.
     
-    The oscillator calculates a weighted sum where more recent prices have less 
-    weight (contrary to typical weighted averages), creating a unique perspective 
-    on price momentum.
+    The implementation follows Ehlers' formula:
+    CG = WMA(close, length) * length * (length + 1) / 2 / SUM(close, length)
+    
+    Where WMA is a weighted moving average that assigns more weight to recent prices.
 
 More info:
     http://www.mesasoftware.com/papers/TheCGOscillator.pdf
+    https://www.tradingview.com/script/yhhunbyq/
 
 Parameters:
     - df (pandas.DataFrame): Input DataFrame which should contain the 'close' column.
     - length (int): The period for the CG calculation. Default is 10.
+    - include_shifted (bool): If True, includes the CG value from the previous bar
+      as a separate column. Default is True.
 
 Call with:
-    df['cg'] = bta.center_of_gravity(df)['cg']
+    # Get both current and previous CG values
+    cg_df = bta.center_of_gravity(df)
+    df['cg'] = cg_df['cg']
+    df['cg_prev'] = cg_df['cg_prev']
+    
+    # Or just the current CG value
+    df['cg'] = bta.center_of_gravity(df, include_shifted=False)['cg']
 
 Returns:
-    pd.DataFrame: DataFrame with 'cg' column.
+    pd.DataFrame: DataFrame with 'cg' column and optionally 'cg_prev' column.
 """
 
 

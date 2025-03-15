@@ -1,6 +1,6 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.2
 Name: bamboo-ta
-Version: 0.9.2
+Version: 0.9.3
 Summary: TA library for Pandas
 Home-page: https://github.com/DutchCryptoDad/bamboo-ta
 Author: DutchCryptoDad (DCD)
@@ -13,8 +13,22 @@ Classifier: Operating System :: Unix
 Classifier: Operating System :: MacOS :: MacOS X
 Classifier: Operating System :: Microsoft :: Windows
 Description-Content-Type: text/markdown
-Provides-Extra: def
 License-File: LICENSE
+Requires-Dist: pandas
+Requires-Dist: numpy
+Provides-Extra: def
+Requires-Dist: pytest; extra == "def"
+Requires-Dist: twine; extra == "def"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: summary
 
 # Bamboo-TA: Technical Analysis Indicators Library
 
@@ -422,6 +436,7 @@ Utility functions and indicators for various calculations:
 - Kurtosis
 - Linear Decay
 - Linear Growth
+- Linear Regression Slope
 - Log Geometric Mean
 - Log Return
 - Mean Absolute Deviation
