@@ -180,6 +180,10 @@ This will show the indicator description along with the test results.
 
 Bamboo-TA includes a built-in testing system that allows you to quickly test any indicator in the library. This is useful for verifying that indicators are working correctly and producing the expected results, which you can compare with what you see on TradingView.
 
+### Test all indicators in one go
+
+Use the ``test_all_indicators.py`` script to test all the indicators in the module. Be warned, this test only works after all the requirements have been installed on the (virtual) system.
+
 ### Using the test_indicators.py Script
 
 The easiest way to test an indicator is to use the `test_indicators.py` script:
@@ -475,6 +479,8 @@ Indicators that incorporate trading volume to confirm price movements:
 - Volume Weighted Average Price Bands
 
 To access detailed documentation for any indicator, use the `help()` function or access the docstring directly as described in the [Accessing Indicator Documentation](#accessing-indicator-documentation) section.
+
+Or read [the indicator documentation page](documentation/indicators.md) for all the indicators on one page.
 
 ## Social & Community
 

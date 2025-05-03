@@ -2,3 +2,4 @@ ta
 numpy
 pandas
 pandas_ta
+scipy
