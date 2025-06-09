@@ -3,160 +3,7 @@
 # Candles
 
 ## Candlestick Patterns
-Name:
-        Comprehensive Candlestick Patterns Detection
-
-    Description:
-        Detects a wide range of candlestick patterns, from basic single-candle types to complex
-        multi-candle formations. This function analyzes price data to identify both individual
-        candlestick types and pattern formations that may indicate trend continuations or reversals.
-        
-        The function categorizes patterns into:
-        1. Single Candlestick Patterns (e.g., doji, hammer, marubozu)
-        2. Two-Candlestick Patterns (e.g., engulfing, harami)
-        3. Three-Candlestick Patterns (e.g., morning star, three white soldiers)
-        4. Rare & Advanced Patterns (e.g., abandoned baby, island reversal)
-
-    More info:
-        https://www.investopedia.com/trading/candlestick-charting-what-is-it/
-        https://www.babypips.com/learn/forex/japanese-candlesticks
-
-    Parameters:
-        - df (pandas.DataFrame): Input DataFrame which should contain columns:
-            'open', 'high', 'low', and 'close'.
-        - include_indicators (bool, optional): If True, provides a warning that indicator-based
-            pattern detection has been removed. Default is False.
-
-    Single Candlestick Types:
-        - "doji": A candle with a very small body, indicating indecision.
-        - "long_legged_doji": A doji with long upper and lower shadows, showing extreme indecision.
-        - "dragonfly_doji": A doji with a long lower shadow and no upper shadow, often a bullish reversal signal.
-        - "gravestone_doji": A doji with a long upper shadow and no lower shadow, often a bearish reversal signal.
-        - "four_price_doji": An extremely rare doji where open, high, low, and close are virtually identical.
-        - "hammer": A bullish reversal candle with a small body at the top and a long lower shadow.
-        - "inverted_hammer": A bullish reversal candle with a small body at the bottom and a long upper shadow.
-        - "hanging_man": A bearish reversal candle with a small body at the top and a long lower shadow.
-        - "shooting_star": A bearish reversal candle with a small body at the bottom and a long upper shadow.
-        - "bullish_belt_hold": A bullish candle with a large body and no or minimal lower shadow.
-        - "bearish_belt_hold": A bearish candle with a large body and no or minimal upper shadow.
-        - "bullish_marubozu": A bullish candle with a large body and no or minimal shadows.
-        - "bearish_marubozu": A bearish candle with a large body and no or minimal shadows.
-        - "high_wave": A candle with a small body and very long upper and lower shadows, indicating volatility.
-        - "bullish_spinning_top": A bullish candle with a small body and significant upper and lower shadows.
-        - "bearish_spinning_top": A bearish candle with a small body and significant upper and lower shadows.
-        - "bullish": A standard bullish candle (close > open) that doesn't match any specific pattern.
-        - "bearish": A standard bearish candle (close < open) that doesn't match any specific pattern.
-
-    Multi-Candle Patterns:
-        Two-Candle Patterns:
-        - "bullish_engulfing": A bullish reversal pattern where a large bullish candle engulfs the previous bearish candle.
-        - "bearish_engulfing": A bearish reversal pattern where a large bearish candle engulfs the previous bullish candle.
-        - "bullish_harami": A bullish reversal pattern where a small bullish candle is contained within the previous bearish candle.
-        - "bearish_harami": A bearish reversal pattern where a small bearish candle is contained within the previous bullish candle.
-        - "bullish_harami_cross": A stronger bullish harami where the second candle is a doji.
-        - "bearish_harami_cross": A stronger bearish harami where the second candle is a doji.
-        - "piercing_line": A bullish reversal pattern where a bullish candle closes above the midpoint of the previous bearish candle.
-        - "dark_cloud_cover": A bearish reversal pattern where a bearish candle opens above the previous high and closes below the midpoint.
-        - "tweezer_tops": A bearish reversal pattern with two candles having the same or similar highs.
-        - "tweezer_bottoms": A bullish reversal pattern with two candles having the same or similar lows.
-        - "up_gap_side_by_side_white_lines": A bullish continuation pattern with two bullish candles separated by a gap up.
-        - "down_gap_side_by_side_white_lines": A bearish continuation pattern with two bearish candles separated by a gap down.
-        - "separating_lines_bullish": A bullish continuation pattern where a bullish candle follows a bearish one with the same open.
-        - "separating_lines_bearish": A bearish continuation pattern where a bearish candle follows a bullish one with the same open.
-        - "hook_reversal_bullish": A bullish reversal pattern similar to piercing line but less strong.
-        - "hook_reversal_bearish": A bearish reversal pattern similar to dark cloud cover but less strong.
-        - "on_neck_line": A bearish continuation pattern where a bullish candle closes at the previous low.
-        - "in_neck_line": A bearish continuation pattern where a bullish candle closes slightly above the previous low.
-        - "thrusting_pattern": A weak bearish continuation pattern where a bullish candle closes below the midpoint of the previous bearish candle.
-
-        Three-Candle Patterns:
-        - "morning_star": A bullish reversal pattern with a bearish candle, a small-bodied candle, and a bullish candle.
-        - "evening_star": A bearish reversal pattern with a bullish candle, a small-bodied candle, and a bearish candle.
-        - "abandoned_baby_bullish": A strong bullish reversal with a bearish candle, a gapped-down doji, and a gapped-up bullish candle.
-        - "abandoned_baby_bearish": A strong bearish reversal with a bullish candle, a gapped-up doji, and a gapped-down bearish candle.
-        - "three_white_soldiers": A strong bullish reversal with three consecutive bullish candles, each closing higher.
-        - "three_black_crows": A strong bearish reversal with three consecutive bearish candles, each closing lower.
-        - "three_inside_up": A bullish reversal starting with a bullish harami and followed by a confirming bullish candle.
-        - "three_inside_down": A bearish reversal starting with a bearish harami and followed by a confirming bearish candle.
-        - "three_outside_up": A bullish reversal starting with a bullish engulfing and followed by a confirming bullish candle.
-        - "three_outside_down": A bearish reversal starting with a bearish engulfing and followed by a confirming bearish candle.
-        - "rising_three_methods": A bullish continuation with a large bullish candle, three small bearish candles, and a final bullish candle.
-        - "falling_three_methods": A bearish continuation with a large bearish candle, three small bullish candles, and a final bearish candle.
-        - "mat_hold": A bullish continuation similar to rising three methods but with a gap.
-        - "tri_star_bullish": A bullish reversal with three consecutive doji candles forming a bottom.
-        - "tri_star_bearish": A bearish reversal with three consecutive doji candles forming a top.
-        - "unique_three_river_bottom": A bullish reversal with a long bearish candle, a bearish candle with a new low, and a small bullish candle.
-        - "concealing_baby_swallow": A rare bearish reversal pattern with four bearish candles.
-        - "advance_block": A weakening bullish trend with three bullish candles of decreasing size and increasing upper shadows.
-        - "deliberation": A warning of potential reversal after an uptrend, with two strong bullish candles followed by a small bullish candle.
-
-        Complex Patterns:
-        - "tower_top": A bearish reversal after an uptrend, with a series of rising candles followed by a strong bearish candle.
-        - "tower_bottom": A bullish reversal after a downtrend, with a series of falling candles followed by a strong bullish candle.
-        - "ladder_bottom": A bullish reversal after a downtrend, with three bearish candles followed by a strong bullish candle.
-        - "ladder_top": A bearish reversal after an uptrend, with three bullish candles followed by a strong bearish candle.
-        - "fry_pan_bottom": A bullish reversal forming a rounded bottom pattern.
-        - "dumpling_top": A bearish reversal forming a rounded top pattern.
-        - "island_reversal_bullish": A bullish reversal with an isolated low surrounded by gaps.
-        - "island_reversal_bearish": A bearish reversal with an isolated high surrounded by gaps.
-
-    Pattern Interpretation Guide:
-        Bullish Reversal Patterns:
-        - Hammer, Dragonfly Doji: Potential reversal after downtrend, shows buyers stepping in at lows
-        - Bullish Engulfing, Morning Star: Strong reversal signals, especially after extended downtrends
-        - Piercing Line: Moderate reversal signal, needs confirmation
-        - Bullish Harami: Indicates indecision after downtrend, weaker signal than engulfing
-        - Three White Soldiers: Very strong reversal signal, especially after a prolonged downtrend
-        - Abandoned Baby Bullish: Rare but extremely strong reversal signal
-
-        Bearish Reversal Patterns:
-        - Shooting Star, Gravestone Doji: Potential reversal after uptrend, shows sellers stepping in at highs
-        - Bearish Engulfing, Evening Star: Strong reversal signals, especially after extended uptrends
-        - Dark Cloud Cover: Moderate reversal signal, needs confirmation
-        - Bearish Harami: Indicates indecision after uptrend, weaker signal than engulfing
-        - Three Black Crows: Very strong reversal signal, especially after a prolonged uptrend
-        - Abandoned Baby Bearish: Rare but extremely strong reversal signal
-
-        Continuation Patterns:
-        - Rising/Falling Three Methods: Strong continuation signals during trends
-        - Separating Lines: Moderate continuation signals
-        - On Neck Line, In Neck Line, Thrusting Pattern: Weak bearish continuation signals
-
-        Indecision Patterns:
-        - Doji, Long-legged Doji: Market indecision, potential reversal if at support/resistance
-        - Spinning Tops: Weak indecision signals, less significant than doji
-
-    Trading Strategies:
-        1. Reversal Trading:
-           - Look for strong reversal patterns (Morning Star, Engulfing) at support/resistance levels
-           - Confirm with volume increase and/or other technical indicators
-           - Set stop loss below/above the pattern's low/high point
-
-        2. Trend Continuation:
-           - Use patterns like Three Methods during established trends
-           - Enter in the direction of the primary trend when continuation patterns form
-           - Tighter stop losses can be used compared to reversal trades
-
-        3. Volatility Breakout:
-           - Look for indecision patterns (Doji) followed by strong momentum candles
-           - Enter in the direction of the breakout candle
-           - Place stop loss below/above the Doji's low/high
-
-        4. Multiple Timeframe Confirmation:
-           - Confirm patterns on higher timeframes before trading on lower timeframes
-           - Higher probability setups occur when patterns align across multiple timeframes
-
-    Call with:
-        # Detect candlestick types and patterns
-        candlestick_df = bta.candlestick_patterns(df)
-        
-        # Add type and pattern columns to original DataFrame
-        df['candlestick_type'] = candlestick_df['type']
-        df['candlestick_pattern'] = candlestick_df['pattern']
-
-    Returns:
-        pd.DataFrame: DataFrame with 'type' column for individual candle types and 'pattern' column
-        for multi-candle patterns.
+*Error importing module: No module named 'scipy'*
 
 ## Dynamic Exhaustion Bars
 Name:
@@ -3274,6 +3121,51 @@ Call with:
 Returns:
     pd.DataFrame: DataFrame with 'ssl_atr_down' and 'ssl_atr_up' columns.
 
+## Supertrend
+Name:
+    Supertrend
+
+Description:
+    The Supertrend indicator is a trend-following indicator that uses Average True Range (ATR)
+    to calculate dynamic support and resistance levels. It helps identify trend direction and
+    potential entry/exit points. The indicator creates upper and lower bands around price action
+    and switches between them based on price closes relative to the previous period's bands.
+
+    The Supertrend line acts as:
+    - Support during uptrends (when price is above the line)
+    - Resistance during downtrends (when price is below the line)
+    
+    Direction changes occur when:
+    - Price closes above the previous upper band (bullish signal)
+    - Price closes below the previous lower band (bearish signal)
+
+More info:
+    http://www.freebsensetips.com/blog/detail/7/What-is-supertrend-indicator-its-calculation
+    https://www.investopedia.com/articles/active-trading/121014/using-supertrend-indicator-develop-trading-system.asp
+
+Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain columns: 'high', 'low', 'close'.
+    - length (int): The period for HL2 calculation. Default is 7.
+    - atr_length (int): The period for ATR calculation. If None, uses length value. Default is None.
+    - multiplier (float): Coefficient for upper and lower band distance from HL2. Default is 3.0.
+    - atr_mamode (str): Moving average type for ATR calculation. Options: 'sma', 'ema', 'rma', 'wma'. Default is 'rma'.
+
+Call with:
+    result = bta.supertrend(df, length=7, multiplier=3.0)
+    df['supertrend'] = result['supertrend_7_3.0']
+    df['supertrend_direction'] = result['supertrend_direction_7_3.0']
+    df['supertrend_long'] = result['supertrend_long_7_3.0']
+    df['supertrend_short'] = result['supertrend_short_7_3.0']
+
+Returns:
+    pd.DataFrame: DataFrame with multiple columns:
+        - 'supertrend_{length}_{multiplier}': Main Supertrend line values
+        - 'supertrend_direction_{length}_{multiplier}': Trend direction (1 for up, -1 for down)
+        - 'supertrend_long_{length}_{multiplier}': Long trend values (lower band when trending up)
+        - 'supertrend_short_{length}_{multiplier}': Short trend values (upper band when trending down)
+        - 'supertrend_upper_band_{length}_{multiplier}': Upper band values
+        - 'supertrend_lower_band_{length}_{multiplier}': Lower band values
+
 ## T3 Average
 Name:
     T3 Average
@@ -4357,2427 +4249,225 @@ Returns:
     that can be used to set dynamic band widths for detecting exhaustion points.
 
 ## Exhaustion Lengths
-Name:
-    Exhaustion Lengths
-
-Description:
-    This function calculates the average distances between price peaks and valleys
-    to help determine appropriate lengths for exhaustion bands. It identifies relative
-    maxima in the 'high' prices and relative minima in the 'low' prices, then calculates
-    the average distance between consecutive peaks and valleys, plus their standard
-    deviations.
-    
-    These values can be used to dynamically adjust exhaustion bands based on the
-    natural cycles present in the price data.
-
-More info:
-    Price action often follows cyclical patterns where peaks and troughs occur at
-    somewhat regular intervals. By measuring the average distance between these
-    extremes, traders can better calibrate indicators to match the natural rhythm
-    of the market being analyzed.
-    
-    The function uses scipy's argrelextrema to find local maxima and minima in the
-    price series, then calculates statistics about their spacing.
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame containing 'high' and 'low' columns.
-
-Call with:
-    maj_len, min_len = bta.exhaustion_lengths(df)
-    df['maj_len'] = maj_len
-    df['min_len'] = min_len
-
-Returns:
-    Tuple[int, int]: A tuple containing:
-    - maj_len: Average peak distance plus standard deviation (for major cycles)
-    - min_len: Average valley distance plus standard deviation (for minor cycles)
-    Returns (0, 0) if there are insufficient peaks or valleys to calculate.
+*Error importing module: No module named 'scipy'*
 
 ## Filter By Dates
-Name:
-    Filter DataFrame by Specific Dates
-
-Description:
-    Filters a DataFrame to include only data from specific dates provided in a list.
-    This is useful for extracting data points from particular days of interest,
-    such as earnings announcement days, economic event days, or specific trading days.
-
-More info:
-    This function allows selective extraction of data points when you're interested
-    in analyzing specific events or dates rather than continuous periods. The function
-    accepts either a single date string or a list of date strings.
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame with a DatetimeIndex.
-    - dates (str or List[str]): A single date string or a list of date strings
-      to filter the DataFrame by. The dates should match the format of the
-      DataFrame's index.
-
-Call with:
-    # Filter for a single date
-    single_date_df = bta.filter_by_dates(df, "2023-01-15")
-    
-    # Filter for multiple dates
-    multi_date_df = bta.filter_by_dates(df, ["2023-01-15", "2023-02-01", "2023-03-15"])
-
-Returns:
-    pd.DataFrame: DataFrame filtered to contain only data from the specified dates.
-    If none of the specified dates are found in the DataFrame's index, returns the
-    original DataFrame.
-
-Important Notes:
-    - This function explicitly converts string dates to datetime objects to
-      avoid FutureWarning issues with pandas.
-    - The function works best when your DataFrame has a proper DatetimeIndex.
+*Error importing module: No module named 'scipy'*
 
 ## First Crossed Above Second
-Name:
-    First Crossed Above Second
-
-Description:
-    This function checks if the first series crosses above the second series.
-    It returns a boolean series where True indicates the exact candle where
-    the crossover occurred. This is useful for generating trading signals
-    based on indicator crossovers.
-    
-    The function performs a vectorized comparison, making it efficient for
-    large datasets.
-
-More info:
-    In technical analysis, crossovers often indicate potential trading signals.
-    For example, when a faster moving average crosses above a slower moving average,
-    it may indicate a bullish signal.
-
-Parameters:
-    - series1 (pd.Series): First input series to check for crossover (e.g., fast moving average).
-    - series2 (pd.Series): Second input series to compare against (e.g., slow moving average).
-
-Call with:
-    df['cross_up'] = bta.first_crossed_above_second(df['ema5'], df['ema20'])
-
-Returns:
-    pd.Series: Boolean series where True indicates a crossover above.
+*Error importing module: No module named 'scipy'*
 
 ## First Crossed Below Second
-Name:
-    First Crossed Below Second
-
-Description:
-    This function checks if the first series crosses below the second series.
-    It returns a boolean series where True indicates the exact candle where
-    the crossover occurred. This is useful for generating trading signals
-    based on indicator crossovers.
-    
-    The function performs a vectorized comparison, making it efficient for
-    large datasets.
-
-More info:
-    In technical analysis, crossovers often indicate potential trading signals.
-    For example, when a faster moving average crosses below a slower moving average,
-    it may indicate a bearish signal.
-
-Parameters:
-    - series1 (pd.Series): First input series to check for crossover (e.g., fast moving average).
-    - series2 (pd.Series): Second input series to compare against (e.g., slow moving average).
-
-Call with:
-    df['cross_down'] = bta.first_crossed_below_second(df['ema5'], df['ema20'])
-
-Returns:
-    pd.Series: Boolean series where True indicates a crossover below.
+*Error importing module: No module named 'scipy'*
 
 ## Geometric Mean
-Name:
-    Geometric Mean
-
-Description:
-    Calculates the rolling geometric mean of a price series over a specified window length.
-    The geometric mean is defined as the nth root of the product of n numbers.
-    It is less affected by extreme values than the arithmetic mean, making it useful
-    for analyzing percentage changes or ratios like returns.
-
-More info:
-    https://en.wikipedia.org/wiki/Geometric_mean
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the column specified.
-    - length (int): The window size for the rolling calculation. Default is 30.
-    - min_periods (int, optional): Minimum number of observations required to calculate
-      a value. If None, defaults to the length parameter value.
-    - column (str): The column to calculate geometric mean on. Default is 'close'.
-
-Call with:
-    df['gmean_30'] = bta.geometric_mean(df)['gmean_30']
-
-Returns:
-    pd.DataFrame: DataFrame with geometric mean values in a column named 'gmean_{length}'.
+*Error importing module: No module named 'scipy'*
 
 ## Get Min Max
-Name:
-    Get Min Max
-
-Description:
-    This utility function compares two data series element by element and returns
-    either the minimum or maximum value at each position, depending on the specified
-    function parameter.
-    
-    It's particularly useful when you need to create support/resistance lines, 
-    determine price extremes, or compare different indicators.
-
-More info:
-    This function uses NumPy's efficient array operations to quickly process 
-    large datasets without loops.
-
-Parameters:
-    - series1 (pd.Series): First input series.
-    - series2 (pd.Series): Second input series.
-    - function (str): Function to apply, either "min" or "max". Default is "min".
-
-Call with:
-    df['min_values'] = bta.get_min_max(df['close'], df['sma20'], 'min')
-    df['max_values'] = bta.get_min_max(df['high'], df['upper_band'], 'max')
-
-Returns:
-    pd.Series: A series containing the minimum or maximum values between the two input
-    series at each position.
+*Error importing module: No module named 'scipy'*
 
 ## Indicator Mixin
-Utility mixin class for indicator calculations.
+*Error importing module: No module named 'scipy'*
 
 ## Is Above
-Name:
-    Is Above Indicator
-
-Description:
-    Determines whether values in one series are greater than or equal to
-    values in another series. This creates a binary indicator (or boolean) that
-    can be used for generating signals or conditions in trading strategies.
-
-More info:
-    This indicator is useful for identifying when one indicator or price series
-    crosses above another, which is often used as a bullish signal in technical analysis.
-    Common applications include when a fast moving average crosses above a slow moving 
-    average, or when price crosses above a key indicator level.
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the columns specified.
-    - column_a (str): The column to check if it's above column_b.
-    - column_b (str): The column to compare against.
-    - as_int (bool): If True, returns 1 for True and 0 for False. If False, returns
-      boolean values. Default is True.
-
-Call with:
-    # Check if the fast EMA is above the slow EMA
-    df['ema_fast_above_slow'] = bta.is_above(df, 'ema_9', 'ema_21')['ema_9_above_ema_21']
-
-Returns:
-    pd.DataFrame: DataFrame with a single column containing 1 where column_a is above
-    column_b, and 0 otherwise (if as_int=True), or boolean values (if as_int=False).
-    The column is named '{column_a}_above_{column_b}'.
+*Error importing module: No module named 'scipy'*
 
 ## Is Above Value
-Name:
-    Is Above Value Indicator
-
-Description:
-    Determines whether values in a series are greater than or equal to
-    a specified constant value. This creates a binary indicator (or boolean) that
-    can be used for generating signals or conditions in trading strategies.
-
-More info:
-    This indicator is useful for identifying when a price or indicator exceeds a certain
-    threshold or level, which can be used for breakout detection, overbought/oversold
-    conditions, or other trading signals. It's simpler than comparing two series when
-    one of the values is constant.
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the column specified.
-    - column (str): The column to check if it's above the specified value.
-    - value (float): The constant value to compare against.
-    - as_int (bool): If True, returns 1 for True and 0 for False. If False, returns
-      boolean values. Default is True.
-
-Call with:
-    # Check if price is above a resistance level
-    df['price_above_200'] = bta.is_above_value(df, 'close', 200)['close_above_200']
-
-Returns:
-    pd.DataFrame: DataFrame with a single column containing 1 where the specified column
-    is above the value, and 0 otherwise (if as_int=True), or boolean values (if as_int=False).
-    The column is named '{column}_above_{value}'.
+*Error importing module: No module named 'scipy'*
 
 ## Is Below
-Name:
-    Is Below Indicator
-
-Description:
-    Determines whether values in one series are less than or equal to
-    values in another series. This creates a binary indicator (or boolean) that
-    can be used for generating signals or conditions in trading strategies.
-
-More info:
-    This indicator is useful for identifying when one indicator or price series
-    falls below another, which is often used as a bearish signal in technical analysis.
-    Common applications include when a fast moving average crosses below a slow moving 
-    average, or when price falls below a key support level or indicator.
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the columns specified.
-    - column_a (str): The column to check if it's below column_b.
-    - column_b (str): The column to compare against.
-    - as_int (bool): If True, returns 1 for True and 0 for False. If False, returns
-      boolean values. Default is True.
-
-Call with:
-    # Check if the fast EMA is below the slow EMA
-    df['ema_fast_below_slow'] = bta.is_below(df, 'ema_9', 'ema_21')['ema_9_below_ema_21']
-
-Returns:
-    pd.DataFrame: DataFrame with a single column containing 1 where column_a is below
-    column_b, and 0 otherwise (if as_int=True), or boolean values (if as_int=False).
-    The column is named '{column_a}_below_{column_b}'.
+*Error importing module: No module named 'scipy'*
 
 ## Is Below Value
-Name:
-    Is Below Value Indicator
-
-Description:
-    Determines whether values in a series are less than or equal to
-    a specified constant value. This creates a binary indicator (or boolean) that
-    can be used for generating signals or conditions in trading strategies.
-
-More info:
-    This indicator is useful for identifying when a price or indicator falls below a certain
-    threshold or level, which can be used for breakdown detection, overbought/oversold
-    conditions, or other trading signals. It's simpler than comparing two series when
-    one of the values is constant.
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the column specified.
-    - column (str): The column to check if it's below the specified value.
-    - value (float): The constant value to compare against.
-    - as_int (bool): If True, returns 1 for True and 0 for False. If False, returns
-      boolean values. Default is True.
-
-Call with:
-    # Check if price is below a support level
-    df['price_below_50'] = bta.is_below_value(df, 'close', 50)['close_below_50']
-
-Returns:
-    pd.DataFrame: DataFrame with a single column containing 1 where the specified column
-    is below the value, and 0 otherwise (if as_int=True), or boolean values (if as_int=False).
-    The column is named '{column}_below_{value}'.
+*Error importing module: No module named 'scipy'*
 
 ## Kurtosis
-Name:
-    Kurtosis
-
-Description:
-    Kurtosis is a statistical measure that describes the shape of a distribution's tails
-    in relation to its overall shape. It quantifies whether the tails of a distribution
-    contain extreme values compared to a normal distribution.
-    
-    In the context of financial markets:
-    - High kurtosis (>3, leptokurtic): Indicates frequent extreme returns, fat tails
-    - Normal kurtosis (=3, mesokurtic): Matches a normal distribution
-    - Low kurtosis (<3, platykurtic): Indicates fewer extreme returns, thin tails
-    
-    Traders use kurtosis to:
-    - Assess the risk of extreme price movements
-    - Evaluate the appropriateness of normal distribution assumptions
-    - Develop risk management strategies for handling outlier events
-
-More info:
-    https://www.investopedia.com/terms/k/kurtosis.asp
-    https://en.wikipedia.org/wiki/Kurtosis
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which must contain the specified column.
-    - length (int): The rolling window period for the kurtosis calculation. Default is 30.
-    - min_periods (int): Minimum number of observations required to calculate kurtosis.
-      Default is the same as length.
-    - column (str): The column name to use for calculations. Default is 'close'.
-
-Call with:
-    result = bta.kurtosis(df, length=30)
-    df['kurtosis'] = result['kurtosis']
-
-Returns:
-    pd.DataFrame: DataFrame with 'kurtosis' column containing the indicator values.
+*Error importing module: No module named 'scipy'*
 
 ## Linear Decay
-Name:
-    Linear Decay
-
-Description:
-    A utility function that calculates a linear decay from a starting value to an ending value
-    over a specified time period. The decay begins after the start_time and reaches the end value
-    at end_time. This is particularly useful for time-based parameter adjustments in trading
-    strategies, such as gradually reducing position sizes, dynamically adjusting stop-loss levels,
-    or implementing time-based risk management.
-
-More info:
-    Linear decay follows the equation: 
-    value = start - (start-end)/(end_time-start_time) * (current_time-start_time)
-    
-    The function ensures that:
-    1. Decay starts only after start_time (returns start value before that)
-    2. Value never goes below the end value
-
-Parameters:
-    - start (float): The starting value
-    - end (float): The target end value (must be less than or equal to start)
-    - start_time (int): The time (in minutes) when decay should begin
-    - end_time (int): The time (in minutes) when decay should complete
-    - trade_time (int): The current time (in minutes)
-
-Call with:
-    # Example: Decay a stop-loss from 2% to 1% between 30 and 120 minutes of a trade
-    current_sl = bta.linear_decay(2.0, 1.0, 30, 120, minutes_in_trade)
-
-Returns:
-    float: The decayed value at the given trade_time
+*Error importing module: No module named 'scipy'*
 
 ## Linear Growth
-Name:
-    Linear Growth
-
-Description:
-    A utility function that calculates a linear growth from a starting value to an ending value
-    over a specified time period. The growth begins after the start_time and reaches the end value
-    at end_time. This is particularly useful for time-based parameter adjustments in trading
-    strategies, such as gradually increasing position sizes, dynamically adjusting take-profit levels,
-    or implementing time-based risk management.
-
-More info:
-    Linear growth follows the equation: 
-    value = start + (end-start)/(end_time-start_time) * (current_time-start_time)
-    
-    The function ensures that:
-    1. Growth starts only after start_time (returns start value before that)
-    2. Value never exceeds the end value
-
-Parameters:
-    - start (float): The starting value
-    - end (float): The target end value (must be greater than or equal to start)
-    - start_time (int): The time (in minutes) when growth should begin
-    - end_time (int): The time (in minutes) when growth should complete
-    - trade_time (int): The current time (in minutes)
-
-Call with:
-    # Example: Grow a take-profit from 1% to 3% between 30 and 120 minutes of a trade
-    current_tp = bta.linear_growth(1.0, 3.0, 30, 120, minutes_in_trade)
-
-Returns:
-    float: The grown value at the given trade_time
+*Error importing module: No module named 'scipy'*
 
 ## Linear Regression Slope
-Name:
-    Linear Regression Slope
-
-Description:
-    This indicator measures the slope of a linear regression curve, providing insights into
-    the current trend's strength and momentum. It calculates a linear regression curve, 
-    then derives the slope as the difference between consecutive points, smooths it using EMA,
-    and creates a signal line using SMA.
-    
-    The indicator helps identify if a trend is accelerating or decelerating:
-    - When the slope is above the signal line and positive, the uptrend is accelerating
-    - When the slope is below the signal line and negative, the downtrend is accelerating
-    - Other conditions indicate potential trend changes or consolidation
-
-More info:
-    This implementation is based on UCSgears' Linear Regression Slope indicator from TradingView.
-    Linear regression is a statistical method used to model the relationship between variables
-    by fitting a linear equation to observed data. In technical analysis, it helps identify
-    the direction and momentum of price trends.
-
-Parameters:
-    - df (pd.DataFrame): Input DataFrame containing the 'close' price column.
-    - curve_length (int): Number of periods for linear regression calculation. Default is 50.
-    - slope_length (int): Period for EMA smoothing of the slope. Default is 5.
-    - signal_length (int): Period for SMA calculation of the signal line. Default is 13.
-
-Call with:
-    # Calculate with default parameters
-    lrs = bta.linear_regression_slope(df)
-    df['lrs'] = lrs['lrs']       # Raw Linear Regression Slope
-    df['slrs'] = lrs['slrs']     # Smoothed Linear Regression Slope (main indicator)
-    df['alrs'] = lrs['alrs']     # Signal line
-    df['trend'] = lrs['trend']   # Trend indicator (1: accelerating up, -1: accelerating down, 0: neutral)
-    
-    # Calculate with custom parameters
-    lrs = bta.linear_regression_slope(df, curve_length=100, slope_length=10, signal_length=20)
-    
-    # Use for trading signals
-    df['buy_signal'] = np.where((df['slrs'] > df['alrs']) & (df['slrs'] > 0), 1, 0)
-    df['sell_signal'] = np.where((df['slrs'] < df['alrs']) & (df['slrs'] < 0), 1, 0)
-
-Returns:
-    pd.DataFrame: A DataFrame containing the following columns:
-    - 'lrs': Raw Linear Regression Slope (difference between consecutive linear regression points)
-    - 'slrs': Smoothed Linear Regression Slope (EMA of lrs)
-    - 'alrs': Average Linear Regression Slope (SMA of slrs, signal line)
-    - 'trend': Trend indicator (1: accelerating up, -1: accelerating down, 0: neutral)
-    
-    The first (curve_length + 1) values will contain NaNs due to the window calculations and differencing.
+*Error importing module: No module named 'scipy'*
 
 ## Log Geometric Mean
-Name:
-    Logarithmic Geometric Mean
-
-Description:
-    Calculates the rolling logarithmic geometric mean of a price series over a specified window length.
-    The log geometric mean is defined as exp(mean(log(x))) - 1 and is particularly useful for analyzing
-    returns over multiple periods. It provides a more accurate measure of average growth rate than
-    the arithmetic mean, especially when dealing with percentage changes.
-
-More info:
-    https://en.wikipedia.org/wiki/Geometric_mean#Relationship_with_logarithms
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the column specified.
-    - length (int): The window size for the rolling calculation. Default is 30.
-    - min_periods (int, optional): Minimum number of observations required to calculate
-      a value. If None, defaults to the length parameter value.
-    - column (str): The column to calculate log geometric mean on. Default is 'close'.
-
-Call with:
-    df['log_gmean_30'] = bta.log_geometric_mean(df)['log_gmean_30']
-
-Returns:
-    pd.DataFrame: DataFrame with log geometric mean values in a column named 'log_gmean_{length}'.
+*Error importing module: No module named 'scipy'*
 
 ## Log Return
-Name:
-    Log Return
-
-Description:
-    Calculates the logarithmic return of a price series. Logarithmic returns are useful
-    in financial analysis because they are additive over time and better approximate
-    normally distributed returns, which is important for statistical analysis.
-    
-    Two modes are available:
-    1. Period-over-period log return (default): log(price_t / price_{t-length})
-    2. Cumulative log return: log(price_t / price_0), measuring return since the beginning
-    
-    Log returns are especially useful for:
-    - Comparing performance across different assets
-    - Statistical analysis that assumes normality
-    - Time series modeling and forecasting
-
-More info:
-    https://www.quantstart.com/articles/Returns-Arithmetic-and-Logarithmic/
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which must contain the specified column.
-    - length (int): The period for calculating returns. Default is 1.
-    - cumulative (bool): If True, returns the cumulative log returns since the beginning.
-      If False, returns period-over-period log returns. Default is False.
-    - column (str): The column name to use for calculations. Default is 'close'.
-
-Call with:
-    # Period-over-period log returns
-    result = bta.log_return(df, length=1)
-    df['log_return'] = result['log_return']
-    
-    # Cumulative log returns
-    result = bta.log_return(df, cumulative=True)
-    df['cum_log_return'] = result['cum_log_return']
-
-Returns:
-    pd.DataFrame: DataFrame with 'log_return' or 'cum_log_return' column (depending on parameters).
+*Error importing module: No module named 'scipy'*
 
 ## Mean Absolute Deviation
-Name:
-    Mean Absolute Deviation
-
-Description:
-    Mean Absolute Deviation (MAD) is a measure of variability that quantifies the average
-    distance between each data point and the mean. Unlike standard deviation, which squares
-    the differences, MAD uses the absolute differences, making it less sensitive to outliers.
-    
-    In financial markets, MAD can be used to:
-    - Measure price volatility in a less outlier-sensitive way than standard deviation
-    - Identify periods of market stability or instability
-    - Develop trading systems that adapt to changing market conditions
-    - Set more robust stop-loss levels that are less affected by extreme price movements
-    
-    The calculation is the mean of the absolute deviations from the mean: mean(|x - mean(x)|)
-
-More info:
-    https://en.wikipedia.org/wiki/Average_absolute_deviation
-    https://www.investopedia.com/terms/a/absolute-deviation.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which must contain the specified column.
-    - length (int): The rolling window period for the MAD calculation. Default is 30.
-    - min_periods (int): Minimum number of observations required to calculate MAD.
-      Default is the same as length.
-    - column (str): The column name to use for calculations. Default is 'close'.
-
-Call with:
-    result = bta.mean_absolute_deviation(df, length=30)
-    df['mad'] = result['mad']
-
-Returns:
-    pd.DataFrame: DataFrame with 'mad' column containing the indicator values.
+*Error importing module: No module named 'scipy'*
 
 ## Median
-Name:
-    Median
-
-Description:
-    The Median indicator calculates the rolling median of a price series over a specified
-    period. Unlike a simple moving average which can be skewed by outliers, the median
-    represents the middle value in a series and is more robust to extreme values.
-    
-    In financial markets, the rolling median can be used to:
-    - Identify the central tendency of price movements with less sensitivity to outliers
-    - Filter out market noise in highly volatile conditions
-    - Develop trading systems that are less affected by price spikes or flash crashes
-    - Complement traditional moving averages for a more complete view of market conditions
-    
-    The median is often considered a more robust measure of central tendency compared to the mean
-    when the price distribution contains outliers or exhibits skewness.
-
-More info:
-    https://www.incrediblecharts.com/indicators/median_price.php
-    https://en.wikipedia.org/wiki/Median
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which must contain the specified column.
-    - length (int): The rolling window period for the median calculation. Default is 30.
-    - min_periods (int): Minimum number of observations required to calculate median.
-      Default is the same as length.
-    - column (str): The column name to use for calculations. Default is 'close'.
-
-Call with:
-    result = bta.median(df, length=30)
-    df['median'] = result['median']
-
-Returns:
-    pd.DataFrame: DataFrame with 'median' column containing the indicator values.
+*Error importing module: No module named 'scipy'*
 
 ## Month To Date
-Name:
-    Month-to-Date Filter
-
-Description:
-    Filters a DataFrame to include only data from the beginning of the current month
-    to the present. This is useful for analyzing performance or trends within the
-    current month.
-
-More info:
-    Month-to-date (MTD) is a period starting from the beginning of the current calendar
-    month and continuing up to the present day. MTD information is useful for analyzing
-    short-term business trends or comparing performance to previous months.
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame with a DatetimeIndex.
-
-Call with:
-    mtd_df = bta.month_to_date(df)
-
-Returns:
-    pd.DataFrame: DataFrame filtered to contain only data from the beginning of
-    the current month. If no data exists for the current month, returns the
-    original DataFrame.
+*Error importing module: No module named 'scipy'*
 
 ## Overbought Oversold
-Name:
-    Overbought/Oversold (OBOS) Indicator
-
-Description:
-    This function analyzes an oscillator-type indicator (like RSI, Stochastic, etc.)
-    and categorizes market conditions as overbought, oversold, or in trigger states.
-    It not only identifies when the indicator is currently in extreme territory but
-    also detects when the indicator has recently been in extreme territory but has
-    now returned to neutral levels - these are the "trigger" conditions that often
-    represent good entry points.
-
-More info:
-    Oscillator indicators typically fluctuate between fixed boundaries (often 0-100)
-    and help identify market extremes. Values above a certain threshold (e.g., 70-80)
-    suggest overbought conditions, while values below another threshold (e.g., 20-30)
-    suggest oversold conditions.
-    
-    The "trigger" conditions identified by this function are particularly valuable
-    as they often represent potential reversal points with better risk/reward ratios
-    than entering during extreme readings.
-
-Parameters:
-    - df (pd.DataFrame): The input DataFrame containing the indicator column.
-    - indicator_col (str): The name of the column containing the indicator values
-      (e.g., 'rsi', 'stoch_k', 'cci', etc.).
-    - overbought_value (float, default=75): The threshold above which the market
-      is considered overbought.
-    - oversold_value (float, default=30): The threshold below which the market
-      is considered oversold.
-    - previous_rows (int, default=5): Number of previous rows to check when
-      determining trigger conditions.
-
-Call with:
-    # Using RSI as the indicator
-    df['obos'] = bta.overbought_oversold(df, indicator_col='rsi', 
-                                          overbought_value=70, oversold_value=30)
-    
-    # Using Stochastic as the indicator
-    df['stoch_obos'] = bta.overbought_oversold(df, indicator_col='stoch_k', 
-                                               overbought_value=80, oversold_value=20)
-
-Returns:
-    pd.Series: A Series containing string values representing the market condition:
-        - 'overbought': Current indicator value is above the overbought threshold
-        - 'oversold': Current indicator value is below the oversold threshold
-        - 'overbought_trigger': Indicator recently left overbought territory
-        - 'oversold_trigger': Indicator recently left oversold territory
-        - 'neutral': None of the above conditions are met
+*Error importing module: No module named 'scipy'*
 
 ## Pascals Triangle
-Name:
-    Pascal's Triangle
-
-Description:
-    Generates a row of Pascal's Triangle, optionally weighted or inverse weighted.
-    
-    Pascal's Triangle is a triangular array of binomial coefficients, where each number
-    is the sum of the two numbers directly above it. It has numerous applications in
-    mathematics, particularly in combinatorics, probability, and algebra.
-    
-    This implementation can generate:
-    1. The raw values of a specific row of Pascal's Triangle
-    2. A weighted version where each value is divided by the sum of all values in the row
-    3. An inverse weighted version (1 - weighted value)
-
-More info:
-    https://en.wikipedia.org/wiki/Pascal%27s_triangle
-
-Parameters:
-    - n (int): The row of Pascal's Triangle to generate (0-indexed). Default is 4.
-    - weighted (bool): If True, returns each value divided by the sum of all values. Default is False.
-    - inverse (bool): If True and weighted is True, returns 1 minus the weighted values. Default is False.
-
-Call with:
-    # Get raw Pascal's Triangle row
-    df_pascal = bta.pascals_triangle(n=4)
-    
-    # Get weighted values
-    df_weighted = bta.pascals_triangle(n=4, weighted=True)
-    
-    # Get inverse weighted values
-    df_inverse = bta.pascals_triangle(n=4, weighted=True, inverse=True)
-
-Returns:
-    pd.DataFrame: DataFrame with a single column containing the requested values:
-    - 'pascal': Raw Pascal's Triangle values
-    - 'pascal_weights': Weighted values if weighted=True
-    - 'pascal_inverse_weights': Inverse weighted values if weighted=True and inverse=True
+*Error importing module: No module named 'scipy'*
 
 ## Percent Return
-Name:
-    Percent Return
-
-Description:
-    Calculates the percentage return of a price series, which measures the change in value
-    of an asset or investment as a percentage of the initial investment.
-    
-    Two modes are available:
-    1. Period-over-period percent return (default): (price_t / price_{t-length}) - 1
-    2. Cumulative percent return: (price_t / price_0) - 1, measuring total return since the beginning
-    
-    Percentage returns are commonly used in finance for:
-    - Performance measurement and comparison
-    - Risk assessment
-    - Investment decision making
-    - Portfolio analysis
-
-More info:
-    https://www.investopedia.com/terms/r/return.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which must contain the specified column.
-    - length (int): The period for calculating returns. Default is 1.
-    - cumulative (bool): If True, returns the cumulative percentage returns since the beginning.
-      If False, returns period-over-period percentage returns. Default is False.
-    - column (str): The column name to use for calculations. Default is 'close'.
-
-Call with:
-    # Period-over-period percent returns
-    result = bta.percent_return(df, length=1)
-    df['percent_return'] = result['percent_return']
-    
-    # Cumulative percent returns
-    result = bta.percent_return(df, cumulative=True)
-    df['cum_percent_return'] = result['cum_percent_return']
-
-Returns:
-    pd.DataFrame: DataFrame with 'percent_return' or 'cum_percent_return' column (depending on parameters).
+*Error importing module: No module named 'scipy'*
 
 ## Populate Leledc Major Minor
-Name:
-    Populate LELEDC Major and Minor
-
-Description:
-    LELEDC (Length and Extreme for Low Exhaustion and Determining Cycle) is an
-    indicator system that identifies potential exhaustion points in price action.
-    This function calculates both major and minor cycle signals based on quality
-    parameters and specific price patterns.
-    
-    The major cycle identifies significant trend changes while the minor cycle
-    identifies smaller retracements and continuations within the larger trend.
-    
-    LELEDC is particularly useful for identifying potential reversal points and
-    for determining market cycles.
-
-More info:
-    The algorithm tracks consecutive movements in a specific direction and generates
-    signals when price makes an extreme move (new high/low) after a sufficient number
-    of consecutive moves in one direction, combined with a reversal candle pattern.
-    
-    Major signals (1/-1) indicate potential significant trend changes.
-    Minor signals (1/-1) indicate smaller retracements or continuation patterns.
-
-Parameters:
-    - df (pd.DataFrame): Input DataFrame with OHLC price data.
-    - maj_qual (np.ndarray): Array of major quality thresholds for each bar.
-    - min_qual (np.ndarray): Array of minor quality thresholds for each bar.
-    - maj_len (int): Lookback length for major cycle high/low comparisons.
-    - min_len (int): Lookback length for minor cycle high/low comparisons.
-
-Call with:
-    # Usually used after calculating quality values and lengths:
-    maj_qual, min_qual = bta.exhaustion_candles(df)
-    maj_len, min_len = bta.exhaustion_lengths(df)
-    
-    result = bta.populate_leledc_major_minor(df, maj_qual, min_qual, maj_len, min_len)
-    df['leledc_major'] = result['leledc_major']
-    df['leledc_minor'] = result['leledc_minor']
-
-Returns:
-    pd.DataFrame: DataFrame with two columns:
-    - 'leledc_major': Major cycle signals (1, -1, or NaN)
-    - 'leledc_minor': Minor cycle signals (1, -1, or 0)
+*Error importing module: No module named 'scipy'*
 
 ## Pump Dump Protection
-Name:
-    Pump and Dump Protection
-
-Description:
-    This indicator helps detect potential pump-and-dump schemes in cryptocurrency markets
-    by monitoring abnormal volume activity and rapid price movements. It calculates several
-    metrics including short and long-term volume averages, the relative change in volume,
-    and the RSI to identify suspicious market behavior.
-    
-    Pump-and-dump schemes typically involve artificially inflating an asset's price through
-    false recommendations and heavy volume (the "pump") followed by selling off shares at
-    the higher price (the "dump"). This indicator can help traders avoid being caught in
-    such manipulative schemes.
-
-More info:
-    Key warning signs that this indicator identifies:
-    - Abnormal increases in trading volume (compared to recent history)
-    - Extreme RSI values indicating overbought conditions
-    - Sudden, dramatic price increases with volume spikes
-    
-    When the indicator detects these conditions, it sets the 'pnd_volume_warn' flag to -1,
-    suggesting caution and potential manipulation in the market.
-
-Parameters:
-    - df (pd.DataFrame): Input DataFrame with required OHLCV columns.
-    - rsi_period (int, default=14): Period for RSI calculation.
-    - short_volume_window (int, default=4): Period for short-term volume average.
-    - long_volume_window (int, default=48): Period for long-term volume average.
-    - volume_warn_threshold (float, default=5.0): Threshold for volume spike warning.
-
-Call with:
-    # Get pump and dump protection indicators
-    pnd_data = bta.pump_dump_protection(
-        df,
-        rsi_period=14,
-        short_volume_window=6,
-        long_volume_window=72,
-        volume_warn_threshold=4.0
-    )
-    
-    # Add results to the original dataframe
-    df['vol_short'] = pnd_data['volume_mean_short']
-    df['vol_long'] = pnd_data['volume_mean_long']
-    df['vol_change'] = pnd_data['volume_change_percentage']
-    df['rsi'] = pnd_data['rsi']
-    df['pnd_warning'] = pnd_data['pnd_volume_warn']
-
-Returns:
-    pd.DataFrame: A DataFrame with the following columns:
-    - 'volume_mean_short': Short-term volume average
-    - 'volume_mean_long': Long-term volume average
-    - 'volume_change_percentage': Ratio between short and long-term volume
-    - 'rsi': Relative Strength Index values
-    - 'pnd_volume_warn': Warning flag (-1 for potential pump-and-dump, 0 otherwise)
+*Error importing module: No module named 'scipy'*
 
 ## Quantile
-Name:
-    Quantile
-
-Description:
-    The Quantile indicator calculates the specified quantile of a price series over a rolling
-    window. Quantiles divide a dataset into equal parts, with the quantile value representing
-    the threshold that divides the data in the specified proportion.
-    
-    Common quantiles include:
-    - 0.5 (median): The middle value, dividing the dataset into two equal halves
-    - 0.25 (first quartile): Divides the bottom 25% from the top 75%
-    - 0.75 (third quartile): Divides the bottom 75% from the top 25%
-    
-    In financial markets, rolling quantiles can be used to:
-    - Identify price levels that are historically significant
-    - Develop trading systems based on statistical thresholds
-    - Create adaptive indicators that adjust to changing market conditions
-    - Filter outliers by focusing on specific segments of the price distribution
-
-More info:
-    https://en.wikipedia.org/wiki/Quantile
-    https://www.investopedia.com/terms/q/quantile.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which must contain the specified column.
-    - length (int): The rolling window period for the quantile calculation. Default is 30.
-    - q (float): The quantile to calculate, must be between 0 and 1. Default is 0.5 (median).
-    - min_periods (int): Minimum number of observations required to calculate the quantile.
-      Default is the same as length.
-    - column (str): The column name to use for calculations. Default is 'close'.
-
-Call with:
-    # Calculate the median (50th percentile)
-    result = bta.quantile(df, length=30, q=0.5)
-    df['quantile_0_5'] = result['quantile_0_5']
-    
-    # Calculate the first quartile (25th percentile)
-    result = bta.quantile(df, length=30, q=0.25)
-    df['quantile_0_25'] = result['quantile_0_25']
-
-Returns:
-    pd.DataFrame: DataFrame with a quantile column (name depends on the q parameter).
+*Error importing module: No module named 'scipy'*
 
 ## Quarter To Date
-Name:
-    Quarter-to-Date Filter
-
-Description:
-    Filters a DataFrame to include only data from the beginning of the current quarter
-    to the present. This is useful for analyzing quarterly performance or trends.
-    
-    Quarters are defined as:
-    - Q1: January, February, March
-    - Q2: April, May, June
-    - Q3: July, August, September
-    - Q4: October, November, December
-
-More info:
-    Quarter-to-date (QTD) is a period starting from the beginning of the current fiscal
-    quarter and continuing up to the present day. QTD information is useful for analyzing
-    medium-term business trends or comparing performance to previous quarters.
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame with a DatetimeIndex.
-
-Call with:
-    qtd_df = bta.quarter_to_date(df)
-
-Returns:
-    pd.DataFrame: DataFrame filtered to contain only data from the beginning of
-    the current quarter. If no data exists for the current quarter, returns the
-    original DataFrame.
+*Error importing module: No module named 'scipy'*
 
 ## Regression Slope
-Name:
-    Regression Slope
-
-Description:
-    This function calculates the slope of a linear regression line fitted to price data
-    over a specified lookback period. The slope indicates the rate of change of price
-    and can be used to identify the strength and direction of a trend.
-    
-    A positive slope indicates an uptrend, while a negative slope indicates a downtrend.
-    The steepness of the slope corresponds to the strength of the trend.
-
-More info:
-    Linear regression is a statistical method used to model the relationship between
-    a dependent variable (price) and an independent variable (time). In technical analysis,
-    the slope of the regression line provides valuable information about trend direction
-    and strength.
-    
-    The calculation uses the least squares method to find the line that minimizes the
-    sum of squared distances between the line and the actual price points.
-
-Parameters:
-    - df (pd.DataFrame): Input DataFrame containing the 'close' price column.
-    - lookback_period (int): Number of periods to use for the regression calculation.
-      Default is 20.
-
-Call with:
-    # Calculate regression slope with default 20-period lookback
-    result = bta.regression_slope(df)
-    df['reg_slope'] = result['slope']
-    
-    # Calculate regression slope with custom lookback
-    result = bta.regression_slope(df, lookback_period=50)
-    df['reg_slope_50'] = result['slope']
-    
-    # Use with other indicators
-    df['slope_signal'] = np.where(df['reg_slope'] > 0, 1, -1)
-
-Returns:
-    pd.DataFrame: A DataFrame containing the regression slope values in the 'slope' column.
-    The first (lookback_period - 1) values will be NaN.
+*Error importing module: No module named 'scipy'*
 
 ## Same Length
-Name:
-    Same Length
-
-Description:
-    This utility function ensures that two arrays have the same length by padding
-    the shorter array with NaN values at the beginning. This is particularly useful
-    when working with technical indicators that have different lookback periods,
-    resulting in arrays of different lengths that need to be aligned for calculations
-    or visualization.
-
-More info:
-    When calculating technical indicators, the initial periods often result in NaN values
-    due to insufficient data for the calculation. Different indicators may have different
-    lookback periods, resulting in varying numbers of initial NaN values. This function
-    helps align these indicators by padding the shorter array appropriately.
-
-Parameters:
-    - bigger (np.ndarray): The array with the larger size.
-    - shorter (np.ndarray): The array with the smaller size.
-
-Call with:
-    # Example: Aligning EMA with different periods
-    ema_short = calculate_ema(df['close'], period=5)  # Has fewer NaN values
-    ema_long = calculate_ema(df['close'], period=20)  # Has more NaN values
-    aligned_ema_short = bta.same_length(ema_long, ema_short)
-
-Returns:
-    np.ndarray: The shorter array padded with NaN values at the beginning to match
-    the size of the bigger array.
+*Error importing module: No module named 'scipy'*
 
 ## Sharpe Ratio
-Name:
-    Sharpe Ratio
-
-Description:
-    Calculates the Sharpe ratio, which measures the performance of an investment 
-    compared to a risk-free asset, after adjusting for its risk. It's defined as 
-    the excess return per unit of deviation (typically standard deviation) of an
-    investment asset or portfolio.
-
-More info:
-    The Sharpe ratio was developed by Nobel laureate William F. Sharpe and is used
-    to help investors understand the return of an investment compared to its risk.
-    The ratio is the average return earned in excess of the risk-free rate per unit
-    of volatility or total risk.
-    
-    A higher Sharpe ratio indicates a better risk-adjusted performance.
-    Generally, a Sharpe ratio greater than 1.0 is considered acceptable.
-    A ratio higher than 2.0 is considered very good.
-    A ratio of 3.0 or higher is considered excellent.
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the column specified.
-    - benchmark_rate (float): The risk-free rate to compare against. Default is 0.0.
-    - use_log_returns (bool): If True, uses logarithmic returns instead of percentage
-      returns for calculation. Default is False.
-    - use_cagr (bool): If True, uses CAGR (Compound Annual Growth Rate) instead of
-      simple annualized returns for calculation. Default is False.
-    - trading_days_per_year (int): Number of trading days in a year, used for
-      annualizing returns and volatility. Default is 252.
-    - column (str): The column to calculate the Sharpe ratio on. Default is 'close'.
-
-Call with:
-    sharpe_result = bta.sharpe_ratio(df, benchmark_rate=0.02)
-    df['sharpe'] = sharpe_result['sharpe_ratio'][0]  # Extract single value
-
-Returns:
-    pd.DataFrame: DataFrame with a single row containing the Sharpe ratio value in
-    a column named 'sharpe_ratio'.
+*Error importing module: No module named 'scipy'*
 
 ## Skew
-Name:
-    Rolling Skew
-
-Description:
-    Calculates the rolling skew of a price series over a specified window length.
-    Skew measures the asymmetry of the distribution of returns around its mean.
-    Positive skew indicates a distribution with a long right tail, while negative 
-    skew indicates a distribution with a long left tail.
-
-More info:
-    https://en.wikipedia.org/wiki/Skewness
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the column specified.
-    - length (int): The window size for the rolling calculation. Default is 30.
-    - min_periods (int, optional): Minimum number of observations required to calculate
-      a value. If None, defaults to the length parameter value.
-    - column (str): The column to calculate skew on. Default is 'close'.
-
-Call with:
-    df['skew_30'] = bta.skew(df)['skew_30']
-
-Returns:
-    pd.DataFrame: DataFrame with skew values in a column named 'skew_{length}'.
+*Error importing module: No module named 'scipy'*
 
 ## St Dev
-Name:
-    Standard Deviation
-
-Description:
-    Standard Deviation is a statistical measure of volatility or dispersion from a central value (mean).
-    In finance, it's used to measure market volatility and asset price dispersion.
-    Higher values indicate greater volatility and potentially higher risk.
-
-More info:
-    https://www.investopedia.com/terms/s/standarddeviation.asp
-
-Parameters:
-    - series (pd.Series): The data series to calculate the standard deviation for.
-    - period (int): The period over which to calculate the standard deviation.
-
-Call with:
-    df['std_dev'] = bta.st_dev(df['close'], period=14)
-
-Returns:
-    pd.Series: The rolling standard deviation of the series over the specified period.
+*Error importing module: No module named 'scipy'*
 
 ## Symmetric Triangle
-Name:
-    Symmetric Triangle
-
-Description:
-    Generates a symmetric triangular array of values, optionally weighted.
-    
-    The Symmetric Triangle is an array where values increase from both ends towards
-    the middle. For even values of n, the middle two values are equal. For odd values
-    of n, there is a single peak in the middle.
-    
-    Examples:
-    - n=4: [1, 2, 2, 1]
-    - n=5: [1, 2, 3, 2, 1]
-    
-    These triangular arrays are frequently used as weighting schemes in technical
-    indicators like weighted moving averages, where you want to place more emphasis
-    on the middle values and less on the ends.
-
-More info:
-    This is a common structure used in various technical analysis weighting schemes.
-
-Parameters:
-    - n (int): The size of the array to generate. Must be greater than or equal to 2. Default is 4.
-    - weighted (bool): If True, returns each value divided by the sum of all values,
-      making the weights sum to 1. Default is False.
-
-Call with:
-    # Get raw symmetric triangle
-    df_tri = bta.symmetric_triangle(n=4)
-    
-    # Get weighted values
-    df_weighted = bta.symmetric_triangle(n=4, weighted=True)
-
-Returns:
-    pd.DataFrame: DataFrame with a single column containing the requested values:
-    - 'symtri': Raw symmetric triangle values
-    - 'symtri_weights': Weighted values if weighted=True
+*Error importing module: No module named 'scipy'*
 
 ## Top Percent Change
-Name:
-    Top Percent Change
-
-Description:
-    This indicator calculates the percentage change between a price and a reference price.
-    When length=0, it measures the percent difference between the open and close of the current bar.
-    When length>0, it measures the percent difference between the maximum open price over the
-    lookback period and the current close price.
-    
-    The indicator is useful for identifying potential reversal points after significant price movements
-    and can be used in momentum and mean-reversion strategies.
-
-More info:
-    https://www.investopedia.com/terms/p/percentage-change.asp
-
-Parameters:
-    - df (pd.DataFrame): Input DataFrame containing OHLC data with required columns:
-        'open' and 'close'.
-    - length (int, default=0): Lookback period for calculating the range maximum. If 0,
-      calculates the percentage change between the current open and close prices.
-
-Call with:
-    df['percent_change'] = bta.top_percent_change(df, length=3)
-
-Returns:
-    pd.Series: A Series representing the percentage change for each row in the DataFrame.
+*Error importing module: No module named 'scipy'*
 
 ## Tos Standard Deviation All
-Name:
-    TD Ameritrade's Think or Swim Standard Deviation All
-
-Description:
-    A port of TD Ameritrade's Think or Swim Standard Deviation All indicator which
-    returns the standard deviation of data for the entire plot or for the interval
-    of the last bars defined by the length parameter.
-    
-    This indicator creates a linear regression line along with upper and lower bands
-    at specified standard deviation levels. It can be used to identify potential
-    price targets and areas of support and resistance.
-
-More info:
-    https://tlc.thinkorswim.com/center/reference/thinkScript/Functions/Statistical/StDevAll
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the column specified.
-    - length (int, optional): Number of bars from current bar to use for calculations.
-      If None, all available data is used. Default is None.
-    - stds (list, optional): List of Standard Deviations in ascending order from the
-      central Linear Regression line. Default is [1, 2, 3].
-    - ddof (int): Delta Degrees of Freedom. The divisor used in calculations is N - ddof,
-      where N represents the number of elements. Default is 1.
-    - column (str): The column to calculate on. Default is 'close'.
-
-Call with:
-    tos_sd = bta.tos_standard_deviation_all(df)
-    df['tos_lr'] = tos_sd['TOS_STDEVALL_LR']
-    df['tos_lower_1'] = tos_sd['TOS_STDEVALL_L_1']
-    df['tos_upper_1'] = tos_sd['TOS_STDEVALL_U_1']
-    # ...and so on for other bands
-
-Returns:
-    pd.DataFrame: DataFrame with columns for the central linear regression line and
-    pairs of lower and upper bands based on multiples of the standard deviation.
+*Error importing module: No module named 'scipy'*
 
 ## Variance
-Name:
-    Rolling Variance
-
-Description:
-    Calculates the rolling variance of a price series over a specified window length.
-    Variance measures how far a set of numbers is spread out from their average value.
-    It is the square of the standard deviation.
-
-More info:
-    https://en.wikipedia.org/wiki/Variance
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the column specified.
-    - length (int): The window size for the rolling calculation. Default is 30.
-    - ddof (int): Delta Degrees of Freedom. The divisor used in calculations is N - ddof, 
-      where N represents the number of elements. Default is 1.
-    - min_periods (int, optional): Minimum number of observations required to calculate
-      a value. If None, defaults to the length parameter value.
-    - column (str): The column to calculate variance on. Default is 'close'.
-
-Call with:
-    df['var_30'] = bta.variance(df)['var_30']
-
-Returns:
-    pd.DataFrame: DataFrame with variance values in a column named 'var_{length}'.
+*Error importing module: No module named 'scipy'*
 
 ## Year To Date
-Name:
-    Year-to-Date Filter
-
-Description:
-    Filters a DataFrame to include only data from the beginning of the current year
-    to the present. This is useful for analyzing performance or trends within the
-    current calendar year.
-
-More info:
-    Year-to-date (YTD) is a period starting from the beginning of the current calendar
-    year and continuing up to the present day. YTD information is useful for analyzing
-    business trends over time or comparing performance to previous years.
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame with a DatetimeIndex.
-
-Call with:
-    ytd_df = bta.year_to_date(df)
-
-Returns:
-    pd.DataFrame: DataFrame filtered to contain only data from the beginning of
-    the current year. If no data exists for the current year, returns the
-    original DataFrame.
+*Error importing module: No module named 'scipy'*
 
 ## Z Score
-Name:
-    Z-Score
-
-Description:
-    The Z-Score measures how many standard deviations a data point is from the mean 
-    of a dataset. In finance, it helps identify when prices or indicators are statistically 
-    abnormal relative to their historical values.
-    
-    A Z-Score of 0 means the value is exactly at the mean. Positive Z-Scores indicate
-    values above the mean, while negative Z-Scores indicate values below the mean.
-    
-    Typical interpretation:
-    - Z-Score > 2: Significantly higher than normal (potentially overbought)
-    - Z-Score < -2: Significantly lower than normal (potentially oversold)
-
-More info:
-    https://www.investopedia.com/terms/z/zscore.asp
-
-Parameters:
-    - series (pd.Series): Input series of values to analyze.
-    - window (int, default=500): Lookback window for calculating the mean and standard deviation.
-
-Call with:
-    df['zscore'] = bta.z_score(df['close'], window=200)
-
-Returns:
-    pd.Series: The Z-Score values for each point in the input series.
-
-Important Notes:
-    - This function requires a numeric Series as input and will raise an error 
-      if provided with non-numeric data such as datetime values.
-    
-    - Error "Cannot aggregate non-numeric type: datetime64[ns]" may occur if you 
-      inadvertently pass the date/timestamp column as input.
-    
-    - Always ensure you're passing a price series (like 'close', 'high', 'low') 
-      or another numeric indicator, not the date index.
-    
-    - If you want to apply Z-Score to a datetime-based feature (e.g., time of day patterns),
-      convert it to a numeric value first:
-      ```python
-      # Convert time of day to seconds from midnight
-      seconds_series = df.index.map(lambda x: x.hour * 3600 + x.minute * 60 + x.second)
-      df['time_zscore'] = bta.z_score(seconds_series)
-      ```
-    
-    - For testing purposes, make sure to use a numeric column from the test DataFrame.
+*Error importing module: No module named 'scipy'*
 
 # Volatility
 
 ## Aberration Bands
-Name:
-    Aberration Bands (ABER)
-
-Description:
-    Aberration Bands are a volatility-based indicator similar to Keltner Channels.
-    The indicator consists of three bands:
-    - Middle band: Simple Moving Average of the typical price (HLC3)
-    - Upper band: Middle band + Average True Range
-    - Lower band: Middle band - Average True Range
-    
-    These bands can be used to identify overbought and oversold conditions,
-    as well as potential breakout opportunities when price moves outside the bands.
-
-More info:
-    There are few definitive resources on this indicator, as it is less commonly used
-    than other volatility-based bands like Bollinger Bands or Keltner Channels.
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'close' columns.
-    - length (int): The period for the SMA calculation. Default is 5.
-    - atr_length (int): The period for the ATR calculation. Default is 15.
-
-Call with:
-    result = bta.aberration_bands(df)
-    df['aber_middle'] = result['aber_middle']
-    df['aber_upper'] = result['aber_upper']
-    df['aber_lower'] = result['aber_lower']
-    df['aber_atr'] = result['aber_atr']
-
-Returns:
-    pd.DataFrame: DataFrame with 'aber_middle', 'aber_upper', 'aber_lower', and 'aber_atr' columns.
+*Error importing module: No module named 'scipy'*
 
 ## Acceleration Bands
-Name:
-    Acceleration Bands (ACCBANDS)
-
-Description:
-    Acceleration Bands, created by Price Headley, are volatility-based envelopes
-    plotted above and below a simple moving average. The bands are based on a multiple
-    of the high-low range, adjusted by the sum of the high and low.
-    
-    The bands widen and narrow based on market volatility, providing potential
-    overbought and oversold levels. They can be used to identify potential
-    price targets for trending markets or potential reversal points when the price
-    reaches the upper or lower bands.
-
-More info:
-    https://www.tradingtechnologies.com/help/x-study/technical-indicator-definitions/acceleration-bands-abands/
-    https://library.tradingtechnologies.com/trade/chrt-ti-acceleration-bands.html
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'close' columns.
-    - length (int): The period for the moving average calculation. Default is 20.
-    - c (float): The multiplier for the high-low ratio. Default is 4.0.
-    - ma_type (str): The type of moving average to use ('SMA' or 'EMA'). Default is 'SMA'.
-
-Call with:
-    result = bta.acceleration_bands(df)
-    df['accbands_lower'] = result['accbands_lower']
-    df['accbands_middle'] = result['accbands_middle']
-    df['accbands_upper'] = result['accbands_upper']
-
-Returns:
-    pd.DataFrame: DataFrame with 'accbands_lower', 'accbands_middle', and 'accbands_upper' columns.
+*Error importing module: No module named 'scipy'*
 
 ## Average True Range
-Name:
-    Average True Range (ATR)
-
-Description:
-    The Average True Range (ATR), smoothed by the Moving Average, is a measure of volatility. 
-    It was introduced by Welles Wilder in his book 'New Concepts in Technical Trading Systems'.
-    ATR is a volatility indicator that measures market volatility by decomposing the entire
-    range of an asset price for a specific period.
-
-More info:
-    https://www.investopedia.com/terms/a/atr.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain columns 'high', 'low', and 'close'.
-    - period (int): Period for the ATR calculation. Default is 14.
-
-Call with:
-    df['atr'] = bta.average_true_range(df, 14)['atr']
-
-Returns:
-    pd.DataFrame: DataFrame with 'atr' column.
+*Error importing module: No module named 'scipy'*
 
 ## Bbw Expansion
-Name:
-    Bollinger Band Width (BBW) Expansion Detector
-
-Description:
-    Detects if the Bollinger Band Width (BBW) of the last observation exceeds a 
-    rolling maximum by a specified multiplier. This can signal a potential increase 
-    in market volatility. The Bollinger Band Width is calculated as 
-    (Upper Band - Lower Band) / Middle Band, and is a measure of volatility.
-    This indicator requires the bta.bollinger_bands function to be used in the dataframe too.
-
-More info:
-    https://tradingview.com/support/solutions/43000501971-bollinger-bands-width/
-
-Parameters:
-    - df (pd.DataFrame): Input DataFrame containing Bollinger Band columns.
-    - upper_band (str): Column name for the upper Bollinger Band. Default is 'bb_upper'.
-    - lower_band (str): Column name for the lower Bollinger Band. Default is 'bb_lower'.
-    - middle_band (str): Column name for the middle Bollinger Band. Default is 'bb_middle'.
-    - mult (float): Multiplier to compare the last BBW value against the rolling maximum. Default is 1.05.
-    - rolling_window (int): Rolling window size for calculating the maximum BBW. Default is 20.
-
-Call with:
-    df['bbw_expansion'] = bta.bbw_expansion(df, upper_band='bb_upper', lower_band='bb_lower', 
-                                           middle_band='bb_middle', mult=1.05, rolling_window=20)['bbw_expansion']
-
-Returns:
-    pd.DataFrame: DataFrame with additional columns:
-        - 'bb_width': Bollinger Band Width values.
-        - 'bbw_expansion': Indicator for expansion (1 if condition met, 0 otherwise).
-
-Important Notes:
-    - This function REQUIRES that your DataFrame already contains Bollinger Bands columns:
-      * Upper band column (default name: 'bb_upper')
-      * Lower band column (default name: 'bb_lower')
-      * Middle band column (default name: 'bb_middle')
-    
-    - These columns must be generated first using the bollinger_bands function:
-      ```
-      bb_df = bta.bollinger_bands(df)
-      df['bb_upper'] = bb_df['upper']
-      df['bb_middle'] = bb_df['middle']
-      df['bb_lower'] = bb_df['lower']
-      ```
-    
-    - The function will fail with a KeyError if the required Bollinger Band columns are missing.
-    
-    - For testing purposes, you might need to create a wrapper that calculates
-      Bollinger Bands before calling this function.
+*Error importing module: No module named 'scipy'*
 
 ## Bollinger Bands
-Name:
-    Bollinger Bands (BBANDS)
-
-Description:
-    Bollinger Bands are a type of statistical chart characterizing the prices and 
-    volatility over time of a financial instrument or commodity. Bollinger Bands 
-    consist of three lines: a middle band (SMA), an upper band, and a lower band.
-    The upper and lower bands are calculated by adding and subtracting a standard
-    deviation multiple from the middle band.
-
-More info:
-    https://www.investopedia.com/terms/b/bollingerbands.asp
-
-Parameters:
-    - df (pandas.DataFrame): DataFrame containing the data.
-    - column (str): The column name on which the BBANDS is to be applied. Default is 'close'.
-    - period (int): Look-back period to compute the moving average. Default is 20.
-    - std_dev (float): Number of standard deviations to compute the upper and lower bands. Default is 2.0.
-    - ddof (int): Degrees of Freedom to use in standard deviation calculation. Default is 0.
-
-Call with:
-    bb_result = bta.bollinger_bands(df, 'close', 20, 2, 0)
-    df['bb_upper'] = bb_result['bb_upper']
-    df['bb_middle'] = bb_result['bb_middle']
-    df['bb_lower'] = bb_result['bb_lower']
-
-Returns:
-    pd.DataFrame: DataFrame with 'bb_upper', 'bb_middle', 'bb_lower' columns.
+*Error importing module: No module named 'scipy'*
 
 ## Donchian Channel
-Name:
-    Donchian Channel
-
-Description:
-    The Donchian Channel is a volatility indicator composed of three lines: 
-    an upper band, a middle band, and a lower band. The upper band represents 
-    the highest price of a security over a specified period, while the lower band 
-    represents the lowest price. The middle band is simply the average of the 
-    upper and lower bands.
-    
-    Donchian Channels are used to identify potential breakouts, determine market 
-    volatility, and identify trend strength. They are particularly popular in trend-following 
-    systems like the Turtle Trading system.
-
-More info:
-    https://www.investopedia.com/terms/d/donchianchannels.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain columns 'high' and 'low'.
-    - period (int): The lookback period to calculate the highest high and lowest low. Default is 20.
-
-Call with:
-    dc_result = bta.donchian_channel(df, 20)
-    df['dc_upper'] = dc_result['dc_upper']
-    df['dc_middle'] = dc_result['dc_middle']
-    df['dc_lower'] = dc_result['dc_lower']
-    df['dc_width'] = dc_result['dc_width']
-
-Returns:
-    pd.DataFrame: DataFrame with 'dc_upper', 'dc_middle', 'dc_lower', and 'dc_width' columns.
+*Error importing module: No module named 'scipy'*
 
 ## Hurst Winter Channel
-Name:
-    Hurst-Winter Channel (HWC)
-
-Description:
-    The Hurst-Winter Channel (HWC) is a volatility-based channel indicator based on 
-    the Holt-Winters triple exponential smoothing method. It creates a middle line using 
-    the Holt-Winters Moving Average (HWMA) and upper/lower bands based on price deviation.
-    
-    The channel adapts to price movements using four smoothing parameters (na, nb, nc, nd)
-    and can be adjusted with a scalar multiplier. It can also provide channel width and
-    relative price position information for additional analysis.
-    
-    The Holt-Winters method is particularly good at capturing trends, seasonality, and
-    adapting to changes in volatility, making this channel useful for identifying potential
-    support/resistance levels and overbought/oversold conditions.
-
-More info:
-    https://www.mql5.com/en/code/20857
-    https://en.wikipedia.org/wiki/Exponential_smoothing#Triple_exponential_smoothing
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain the specified column.
-    - na (float): Parameter of the equation that describes a smoothed series (from 0 to 1). Default is 0.2.
-    - nb (float): Parameter of the equation to assess the trend (from 0 to 1). Default is 0.1.
-    - nc (float): Parameter of the equation to assess seasonality (from 0 to 1). Default is 0.1.
-    - nd (float): Parameter of the channel equation (from 0 to 1). Default is 0.1.
-    - scalar (float): Multiplier for the width of the channel calculated. Default is 1.0.
-    - channel_eval (bool): Whether to return width and percentage price position metrics. Default is False.
-    - column (str): The column name to use for calculations. Default is 'close'.
-
-Call with:
-    result = bta.hurst_winter_channel(df)
-    df['hwc_middle'] = result['hwc_middle']
-    df['hwc_upper'] = result['hwc_upper']
-    df['hwc_lower'] = result['hwc_lower']
-    
-    # If channel_eval is True:
-    df['hwc_width'] = result['hwc_width']
-    df['hwc_pct_width'] = result['hwc_pct_width']
-
-Returns:
-    pd.DataFrame: DataFrame with 'hwc_middle', 'hwc_upper', 'hwc_lower' columns,
-                  and optionally 'hwc_width' and 'hwc_pct_width' if channel_eval is True.
+*Error importing module: No module named 'scipy'*
 
 ## Keltner Channel
-Name:
-    Keltner Channel
-
-Description:
-    The Keltner Channel is a volatility-based indicator that consists of three lines: 
-    a middle line (typically an EMA), an upper band, and a lower band. The upper and 
-    lower bands are calculated by adding and subtracting a multiple of the Average 
-    True Range (ATR) from the middle line. 
-    
-    Unlike Bollinger Bands which use standard deviation, Keltner Channels use ATR, 
-    making them more responsive to volatility changes based on trading ranges 
-    rather than closing prices.
-
-More info:
-    https://www.investopedia.com/terms/k/keltnerchannel.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain columns 'high', 'low', and 'close'.
-    - column (str): The column name to use for the middle line calculation. Default is 'close'.
-    - ema_length (int): Period for the EMA calculation for the middle line. Default is 20.
-    - atr_length (int): Period for the ATR calculation. Default is 10.
-    - atr_mult (float): Multiplier for the ATR to determine the channel width. Default is 2.0.
-
-Call with:
-    kc_result = bta.keltner_channel(df, 'close', 20, 10, 2.0)
-    df['kc_middle'] = kc_result['kc_middle']
-    df['kc_upper'] = kc_result['kc_upper']
-    df['kc_lower'] = kc_result['kc_lower']
-    df['kc_width'] = kc_result['kc_width']
-
-Returns:
-    pd.DataFrame: DataFrame with 'kc_middle', 'kc_upper', 'kc_lower', and 'kc_width' columns.
+*Error importing module: No module named 'scipy'*
 
 ## Mass Index
-Name:
-    Mass Index (MASSI)
-
-Description:
-    The Mass Index is a non-directional volatility indicator that utilizes the
-    High-Low Range to identify trend reversals based on range expansions.
-    
-    Unlike many other technical indicators, the Mass Index doesn't follow price
-    direction but instead identifies reversals by tracking changes in the range 
-    between high and low prices. A Mass Index above 27 followed by a drop below 
-    26.5 is often considered a "reversal bulge" signaling a potential trend change.
-    
-    The indicator is based on the idea that reversals are often preceded by 
-    widening ranges as volatility increases, followed by narrowing ranges as 
-    the market prepares to reverse.
-
-More info:
-    https://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:mass_index
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high' and 'low' columns.
-    - fast_length (int): The period for the first and second EMA calculations. Default is 9.
-    - slow_length (int): The period for summing the EMA ratio. Default is 25.
-
-Call with:
-    result = bta.mass_index(df)
-    df['mass_index'] = result['mass_index']
-
-Returns:
-    pd.DataFrame: DataFrame with 'mass_index' column.
+*Error importing module: No module named 'scipy'*
 
 ## Normalized Average True Range
-Name:
-    Normalized Average True Range (NATR)
-
-Description:
-    The Normalized Average True Range (NATR) is a modification of the Average True Range
-    (ATR) indicator that attempts to normalize the average true range by dividing it by 
-    the closing price and multiplying by a scalar (usually 100).
-    
-    Unlike the ATR, which is an absolute value that can vary significantly across different
-    securities based on their price, the NATR expresses volatility as a percentage of the
-    closing price. This makes it easier to compare volatility across different securities
-    regardless of their price levels.
-    
-    The NATR is useful for:
-    - Comparing volatility across different securities
-    - Setting position sizes based on volatility
-    - Identifying periods of high or low volatility
-
-More info:
-    https://www.tradingtechnologies.com/help/x-study/technical-indicator-definitions/normalized-average-true-range-natr/
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'close' columns.
-    - length (int): The period for calculating ATR. Default is 14.
-    - scalar (float): Multiplier to scale the result (typically 100 for percentage). Default is 100.
-    - column (str): The column name to use for normalization. Default is 'close'.
-
-Call with:
-    result = bta.normalized_average_true_range(df)
-    df['natr'] = result['natr']
-
-Returns:
-    pd.DataFrame: DataFrame with 'natr' column.
+*Error importing module: No module named 'scipy'*
 
 ## Percentage Distance
-Name:
-    Price Distance (PDIST)
-
-Description:
-    The Price Distance indicator measures the "distance" covered by price movements.
-    It considers not only the high-low range, but also the relationship between opening
-    and closing prices, both current and from a previous period (drift).
-    
-    This indicator is useful for analyzing volatility and understanding the magnitude
-    of price movements within a given period. High PDIST values indicate more significant
-    price movement or volatility, while low values indicate more stable or range-bound
-    price action.
-    
-    The calculation weighs the high-low range more heavily (multiplier of 2) to emphasize
-    the overall range of the period.
-
-More info:
-    https://www.prorealcode.com/prorealtime-indicators/pricedistance/
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'open', 'high', 'low', and 'close' columns.
-    - drift (int): The difference period for comparing with previous closes. Default is 1.
-
-Call with:
-    result = bta.percentage_distance(df)
-    df['pdist'] = result['pdist']
-
-Returns:
-    pd.DataFrame: DataFrame with 'pdist' column.
+*Error importing module: No module named 'scipy'*
 
 ## Relative Volatility Index
-Name:
-    Relative Volatility Index (RVI)
-
-Description:
-    The Relative Volatility Index (RVI) was created by Donald Dorsey in 1993 and 
-    revised in 1995. It's a volatility indicator that works similarly to the 
-    Relative Strength Index (RSI) but uses standard deviation instead of price changes.
-    
-    Instead of adding up price changes like RSI based on price direction, the RVI 
-    adds up standard deviations based on price direction. This makes it more of a 
-    measure of the "quality" of volatility rather than just the amount of volatility.
-    
-    The indicator has three calculation modes:
-    - Standard: Uses only close prices
-    - Refined: Uses the average of high and low calculations
-    - Thirds: Uses the average of high, low, and close calculations
-    
-    The RVI oscillates between 0 and 100, with readings above 50 suggesting that 
-    upward volatility is stronger, while readings below 50 suggest that downward 
-    volatility is stronger.
-
-More info:
-    https://www.tradingview.com/wiki/Relative_Volatility_Index_(RVI)
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'close' column, 
-      and 'high' and 'low' columns if using refined or thirds modes.
-    - length (int): The period for calculations. Default is 14.
-    - scalar (float): A multiplier for scaling the result. Default is 100.
-    - refined (bool): Whether to use the 'refined' calculation (average of high and low). Default is False.
-    - thirds (bool): Whether to use the 'thirds' calculation (average of high, low, and close). Default is False.
-    - column (str): The column to use for calculations if not using refined or thirds modes. Default is 'close'.
-
-Call with:
-    # Standard mode
-    result = bta.relative_volatility_index(df)
-    df['rvi'] = result['rvi']
-    
-    # Refined mode
-    result = bta.relative_volatility_index(df, refined=True)
-    df['rvi_r'] = result['rvi_r']
-    
-    # Thirds mode
-    result = bta.relative_volatility_index(df, thirds=True)
-    df['rvi_t'] = result['rvi_t']
-
-Returns:
-    pd.DataFrame: DataFrame with 'rvi', 'rvi_r', or 'rvi_t' column depending on the mode.
+*Error importing module: No module named 'scipy'*
 
 ## Thermometer
-Name:
-    Elders Thermometer (THERMO)
-
-Description:
-    Elder's Thermometer is a volatility indicator created by Dr. Alexander Elder. 
-    It measures price volatility by comparing the current price range to historical 
-    ranges.
-    
-    The indicator calculates the absolute change in high and low prices between 
-    consecutive periods and selects the larger of the two. This value is then 
-    compared to its moving average to determine if the market is experiencing 
-    normal volatility, high volatility (potentially overbought), or low volatility 
-    (potentially oversold).
-    
-    The indicator generates two signals:
-    - Long signal: When the thermometer reading is less than a fraction (long_factor) 
-      of its moving average, indicating low volatility.
-    - Short signal: When the thermometer reading is greater than a multiple (short_factor) 
-      of its moving average, indicating high volatility.
-
-More info:
-    https://www.motivewave.com/studies/elders_thermometer.htm
-    https://www.tradingview.com/script/HqvTuEMW-Elder-s-Market-Thermometer-LazyBear/
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high' and 'low' columns.
-    - length (int): The period for the EMA calculation. Default is 20.
-    - long_factor (float): The buy factor - thermometer < (thermometer_ma * long_factor). Default is 2.0.
-    - short_factor (float): The sell factor - thermometer > (thermometer_ma * short_factor). Default is 0.5.
-    - drift (int): The difference period for price changes. Default is 1.
-    - as_int (bool): Whether to convert signal outputs to integers (0, 1). Default is True.
-
-Call with:
-    result = bta.thermometer(df)
-    df['thermo'] = result['thermo']
-    df['thermo_ma'] = result['thermo_ma']
-    df['thermo_long'] = result['thermo_long']
-    df['thermo_short'] = result['thermo_short']
-
-Returns:
-    pd.DataFrame: DataFrame with 'thermo', 'thermo_ma', 'thermo_long', 'thermo_short' columns.
+*Error importing module: No module named 'scipy'*
 
 ## True Range
-Name:
-    True Range (TR)
-
-Description:
-    The True Range indicator measures market volatility. True Range is defined as the greatest of the following:
-    - The current high minus the current low
-    - The absolute value of the current high minus the previous close
-    - The absolute value of the current low minus the previous close
-    
-    This measure accounts for gaps in price movement and provides a more comprehensive 
-    measure of price volatility than simply looking at the high-low range.
-
-More info:
-    https://www.investopedia.com/terms/a/atr.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'close' columns.
-
-Call with:
-    df['true_range'] = bta.true_range(df)['true_range']
-
-Returns:
-    pd.DataFrame: DataFrame with 'true_range' column.
+*Error importing module: No module named 'scipy'*
 
 ## Ulcer Index
-Name:
-    Ulcer Index
-
-Description:
-    The Ulcer Index is a volatility indicator that measures downside risk. Unlike 
-    standard deviation, which measures all volatility (both up and down), the 
-    Ulcer Index only considers drawdowns from recent highs. This makes it a 
-    better measure of investor pain because it focuses on losses.
-    
-    The indicator was created by Peter Martin and Byron McCann in 1987 and named 
-    for the stomach ulcers that investors might get from worrying about downside 
-    volatility in their investments.
-
-More info:
-    https://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:ulcer_index
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame containing price data.
-    - column (str): The column name to use for the calculation. Default is 'close'.
-    - period (int): The lookback period for the calculation. Default is 14.
-
-Call with:
-    df['ui'] = bta.ulcer_index(df, 'close', 14)['ulcer_index']
-
-Returns:
-    pd.DataFrame: DataFrame with 'ulcer_index' column.
+*Error importing module: No module named 'scipy'*
 
 # Volume
 
 ## Accumulation Distribution Index
-Name:
-    Accumulation/Distribution Index (ADI)
-
-Description:
-    The ADI acts as a leading indicator of price movements. It is calculated using the
-    high, low, close, and volume data. The indicator evaluates the relationship between 
-    price and volume, aiming to identify divergences that may precede price movements.
-
-More info:
-    https://www.investopedia.com/terms/a/accumulationdistribution.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', 'close', and 'volume' columns.
-    - fillna (bool): If True, fill NaN values.
-
-Call with:
-    df['adi'] = bta.accumulation_distribution_index(df, fillna=True)['adi']
-
-Returns:
-    pd.DataFrame: DataFrame with 'adi' column.
+*Error importing module: No module named 'scipy'*
 
 ## Accumulation Distribution Oscillator
-Name:
-    Accumulation/Distribution Oscillator (ADOSC)
-
-Description:
-    The Accumulation/Distribution Oscillator, also known as the Chaikin Oscillator, 
-    measures the momentum of the Accumulation/Distribution Index (ADI) using the 
-    difference between fast and slow exponential moving averages of the ADI.
-    
-    The indicator helps identify when the Accumulation/Distribution Index is 
-    changing direction, which can signal potential price reversals. It's particularly 
-    useful for spotting divergences between price and volume flow.
-
-More info:
-    https://www.investopedia.com/articles/active-trading/031914/understanding-chaikin-oscillator.asp
-    https://school.stockcharts.com/doku.php?id=technical_indicators:chaikin_oscillator
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', 'close', and 'volume' columns.
-    - fast_length (int): The period for the fast EMA calculation. Default is 3.
-    - slow_length (int): The period for the slow EMA calculation. Default is 10.
-    - fillna (bool): If True, fill NaN values with 0. Default is False.
-
-Call with:
-    result = bta.accumulation_distribution_oscillator(df)
-    df['adosc'] = result['adosc']
-
-Returns:
-    pd.DataFrame: DataFrame with 'adosc' column.
+*Error importing module: No module named 'scipy'*
 
 ## Accumulation On Balance Volume
-Name:
-    Accumulation On Balance Volume (AOBV)
-
-Description:
-    The Accumulation On Balance Volume (AOBV) is an enhanced version of the classic
-    On Balance Volume (OBV) indicator. It uses multiple moving averages of the OBV 
-    to generate trading signals based on the relationship between these averages.
-    
-    This indicator also incorporates min/max values over specified lookback periods,
-    as well as 'run' signals that indicate when the fast MA has been consistently above
-    (long run) or below (short run) the slow MA for a specified number of periods.
-
-More info:
-    https://www.investopedia.com/terms/o/onbalancevolume.asp
-    https://school.stockcharts.com/doku.php?id=technical_indicators:on_balance_volume_obv
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
-    - fast_length (int): The fast period for the MA calculation. Default is 4.
-    - slow_length (int): The slow period for the MA calculation. Default is 12.
-    - max_lookback (int): The period for the rolling maximum calculation. Default is 2.
-    - min_lookback (int): The period for the rolling minimum calculation. Default is 2.
-    - ma_type (str): The type of moving average to use ('EMA' or 'SMA'). Default is 'EMA'.
-    - run_length (int): The number of consecutive periods the fast MA must be above/below
-                        the slow MA to trigger a long/short run signal. Default is 2.
-
-Call with:
-    result = bta.accumulation_on_balance_volume(df)
-    df['obv'] = result['obv']
-    df['obv_fast'] = result['obv_fast']
-    df['obv_slow'] = result['obv_slow']
-    df['obv_long_run'] = result['obv_long_run']
-    df['obv_short_run'] = result['obv_short_run']
-
-Returns:
-    pd.DataFrame: DataFrame with columns 'obv', 'obv_min', 'obv_max', 
-                 'obv_fast', 'obv_slow', 'obv_long_run', and 'obv_short_run'.
+*Error importing module: No module named 'scipy'*
 
 ## Chaikin Money Flow
-Name:
-    Chaikin Money Flow (CMF)
-
-Description:
-    The Chaikin Money Flow measures the amount of Money Flow Volume over a specific period.
-    It combines price and volume to form an indicator used to measure buying and selling 
-    pressure. A positive value indicates buying pressure, while a negative value suggests 
-    selling pressure.
-
-More info:
-    https://www.investopedia.com/terms/c/chaikinmoneyflow.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', 'close', and 'volume' columns.
-    - window (int): Number of periods for the calculation. Default is 20.
-    - fillna (bool): If True, fill NaN values with 0.
-
-Call with:
-    df['cmf'] = bta.chaikin_money_flow(df, window=20, fillna=True)['cmf']
-
-Returns:
-    pd.DataFrame: DataFrame with 'cmf' column.
+*Error importing module: No module named 'scipy'*
 
 ## Ease Of Movement
-Name:
-    Ease of Movement (EoM, EMV)
-
-Description:
-    Ease of Movement (EoM, EMV) and Signal Ease of Movement (SMA of EoM)
-
-    Relates an asset's price change to its volume and is useful for assessing trend strength.
-    The SMA of the EoM serves as a signal line for the indicator. Positive values indicate 
-    the price is increasing with relative ease, while negative values suggest price is 
-    decreasing with relative ease.
-
-More info:
-    https://www.investopedia.com/terms/e/easeofmovement.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'volume' columns.
-    - eom_length (int): Period for the EoM calculation. Default is 14.
-    - seom_length (int): Period for the SMA of EoM calculation. Default is 14.
-    - fillna (bool): If True, fill NaN values.
-
-Call with:
-    eom_df = bta.ease_of_movement(df, eom_length=14, seom_length=14, fillna=True)
-    df['eom'] = eom_df['eom']
-    df['seom'] = eom_df['seom']
-
-Returns:
-    pd.DataFrame: DataFrame with 'eom' and 'seom' columns.
+*Error importing module: No module named 'scipy'*
 
 ## Force Index
-Name:
-    Force Index (FI)
-
-Description:
-    The Force Index (FI) illustrates how strong the actual buying or selling pressure is.
-    It combines price movement and volume to quantify the force behind a price move.
-    A rising FI indicates increasing buying pressure, while a falling FI suggests 
-    increasing selling pressure.
-
-More info:
-    https://www.investopedia.com/terms/f/force-index.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
-    - window (int): Period for calculating the exponential moving average of the Force Index. Default is 13.
-    - fillna (bool): If True, fill NaN values.
-
-Call with:
-    df['fi'] = bta.force_index(df, window=13, fillna=True)['fi']
-
-Returns:
-    pd.DataFrame: DataFrame with 'fi' column.
+*Error importing module: No module named 'scipy'*
 
 ## Klinger Volume Oscillator
-Name:
-    Klinger Volume Oscillator (KVO)
-
-Description:
-    The Klinger Volume Oscillator (KVO) was developed by Stephen J. Klinger. It is designed 
-    to predict price reversals in a market by comparing volume to price. The KVO attempts to 
-    determine long-term trends of money flow while remaining sensitive enough to detect 
-    short-term fluctuations.
-    
-    The oscillator does this by using volume to emphasize price movements and divergences.
-    It uses two EMAs of a volume force, which is calculated using volume and price changes,
-    then finds the difference between these EMAs.
-
-More info:
-    https://www.investopedia.com/terms/k/klingeroscillator.asp
-    https://www.daytrading.com/klinger-volume-oscillator
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', 'close', and 'volume' columns.
-    - fast_length (int): The fast period for the EMA calculation. Default is 34.
-    - slow_length (int): The slow period for the EMA calculation. Default is 55.
-    - signal_length (int): The period for the signal line EMA calculation. Default is 13.
-
-Call with:
-    result = bta.klinger_volume_oscillator(df)
-    df['kvo'] = result['kvo']
-    df['kvo_signal'] = result['kvo_signal']
-    df['kvo_hist'] = result['kvo_hist']
-
-Returns:
-    pd.DataFrame: DataFrame with 'kvo', 'kvo_signal', and 'kvo_hist' columns.
+*Error importing module: No module named 'scipy'*
 
 ## Money Flow Index
-Name:
-    Money Flow Index (MFI)
-
-Description:
-    The Money Flow Index (MFI) uses both price and volume to measure buying and selling pressure.
-    It is often referred to as volume-weighted RSI. MFI is a momentum indicator that analyzes
-    the flow of money into and out of an asset. Values above 80 are considered overbought,
-    while values below 20 are considered oversold.
-
-More info:
-    https://www.investopedia.com/terms/m/mfi.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', 'close', and 'volume' columns.
-    - window (int): Period for calculating MFI. Default is 14.
-    - fillna (bool): If True, fill NaN values.
-
-Call with:
-    df['mfi'] = bta.money_flow_index(df, window=14, fillna=True)['mfi']
-
-Returns:
-    pd.DataFrame: DataFrame with 'mfi' column.
+*Error importing module: No module named 'scipy'*
 
 ## Negative Volume Index
-Name:
-    Negative Volume Index (NVI)
-
-Description:
-    The Negative Volume Index (NVI) measures price changes on days when trading volume 
-    decreases compared to the previous day. Informed traders are thought to be more 
-    active on low volume days, hence the NVI accumulates price rate of change only 
-    on such days. The indicator can help identify trends led by smart money.
-
-More info:
-    https://www.investopedia.com/terms/n/nvi.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
-    - signal_type (str): Type of signal smoothing ('EMA' or 'SMA'). Default is 'EMA'.
-    - signal_length (int): Length for the EMA/SMA calculation. Default is 255.
-    - fillna (bool): If True, fill NaN values.
-
-Call with:
-    nvi_df = bta.negative_volume_index(df, signal_type='EMA', signal_length=255, fillna=True)
-    df['nvi'] = nvi_df['nvi']
-    df['nvi_signal'] = nvi_df['nvi_signal']
-
-Returns:
-    pd.DataFrame: DataFrame with 'nvi' and 'nvi_signal' columns.
+*Error importing module: No module named 'scipy'*
 
 ## On Balance Volume
-Name:
-    On Balance Volume (OBV)
-
-Description:
-    The On Balance Volume (OBV) indicator measures buying and selling pressure by accumulating 
-    volume based on price movements. When the close price is higher than the previous close, 
-    the volume is added to the OBV; when lower, it's subtracted. Rising OBV indicates buying 
-    pressure, and falling OBV suggests selling pressure. This implementation includes an 
-    optional signal line for additional trend confirmation.
-
-More info:
-    https://www.investopedia.com/terms/o/onbalancevolume.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
-    - signal_type (str): Type of signal smoothing ('EMA' or 'SMA'). Default is 'SMA'.
-    - signal_length (int): Length for the signal smoothing. Default is 21.
-    - show_signal (bool): If True, calculate and return the signal line. Default is True.
-    - fillna (bool): If True, fill nan values with 0. Default is False.
-
-Call with:
-    obv_df = bta.on_balance_volume(df, signal_type='SMA', signal_length=21, show_signal=True, fillna=True)
-    df['obv'] = obv_df['obv']
-    df['signal'] = obv_df['signal']
-
-Returns:
-    pd.DataFrame: DataFrame with 'obv' and 'signal' columns.
+*Error importing module: No module named 'scipy'*
 
 ## On Balance Volume Oscillator
-Name:
-    On Balance Volume (OBV) Oscillator
-
-Description:
-    The On Balance Volume (OBV) Oscillator measures the difference between the OBV and its 
-    Exponential Moving Average (EMA). It helps in identifying trends and confirming price 
-    movements. An increasing OBV oscillator indicates buying pressure, while a decreasing 
-    one indicates selling pressure. Crossovers of the zero line can be used as potential 
-    trading signals.
-
-More info:
-    https://www.investopedia.com/terms/o/onbalancevolume.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
-    - length (int): Length for the EMA calculation. Default is 20.
-    - fillna (bool): If True, fill nan values with 0.
-
-Call with:
-    df['obv_oscillator'] = bta.on_balance_volume_oscillator(df, length=20, fillna=True)['obv_oscillator']
-
-Returns:
-    pd.DataFrame: DataFrame with 'obv_oscillator' column.
+*Error importing module: No module named 'scipy'*
 
 ## Positive Volume Index
-Name:
-    Positive Volume Index (PVI)
-
-Description:
-    The Positive Volume Index (PVI) measures price changes on days when the trading volume 
-    increases compared to the previous day. It accumulates the price rate of change on those 
-    days, helping to identify trends driven by high-volume activity. The PVI is often used 
-    in conjunction with the Negative Volume Index (NVI) to understand different aspects of 
-    market behavior.
-
-More info:
-    https://school.stockcharts.com/doku.php?id=technical_indicators:positive_volume_index
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
-    - signal_type (str): Type of signal smoothing ('EMA' or 'SMA'). Default is 'EMA'.
-    - signal_length (int): Length for the EMA/SMA calculation. Default is 255.
-    - fillna (bool): If True, fill nan values.
-
-Call with:
-    pvi_df = bta.positive_volume_index(df, signal_type='EMA', signal_length=255, fillna=True)
-    df['pvi'] = pvi_df['pvi']
-    df['pvi_signal'] = pvi_df['pvi_signal']
-
-Returns:
-    pd.DataFrame: DataFrame with 'pvi' and 'pvi_signal' columns.
+*Error importing module: No module named 'scipy'*
 
 ## Price Volume
-Name:
-    Price-Volume (PVOL)
-
-Description:
-    The Price-Volume indicator is a simple measure that calculates the product of price 
-    and volume. This gives a measure of the monetary value of transactions at each time period.
-    
-    When the 'signed' parameter is set to True, the indicator also takes into account 
-    the direction of price movement, multiplying by +1 for price increases and -1 for 
-    price decreases, which can help identify buying and selling pressure.
-
-More info:
-    https://www.investopedia.com/articles/technical/02/082702.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain specified price column and 'volume' column.
-    - signed (bool): Whether to apply the sign of price changes to the result. Default is False.
-    - column (str): The price column to use for calculations. Default is 'close'.
-
-Call with:
-    result = bta.price_volume(df)
-    df['pvol'] = result['pvol']
-
-Returns:
-    pd.DataFrame: DataFrame with 'pvol' column.
+*Error importing module: No module named 'scipy'*
 
 ## Price Volume Rank
-Name:
-    Price Volume Rank (PVR)
-
-Description:
-    The Price Volume Rank indicator was developed by Anthony J. Macek to classify price and 
-    volume behavior into four distinct categories. It provides a simple numerical classification 
-    that can help identify potential market turning points and trend continuations.
-    
-    The indicator assigns values from 1 to 4 based on the combination of price change and 
-    volume change directions:
-    
-    1: Price up, Volume up (strong bullish)
-    2: Price up, Volume down (weak bullish)
-    3: Price down, Volume up (strong bearish)
-    4: Price down, Volume down (weak bearish)
-    
-    The basic interpretation is to consider buying when the PVR is below 2.5 and 
-    selling when it is above 2.5.
-
-More info:
-    https://www.fmlabs.com/reference/default.htm?url=PVrank.htm
-    Technical Analysis of Stocks & Commodities Magazine, June 1994
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
-
-Call with:
-    result = bta.price_volume_rank(df)
-    df['pvr'] = result['pvr']
-
-Returns:
-    pd.DataFrame: DataFrame with 'pvr' column.
+*Error importing module: No module named 'scipy'*
 
 ## Price Volume Trend
-Name:
-    Price Volume Trend (PVT)
-
-Description:
-    Based on cumulative volume that adds or subtracts a multiple of the percentage change in 
-    share price trend. The PVT is similar to On Balance Volume (OBV) but instead of adding 
-    or subtracting the entire volume, it adds or subtracts a portion of the volume based on 
-    the percentage price change. This creates a more refined volume-based indicator that 
-    responds proportionally to price movements.
-
-More info:
-    https://www.investopedia.com/terms/p/pvtrend.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
-    - fillna (bool): If True, fill nan values.
-    - smoothing_factor (int, optional): Will smooth PVT implementation with SMA.
-    - signal_type (str): Type of signal smoothing ('SMA' or 'EMA').
-    - signal_length (int): Length of the signal smoothing.
-    - dropnans (bool): Drop NaN values after indicator calculated.
-
-Call with:
-    pvt_df = bta.price_volume_trend(df, fillna=True, signal_type='EMA', signal_length=21, dropnans=True)
-    df['pvt'] = pvt_df['price_volume_trend']
-    df['pvt_signal'] = pvt_df['signal']
-
-Returns:
-    pd.DataFrame: DataFrame with 'price_volume_trend' and 'signal' columns.
+*Error importing module: No module named 'scipy'*
 
 ## Relative Volume
-Name:
-    Relative Volume (RVOL)
-
-Description:
-    Computes the Relative Volume (RVOL) indicator, which compares the current volume
-    to a moving average of volume over a specified window. This helps identify periods
-    of unusually high or low trading activity. Values greater than 1 indicate above-average 
-    volume, while values less than 1 indicate below-average volume. Traders often look for 
-    high relative volume to confirm breakouts or significant price movements.
-
-More info:
-    https://www.investopedia.com/terms/r/relative-volume.asp
-
-Parameters:
-    - df (pd.DataFrame): Input DataFrame containing a volume column.
-    - volume_col (str): Name of the column containing volume data. Default is 'volume'.
-    - window (int): Lookback window for calculating the Simple Moving Average (SMA) of volume. Default is 24.
-
-Call with:
-    df['rvol'] = bta.relative_volume(df, volume_col='volume', window=24)['rvol']
-
-Returns:
-    pd.DataFrame: DataFrame with an additional column:
-        - 'rvol': The Relative Volume values.
+*Error importing module: No module named 'scipy'*
 
 ## Time Relative Volume Oscillator
-Name:
-    Time Relative Volume Oscillator (TRVO)
-
-Description:
-    Time Relative Volume Oscillator (TRVO) - Delta Mode
-    
-    This indicator measures relative volume compared to historical values and differentiates
-    between buy and sell volumes. It first calculates a relative volume by comparing current
-    volume to a historical average, then applies a sigmoid-like transformation to normalize
-    the values. The volume is then split into buy and sell components based on where the close
-    price sits within the high-low range. Finally, the indicator creates a "delta" or difference
-    between short and long EMAs of the buy/sell percentage differences.
-
-More info:
-    This is a custom indicator inspired by volume profile analysis techniques used by 
-    professional traders. The sigmoid transformation helps normalize volume spikes.
-
-Parameters:
-    - df (pd.DataFrame): Input DataFrame containing 'high', 'low', 'close', and 'volume'.
-    - column (str): Column name for price source (default: "close").
-    - relative_len (int): Number of previous periods used for relative volume calculation (default: 6).
-    - delta_smoothing (int): Smoothing factor for the buy/sell volume difference (default: 9).
-    - smoothing_line (bool): If True, applies EMA smoothing to buy/sell volume difference (default: True).
-    - show_total_volume (bool): If True, includes the 'total_volume' column in the output DataFrame (default: False).
-
-Call with:
-    trvo_result = bta.time_relative_volume_oscillator(
-        df,
-        column="close",
-        relative_len=6,
-        delta_smoothing=9,
-        smoothing_line=True,
-        show_total_volume=False,
-    )
-    df["relative_buy_volume"] = trvo_result["relative_buy_volume"]
-    df["relative_sell_volume"] = trvo_result["relative_sell_volume"]
-    df["buy_vs_sell"] = trvo_result["buy_vs_sell"]
-    df["smoothed_delta"] = trvo_result["smoothed_delta"]
-
-Returns:
-    pd.DataFrame: A DataFrame containing:
-        - "relative_buy_volume": Volume attributed to buyers.
-        - "relative_sell_volume": Volume attributed to sellers (negative).
-        - "buy_vs_sell": Difference between buy and sell volume percentages.
-        - "smoothed_delta": EMA-smoothed buy/sell volume difference.
-        - "total_volume" (optional): Raw total volume for each period (if show_total_volume=True).
+*Error importing module: No module named 'scipy'*
 
 ## Volume Profile
-Name:
-    Volume Profile (VP)
-
-Description:
-    The Volume Profile indicator divides the price range into a specified number of 
-    price levels and calculates the trading volume that occurred at each level. This 
-    provides insight into which price levels had the most trading activity.
-    
-    It differentiates between positive and negative volume based on whether the price 
-    was rising or falling, allowing for more detailed analysis of buying and selling 
-    pressure at different price levels.
-    
-    Note: Value Area is not calculated in this implementation.
-
-More info:
-    https://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:volume_by_price
-    https://www.tradingview.com/wiki/Volume_Profile
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'close' and 'volume' columns.
-    - width (int): How many price ranges to divide the data into. Default is 10.
-    - sort_close (bool): Whether to sort data by close price before splitting into ranges. 
-                          When False (default), data is split chronologically. When True, 
-                          it's split by price level.
-
-Call with:
-    result = bta.volume_profile(df)
-    # Access results with:
-    low_prices = result['low_price']
-    mean_prices = result['mean_price']
-    high_prices = result['high_price']
-    pos_volumes = result['pos_volume']
-    neg_volumes = result['neg_volume']
-    total_volumes = result['total_volume']
-
-Returns:
-    pd.DataFrame: DataFrame with columns 'low_price', 'mean_price', 'high_price', 
-                 'pos_volume', 'neg_volume', and 'total_volume'.
+*Error importing module: No module named 'scipy'*
 
 ## Volume Weighted Average Price
-Name:
-    Volume Weighted Average Price (VWAP)
-
-Description:
-    The Volume Weighted Average Price (VWAP) equals the dollar value of all trading periods 
-    divided by the total trading volume for the current day. VWAP is often used by institutional 
-    traders to determine the quality of execution. This implementation provides a rolling VWAP 
-    over a specified window period, making it usable across multiple timeframes.
-
-More info:
-    https://www.investopedia.com/terms/v/vwap.asp
-
-Parameters:
-    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', 'close', and 'volume' columns.
-    - window (int): n period for rolling calculation. Default is 14.
-    - fillna (bool): If True, fill nan values.
-
-Call with:
-    df['vwap'] = bta.volume_weighted_average_price(df, window=14, fillna=True)['vwap']
-
-Returns:
-    pd.DataFrame: DataFrame with 'vwap' column.
+*Error importing module: No module named 'scipy'*
 
 ## Volume Weighted Average Price Bands
-Name:
-    Volume-Weighted Average Price Bands (VWAPB)
-
-Description:
-    Calculates the Volume-Weighted Average Price (VWAP) along with upper and lower bands
-    based on a rolling standard deviation. The VWAP provides a cumulative weighted average 
-    price, while the bands create a channel that can help identify potential support and 
-    resistance levels. Price movement outside these bands may indicate overbought or 
-    oversold conditions.
-
-More info:
-    https://www.investopedia.com/terms/v/vwap.asp
-
-Parameters:
-    - df (pd.DataFrame): Input DataFrame containing the following required columns:
-        - 'close': Closing price.
-        - 'high': High price for each interval.
-        - 'low': Low price for each interval.
-        - 'volume': Trading volume for each interval.
-    - window_size (int, default=20): The rolling window size for VWAP and standard deviation calculations.
-    - num_of_std (float, default=1.0): The number of standard deviations to calculate the upper and lower bands.
-
-Call with:
-    vwapb_result = bta.volume_weighted_average_price_bands(df, window_size=20, num_of_std=1.0)
-    df['vwap_low'] = vwapb_result['vwap_low']
-    df['vwap'] = vwapb_result['vwap']
-    df['vwap_high'] = vwapb_result['vwap_high']
-
-Returns:
-    pd.DataFrame: A DataFrame containing the following columns:
-        - 'vwap': The Volume-Weighted Average Price (VWAP).
-        - 'vwap_low': The lower band (VWAP - num_of_std × rolling std deviation).
-        - 'vwap_high': The upper band (VWAP + num_of_std × rolling std deviation).
+*Error importing module: No module named 'scipy'*
 

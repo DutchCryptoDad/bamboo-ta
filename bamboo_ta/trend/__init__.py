@@ -52,3 +52,4 @@ from .volume_weighted_moving_average import volume_weighted_moving_average
 from .weighted_moving_average import weighted_moving_average
 from .zero_exponential_moving_average import zero_exponential_moving_average
 from .zero_lag_exponential_moving_average import zero_lag_exponential_moving_average
+from .supertrend import supertrend

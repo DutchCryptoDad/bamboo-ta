@@ -114,6 +114,7 @@ bamboo_ta/trend/simple_moving_average.py
 bamboo_ta/trend/sine_weighted_moving_average.py
 bamboo_ta/trend/ssl_channels.py
 bamboo_ta/trend/ssl_channels_atr.py
+bamboo_ta/trend/supertrend.py
 bamboo_ta/trend/t3_average.py
 bamboo_ta/trend/trend_signals.py
 bamboo_ta/trend/triangular_moving_average.py
