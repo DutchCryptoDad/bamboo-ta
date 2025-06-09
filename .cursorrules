@@ -1,13 +1,15 @@
 # PROJECT OVERVIEW
 
-In this project a library is created that contains technical analysis indicators and functions. 
+This project aims to be the go-to python library for technical indicators for algorithmic trading. It contains technical analysis indicators, statistical modules and other functions that are helpfull when creating algorithmic trading strategies based on Python. 
 It is comparable with pandas-ta, ta-lib and other similar libraries containing technical analysis indicators.
 
-The library is called bamboo-ta and is located in the bamboo_ta folder. Is should be installed with pip install bamboo-ta after have being uploaded to pypi.org.
+The library is called bamboo-ta and is available on github: https://github.com/DutchCryptoDad/bamboo-ta. It is also available as a Pip package and  should be installed with 'pip install bamboo-ta' (after have being uploaded to pypi.org).
 
-One of its key features is that it aims to be simple to use and understand. Also it should be used generically so that it can be used in any trading algorithm.
+Besides having the largest possible amount of indicators for algotrading it also aims to be simple to use and understand and generic enough so that it can be used in any trading algorithm - as long as it is based on Python.
 
-The library is developed in the python programming language. 
+The library is developed and maintained in the python programming language. 
+
+# INDICATOR TYPES
 
 In the library you will find the following types of indicators:
 
@@ -20,17 +22,22 @@ In the library you will find the following types of indicators:
 - Performance Indicators
 - Utility Indicators
 - Volume Indicators
+- Statistical modules
 
-## Requirements
-- Each indicator should be in its own file and be named like the indicator.py
-- The indicator function should be completely self-contained. No dependencies on other functions outside of itself.
-- Include detailed comments explaining each calculation step
-- Follow the established naming conventions (snake_case for functions and variables)
+## INDICATOR REQUIREMENTS
+
+- Each indicator should be in its own file and be named like the indicator.py.
+- The indicator is then called throught __main__.py in each separate directory.
+- The indicator function should be completely self-contained. No dependencies on other functions outside of itself - e.g. if an indicator depends on ATR then ATR calculation is a part of the indicator itself as well.
+- Include detailed comments explaining each calculation step in the function.
+- Follow the established naming conventions of Python PEP8 (snake_case for functions and variables)
 - Include proper error handling for missing columns or invalid parameters
+- Each file must contain a docstring explaining what it does, how it works and the parameters for the function.
+- All functions in the code should have their own docstrings explaining what they do, how they work and the parameters for the function.
 - The docstring should follow the exact format with Name, Description, More info, Parameters, Call with, and Returns sections. See the examples below for the exact format.
 - Each indicator has a test function that can be used to test the indicator. See the examples below for the exact format.
 - The test function uses the test_indicator function from the bamboo_ta.py file to test the indicator. See the examples below for the exact format.
-- The test function is named test and is located in the indicator.py file.
+- The test function is named test and is located in the 'indicator.py' file.
 - The test function is used to test the indicator with the test_indicator function from the bamboo_ta.py file.
 
 # PERSONALITY
@@ -57,8 +64,8 @@ DO NOT STOP WORKING ON THE TASK UNTIL YOU HAVE COMPLETED IT WITHOUT ANY ERRORS.
 
 # TECH STACK
 
-numpy==1.26.4
-pandas==2.2.3
+numpy>=1.26.4
+pandas>=2.2.3
 
 ## FRONTEND
 
@@ -73,16 +80,29 @@ pandas==2.2.3
 - VSCode
 - Cursor
 - Github
+- Claude ai / code
 
 # Documentation
 
-- @bamboo-ta/docs
+- @bamboo-ta/documentation
+- https://github.com/DutchCryptoDad/bamboo-ta/blob/main/documentation/indicators.md
 
 # ERROR FIXING PROCESS
 
+- If you encounter an error, try to fix it yourself.
+- If you cannot fix it, ask me any questions to clarify the instructions.
+- Do not stop working on the task until you have completed it without any errors.
+
 # BUILDING PROCESS
 
-# OUR .env FILES
+- Make sure to use the correct version of the software and libraries.
+- Make sure to use the correct version of the python interpreter.
+- Make sure to use the correct version of the operating system.
+- Make sure to use the correct version of the hardware.
+- Make sure to use the correct version of the network.
+
+
+# env FILES
 
 - .venv
 - *.venv
@@ -400,7 +420,7 @@ git push
 
 - The primary purpose of this project is to create a library with technical analysis indicators and functions that can be used in any trading algorithm.
 - The code also contains a lot of comments and documentation that you can use to understand the code better. 
-- @bamboo-ta/docs contains the documentation for the Freqtrade bot. 
+- @bamboo-ta/documentation contains the documentation for the Freqtrade bot. 
 - The formatting of the code is important and should be followed thoughout the code.
 - If things are unclear, ask me any questions to clarify the instructions.
 - DO NOT STOP WORKING ON THE TASK UNTIL YOU HAVE COMPLETED IT WITHOUT ANY ERRORS.
