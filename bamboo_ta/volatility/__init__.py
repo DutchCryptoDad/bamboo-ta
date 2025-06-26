@@ -16,3 +16,4 @@ from .relative_volatility_index import relative_volatility_index
 from .thermometer import thermometer
 from .true_range import true_range
 from .ulcer_index import ulcer_index
+from .williams_vix_fix import williams_vix_fix
