@@ -3577,6 +3577,75 @@ Call with:
 Returns:
     pd.DataFrame: DataFrame with 'vhf' column containing the indicator values.
 
+## Volumatic Variable Index Dynamic Average
+Name:
+    Volumatic Variable Index Dynamic Average (VIDYA)
+
+Description:
+    The Volumatic Variable Index Dynamic Average (VIDYA) is an advanced indicator that combines
+    the Variable Index Dynamic Average with volume analysis and support/resistance detection.
+    
+    This indicator uses the Chande Momentum Oscillator (CMO) to determine volatility and adapts
+    the moving average sensitivity accordingly. When volatility is high, VIDYA reacts faster to
+    price changes. The indicator also incorporates volume analysis to identify buying and selling
+    pressure, and detects pivot points for support and resistance levels.
+    
+    Key features:
+    - Adaptive moving average based on market volatility
+    - Volume-weighted trend analysis
+    - Automatic support and resistance detection via pivot points
+    - Dynamic upper and lower bands based on ATR
+    - Trend change signals with volume confirmation
+
+More info:
+    Based on the Volumatic VIDYA indicator by BigBeluga
+    Original PineScript: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'open', 'high', 'low', 'close', 'volume' columns.
+    - vidya_length (int): Length of the VIDYA calculation. Default is 10.
+    - vidya_momentum (int): Momentum length for VIDYA calculation. Default is 20.
+    - band_distance (float): Distance factor for upper/lower bands. Default is 2.0.
+    - atr_length (int): Period for ATR calculation. Default is 200.
+    - pivot_left_bars (int): Left side bars for pivot detection. Default is 3.
+    - pivot_right_bars (int): Right side bars for pivot detection. Default is 3.
+    - smooth_length (int): Smoothing period for VIDYA. Default is 15.
+    - column (str): The column name to use for calculations. Default is 'close'.
+
+Call with:
+    result = bta.volumatic_variable_index_dynamic_average(df)
+    df['vidya'] = result['vidya']
+    df['vidya_smoothed'] = result['vidya_smoothed']
+    df['upper_band'] = result['upper_band']
+    df['lower_band'] = result['lower_band']
+    df['smoothed_value'] = result['smoothed_value']
+    df['trend_up'] = result['trend_up']
+    df['trend_change_up'] = result['trend_change_up']
+    df['trend_change_down'] = result['trend_change_down']
+    df['pivot_high'] = result['pivot_high']
+    df['pivot_low'] = result['pivot_low']
+    df['up_volume'] = result['up_volume']
+    df['down_volume'] = result['down_volume']
+    df['volume_delta_pct'] = result['volume_delta_pct']
+    df['atr'] = result['atr']
+
+Returns:
+    pd.DataFrame: DataFrame with columns:
+        - 'vidya': Raw VIDYA values
+        - 'vidya_smoothed': Smoothed VIDYA values
+        - 'upper_band': Upper band (VIDYA + ATR * distance)
+        - 'lower_band': Lower band (VIDYA - ATR * distance)
+        - 'smoothed_value': Trend-based smoothed value
+        - 'trend_up': Binary indicator for uptrend (1) or downtrend (0)
+        - 'trend_change_up': Binary indicator for trend change to up
+        - 'trend_change_down': Binary indicator for trend change to down
+        - 'pivot_high': Binary indicator for pivot high points
+        - 'pivot_low': Binary indicator for pivot low points
+        - 'up_volume': Cumulative volume during uptrends
+        - 'down_volume': Cumulative volume during downtrends
+        - 'volume_delta_pct': Volume delta as percentage
+        - 'atr': Average True Range values
+
 ## Volume Weighted Moving Average
 Name:
     Volume Weighted Moving Average (VWMA)

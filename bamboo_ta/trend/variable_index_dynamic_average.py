@@ -1,67 +1,73 @@
 # -*- coding: utf-8 -*-
 # variable_index_dynamic_average.py
-
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 
-def variable_index_dynamic_average(df: pd.DataFrame, length: int = 14, 
-                                 column: str = "close", drift: int = 1) -> pd.DataFrame:
+def variable_index_dynamic_average(
+    df: pd.DataFrame,
+    length: int = 14,
+    column: str = 'close',
+    drift: int = 1
+) -> pd.DataFrame:
     """Variable Index Dynamic Average (VIDYA)"""
+    
     df_copy = df.copy()
     
-    # Ensure the DataFrame contains the required column
+    # Ensure required column exists
     if column not in df.columns:
         raise KeyError(f"DataFrame must contain '{column}' column")
     
-    # Extract the series we'll be working with
-    series = df_copy[column]
+    # Calculate momentum (price changes)
+    momentum = df_copy[column].diff(drift)
     
-    # Calculate the Chande Momentum Oscillator (CMO)
-    def calculate_cmo(source: pd.Series, n: int, d: int) -> pd.Series:
-        """Calculate Chande Momentum Oscillator (CMO)"""
-        # Calculate the momentum (difference between current value and d periods ago)
-        mom = source.diff(d)
-        
-        # Split momentum into positive and negative values
-        positive = mom.copy().clip(lower=0)
-        negative = mom.copy().clip(upper=0).abs()
-        
-        # Sum the positive and negative values over n periods
-        pos_sum = positive.rolling(n).sum()
-        neg_sum = negative.rolling(n).sum()
-        
-        # Calculate CMO
-        cmo = (pos_sum - neg_sum) / (pos_sum + neg_sum)
-        return cmo
+    # Calculate positive and negative momentum
+    pos_momentum = momentum.where(momentum >= 0, 0.0)
+    neg_momentum = momentum.where(momentum < 0, 0.0).abs()
     
-    # Calculate the CMO and get its absolute value
-    abs_cmo = calculate_cmo(series, length, drift).abs()
+    # Calculate rolling sums for CMO calculation
+    sum_pos_momentum = pos_momentum.rolling(window=length).sum()
+    sum_neg_momentum = neg_momentum.rolling(window=length).sum()
     
-    # Calculate the smoothing factor
-    alpha = 2 / (length + 1)
+    # Calculate Chande Momentum Oscillator (CMO)
+    # CMO = 100 * (sum_pos - sum_neg) / (sum_pos + sum_neg)
+    total_momentum = sum_pos_momentum + sum_neg_momentum
+    cmo = (100 * (sum_pos_momentum - sum_neg_momentum) / total_momentum).fillna(0)
     
-    # Initialize the VIDYA series
-    vidya = pd.Series(np.nan, index=series.index)
+    # Calculate absolute CMO for volatility index
+    abs_cmo = cmo.abs()
     
-    # Set the first valid value (at position length)
-    if len(series) > length:
-        vidya.iloc[length] = series.iloc[length]
+    # Calculate the volatility index (VI) - normalized CMO
+    # VI ranges from 0 to 1, where 1 means maximum volatility
+    volatility_index = abs_cmo / 100
     
-    # Calculate VIDYA values
-    for i in range(length + 1, len(series)):
-        if np.isnan(vidya.iloc[i-1]) or np.isnan(abs_cmo.iloc[i]):
-            continue
-        vidya.iloc[i] = alpha * abs_cmo.iloc[i] * series.iloc[i] + vidya.iloc[i - 1] * (1 - alpha * abs_cmo.iloc[i])
+    # Calculate VIDYA using the volatility index
+    # VIDYA adapts the smoothing constant based on market volatility
+    alpha = 2 / (length + 1)  # Standard EMA smoothing constant
     
-    # Add result to DataFrame
-    df_copy["vidya"] = vidya
+    vidya = pd.Series(index=df_copy.index, dtype=float)
+    vidya.iloc[0] = df_copy[column].iloc[0]  # Initialize with first price
     
-    return df_copy[["vidya"]]
+    for i in range(1, len(df_copy)):
+        if pd.notna(volatility_index.iloc[i]):
+            # Adaptive smoothing constant
+            # When volatility is high, VI approaches 1, making VIDYA more responsive
+            # When volatility is low, VI approaches 0, making VIDYA smoother
+            adaptive_alpha = alpha * volatility_index.iloc[i]
+            
+            vidya.iloc[i] = (adaptive_alpha * df_copy[column].iloc[i] + 
+                           (1 - adaptive_alpha) * vidya.iloc[i-1])
+        else:
+            # If VI is NaN, use previous VIDYA value
+            vidya.iloc[i] = vidya.iloc[i-1]
+    
+    # Store results
+    df_copy['vidya'] = vidya
+    
+    return df_copy[['vidya']]
 
 
-variable_index_dynamic_average.__doc__ = \
-"""
+variable_index_dynamic_average.__doc__ = """
 Name:
     Variable Index Dynamic Average (VIDYA)
 
@@ -121,4 +127,4 @@ def test():
 
 # Execute the test if this file is run directly
 if __name__ == "__main__":
-    test() 
+    test()
