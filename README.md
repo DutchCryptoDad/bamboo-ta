@@ -237,7 +237,7 @@ Bamboo-TA includes a wide range of technical analysis indicators organized into 
 
 Indicators for candlestick pattern analysis and transformations:
 
-- Candlestick Patterns (multiple patterns in one file)
+- Candlestick Patterns
 - Dynamic Exhaustion Bars
 - Exhaustion Bars
 - Hansen Heiken Ashi
@@ -257,11 +257,11 @@ Indicators that measure the rate of change in price movements:
 
 - Absolute Price Oscillator
 - Awesome Oscillator
-- Balance of Power
+- Balance Of Power
 - Bias
-- BRAR (BR and AR)
+- Brar
 - Calculate Intraday Momentum Index
-- Center of Gravity
+- Center Of Gravity
 - Chande Forecast Oscillator
 - Chande Momentum Oscillator
 - Commodity Channel Index
@@ -269,54 +269,56 @@ Indicators that measure the rate of change in price movements:
 - Correlation Trend Indicator
 - Directional Movement
 - Efficiency Ratio
-- Ehlers Fisher Stochastic Center of Gravity
+- Ehlers Fisher Stochastic Center Of Gravity
 - Ehlers Ray Index
 - Elliott Wave Oscillator
 - Fisher Transform
 - Inertia
 - Kaufmans Adaptive Moving Average
-- KDJ Indicator
+- Kdj
 - Know Sure Thing
-- MA Streak
+- Ma Streak
 - Momentum
 - Momentum Divergence
-- Moving Average Convergence Divergence (MACD)
-- MACD Leader
-- MACD-V (Volume-weighted MACD)
+- Moving Average Convergence Divergence
+- Moving Average Convergence Divergence Leader
+- Moving Average Convergence Divergence V
 - Percentage Price Oscillator
 - Percentage Volume Oscillator
 - Pretty Good Oscillator
 - Psychological Line
-- Qualitative Quantitative Estimation (QQE)
-- Rate of Change
+- Qualitative Quantitative Estimation
+- Rate Of Change
 - Relative Momentum Index
-- Relative Strength Index (RSI)
+- Relative Strength Index
 - Relative Strength Index Exponential
 - Relative Vigor Index
 - Schaff Trend Cycle
-- SMI Ergodic Indicator
-- Smoothed Rate of Change
+- Smi Ergodic Indicator
+- Smoothed Rate Of Change
 - Stochastic Momentum Index
-- Stochastic RSI
+- Stochastic Rsi
 - Stochastics Oscillator
-- TD Sequential
+- Td Sequential
 - Triple Exponential Average
 - True Strength Index
-- TTM Squeeze
+- Ttm Squeeze
 - Ultimate Oscillator
 - Waddah Attar Explosion
-- Waddah Attar Explosion ATR
+- Waddah Attar Explosion Atr
 - Wave Trend
 - Wave Trend Oscillator
-- Williams %R
+- Williams R
 
 ### Performance
 
 *Note: This category is currently under development.*
 
+
 ### Statistics
 
 *Note: This category is currently under development.*
+
 
 ### Trend
 
@@ -328,7 +330,7 @@ Indicators that help identify the direction of market trends:
 - Aroon
 - Average Directional Index
 - Bollinger Trend
-- Bollinger Trend Fast with MA
+- Bollinger Trend Fast With Ma
 - Breakouts
 - Chande Kroll Stop
 - Choppiness Index
@@ -337,37 +339,40 @@ Indicators that help identify the direction of market trends:
 - Decreasing
 - Detrended Price Oscillator
 - Double Exponential Moving Average
-- Exponential Moving Average (EMA)
+- Exponential Moving Average
 - Fractal Weighted Moving Average
+- Gaussian Channel
 - Holt Winters Moving Average
 - Hull Moving Average
 - Increasing
 - Jurik Moving Average
 - Least Squares Moving Average
 - Long Run
-- McGinley Dynamic
-- Parabolic SAR
+- Mcginley Dynamic
+- Parabolic Sar
 - Pascals Weighted Moving Average
 - Percent Price Channel
-- PMAX
+- Pmax
 - Price Channel
 - Q Stick
 - Range Filter
 - Rolling Moving Average
 - Sequential Weighted Moving Average
 - Short Run
-- Simple Moving Average (SMA)
+- Simple Moving Average
 - Sine Weighted Moving Average
-- SSL Channels
-- SSL Channels ATR
+- Ssl Channels
+- Ssl Channels Atr
+- Supertrend
 - T3 Average
 - Trend Signals
 - Triangular Moving Average
 - Triple Exponential Moving Average
-- TTM Trend
-- UT Bot
+- Ttm Trend
+- Ut Bot
 - Variable Index Dynamic Average
 - Vertical Horizontal Filter
+- Volumatic Variable Index Dynamic Average
 - Volume Weighted Moving Average
 - Vortex Indicator
 - Weighted Moving Average
@@ -378,7 +383,7 @@ Indicators that help identify the direction of market trends:
 
 Utility functions and indicators for various calculations:
 
-- Calculate ATR Stop Loss Take Profit
+- Calculate Atr Stop Loss Take Profit
 - Calculate Stop Loss Take Profit
 - Compounded Annual Growth Rate
 - Consecutive Count
@@ -390,7 +395,7 @@ Utility functions and indicators for various calculations:
 - Daily Log Return
 - Daily Return
 - Drawdown
-- Drop NA
+- Drop Na
 - Entropy
 - Error Function
 - Exhaustion Candles
@@ -417,7 +422,7 @@ Utility functions and indicators for various calculations:
 - Overbought Oversold
 - Pascals Triangle
 - Percent Return
-- Populate LELEDC Major Minor
+- Populate Leledc Major Minor
 - Pump Dump Protection
 - Quantile
 - Quarter To Date
@@ -425,13 +430,13 @@ Utility functions and indicators for various calculations:
 - Same Length
 - Sharpe Ratio
 - Skew
-- St Dev (Standard Deviation)
+- St Dev
 - Symmetric Triangle
 - Top Percent Change
-- TOS Standard Deviation All
+- Tos Standard Deviation All
 - Variance
 - Year To Date
-- Z-Score
+- Z Score
 
 ### Volatility
 
@@ -439,8 +444,8 @@ Indicators that measure the rate and magnitude of price changes:
 
 - Aberration Bands
 - Acceleration Bands
-- Average True Range (ATR)
-- BBW Expansion
+- Average True Range
+- Bbw Expansion
 - Bollinger Bands
 - Donchian Channel
 - Hurst Winter Channel
@@ -452,6 +457,7 @@ Indicators that measure the rate and magnitude of price changes:
 - Thermometer
 - True Range
 - Ulcer Index
+- Williams Vix Fix
 
 ### Volume
 
@@ -461,7 +467,7 @@ Indicators that incorporate trading volume to confirm price movements:
 - Accumulation Distribution Oscillator
 - Accumulation On Balance Volume
 - Chaikin Money Flow
-- Ease of Movement
+- Ease Of Movement
 - Force Index
 - Klinger Volume Oscillator
 - Money Flow Index
