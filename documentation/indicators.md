@@ -2590,6 +2590,67 @@ Call with:
 Returns:
     pd.DataFrame: DataFrame with 'fwma' column.
 
+## Gaussian Channel
+Name:
+    Gaussian Channel
+
+Description:
+    The Gaussian Channel is an experimental indicator utilizing the Ehlers Gaussian Filter 
+    technique combined with lag reduction techniques and true range to analyze trend activity.
+    Gaussian filters are exponential moving averages applied multiple times.
+    
+    The indicator calculates beta and alpha based on the sampling period and number of poles 
+    specified. The data can be given a truncation option for reduced lag. Then the alpha 
+    and source values are used to calculate the filter and filtered true range of the dataset.
+    Filtered true range with a specified multiplier is then added to and subtracted from the 
+    filter, generating a channel.
+    
+    A one pole filter with an N pole alpha can be averaged with the filter to generate a 
+    faster filter (Fast Response Mode).
+
+More info:
+    Original Pine Script by DonovanWall
+    Based on John Ehlers' Gaussian Filter technique
+    https://www.tradingview.com/script/NaN/ (Pine Script reference)
+
+Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', and 'close' columns.
+      For 'ohlc4' source, 'open' column is also required.
+    - source (str): Price source to use. Options: 'hlc3', 'close', 'open', 'hl2', 'ohlc4', 
+      or any column name. Default is 'hlc3'.
+    - poles (int): Number of poles for the Gaussian filter (1-9). Higher values create smoother 
+      output with more lag. Default is 4.
+    - period (int): Sampling period for the filter. Larger values result in smoother outputs 
+      with increased lag. Default is 144.
+    - multiplier (float): Multiplier for the filtered true range to create channel bands. 
+      Default is 1.414.
+    - reduced_lag (bool): Enable reduced lag mode for faster response. Default is False.
+    - fast_response (bool): Enable fast response mode by averaging N-pole and 1-pole filters. 
+      Default is False.
+
+Call with:
+    gc_result = bta.gaussian_channel(df, source='hlc3', poles=4, period=144, multiplier=1.414)
+    df['gc_middle'] = gc_result['gc_middle']
+    df['gc_upper'] = gc_result['gc_upper']
+    df['gc_lower'] = gc_result['gc_lower']
+    df['gc_direction'] = gc_result['gc_direction']
+    df['gc_bar_signal'] = gc_result['gc_bar_signal']
+
+Returns:
+    pd.DataFrame: DataFrame with the following columns:
+        - 'gc_middle': The main Gaussian filter line (centerline/middle of channel)
+        - 'gc_upper': Upper channel band (middle + filtered_tr * multiplier)
+        - 'gc_lower': Lower channel band (middle - filtered_tr * multiplier)
+        - 'gc_direction': Filter direction (1=up, -1=down, 0=neutral)
+        - 'gc_bar_signal': Bar color signal based on price position relative to filter and bands:
+            2: Strong bullish (price rising above upper band)
+            1: Bullish (price rising above filter, within channel)
+            3: Weak bullish (price above filter but declining)
+            -2: Strong bearish (price falling below lower band)
+            -1: Bearish (price falling below filter, within channel)
+            -3: Weak bearish (price below filter but rising)
+            0: Neutral/choppy (sideways movement)
+
 ## Holt Winters Moving Average
 Name:
     Holt-Winters Moving Average (HWMA)
