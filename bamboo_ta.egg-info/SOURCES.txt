@@ -93,6 +93,7 @@ bamboo_ta/trend/detrended_price_oscillator.py
 bamboo_ta/trend/double_exponential_moving_average.py
 bamboo_ta/trend/exponential_moving_average.py
 bamboo_ta/trend/fractal_weighted_moving_average.py
+bamboo_ta/trend/gaussian_channel.py
 bamboo_ta/trend/holt_winters_moving_average.py
 bamboo_ta/trend/hull_moving_average.py
 bamboo_ta/trend/increasing.py
@@ -123,6 +124,7 @@ bamboo_ta/trend/ttm_trend.py
 bamboo_ta/trend/ut_bot.py
 bamboo_ta/trend/variable_index_dynamic_average.py
 bamboo_ta/trend/vertical_horizontal_filter.py
+bamboo_ta/trend/volumatic_variable_index_dynamic_average.py
 bamboo_ta/trend/volume_weighted_moving_average.py
 bamboo_ta/trend/vortex_indicator.py
 bamboo_ta/trend/weighted_moving_average.py
@@ -189,6 +191,7 @@ bamboo_ta/volatility/acceleration_bands.py
 bamboo_ta/volatility/average_true_range.py
 bamboo_ta/volatility/bbw_expansion.py
 bamboo_ta/volatility/bollinger_bands.py
+bamboo_ta/volatility/bollinger_bands_nadaraya_smoothed.py
 bamboo_ta/volatility/donchian_channel.py
 bamboo_ta/volatility/hurst_winter_channel.py
 bamboo_ta/volatility/keltner_channel.py
@@ -199,6 +202,7 @@ bamboo_ta/volatility/relative_volatility_index.py
 bamboo_ta/volatility/thermometer.py
 bamboo_ta/volatility/true_range.py
 bamboo_ta/volatility/ulcer_index.py
+bamboo_ta/volatility/williams_vix_fix.py
 bamboo_ta/volume/__init__.py
 bamboo_ta/volume/accumulation_distribution_index.py
 bamboo_ta/volume/accumulation_distribution_oscillator.py
@@ -220,3 +224,4 @@ bamboo_ta/volume/time_relative_volume_oscillator.py
 bamboo_ta/volume/volume_profile.py
 bamboo_ta/volume/volume_weighted_average_price.py
 bamboo_ta/volume/volume_weighted_average_price_bands.py
+bamboo_ta/volume/vwap_divergence.py
