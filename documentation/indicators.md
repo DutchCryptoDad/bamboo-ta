@@ -6002,6 +6002,76 @@ Call with:
 Returns:
     pd.DataFrame: DataFrame with 'bb_upper', 'bb_middle', 'bb_lower' columns.
 
+## Bollinger Bands Nadaraya Smoothed
+Name:
+    Bollinger Bands (Nadaraya Smoothed)
+
+Description:
+    This indicator implements Bollinger Bands with Nadaraya-Watson kernel smoothing.
+    It creates multiple levels of Bollinger Bands using different periods and standard
+    deviation multipliers, then applies Gaussian kernel smoothing to create smoother,
+    less noisy band lines.
+    
+    The Nadaraya-Watson estimator is a non-parametric regression technique that uses
+    a Gaussian kernel to weight nearby observations. This creates smoother bands that
+    are less prone to whipsaws while maintaining responsiveness to price changes.
+    
+    The indicator provides four levels of bands:
+    - Level 1: Short-term bands (default: 20 period, 3 std dev)
+    - Level 2: Medium-term bands (default: 75 period, 3 std dev) 
+    - Level 3: Long-term bands (default: 100 period, 4 std dev)
+    - Level 4: Extended bands (default: 100 period, 4.25 std dev)
+    
+    **Note on TradingView Differences:**
+    The calculations in this Python implementation may produce slightly different 
+    values compared to the original TradingView Pine Script version due to differences 
+    in floating-point precision, rounding methods, and internal mathematical libraries 
+    between Python (NumPy/Pandas) and Pine Script. Additionally, the default lookback 
+    period has been reduced from 499 to 100 bars for improved performance, which may 
+    result in less smoothing compared to the TradingView version. For exact TradingView 
+    matching, use n=499, though this will significantly increase computation time.
+
+More info:
+    Based on Flux Charts' TradingView indicator
+    https://www.tradingview.com/script/v/bollinger-bands-nadaraya-smoothed/
+    
+    Nadaraya-Watson Estimator:
+    https://en.wikipedia.org/wiki/Kernel_regression
+
+Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', 'close' columns.
+    - h (float): Smoothing factor (bandwidth) for the Nadaraya-Watson estimator. Higher values = more smoothing. Default is 6.0.
+    - short_period (int): Period for short-term Bollinger Bands. Default is 20.
+    - short_stdev (float): Standard deviation multiplier for short-term bands. Default is 3.0.
+    - med_period (int): Period for medium-term Bollinger Bands. Default is 75.
+    - med_stdev (float): Standard deviation multiplier for medium-term bands. Default is 4.0.
+    - long_period (int): Period for long-term Bollinger Bands. Default is 100.
+    - long_stdev (float): Standard deviation multiplier for long-term bands. Default is 4.25.
+    - n (int): Number of historical bars to consider for smoothing. Default is 100 (reduced from 499 for performance).
+
+Call with:
+    result = bta.bollinger_bands_nadaraya_smoothed(df)
+    df['bb_upper_1'] = result['bb_upper_1']
+    df['bb_lower_1'] = result['bb_lower_1']
+    df['bb_upper_2'] = result['bb_upper_2']
+    df['bb_lower_2'] = result['bb_lower_2']
+    df['bb_upper_3'] = result['bb_upper_3']
+    df['bb_lower_3'] = result['bb_lower_3']
+    df['bb_upper_4'] = result['bb_upper_4']
+    df['bb_lower_4'] = result['bb_lower_4']
+    df['upper_band_break'] = result['upper_band_break']
+    df['lower_band_break'] = result['lower_band_break']
+
+Returns:
+    pd.DataFrame: DataFrame with the following columns:
+    - 'bb_upper_1', 'bb_lower_1': Level 1 smoothed Bollinger Bands (main bands)
+    - 'bb_upper_2', 'bb_lower_2': Level 2 smoothed Bollinger Bands
+    - 'bb_upper_3', 'bb_lower_3': Level 3 smoothed Bollinger Bands
+    - 'bb_upper_4', 'bb_lower_4': Level 4 smoothed Bollinger Bands
+    - 'upper_band_break': Signal when price breaks above main upper band (1/0)
+    - 'lower_band_break': Signal when price breaks below main lower band (1/0)
+    - 'typical_price': HLC3 typical price used for calculations
+
 ## Donchian Channel
 Name:
     Donchian Channel
@@ -7001,4 +7071,53 @@ Returns:
         - 'vwap': The Volume-Weighted Average Price (VWAP).
         - 'vwap_low': The lower band (VWAP - num_of_std × rolling std deviation).
         - 'vwap_high': The upper band (VWAP + num_of_std × rolling std deviation).
+
+## Vwap Divergence
+Name:
+    VWAP Divergence
+
+Description:
+    The VWAP Divergence indicator identifies potential bullish and bearish divergences 
+    between price action and the Volume Weighted Average Price (VWAP). A bullish 
+    divergence occurs when price moves higher while VWAP moves lower, suggesting 
+    potential upward momentum. A bearish divergence occurs when price moves lower 
+    while VWAP moves higher, suggesting potential downward momentum.
+    
+    The indicator uses ATR (Average True Range) to filter out insignificant movements 
+    and includes gap detection to avoid false signals during market gaps. It also 
+    implements a minimum bar spacing between signals to prevent clustering of alerts.
+
+More info:
+    https://www.investopedia.com/terms/v/vwap.asp
+    https://www.tradingview.com/script/fluxchart-vwap-divergence/
+
+Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain 'high', 'low', 
+      'close', 'open', and volume columns.
+    - divergence_lookback (int): Lookback period to determine price movement significance. 
+      Default is 5.
+    - divergence_atr_multiplier (float): ATR multiplier to determine minimum movement 
+      threshold for divergence signals. Default is 3.0.
+    - atr_length (int): Period for ATR calculation. Default is 14.
+    - min_bars_between_signals (int): Minimum bars between divergence signals to 
+      prevent clustering. Default is 15.
+    - gap_threshold_multiplier (float): ATR multiplier for gap detection threshold. 
+      Default is 1.0.
+    - anchor (str): VWAP anchor period. Options: 'session', 'week', 'month'. 
+      Default is 'session'.
+    - source (str): Price source for VWAP calculation. Options: 'hlc3', 'hl2', 
+      'ohlc4', 'close'. Default is 'hlc3'.
+    - volume_col (str): Name of the volume column. Default is 'volume'.
+
+Call with:
+    result = bta.vwap_divergence(df)
+    df['vwap'] = result['vwap']
+    df['vwap_trend'] = result['vwap_trend']
+    df['bullish_divergence'] = result['bullish_divergence']
+    df['bearish_divergence'] = result['bearish_divergence']
+    df['atr'] = result['atr']
+
+Returns:
+    pd.DataFrame: DataFrame with 'vwap', 'atr', 'vwap_trend', 'bullish_divergence', 
+    and 'bearish_divergence' columns.
 

@@ -6,6 +6,7 @@ from .acceleration_bands import acceleration_bands
 from .average_true_range import average_true_range
 from .bbw_expansion import bbw_expansion
 from .bollinger_bands import bollinger_bands
+from .bollinger_bands_nadaraya_smoothed import bollinger_bands_nadaraya_smoothed
 from .donchian_channel import donchian_channel
 from .hurst_winter_channel import hurst_winter_channel
 from .keltner_channel import keltner_channel

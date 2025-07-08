@@ -447,6 +447,7 @@ Indicators that measure the rate and magnitude of price changes:
 - Average True Range
 - Bbw Expansion
 - Bollinger Bands
+- Bollinger Bands Nadaraya Smoothed
 - Donchian Channel
 - Hurst Winter Channel
 - Keltner Channel
@@ -483,6 +484,7 @@ Indicators that incorporate trading volume to confirm price movements:
 - Volume Profile
 - Volume Weighted Average Price
 - Volume Weighted Average Price Bands
+- Vwap Divergence
 
 To access detailed documentation for any indicator, use the `help()` function or access the docstring directly as described in the [Accessing Indicator Documentation](#accessing-indicator-documentation) section.
 

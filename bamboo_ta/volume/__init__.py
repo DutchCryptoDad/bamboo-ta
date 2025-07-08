@@ -21,3 +21,4 @@ from .time_relative_volume_oscillator import time_relative_volume_oscillator
 from .volume_profile import volume_profile
 from .volume_weighted_average_price import volume_weighted_average_price
 from .volume_weighted_average_price_bands import volume_weighted_average_price_bands
+from .vwap_divergence import vwap_divergence
