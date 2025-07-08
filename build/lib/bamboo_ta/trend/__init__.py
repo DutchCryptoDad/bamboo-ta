@@ -25,6 +25,7 @@ from .jurik_moving_average import jurik_moving_average
 from .least_squares_moving_average import least_squares_moving_average
 from .long_run import long_run
 from .mcginley_dynamic import mcginley_dynamic
+from .nadaraya_watson_smoothers import nadaraya_watson_smoothers
 from .parabolic_sar import parabolic_sar
 from .pascals_weighted_moving_average import pascals_weighted_moving_average
 from .percent_price_channel import percent_price_channel
@@ -49,7 +50,9 @@ from .variable_index_dynamic_average import variable_index_dynamic_average
 from .vertical_horizontal_filter import vertical_horizontal_filter
 from .vortex_indicator import vortex_indicator
 from .volume_weighted_moving_average import volume_weighted_moving_average
+from .volumatic_variable_index_dynamic_average import volumatic_variable_index_dynamic_average
 from .weighted_moving_average import weighted_moving_average
 from .zero_exponential_moving_average import zero_exponential_moving_average
 from .zero_lag_exponential_moving_average import zero_lag_exponential_moving_average
 from .supertrend import supertrend
+from .gaussian_channel import gaussian_channel

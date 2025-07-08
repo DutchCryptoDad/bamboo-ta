@@ -1,6 +1,6 @@
-Metadata-Version: 2.2
+Metadata-Version: 2.1
 Name: bamboo-ta
-Version: 0.9.5
+Version: 0.9.7
 Summary: TA library for Pandas
 Home-page: https://github.com/DutchCryptoDad/bamboo-ta
 Author: DutchCryptoDad (DCD)
@@ -19,16 +19,6 @@ Requires-Dist: numpy
 Provides-Extra: def
 Requires-Dist: pytest; extra == "def"
 Requires-Dist: twine; extra == "def"
-Dynamic: author
-Dynamic: author-email
-Dynamic: classifier
-Dynamic: description
-Dynamic: description-content-type
-Dynamic: home-page
-Dynamic: keywords
-Dynamic: provides-extra
-Dynamic: requires-dist
-Dynamic: summary
 
 # Bamboo-TA: Technical Analysis Indicators Library
 
@@ -381,6 +371,7 @@ Indicators that help identify the direction of market trends:
 - Least Squares Moving Average
 - Long Run
 - Mcginley Dynamic
+- Nadaraya Watson Smoothers
 - Parabolic Sar
 - Pascals Weighted Moving Average
 - Percent Price Channel

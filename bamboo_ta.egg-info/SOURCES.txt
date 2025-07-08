@@ -101,6 +101,7 @@ bamboo_ta/trend/jurik_moving_average.py
 bamboo_ta/trend/least_squares_moving_average.py
 bamboo_ta/trend/long_run.py
 bamboo_ta/trend/mcginley_dynamic.py
+bamboo_ta/trend/nadaraya_watson_smoothers.py
 bamboo_ta/trend/parabolic_sar.py
 bamboo_ta/trend/pascals_weighted_moving_average.py
 bamboo_ta/trend/percent_price_channel.py

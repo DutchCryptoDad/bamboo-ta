@@ -25,6 +25,7 @@ from .jurik_moving_average import jurik_moving_average
 from .least_squares_moving_average import least_squares_moving_average
 from .long_run import long_run
 from .mcginley_dynamic import mcginley_dynamic
+from .nadaraya_watson_smoothers import nadaraya_watson_smoothers
 from .parabolic_sar import parabolic_sar
 from .pascals_weighted_moving_average import pascals_weighted_moving_average
 from .percent_price_channel import percent_price_channel

@@ -2889,6 +2889,57 @@ Call with:
 Returns:
     pd.DataFrame: DataFrame with 'mcgd' column.
 
+## Nadaraya Watson Smoothers
+Name:
+    Nadaraya-Watson Smoothers
+
+Description:
+    The Nadaraya-Watson Smoothers indicator is a sophisticated smoothing technique that uses 
+    Gaussian kernel regression to create a smooth representation of price action. It applies 
+    a Gaussian weight function to nearby data points, giving more weight to closer points 
+    and less weight to farther points.
+    
+    This indicator can operate in two modes:
+    - Repainting mode: Recalculates all historical values as new data arrives, providing 
+      the smoothest possible curve but changing historical values
+    - Non-repainting mode: Uses an endpoint method that doesn't change historical values, 
+      making it suitable for backtesting and live trading
+    
+    The indicator also identifies trend direction changes and potential reversal points,
+    making it useful for trend following strategies and entry/exit timing.
+
+More info:
+    The Nadaraya-Watson estimator is a non-parametric regression technique that estimates
+    the conditional expectation of a random variable. In trading applications, it creates
+    a smooth trend line that adapts to price movements while filtering out noise.
+    
+    https://en.wikipedia.org/wiki/Kernel_regression
+
+Parameters:
+    - df (pandas.DataFrame): Input DataFrame which should contain the specified source column.
+    - src (str): The column to use for calculations. Default is 'close'.
+    - bandwidth (float): Controls the smoothness of the estimator. Higher values create 
+      smoother lines but with more lag. Default is 8.0.
+    - repaint (bool): If True, uses repainting mode for smoothest results. If False, 
+      uses non-repainting endpoint method. Default is True.
+    - lookback (int): Maximum number of bars to look back for calculations. Default is 500.
+
+Call with:
+    nw_result = bta.nadaraya_watson_smoothers(df, src='close', bandwidth=8.0, repaint=True)
+    df['nwe'] = nw_result['nwe']
+    df['nwe_trend'] = nw_result['nwe_trend']
+    df['nwe_reversal'] = nw_result['nwe_reversal']
+    df['nwe_bullish'] = nw_result['nwe_bullish']
+    df['nwe_bearish'] = nw_result['nwe_bearish']
+
+Returns:
+    pd.DataFrame: DataFrame with the following columns:
+    - 'nwe': The Nadaraya-Watson Estimator values
+    - 'nwe_trend': Trend direction (1 for up, -1 for down, 0 for sideways)
+    - 'nwe_reversal': Reversal signals (1 for bullish reversal, -1 for bearish reversal, 0 for no reversal)
+    - 'nwe_bullish': NWE values when trend is bullish (for plotting in green)
+    - 'nwe_bearish': NWE values when trend is bearish (for plotting in red)
+
 ## Parabolic Sar
 Name:
     Parabolic Stop and Reverse (PSAR)

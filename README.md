@@ -349,6 +349,7 @@ Indicators that help identify the direction of market trends:
 - Least Squares Moving Average
 - Long Run
 - Mcginley Dynamic
+- Nadaraya Watson Smoothers
 - Parabolic Sar
 - Pascals Weighted Moving Average
 - Percent Price Channel
