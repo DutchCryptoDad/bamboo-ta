@@ -18,6 +18,7 @@ from .detrended_price_oscillator import detrended_price_oscillator
 from .double_exponential_moving_average import double_exponential_moving_average
 from .exponential_moving_average import exponential_moving_average
 from .fractal_weighted_moving_average import fractal_weighted_moving_average
+from .frama_channel import frama_channel
 from .holt_winters_moving_average import holt_winters_moving_average
 from .hull_moving_average import hull_moving_average
 from .increasing import increasing
