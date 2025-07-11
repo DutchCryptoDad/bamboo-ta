@@ -93,6 +93,7 @@ bamboo_ta/trend/detrended_price_oscillator.py
 bamboo_ta/trend/double_exponential_moving_average.py
 bamboo_ta/trend/exponential_moving_average.py
 bamboo_ta/trend/fractal_weighted_moving_average.py
+bamboo_ta/trend/frama_channel.py
 bamboo_ta/trend/gaussian_channel.py
 bamboo_ta/trend/holt_winters_moving_average.py
 bamboo_ta/trend/hull_moving_average.py

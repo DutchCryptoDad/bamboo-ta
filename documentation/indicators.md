@@ -2590,6 +2590,75 @@ Call with:
 Returns:
     pd.DataFrame: DataFrame with 'fwma' column.
 
+## Frama Channel
+Name:
+    FRAMA Channel
+
+Description:
+    The FRAMA Channel is a trend-following indicator that utilizes the Fractal Adaptive 
+    Moving Average (FRAMA) to create a dynamic channel around the price. The indicator 
+    helps identify uptrends, downtrends, and ranging markets by examining the relationship 
+    between the price and the channel's boundaries.
+    
+    Key Features:
+    - Dynamic FRAMA Channel with adaptive sensitivity based on market fractal dimension
+    - Trend change signals with arrows showing price or average volume
+    - Ranging market detection when price stays within channel bounds
+    - Color-coded candles and channel bands for visual trend identification
+    - Customizable display of price or average volume at trend change points
+    
+    The indicator adapts to market conditions:
+    - In trending markets: Less sensitive to reduce noise
+    - In ranging markets: More sensitive to capture price movements
+    - Neutral detection: When price crosses the FRAMA line without band breakout
+
+More info:
+    Based on BigBeluga's FRAMA Channel indicator for TradingView
+    https://www.tradingview.com/script/frama-channel-bigbeluga/
+    
+    The core idea uses the fractal nature of markets to adapt to different conditions.
+    When price crosses upper/lower bands, it signals trend shifts. If price remains
+    within the channel, the market is likely in a ranging phase with low momentum.
+
+Parameters:
+    - df (pandas.DataFrame): Input DataFrame with 'open', 'high', 'low', 'close' columns.
+        If signals_data="Average Volume", 'volume' column is also required.
+    - length (int): Period for FRAMA calculation. Will be made even if odd. Default is 26.
+    - distance (float): Multiplier for channel band distance from FRAMA line. Default is 1.5.
+    - volatility_period (int): Period for volatility calculation (SMA of high-low). Default is 200.
+    - smoothing (int): Period for final SMA smoothing of FRAMA line. Default is 5.
+    - color_candles (bool): Whether to include candle coloring information. Default is True.
+    - signals_data (str): Display "Price" or "Average Volume" in signals. Default is "Price".
+    - debug (bool): If True, prints detailed calculation information. Default is False.
+
+Call with:
+    frama_result = bta.frama_channel(df, length=26, distance=1.5, signals_data="Price")
+    df['frama'] = frama_result['frama']
+    df['frama_upper'] = frama_result['frama_upper']
+    df['frama_lower'] = frama_result['frama_lower']
+    df['frama_color'] = frama_result['frama_color']  # 'up', 'down', 'neutral'
+    df['frama_signal_up'] = frama_result['frama_signal_up']
+    df['frama_signal_down'] = frama_result['frama_signal_down']
+
+Returns:
+    pd.DataFrame: DataFrame with the following columns:
+        - 'frama': Main FRAMA line (adaptive moving average with smoothing)
+        - 'frama_upper': Upper channel band
+        - 'frama_lower': Lower channel band  
+        - 'frama_volatility': Volatility values used for bands
+        - 'frama_breakout_up': All upward breakouts (1/0)
+        - 'frama_breakout_down': All downward breakouts (1/0)
+        - 'frama_signal_up': First upward signal in sequence (1/0)
+        - 'frama_signal_down': First downward signal in sequence (1/0)
+        - 'frama_signal_up_value': Price/volume value at up signals
+        - 'frama_signal_down_value': Price/volume value at down signals
+        - 'frama_color': Trend state ('up'/'down'/'neutral')
+        - 'frama_raw': Raw FRAMA before final smoothing
+        - 'frama_pre_smooth': Series before SMA smoothing
+        - 'hlc3': Typical price used for breakout detection
+        - 'close_cross_frama': Close crossing FRAMA line (1/0)
+        - 'candle_color': Candle coloring info (if color_candles=True)
+
 ## Gaussian Channel
 Name:
     Gaussian Channel

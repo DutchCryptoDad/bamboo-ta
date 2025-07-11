@@ -180,6 +180,19 @@ This will show the indicator description along with the test results.
 
 Bamboo-TA includes a built-in testing system that allows you to quickly test any indicator in the library. This is useful for verifying that indicators are working correctly and producing the expected results, which you can compare with what you see on TradingView.
 
+### Data for testing
+
+The data for testing can be downloaded by the freqtrade trading bot download-data command. It will create a json that can be read by the script and produces a dataframe with ohlcv and indicator columns values that you can check against the tradingview pinescript values (if the indicator is derived from that). 
+
+Downloading data can be done with this command:
+
+```
+freqtrade download-data --exchange binance --pairs btc/usdt --timerange 20130101- --timeframes 1d --data-format-ohl
+cv json
+```
+
+The downloaded json should be put in the /data directory for the scripts to work correctly.
+
 ### Test all indicators in one go
 
 Use the ``test_all_indicators.py`` script to test all the indicators in the module. Be warned, this test only works after all the requirements have been installed on the (virtual) system.
@@ -341,6 +354,7 @@ Indicators that help identify the direction of market trends:
 - Double Exponential Moving Average
 - Exponential Moving Average
 - Fractal Weighted Moving Average
+- Frama Channel
 - Gaussian Channel
 - Holt Winters Moving Average
 - Hull Moving Average
