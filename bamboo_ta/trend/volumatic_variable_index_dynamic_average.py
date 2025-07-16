@@ -66,10 +66,10 @@ def volumatic_variable_index_dynamic_average(
     atr = pd.Series(index=df_copy.index, dtype=float)
     atr.iloc[0] = true_range.iloc[0] if not pd.isna(true_range.iloc[0]) else 0
     
-    alpha = 1.0 / atr_length  # Wilder's smoothing factor
+    alpha_atr = 1.0 / atr_length  # Wilder's smoothing factor
     for i in range(1, len(df_copy)):
         if pd.notna(true_range.iloc[i]):
-            atr.iloc[i] = alpha * true_range.iloc[i] + (1 - alpha) * atr.iloc[i-1]
+            atr.iloc[i] = alpha_atr * true_range.iloc[i] + (1 - alpha_atr) * atr.iloc[i-1]
         else:
             atr.iloc[i] = atr.iloc[i-1]
     
@@ -77,9 +77,9 @@ def volumatic_variable_index_dynamic_average(
     upper_band = vidya_smoothed + atr * band_distance
     lower_band = vidya_smoothed - atr * band_distance
     
-    # Detect trend direction using crossovers
-    trend_up = pd.Series(False, index=df_copy.index)
-    smoothed_value = pd.Series(np.nan, index=df_copy.index)
+    # Detect trend direction using crossovers - explicitly set dtype to bool
+    trend_up = pd.Series(False, index=df_copy.index, dtype=bool)
+    smoothed_value = pd.Series(np.nan, index=df_copy.index, dtype=float)
     
     for i in range(1, len(df_copy)):
         # Check for crossover above upper band (uptrend start)
@@ -101,8 +101,8 @@ def volumatic_variable_index_dynamic_average(
             smoothed_value.iloc[i] = upper_band.iloc[i]
     
     # Detect pivot highs and lows
-    pivot_highs = pd.Series(False, index=df_copy.index)
-    pivot_lows = pd.Series(False, index=df_copy.index)
+    pivot_highs = pd.Series(False, index=df_copy.index, dtype=bool)
+    pivot_lows = pd.Series(False, index=df_copy.index, dtype=bool)
     
     for i in range(pivot_left_bars, len(df_copy) - pivot_right_bars):
         # Check for pivot high
@@ -119,22 +119,25 @@ def volumatic_variable_index_dynamic_average(
     up_volume = np.where(df_copy['close'] > df_copy['open'], df_copy['volume'], 0)
     down_volume = np.where(df_copy['close'] < df_copy['open'], df_copy['volume'], 0)
     
-    # Calculate trend change signals
-    trend_up_prev = trend_up.shift(1).fillna(False)
+    # Calculate trend change signals - FIX: Use proper dtype and infer_objects()
+    trend_up_prev = trend_up.shift(1)
+    # Fix the FutureWarning by using infer_objects() after fillna
+    trend_up_prev = trend_up_prev.fillna(False).infer_objects(copy=False)
+    
     trend_change_up = trend_up & ~trend_up_prev
     trend_change_down = ~trend_up & trend_up_prev
     
     # Calculate cumulative volume during trends
-    cumulative_up_volume = pd.Series(0.0, index=df_copy.index)
-    cumulative_down_volume = pd.Series(0.0, index=df_copy.index)
+    cumulative_up_volume = pd.Series(0.0, index=df_copy.index, dtype=float)
+    cumulative_down_volume = pd.Series(0.0, index=df_copy.index, dtype=float)
     
-    current_up_vol = 0
-    current_down_vol = 0
+    current_up_vol = 0.0
+    current_down_vol = 0.0
     
     for i in range(1, len(df_copy)):
         if trend_change_up.iloc[i] or trend_change_down.iloc[i]:
-            current_up_vol = 0
-            current_down_vol = 0
+            current_up_vol = 0.0
+            current_down_vol = 0.0
         
         current_up_vol += up_volume[i]
         current_down_vol += down_volume[i]
@@ -148,25 +151,24 @@ def volumatic_variable_index_dynamic_average(
                                (cumulative_up_volume - cumulative_down_volume) / avg_volume * 100, 
                                0)
     
-    # Store results
-    df_copy['vidya'] = vidya_value
-    df_copy['vidya_smoothed'] = vidya_smoothed
-    df_copy['upper_band'] = upper_band
-    df_copy['lower_band'] = lower_band
-    df_copy['smoothed_value'] = smoothed_value
-    df_copy['trend_up'] = trend_up.astype(int)
-    df_copy['trend_change_up'] = trend_change_up.astype(int)
-    df_copy['trend_change_down'] = trend_change_down.astype(int)
-    df_copy['pivot_high'] = pivot_highs.astype(int)
-    df_copy['pivot_low'] = pivot_lows.astype(int)
-    df_copy['up_volume'] = cumulative_up_volume
-    df_copy['down_volume'] = cumulative_down_volume
-    df_copy['volume_delta_pct'] = volume_delta_pct
-    df_copy['atr'] = atr
+    # Store results - ensure proper data types
+    result_df = pd.DataFrame(index=df_copy.index)
+    result_df['vidya'] = vidya_value.astype(float)
+    result_df['vidya_smoothed'] = vidya_smoothed.astype(float)
+    result_df['upper_band'] = upper_band.astype(float)
+    result_df['lower_band'] = lower_band.astype(float)
+    result_df['smoothed_value'] = smoothed_value.astype(float)
+    result_df['trend_up'] = trend_up.astype(int)
+    result_df['trend_change_up'] = trend_change_up.astype(int)
+    result_df['trend_change_down'] = trend_change_down.astype(int)
+    result_df['pivot_high'] = pivot_highs.astype(int)
+    result_df['pivot_low'] = pivot_lows.astype(int)
+    result_df['up_volume'] = cumulative_up_volume.astype(float)
+    result_df['down_volume'] = cumulative_down_volume.astype(float)
+    result_df['volume_delta_pct'] = pd.Series(volume_delta_pct).astype(float)
+    result_df['atr'] = atr.astype(float)
     
-    return df_copy[['vidya', 'vidya_smoothed', 'upper_band', 'lower_band', 'smoothed_value', 
-                    'trend_up', 'trend_change_up', 'trend_change_down', 'pivot_high', 'pivot_low',
-                    'up_volume', 'down_volume', 'volume_delta_pct', 'atr']]
+    return result_df
 
 
 volumatic_variable_index_dynamic_average.__doc__ = """
