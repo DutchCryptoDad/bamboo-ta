@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Bamboo-TA is a Python library for technical analysis indicators designed for algorithmic trading. It provides a comprehensive collection of TA indicators organized into modular categories: candles, cycles, momentum, performance, statistics, trend, utility, volatility, and volume. The library is complementary to pandas-ta, ta-lib, and qtpylib.
 
+You can find more information about this project and instructions in @PROJECT_INSTRUCTIONS.md
+
 ## Architecture
 
 ### Core Structure

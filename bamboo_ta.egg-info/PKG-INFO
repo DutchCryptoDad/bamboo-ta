@@ -1,4 +1,4 @@
-Metadata-Version: 2.1
+Metadata-Version: 2.4
 Name: bamboo-ta
 Version: 0.9.8
 Summary: TA library for Pandas
@@ -13,8 +13,23 @@ Classifier: Operating System :: Unix
 Classifier: Operating System :: MacOS :: MacOS X
 Classifier: Operating System :: Microsoft :: Windows
 Description-Content-Type: text/markdown
-Provides-Extra: def
 License-File: LICENSE
+Requires-Dist: pandas
+Requires-Dist: numpy
+Provides-Extra: def
+Requires-Dist: pytest; extra == "def"
+Requires-Dist: twine; extra == "def"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: description-content-type
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: license-file
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: summary
 
 # Bamboo-TA: Technical Analysis Indicators Library
 
