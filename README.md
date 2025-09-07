@@ -26,20 +26,45 @@
 
 ## About Bamboo-TA
 
-**Bamboo-TA** is a personal library that consolidates various Technical Analysis (TA) indicators into one simple and modular package for analyzing financial market data. It is designed to help traders develop trading strategies based on candlestick data.
+**Bamboo-TA** is a comprehensive Python library that consolidates 150+ Technical Analysis (TA) indicators into one simple and modular package for analyzing financial market data. It is designed to help traders develop algorithmic trading strategies, backtest systems, and integrate with trading bots.
 
-While this library includes popular TA indicators like **MACD**, **RSI**, **SMA**, **EMA**, it also provides lesser-known indicators like **Waddah Attar Explosion** and **Bollinger Bands Trend Indicator**. Bamboo-TA is complementary to other libraries like **TA-lib**, **Pandas-ta**, and **qtpylib**, and it is not intended to replace them.
+This library includes popular TA indicators like **MACD**, **RSI**, **SMA**, **EMA**, alongside unique indicators like **Waddah Attar Explosion** and **Bollinger Bands Trend Indicator**. Bamboo-TA is designed as a modern alternative to traditional TA libraries, offering improved usability for algorithmic trading applications.
 
-If you're looking for a library to use for data analysis, backtesting, or integrating indicators into trading bots, Bamboo-TA is designed for simplicity and ease of use.
+Perfect for **Freqtrade** users, strategy developers, and anyone building automated trading systems who need reliable, self-contained technical indicators.
+
+### Why Choose Bamboo-TA?
+
+| Feature | Bamboo-TA | pandas-ta | TA-Lib | ta (bukosabino) |
+|---------|-----------|-----------|--------|-----------------|
+| **Indicators** | 150+ | 150+ | 150+ | 40+ |
+| **Self-Contained** | ✅ Each indicator is independent | ❌ Complex dependencies | ❌ C library dependency | ✅ Pure Python |
+| **Freqtrade Ready** | ✅ Optimized for trading bots | ✅ Compatible | ✅ Compatible | ✅ Compatible |
+| **Modern Design** | ✅ Clean, modular architecture | ✅ Extension-based | ❌ Legacy SWIG bindings | ✅ Simple API |
+| **Documentation** | ✅ Comprehensive per-indicator docs | ✅ Good | ✅ Extensive | ⚠️ Basic |
+| **Testing** | ✅ Built-in testing framework | ⚠️ Limited | ✅ Established | ⚠️ Basic |
+| **Installation** | ✅ Simple pip install | ✅ Simple | ❌ Complex compilation | ✅ Simple |
+
+### Key Advantages
+
+- **🔧 Self-Contained Design**: Each indicator is completely independent - no external function dependencies
+- **🚀 Trading Bot Optimized**: Built specifically for algorithmic trading with Freqtrade compatibility
+- **📚 Comprehensive Documentation**: Every indicator includes detailed usage examples and explanations
+- **🧪 Built-in Testing**: Integrated testing framework to verify indicator accuracy against TradingView
+- **🎯 Simple Integration**: Clean API designed for easy integration into existing trading systems
+- **📈 Unique Indicators**: Includes hard-to-find indicators not available in other libraries
 
 ---
 
 ## Features
 
-- **Modular Indicators**: Includes a wide range of trend, volatility, momentum, performance, volume, and other types of indicators.
-- **Complementary to Other Libraries**: Works alongside popular TA libraries such as **TA-lib** and **Pandas-ta**.
-- **Focus on Algorithmic Trading**: Useful for developing custom algorithmic trading strategies with backtesting capabilities.
-- **Personal Project**: Built and maintained for personal use but shared with the community.
+- **150+ Technical Indicators**: Complete collection across all categories - trend, volatility, momentum, volume, cycles, and more
+- **Freqtrade Integration**: Seamless integration with the popular Freqtrade trading bot framework
+- **Self-Contained Architecture**: Each indicator is fully independent with no external function dependencies
+- **Comprehensive Testing**: Built-in testing framework with TradingView validation for accuracy verification
+- **Modern Python Design**: Clean, readable code following best practices for maintainability
+- **Unique Indicators**: Access to rare indicators like Waddah Attar Explosion, QQE, and custom implementations
+- **Trading Bot Ready**: Optimized specifically for algorithmic trading applications and strategy development
+- **Easy Integration**: Simple API designed for quick integration into existing trading systems and backtesting frameworks
 
 ---
 
@@ -61,17 +86,62 @@ To install the bleeding-edge version from the GitHub repository:
 pip install -U git+https://github.com/DutchCryptoDad/bamboo-ta.git@development
 ```
 
-## Usage
+## Quick Start Guide
 
-### Importing the Library
+### Installation & Setup
 
-To start using Bamboo-TA, import the library in your Python scripts or notebooks:
+```bash
+# Install from PyPI
+pip install bamboo-ta
+
+# Or install development version
+pip install -U git+https://github.com/DutchCryptoDad/bamboo-ta.git@development
+```
+
+### Basic Usage
 
 ```python
 import bamboo_ta as bta
 import pandas as pd
-import numpy as np
+
+# Load your OHLCV data (example with JSON)
+df = pd.read_json("./data/BTC_USDT-1d.json")
+df.columns = ['date', 'open', 'high', 'low', 'close', 'volume']
+df['date'] = pd.to_datetime(df['date'], unit='ms')
+
+# Apply indicators
+df['rsi'] = bta.relative_strength_index(df, period=14)['rsi']
+df['sma_20'] = bta.simple_moving_average(df, period=20)['sma']
+
+# Multi-column indicators
+macd_result = bta.moving_average_convergence_divergence(df, fast=12, slow=26, signal=9)
+df['macd'] = macd_result['macd']
+df['macd_signal'] = macd_result['macd_signal']
+df['macd_histogram'] = macd_result['macd_histogram']
 ```
+
+### Freqtrade Integration
+
+Perfect for Freqtrade strategies:
+
+```python
+# In your Freqtrade strategy file
+import bamboo_ta as bta
+
+class MyStrategy(IStrategy):
+    def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
+        # Add Bamboo-TA indicators
+        dataframe['rsi'] = bta.relative_strength_index(dataframe, period=14)['rsi']
+        dataframe['wae'] = bta.waddah_attar_explosion(dataframe)['wae_signal']
+        
+        bb_result = bta.bollinger_bands(dataframe, period=20, std_dev=2)
+        dataframe['bb_upper'] = bb_result['upper']
+        dataframe['bb_lower'] = bb_result['lower']
+        
+        return dataframe
+```
+
+## Detailed Usage
 
 ### Preparing Data
 
