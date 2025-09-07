@@ -46,7 +46,7 @@ def relative_momentum_index(
     # Calculate the Relative Momentum Index (RMI)
     df_copy["rmi"] = np.where(
         df_copy["ema_dec"] == 0,
-        0,
+        100,  # When no decreases, RMI = 100 (maximum bullish momentum)
         100 - 100 / (1 + df_copy["ema_inc"] / df_copy["ema_dec"]),
     )
 
