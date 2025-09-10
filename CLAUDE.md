@@ -264,6 +264,116 @@ def my_indicator(df: pd.DataFrame) -> pd.DataFrame:
     return df_copy[['result_column']]
 ```
 
+## Pine Script to Python Conversion Guidelines
+
+### TradingView-Specific Calculation Behaviors
+
+When converting Pine Script indicators to Python, several TradingView-specific behaviors must be accounted for to ensure accuracy:
+
+#### 1. **Standard Deviation Calculation**
+- **Pine Script**: `ta.stdev()` uses **biased estimation** (population standard deviation)
+- **Python Default**: `pandas.rolling().std()` uses **unbiased estimation** (sample standard deviation, ddof=1)
+- **Solution**: Always use `std(ddof=0)` for Pine Script equivalence
+
+```python
+# WRONG: Default pandas (unbiased)
+stdev = df['close'].rolling(window=period).std()
+
+# CORRECT: Pine Script equivalent (biased)
+stdev = df['close'].rolling(window=period).std(ddof=0)
+```
+
+#### 2. **Floating-Point Precision**
+- **Pine Script**: Internal precision of 1e-16, but comparison operators automatically round to **9 decimal places**
+- **Python**: Full IEEE 754 floating-point precision can cause accumulating differences
+- **Solution**: Apply `round(9)` to match Pine Script's comparison behavior
+
+```python
+# Apply after critical calculations
+result = (calculation_result).round(9)
+
+# For iterative calculations (like filters)
+smooth_value = round((1 - alpha) * prev_value + alpha * current_value, 9)
+```
+
+#### 3. **Variable State Persistence (`var` vs normal variables)**
+- **Pine Script `var`**: Initialize only once on first bar, persist across all subsequent bars
+- **Pine Script normal**: Re-initialize on every bar
+- **Python**: Careful state management required for equivalent behavior
+
+```python
+# Pine Script: var smooth = na
+# Python equivalent: Initialize outside loop, maintain state
+smooth_value = None
+for i in range(len(data)):
+    if smooth_value is None:
+        smooth_value = data[i]  # Initialize once
+    else:
+        smooth_value = calculation(smooth_value, data[i])  # Persist state
+```
+
+#### 4. **Historical Referencing**
+- **Pine Script `series[n]`**: Bar-by-bar sequential execution, dynamic historical reference
+- **Python `shift(n)`**: Vectorized operation on complete dataset
+- **Solution**: Use appropriate method based on calculation complexity
+
+```python
+# Simple cases: pandas shift is fine
+lagged_value = series.shift(4)
+
+# Complex recursive cases: may need bar-by-bar processing
+for i in range(4, len(df)):
+    historical_value = series.iloc[i-4]  # Equivalent to series[4] in Pine Script
+```
+
+#### 5. **Crossover Functions**
+- **Pine Script `ta.crossover(a, b)`**: Returns true only on exact crossover bar
+- **Logic**: `a > b AND a[1] <= b[1]`
+- **Python equivalent**:
+
+```python
+def crossover(series1, series2):
+    current_over = series1 > series2
+    previous_under_or_equal = series1.shift(1) <= series2.shift(1)
+    return current_over & previous_under_or_equal
+
+def crossunder(series1, series2):
+    current_under = series1 < series2
+    previous_over_or_equal = series1.shift(1) >= series2.shift(1)
+    return current_under & previous_over_or_equal
+```
+
+#### 6. **Critical Conversion Checklist**
+
+When converting Pine Script indicators, always verify:
+
+- [ ] **Standard deviation uses `ddof=0`**
+- [ ] **Key calculations rounded to 9 decimal places**
+- [ ] **State variables properly initialized and maintained**
+- [ ] **Crossover logic matches Pine Script exactly**
+- [ ] **Historical referencing handles edge cases correctly**
+- [ ] **Recursive calculations maintain precision**
+
+#### 7. **Testing Against TradingView**
+
+For accurate validation:
+1. **Use identical data**: Export OHLCV data from TradingView for comparison
+2. **Match parameters exactly**: Ensure all periods and settings match
+3. **Check multiple timeframes**: Verify accuracy across different time periods
+4. **Test edge cases**: Verify behavior with insufficient data, extreme values
+
+#### 8. **Common Precision Issues**
+
+**Symptoms of precision problems**:
+- Values close but not identical to TradingView
+- Increasing divergence over time (accumulating errors)
+- Signal timing off by 1-2 bars
+
+**Solutions**:
+- Apply precision rounding at each calculation step
+- Use biased standard deviation
+- Verify `var` variable behavior matches Pine Script exactly
+
 ## Dependencies
 - pandas >= 2.2.3
 - numpy >= 1.26.4  

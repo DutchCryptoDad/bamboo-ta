@@ -51,6 +51,7 @@ from .td_sequential import td_sequential
 from .triple_exponential_average import triple_exponential_average
 from .true_strength_index import true_strength_index
 from .ttm_squeeze import ttm_squeeze
+from .two_pole_oscillator import two_pole_oscillator
 from .ultimate_oscillator import ultimate_oscillator
 from .waddah_attar_explosion import waddah_attar_explosion
 from .waddah_attar_explosion_atr import waddah_attar_explosion_atr
